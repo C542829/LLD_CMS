@@ -1,0 +1,23 @@
+//引入清除默认样式
+@import './reset.scss';
+@import './global.scss';
+
+//滚动条外观设置
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: $base-bg;
+}
+
+::-webkit-scrollbar-thumb {
+  width: 10px;
+  background-color: $base-bg;
+  border-radius: 10px;
+}
+
+body {
+  background-color: $base-bg;
+  overflow: hidden;
+}
