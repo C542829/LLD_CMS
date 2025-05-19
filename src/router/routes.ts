@@ -23,6 +23,18 @@ export const constantRoute = [
       icon: 'DocumentDelete',
     },
   },
+
+  // 通用组件使用样例
+  {
+    path: '/samples',
+    component: () => import('@/components/UseSamples.vue'),
+    name: 'Samples',
+    meta: {
+      title: 'Samples',
+      hidden: true,
+      icon: 'DocumentDelete',
+    },
+  },
 ];
 
 // 异步路由

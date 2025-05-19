@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <ChildNav :navList="navList" />
-  </div>
+  <ChildNav :navList="navList" />
 </template>
 
 <script setup lang="ts">

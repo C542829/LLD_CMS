@@ -2,10 +2,29 @@
 import SvgIcon from './SvgIcon/index.vue';
 import Pagination from './Pagination/index.vue';
 import Category from './Category/index.vue';
+import Dialog from './Dialog/index.vue';
+import Drawer from './Drawer/index.vue';
+import Table from './Table/index.vue';
+import Form from './Form/index.vue';
+import Card from './Card/index.vue';
+import Message from './Message';
+import Notification from './Notification';
+
 //引入element-plus提供全部图标组件
 import * as ElementPlusIconsVue from '@element-plus/icons-vue';
+
 //全局对象
-const allGlobalComponent: any = { SvgIcon, Pagination, Category };
+const allGlobalComponent: any = {
+  SvgIcon,
+  Pagination,
+  Category,
+  Dialog,
+  Drawer,
+  Table,
+  Form,
+  Card,
+};
+
 //对外暴露插件对象
 export default {
   //务必叫做install方法
@@ -15,9 +34,16 @@ export default {
       //注册为全局组件
       app.component(key, allGlobalComponent[key]);
     });
+
     //将element-plus提供图标注册为全局组件
     for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
       app.component(key, component);
     }
+
+    //添加全局属性
+    app.config.globalProperties.$message = Message;
+    app.config.globalProperties.$notification = Notification;
+    app.provide('$message', Message);
+    app.provide('$notification', Notification);
   },
 };

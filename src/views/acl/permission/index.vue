@@ -3,7 +3,9 @@
     :data="PermisstionArr"
     style="width: 100%; margin-bottom: 20px"
     row-key="id"
-    border
+    :border="true"
+    default-expand-all
+    :touch-config="{ passive: true }"
   >
     <el-table-column label="名称" prop="name"></el-table-column>
     <el-table-column label="权限值" prop="code"></el-table-column>
@@ -11,12 +13,7 @@
     <el-table-column label="操作">
       <!-- row:即为已有的菜单对象|按钮的对象的数据 -->
       <template #="{ row, $index }">
-        <el-button
-          type="primary"
-          @click="addPermisstion(row)"
-          size="small"
-          :disabled="row.level == 4 ? true : false"
-        >
+        <el-button type="primary" @click="addPermisstion(row)" size="small" :disabled="row.level == 4 ? true : false">
           {{ row.level == 3 ? '添加功能' : '添加菜单' }}
         </el-button>
         <el-button
@@ -27,42 +24,23 @@
         >
           编辑
         </el-button>
-        <el-popconfirm
-          :title="`你确定要删除${row.name}?`"
-          width="260px"
-          @confirm="removeMenu(row.id)"
-        >
+        <el-popconfirm :title="`你确定要删除${row.name}?`" width="260px" @confirm="removeMenu(row.id)">
           <template #reference>
-            <el-button
-              type="primary"
-              size="small"
-              :disabled="row.level == 1 ? true : false"
-            >
-              删除
-            </el-button>
+            <el-button type="primary" size="small" :disabled="row.level == 1 ? true : false">删除</el-button>
           </template>
         </el-popconfirm>
       </template>
     </el-table-column>
   </el-table>
   <!-- 对话框组件:添加或者更新已有的菜单的数据结构 -->
-  <el-dialog
-    v-model="dialogVisible"
-    :title="menuData.id ? '更新菜单' : '添加菜单'"
-  >
+  <el-dialog v-model="dialogVisible" :title="menuData.id ? '更新菜单' : '添加菜单'">
     <!-- 表单组件:收集新增与已有的菜单的数据 -->
     <el-form>
       <el-form-item label="名称">
-        <el-input
-          placeholder="请你输入菜单名称"
-          v-model="menuData.name"
-        ></el-input>
+        <el-input placeholder="请你输入菜单名称" v-model="menuData.name"></el-input>
       </el-form-item>
       <el-form-item label="权限">
-        <el-input
-          placeholder="请你输入权限数值"
-          v-model="menuData.code"
-        ></el-input>
+        <el-input placeholder="请你输入权限数值" v-model="menuData.code"></el-input>
       </el-form-item>
     </el-form>
     <template #footer>
@@ -77,18 +55,9 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive } from 'vue';
 //引入获取菜单请求API
-import {
-  reqAllPermisstion,
-  reqAddOrUpdateMenu,
-  reqRemoveMenu,
-} from '@/api/acl/menu';
+import { reqAllPermisstion, reqAddOrUpdateMenu, reqRemoveMenu } from '@/api/acl/menu';
 //引入ts类型
-import type {
-  MenuParams,
-  PermisstionResponseData,
-  PermisstionList,
-  Permisstion,
-} from '@/api/acl/menu/type';
+import type { MenuParams, PermisstionResponseData, PermisstionList, Permisstion } from '@/api/acl/menu/type';
 import { ElMessage } from 'element-plus';
 //存储菜单的数据
 let PermisstionArr = ref<PermisstionList>([]);
