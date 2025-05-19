@@ -19,6 +19,7 @@
     "build:pro": "vue-tsc && vite build --mode production"
   },
   "dependencies": {
+    "@cell-x/el-table-sticky": "^1.0.4",
     "@element-plus/icons-vue": "^2.1.0",
     "axios": "^1.3.5",
     "echarts": "^5.4.2",

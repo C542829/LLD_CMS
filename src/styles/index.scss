@@ -1,4 +1,5 @@
 //引入清除默认样式
+@import './variable.scss';
 @import './reset.scss';
 @import './global.scss';
 
@@ -19,5 +20,4 @@
 
 body {
   background-color: $base-bg;
-  overflow: hidden;
 }

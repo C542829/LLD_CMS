@@ -1,7 +1,144 @@
 <template>
-  <div>人员列表</div>
+  <div class="list-container">
+    <Card class="operation-card">
+      <div class="header-container">
+        <el-button type="primary" @click="showDrawer(0)" class="add-button">添加人员</el-button>
+      </div>
+      <div class="search-container">
+        <div class="search-item">
+          <label for="staffStatus" class="search-label">人员在职状态&nbsp;</label>
+          <el-select v-model="value" id="staffStatus" style="width: 120px" placeholder="Select">
+            <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+        </div>
+        <div class="search-item">
+          <el-input v-model="input3" :prefix-icon="Search" placeholder="姓名|登录名" class="search-input">
+            <template #append>
+              <el-button class="el-button--primary search-btn">搜索</el-button>
+            </template>
+          </el-input>
+        </div>
+      </div>
+    </Card>
+    <Card class="table-card">
+      <Table
+        :data="tableData"
+        :border="true"
+        :stripe="true"
+        :pagination="false"
+        :total="100"
+        @page-change="handlePageChange"
+        @size-change="handleSizeChange"
+      >
+        <el-table-column prop="name" label="姓名" min-width="80" />
+        <el-table-column prop="sex" label="性别" min-width="60" />
+        <el-table-column prop="phone" label="手机号" min-width="120" />
+        <el-table-column prop="number" label="编号" min-width="60" />
+        <el-table-column prop="department" label="部门" min-width="70" />
+        <el-table-column prop="position" label="职位" min-width="70" />
+        <el-table-column prop="date" label="入职时间" min-width="110" />
+        <el-table-column prop="status" label="在职状态" min-width="90" />
+        <el-table-column label="操作" min-width="150">
+          <template #default="scope">
+            <div class="operation-buttons">
+              <el-button size="small" type="info" @click="handleEdit(scope.row, 1)">更多</el-button>
+              <el-button size="small" type="primary" @click="handleEdit(scope.row, 2)">编辑</el-button>
+            </div>
+          </template>
+        </el-table-column>
+      </Table>
+    </Card>
+  </div>
+  <Drawer v-model="drawerVisible" :title="drawerTitle" @close="handleDrawerClose">
+    <div style="padding: 20px">抽屉内容</div>
+    <template #footer>
+      <div style="text-align: right">
+        <el-button @click="drawerVisible = false">取消</el-button>
+        <el-button type="primary" @click="drawerVisible = false">确定</el-button>
+      </div>
+    </template>
+  </Drawer>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { Search } from '@element-plus/icons-vue';
 
-<style scoped lang="scss"></style>
+import { ref } from 'vue';
+const drawerTitles = ['新增人员信息', '人员信息', '修改人员信息'];
+const drawerTitle = ref(drawerTitles[0]);
+const value = ref('Option2');
+
+// select选择器
+const options = [
+  {
+    value: 'Option1',
+    label: '全部状态',
+  },
+  {
+    value: 'Option2',
+    label: '在职',
+  },
+  {
+    value: 'Option3',
+    label: '已离职',
+  },
+  {
+    value: 'Option4',
+    label: '试用期',
+  },
+  {
+    value: 'Option5',
+    label: '停薪留职',
+  },
+];
+
+const input3 = ref('');
+
+const drawerVisible = ref(false);
+const showDrawer = (titleIndex: number) => {
+  drawerTitle.value = drawerTitles[titleIndex];
+  drawerVisible.value = !drawerVisible.value;
+};
+const handleDrawerClose = () => {
+  console.log('抽屉关闭事件触发');
+};
+const tableData = ref(
+  new Array(30).fill({
+    name: '李园园',
+    sex: '女',
+    phone: '15932440095',
+    number: '2',
+    department: '技师部',
+    position: '采耳师',
+    date: '2023-09-04',
+    status: '在职',
+  }),
+);
+
+// #region
+const handleEdit = (row: any, titleIndex: number) => {
+  showDrawer(titleIndex);
+  console.log('编辑行:', row);
+};
+
+const handleDelete = (row: any) => {
+  console.log('删除行:', row);
+};
+
+const handlePageChange = (page: number) => {
+  console.log('页码变化:', page);
+};
+
+const handleSizeChange = (size: number) => {
+  console.log('每页条数变化:', size);
+};
+//#endregion
+</script>
+
+<style scoped lang="scss">
+/* 操作按钮布局 */
+.operation-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+</style>

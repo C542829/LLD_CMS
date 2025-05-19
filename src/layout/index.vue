@@ -1,7 +1,7 @@
 <template>
   <div class="layout_container">
     <!-- 左侧菜单 -->
-    <div class="layout_slider">
+    <div class="layout_slider" :class="{ fold: LayOutSettingStore.fold ? true : false }">
       <Logo></Logo>
       <!-- 展示菜单 -->
       <!-- 滚动组件 -->
@@ -18,20 +18,16 @@
         </el-menu>
       </el-scrollbar>
     </div>
-    <!-- 顶部导航 -->
-    <div
-      class="layout_tabbar"
-      :class="{ fold: LayOutSettingStore.fold ? true : false }"
-    >
-      <!-- layout组件的顶部导航tabbar -->
-      <Tabbar></Tabbar>
-    </div>
-    <!-- 内容展示区域 -->
-    <div
-      class="layout_main"
-      :class="{ fold: LayOutSettingStore.fold ? true : false }"
-    >
-      <Main></Main>
+    <div class="layout_right">
+      <!-- 顶部导航 -->
+      <div class="layout_tabbar" :class="{ fold: LayOutSettingStore.fold ? true : false }">
+        <!-- layout组件的顶部导航tabbar -->
+        <Tabbar></Tabbar>
+      </div>
+      <!-- 内容展示区域 -->
+      <div class="layout_main" :class="{ fold: LayOutSettingStore.fold ? true : false }">
+        <Main></Main>
+      </div>
     </div>
   </div>
 </template>
@@ -69,50 +65,59 @@ export default {
 .layout_container {
   width: 100%;
   height: 100vh;
+  display: flex;
 
+  // 左侧菜单
   .layout_slider {
     color: white;
     display: inline-block;
     height: 100vh;
+    width: $base-menu-width;
     background: $base-menu-bg;
     transition: all 0.3s;
-
+    &.fold {
+      width: $base-menu-min-width;
+    }
     .scrollbar {
       width: 100%;
       height: calc(100vh - $base-menu-logo-height);
 
       .el-menu {
+        height: calc(100vh - $base-menu-logo-height);
         border-right: none;
       }
     }
   }
 
-  .layout_tabbar {
-    position: fixed;
-    width: calc(100% - $base-menu-width);
-    height: $base-tabbar-height;
-    top: 0px;
-    left: $base-menu-width;
-    transition: all 0.3s;
-    &.fold {
-      width: calc(100vw - $base-menu-min-width);
-      left: $base-menu-min-width;
+  // 右侧主题内容
+  .layout_right {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    // 顶部header
+    .layout_tabbar {
+      width: calc(100vw - $base-menu-width);
+      height: $base-tabbar-height;
+      transition: all 0.3s;
+      &.fold {
+        width: calc(100vw - $base-menu-min-width);
+        left: $base-menu-min-width;
+      }
     }
-  }
 
-  .layout_main {
-    position: absolute;
-    width: calc(100% - $base-menu-width);
-    height: calc(100vh - $base-tabbar-height);
-    left: $base-menu-width;
-    top: $base-tabbar-height;
-    padding: 20px;
-    overflow: auto;
-    transition: all 0.3s;
+    // 主体内容
+    .layout_main {
+      width: calc(100vw - $base-menu-width);
+      height: calc(100vh - $base-tabbar-height);
+      padding: $main-padding;
+      overflow: auto;
+      transition: all 0.3s;
 
-    &.fold {
-      width: calc(100vw - $base-menu-min-width);
-      left: $base-menu-min-width;
+      &.fold {
+        width: calc(100vw - $base-menu-min-width);
+        left: $base-menu-min-width;
+      }
     }
   }
 }

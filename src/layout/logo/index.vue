@@ -1,8 +1,8 @@
 <template>
-  <div class="logo" v-if="setting.logoHidden">
+  <div class="logo">
     <!-- 设置logo -->
     <img :src="setting.logo" alt="" />
-    <p v-show="!layOutSettingStore.fold">{{ setting.title }}</p>
+    <p v-show="!layOutSettingStore.fold">{{ logoTitle }}</p>
   </div>
 </template>
 
@@ -10,8 +10,19 @@
 //引入设置标题与logo这配置文件
 import setting from '@/setting';
 import useLayOutSettingStore from '@/store/modules/setting';
-
+import { watch, ref } from 'vue';
 let layOutSettingStore = useLayOutSettingStore();
+const logoTitle = ref(setting.title);
+watch(
+  () => layOutSettingStore.fold,
+  (newVal, oldVal) => {
+    if (newVal) {
+      logoTitle.value = '';
+    } else {
+      setTimeout(() => (logoTitle.value = setting.title), 300);
+    }
+  },
+);
 </script>
 <script lang="ts">
 export default {
@@ -27,12 +38,24 @@ export default {
   align-items: center;
   padding: 10px;
   img {
-    width: 40px;
-    height: 40px;
+    width: 35px;
+    height: 35px;
   }
   p {
     font-size: $base-logo-title-fontSize;
     margin-left: 10px;
   }
+}
+
+.fade-enter-from {
+  opacity: 0;
+}
+
+.fade-enter-active {
+  transition: all 0.3s;
+}
+
+.fade-enter-to {
+  opacity: 1;
 }
 </style>

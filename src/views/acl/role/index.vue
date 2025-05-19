@@ -2,77 +2,30 @@
   <el-card>
     <el-form :inline="true" class="form">
       <el-form-item label="职位搜索">
-        <el-input
-          placeholder="请你输入搜索职位关键字"
-          v-model="keyword"
-        ></el-input>
+        <el-input placeholder="请你输入搜索职位关键字" v-model="keyword"></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button
-          type="primary"
-          size="default"
-          :disabled="keyword ? false : true"
-          @click="search"
-        >
-          搜索
-        </el-button>
+        <el-button type="primary" size="default" :disabled="keyword ? false : true" @click="search">搜索</el-button>
         <el-button type="primary" size="default" @click="reset">重置</el-button>
       </el-form-item>
     </el-form>
   </el-card>
   <el-card style="margin: 10px 0px">
-    <el-button type="primary" size="default" icon="Plus" @click="addRole">
-      添加职位
-    </el-button>
-    <el-table border style="margin: 10px 0px" :data="allRole">
-      <el-table-column type="index" align="center" label="#"></el-table-column>
-      <el-table-column label="ID" align="center" prop="id"></el-table-column>
-      <el-table-column
-        label="职位名称"
-        align="center"
-        prop="roleName"
-        show-overflow-tooltip
-      ></el-table-column>
-      <el-table-column
-        label="创建世间"
-        align="center"
-        show-overflow-tooltip
-        prop="createTime"
-      ></el-table-column>
-      <el-table-column
-        label="更新时间"
-        align="center"
-        show-overflow-tooltip
-        prop="updateTime"
-      ></el-table-column>
-      <el-table-column label="操作" width="280px" align="center">
+    <el-button type="primary" size="default" icon="Plus" @click="addRole">添加职位</el-button>
+    <el-table :border="true" style="margin: 10px 0px" :data="allRole" :touch-config="{ passive: true }">
+      <el-table-column type="index" :align="'center'" label="#"></el-table-column>
+      <el-table-column label="ID" :align="'center'" prop="id"></el-table-column>
+      <el-table-column label="职位名称" :align="'center'" prop="roleName" show-overflow-tooltip></el-table-column>
+      <el-table-column label="创建世间" :align="'center'" show-overflow-tooltip prop="createTime"></el-table-column>
+      <el-table-column label="更新时间" :align="'center'" show-overflow-tooltip prop="updateTime"></el-table-column>
+      <el-table-column label="操作" width="280px" :align="'center'">
         <!-- row:已有的职位对象 -->
         <template #="{ row, $index }">
-          <el-button
-            type="primary"
-            size="small"
-            icon="User"
-            @click="setPermisstion(row)"
-          >
-            分配权限
-          </el-button>
-          <el-button
-            type="primary"
-            size="small"
-            icon="Edit"
-            @click="updateRole(row)"
-          >
-            编辑
-          </el-button>
-          <el-popconfirm
-            :title="`你确定要删除${row.roleName}?`"
-            width="260px"
-            @confirm="removeRole(row.id)"
-          >
+          <el-button type="primary" size="small" icon="User" @click="setPermisstion(row)">分配权限</el-button>
+          <el-button type="primary" size="small" icon="Edit" @click="updateRole(row)">编辑</el-button>
+          <el-popconfirm :title="`你确定要删除${row.roleName}?`" width="260px" @confirm="removeRole(row.id)">
             <template #reference>
-              <el-button type="primary" size="small" icon="Delete">
-                删除
-              </el-button>
+              <el-button type="primary" size="small" icon="Delete">删除</el-button>
             </template>
           </el-popconfirm>
         </template>
@@ -90,22 +43,14 @@
     />
   </el-card>
   <!-- 添加职位与更新已有职位的结构:对话框 -->
-  <el-dialog
-    v-model="dialogVisite"
-    :title="RoleParams.id ? '更新职位' : '添加职位'"
-  >
+  <el-dialog v-model="dialogVisite" :title="RoleParams.id ? '更新职位' : '添加职位'">
     <el-form :model="RoleParams" :rules="rules" ref="form">
       <el-form-item label="职位名称" prop="roleName">
-        <el-input
-          placeholder="请你输入职位名称"
-          v-model="RoleParams.roleName"
-        ></el-input>
+        <el-input placeholder="请你输入职位名称" v-model="RoleParams.roleName"></el-input>
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button type="primary" size="default" @click="dialogVisite = false">
-        取消
-      </el-button>
+      <el-button type="primary" size="default" @click="dialogVisite = false">取消</el-button>
       <el-button type="primary" size="default" @click="save">确定</el-button>
     </template>
   </el-dialog>
@@ -138,20 +83,8 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive, nextTick } from 'vue';
 //请求方法
-import {
-  reqRemoveRole,
-  reqAllRoleList,
-  reqAddOrUpdateRole,
-  reqAllMenuList,
-  reqSetPermisstion,
-} from '@/api/acl/role';
-import type {
-  RoleResponseData,
-  Records,
-  RoleData,
-  MenuResponseData,
-  MenuList,
-} from '@/api/acl/role/type';
+import { reqRemoveRole, reqAllRoleList, reqAddOrUpdateRole, reqAllMenuList, reqSetPermisstion } from '@/api/acl/role';
+import type { RoleResponseData, Records, RoleData, MenuResponseData, MenuList } from '@/api/acl/role/type';
 //引入骨架的仓库
 import useLayOutSettingStore from '@/store/modules/setting';
 import { ElMessage } from 'element-plus';
@@ -191,11 +124,7 @@ onMounted(() => {
 const getHasRole = async (pager = 1) => {
   //修改当前页码
   pageNo.value = pager;
-  let result: RoleResponseData = await reqAllRoleList(
-    pageNo.value,
-    pageSize.value,
-    keyword.value,
-  );
+  let result: RoleResponseData = await reqAllRoleList(pageNo.value, pageSize.value, keyword.value);
   if (result.code == 200) {
     total.value = result.data.total;
     allRole.value = result.data.records;
@@ -213,7 +142,7 @@ const search = () => {
 };
 //重置按钮的回调
 const reset = () => {
-  settingStore.refsh = !settingStore.refsh;
+  settingStore.refresh = !settingStore.refresh;
 };
 //添加职位按钮的回调
 const addRole = () => {
