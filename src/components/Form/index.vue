@@ -20,10 +20,10 @@
       <slot></slot>
 
       <!-- 表单操作按钮 -->
-      <el-form-item v-if="props.showButtons">
+      <el-form-item v-if="props.showButtons" label="&nbsp;">
+        <slot name="buttons"></slot>
         <el-button type="primary" @click="submitForm">{{ props.submitText }}</el-button>
         <el-button @click="resetForm">{{ props.resetText }}</el-button>
-        <slot name="buttons"></slot>
       </el-form-item>
     </el-form>
   </div>

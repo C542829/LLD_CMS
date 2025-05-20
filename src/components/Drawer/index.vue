@@ -1,6 +1,7 @@
 <template>
   <div class="custom-drawer">
     <el-drawer
+      style="min-width: 400px"
       v-model="visible"
       :title="props.title"
       :size="props.size"
