@@ -1,9 +1,9 @@
 <template>
-  <div>
+  <div ref="tableParent">
     <el-table
       v-sticky-header
+      :height="props.height"
       :data="props.data"
-      :height="tableHeight"
       :max-height="props.maxHeight"
       :stripe="props.stripe"
       :border="props.border"
@@ -70,7 +70,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, withDefaults } from 'vue';
+import { ref, withDefaults, onMounted } from 'vue';
 
 // 定义事件
 const $emit = defineEmits([
@@ -139,7 +139,7 @@ const props = withDefaults(
   }>(),
   {
     data: () => [],
-    height: window.innerHeight - 324,
+    height: '100%',
     maxHeight: 'auto',
     stripe: false,
     border: true,
@@ -158,16 +158,6 @@ const props = withDefaults(
     tableLayout: 'fixed',
   },
 );
-
-// #region 动态修改表格元素的高度
-// @ts-ignore
-import { debounce } from 'lodash';
-const tableHeight = ref(props.data.length == 0 ? 'auto' : props.height);
-const resizeHandler = debounce(() => {
-  tableHeight.value = props.data.length == 0 ? 'auto' : props.height;
-}, 100);
-window.addEventListener('resize', resizeHandler);
-// #endregion
 
 // #region 表格事件处理函数
 const handleSelect = (selection: any[], row: any) => {

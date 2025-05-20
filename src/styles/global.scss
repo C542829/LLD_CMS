@@ -36,5 +36,9 @@
 .table-card {
   width: 100%;
   overflow: auto;
-  height: calc(100vh - 1px - $base-child-nav-height - $base-tabbar-height - $operation-card-height - $main-padding * 5);
+  $parent-height: calc(1px + $base-child-nav-height + $base-tabbar-height + $operation-card-height + $main-padding * 5);
+  height: calc(100vh - $parent-height);
+  > div {
+    height: calc(100vh - $parent-height);
+  }
 }
