@@ -1,6 +1,6 @@
 <template>
   <div class="test-container">
-    <h2>组件测试页面</h2>
+    <h2>通用组件使用示例</h2>
 
     <!-- 时间选择器 -->
     <section class="component-section">
@@ -107,12 +107,6 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-// import DatePicker from './DatePicker/index.vue';
-// import Drawer from './Drawer/index.vue';
-// import Dialog from './Dialog/index.vue';
-// import Table from './Table/index.vue';
-// import Pagination from './Pagination/index.vue';
-// import Form from './Form/index.vue';
 
 // 引入 Message 和 Notification
 import { inject } from 'vue';
