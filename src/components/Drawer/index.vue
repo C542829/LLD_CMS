@@ -46,8 +46,8 @@ const props = withDefaults(
     customClass?: string;
   }>(),
   {
-    title: '',
-    size: '40%',
+    title: '信息',
+    size: '30%',
     direction: 'rtl',
     withHeader: true,
     destroyOnClose: false,

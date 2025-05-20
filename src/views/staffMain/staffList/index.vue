@@ -29,6 +29,7 @@
         :total="100"
         @page-change="handlePageChange"
         @size-change="handleSizeChange"
+        class="table-main"
       >
         <el-table-column prop="name" label="姓名" min-width="80" />
         <el-table-column prop="sex" label="性别" min-width="60" />
@@ -38,11 +39,11 @@
         <el-table-column prop="position" label="职位" min-width="70" />
         <el-table-column prop="date" label="入职时间" min-width="110" />
         <el-table-column prop="status" label="在职状态" min-width="90" />
-        <el-table-column label="操作" min-width="150">
+        <el-table-column label="操作" min-width="120">
           <template #default="scope">
-            <div class="operation-buttons">
-              <el-button size="small" type="info" @click="handleEdit(scope.row, 1)">更多</el-button>
-              <el-button size="small" type="primary" @click="handleEdit(scope.row, 2)">编辑</el-button>
+            <div class="operation-bths">
+              <el-link type="primary" @click="handleEdit(scope.row, 1)">更多</el-link>
+              <el-link type="success" @click="handleEdit(scope.row, 2)">编辑</el-link>
             </div>
           </template>
         </el-table-column>
@@ -62,10 +63,8 @@
 
 <script setup lang="ts">
 import { Search } from '@element-plus/icons-vue';
-
 import { ref } from 'vue';
-const drawerTitles = ['新增人员信息', '人员信息', '修改人员信息'];
-const drawerTitle = ref(drawerTitles[0]);
+
 const value = ref('Option2');
 
 // select选择器
@@ -94,14 +93,6 @@ const options = [
 
 const input3 = ref('');
 
-const drawerVisible = ref(false);
-const showDrawer = (titleIndex: number) => {
-  drawerTitle.value = drawerTitles[titleIndex];
-  drawerVisible.value = !drawerVisible.value;
-};
-const handleDrawerClose = () => {
-  console.log('抽屉关闭事件触发');
-};
 const tableData = ref(
   new Array(30).fill({
     name: '李园园',
@@ -115,7 +106,7 @@ const tableData = ref(
   }),
 );
 
-// #region
+// #region 表格事件
 const handleEdit = (row: any, titleIndex: number) => {
   showDrawer(titleIndex);
   console.log('编辑行:', row);
@@ -133,12 +124,29 @@ const handleSizeChange = (size: number) => {
   console.log('每页条数变化:', size);
 };
 //#endregion
+
+// #region 抽屉
+const drawerTitles = ['新增人员信息', '人员信息', '修改人员信息'];
+const drawerTitle = ref(drawerTitles[0]);
+const drawerVisible = ref(false);
+const showDrawer = (titleIndex: number) => {
+  drawerTitle.value = drawerTitles[titleIndex];
+  drawerVisible.value = !drawerVisible.value;
+};
+const handleDrawerClose = () => {
+  console.log('抽屉关闭事件触发');
+};
+// #endregion
 </script>
 
 <style scoped lang="scss">
+.table-main {
+  height: 100%;
+}
+
 /* 操作按钮布局 */
-.operation-buttons {
+.operation-bths {
   display: flex;
-  gap: 0.5rem;
+  gap: $main-padding;
 }
 </style>
