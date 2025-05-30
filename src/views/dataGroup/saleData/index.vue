@@ -10,9 +10,7 @@ import SaleDetail from './saleDetail/index.vue';
 
 import { ref, markRaw } from 'vue';
 
-const navList = ref([
-  { label: '销售明细', icon: '', component: markRaw(SaleDetail) },
-]);
+const navList = ref([{ label: '销售明细', icon: '', component: markRaw(SaleDetail) }]);
 </script>
 
 <style scoped lang="scss"></style>

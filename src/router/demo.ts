@@ -511,8 +511,7 @@
         moduleId: 10,
         funcName: '会员卡充值冲正',
         displaySn: 6,
-        toolTip:
-          '会员卡充值冲正的操作权限(要勾选本权限【会员卡充值记录的查询】必须选择)',
+        toolTip: '会员卡充值冲正的操作权限(要勾选本权限【会员卡充值记录的查询】必须选择)',
         devName: '会员卡充值-充值记录',
         orgFuncType: 1111111,
         cliType: 1,
