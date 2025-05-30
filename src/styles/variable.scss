@@ -1,6 +1,9 @@
+// 引入element-plus的全局主题变量
+@import "element-plus/theme-chalk/src/common/var.scss";
+
 //项目提供scss全局变量
 //定义项目主题颜色
-$theme-color: #409eff;
+$theme-color: $color-primary;
 
 // 主背景色
 $base-bg: #e9edfe;
@@ -20,7 +23,7 @@ $base-header-color: #e2e1e4;
 $base-menu-width: 180px;
 //左侧菜单的背景颜色
 $base-menu-bg: #001529;
-$base-menu-min-width: 50px;
+$base-menu-min-width: 60px;
 
 // 顶部导航的高度
 $base-tabbar-height: 50px;

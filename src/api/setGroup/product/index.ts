@@ -7,10 +7,11 @@ enum API {
   UPDATE_URL = '/server/product/update-product',
 }
 
-export const reqProductList = () => request.get<any, any>(API.LIST_URL);
-export const reqAddProduct = (data: Attr) => request.post<any, any>(API.ADD_URL, data);
+export const reqProductList = (data: any) => request.get<any, any>(API.LIST_URL + data);
 
-export const reqUpdateProduct = (data: Attr) => request.post<any, any>(API.UPDATE_URL, data);
+export const reqAddProduct = (data: any) => request.post<any, any>(API.ADD_URL, data);
+
+export const reqUpdateProduct = (data: any) => request.post<any, any>(API.UPDATE_URL, data);
 
 // {
 //     "id": 1,

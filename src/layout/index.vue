@@ -75,6 +75,7 @@ export default {
     width: $base-menu-width;
     background: $base-menu-bg;
     transition: all 0.3s;
+    z-index: 100;
     &.fold {
       width: $base-menu-min-width;
     }
@@ -102,7 +103,6 @@ export default {
       transition: all 0.3s;
       &.fold {
         width: calc(100vw - $base-menu-min-width);
-        left: $base-menu-min-width;
       }
     }
 
@@ -111,12 +111,11 @@ export default {
       width: calc(100vw - $base-menu-width);
       height: calc(100vh - $base-tabbar-height);
       padding: $main-padding;
-      overflow: auto;
       transition: all 0.3s;
+      z-index: 1;
 
       &.fold {
         width: calc(100vw - $base-menu-min-width);
-        left: $base-menu-min-width;
       }
     }
   }

@@ -53,10 +53,10 @@ export default {
 
 .main_content {
   width: 100%;
-  height: calc(100vh - $base-tabbar-height - $main-padding * 2);
-  overflow: hidden;
+  height: 100%;
   box-sizing: border-box;
   border-radius: 6px;
+  overflow: auto;
   background-color: $base-main-bg;
 }
 </style>
