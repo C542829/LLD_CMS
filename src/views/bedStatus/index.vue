@@ -10,11 +10,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 
 const bedList: any = ref([]);
-bedList.value = new Array(20).fill(0).map((item, index) => ({ benName: `卡${index}`, status: true }));
-console.log(bedList.value);
+
+onMounted(() => {
+  bedList.value = new Array(20).fill(0).map((item, index) => ({ benName: `卡${index}`, status: true }));
+});
 </script>
 
 <style scoped lang="scss">

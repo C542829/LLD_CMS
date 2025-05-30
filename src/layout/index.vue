@@ -33,6 +33,9 @@
 </template>
 
 <script setup lang="ts">
+// @ts-ignore 引入 debounce
+import { debounce } from 'lodash';
+import { ref, onMounted } from 'vue';
 //获取路由对象
 import { useRoute } from 'vue-router';
 //引入左侧菜单logo子组件
@@ -54,6 +57,24 @@ let LayOutSettingStore = useLayOutSettingStore();
 
 //获取路由对象
 let $route = useRoute();
+
+// 监听窗口大小变化
+const windowWidth = ref(window.innerWidth);
+const handleResize = debounce(() => {
+  windowWidth.value = window.innerWidth;
+
+  // 当窗口小于1024px时，自动折叠菜单
+  if (windowWidth.value <= 1024) {
+    LayOutSettingStore.fold = true;
+  } else {
+    LayOutSettingStore.fold = false;
+  }
+}, 300);
+onMounted(() => {
+  // 监听窗口大小变化
+  window.addEventListener('resize', handleResize);
+  handleResize();
+});
 </script>
 
 <script lang="ts">
