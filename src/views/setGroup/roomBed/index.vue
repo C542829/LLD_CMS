@@ -9,17 +9,7 @@
           <div class="search-item">
             <el-input v-model="searchWord" :prefix-icon="Search" placeholder="搜索房间名称" class="search-input">
               <template #append>
-                <el-button
-                  type="primary"
-                  style="
-                    background-color: var(--el-button-bg-color);
-                    color: var(--el-button-text-color);
-                    border-radius: 0 var(--el-border-radius-base) var(--el-border-radius-base) 0;
-                  "
-                  @click="search"
-                >
-                  搜索
-                </el-button>
+                <el-button type="primary" @click="search">搜索</el-button>
               </template>
             </el-input>
           </div>
@@ -206,5 +196,9 @@ const handleDrawerClose = () => {
     display: flex;
     gap: $main-padding;
   }
+}
+
+:deep(.el-input-group__append .el-button--primary) {
+  @include primary-button;
 }
 </style>

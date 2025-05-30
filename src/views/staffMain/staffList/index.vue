@@ -1,5 +1,5 @@
 <template>
-  <div class="list-container">
+  <div class="main-container">
     <Card class="operation-card">
       <div class="header-container">
         <el-button type="primary" @click="showDrawer(0)" class="add-button">添加人员</el-button>
@@ -14,7 +14,7 @@
         <div class="search-item">
           <el-input v-model="input3" :prefix-icon="Search" placeholder="姓名|登录名" class="search-input">
             <template #append>
-              <el-button class="el-button--primary search-btn">搜索</el-button>
+              <el-button type="primary">搜索</el-button>
             </template>
           </el-input>
         </div>
@@ -42,7 +42,7 @@
         <el-table-column label="操作" min-width="120">
           <template #default="scope">
             <div class="operation-bths">
-              <el-link type="primary" @click="handleEdit(scope.row, 1)">更多</el-link>
+              <el-link type="info" @click="handleEdit(scope.row, 1)">更多</el-link>
               <el-link type="success" @click="handleEdit(scope.row, 2)">编辑</el-link>
             </div>
           </template>
@@ -164,5 +164,8 @@ const handleDrawerClose = () => {
 .operation-bths {
   display: flex;
   gap: $main-padding;
+}
+:deep(.el-input-group__append .el-button--primary) {
+  @include primary-button;
 }
 </style>

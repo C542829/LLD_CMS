@@ -1,5 +1,5 @@
 <template>
-  <div class="list-container">
+  <div class="main-container">
     <!-- 搜索组件区域 -->
     <Card class="operation-card">
       <div class="header-container">
@@ -8,14 +8,19 @@
       <div class="search-container">
         <div class="search-item">
           <label for="staffStatus" class="search-label">商品状态：</label>
-          <el-select v-model="searchParams.status" id="staffStatus" style="width: 120px" placeholder="Select">
+          <el-select v-model="searchParams.productStatus" id="staffStatus" style="width: 120px" placeholder="Select">
             <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </div>
         <div class="search-item">
-          <el-input v-model="searchParams.word" :prefix-icon="Search" placeholder="编码|产品名称" class="search-input">
+          <el-input
+            v-model="searchParams.productName"
+            :prefix-icon="Search"
+            placeholder="编码|产品名称"
+            class="search-input"
+          >
             <template #append>
-              <el-button @click="search" class="">搜索</el-button>
+              <el-button type="primary" @click="search">搜索</el-button>
             </template>
           </el-input>
         </div>
@@ -153,7 +158,7 @@
 <script setup lang="ts">
 import { Search } from '@element-plus/icons-vue';
 import { ref, onMounted } from 'vue';
-import { reqProductList } from '@/api/setGroup/product';
+import { reqProductList, reqAddProduct, reqUpdateProduct } from '@/api/setGroup/product';
 
 // #region 初始化渲染
 const tableData = ref();
@@ -162,7 +167,7 @@ const statusOptions: any = ref([]);
 const commissionOptions: any = ref([]);
 
 onMounted(() => {
-  // init();
+  // getProductList();
   tableData.value = new Array(30).fill({
     productEncode: '0003',
     productName: '肤康抑菌颗粒',
@@ -189,15 +194,15 @@ onMounted(() => {
 
   statusOptions.value = [
     {
-      value: 'Option1',
+      value: 3,
       label: '全部状态',
     },
     {
-      value: 'Option2',
+      value: 0,
       label: '启用',
     },
     {
-      value: 'Option3',
+      value: 1,
       label: '禁用',
     },
   ];
@@ -218,9 +223,8 @@ onMounted(() => {
 // #region 数据交互
 
 // 初始化
-const init = async () => {
-  const params = '?productStatus=0';
-  const res = await reqProductList(params);
+const getProductList = async () => {
+  const res = await reqProductList(searchParams.value);
   tableData.value = res.data;
 };
 
@@ -253,8 +257,8 @@ const unitManger = () => {
 
 // #region 搜索模块
 const searchParams = ref({
-  word: '',
-  status: 'Option2',
+  productName: '',
+  productStatus: 0,
 });
 
 const search = () => {
@@ -342,5 +346,9 @@ const handleDrawerClose = () => {
 .operation-bths {
   display: flex;
   gap: $main-padding;
+}
+
+:deep(.el-input-group__append .el-button--primary) {
+  @include primary-button;
 }
 </style>
