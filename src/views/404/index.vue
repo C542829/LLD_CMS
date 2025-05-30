@@ -1,11 +1,7 @@
 <template>
   <div class="error-page">
     <div class="content">
-      <img
-        src="@/assets/images/error_images/404.png"
-        alt="404 页面未找到"
-        class="error-img"
-      />
+      <img src="@/assets/images/error_images/404.png" alt="404 页面未找到" class="error-img" />
       <h1 class="error-title">
         <el-icon size="48" color="var(--el-color-danger)">
           <CircleCloseFilled />

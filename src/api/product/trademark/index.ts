@@ -16,9 +16,7 @@ enum API {
 //page:获取第几页 ---默认第一页
 //limit:获取几个已有品牌的数据
 export const reqHasTrademark = (page: number, limit: number) =>
-  request.get<any, TradeMarkResponseData>(
-    API.TRADEMARK_URL + `${page}/${limit}`,
-  );
+  request.get<any, TradeMarkResponseData>(API.TRADEMARK_URL + `${page}/${limit}`);
 //添加与修改已有品牌接口方法
 export const reqAddOrUpdateTrademark = (data: TradeMark) => {
   //修改已有品牌的数据
@@ -31,5 +29,4 @@ export const reqAddOrUpdateTrademark = (data: TradeMark) => {
 };
 
 //删除某一个已有品牌的数据
-export const reqDeleteTrademark = (id: number) =>
-  request.delete<any, any>(API.DELETE_URL + id);
+export const reqDeleteTrademark = (id: number) => request.delete<any, any>(API.DELETE_URL + id);

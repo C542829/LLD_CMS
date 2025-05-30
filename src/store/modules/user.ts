@@ -2,11 +2,7 @@
 import { defineStore } from 'pinia';
 //引入接口
 import { reqLogin, reqUserInfo, reqLogout } from '@/api/user';
-import type {
-  loginFormData,
-  loginResponseData,
-  userInfoReponseData,
-} from '@/api/user/type';
+import type { loginFormData, loginResponseData, userInfoReponseData } from '@/api/user/type';
 import type { UserState } from './types/type';
 //引入操作本地存储的工具方法
 import { SET_TOKEN, GET_TOKEN, REMOVE_TOKEN } from '@/utils/token';
@@ -35,8 +31,7 @@ const useUserStore = defineStore('User', {
       token: GET_TOKEN(), //用户唯一标识token
       menuRoutes: [...constantRoute, ...asyncRoute, anyRoute], //仓库存储生成菜单需要数组(路由)
       username: 'admin',
-      avatar:
-        'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
+      avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
       //存储当前用户是否包含某一个按钮
       buttons: [],
     };
@@ -64,10 +59,7 @@ const useUserStore = defineStore('User', {
         this.username = result.data.name;
         this.avatar = result.data.avatar;
         this.buttons = result.data.buttons;
-        const userAsyncRoute = filterAsyncRoute(
-          cloneDeep(asyncRoute),
-          result.data.routes,
-        );
+        const userAsyncRoute = filterAsyncRoute(cloneDeep(asyncRoute), result.data.routes);
         this.menuRoutes = [...constantRoute, ...userAsyncRoute, anyRoute];
 
         [...userAsyncRoute, anyRoute].forEach((route: any) => {
