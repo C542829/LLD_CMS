@@ -31,14 +31,14 @@
         @size-change="handleSizeChange"
         class="table-main"
       >
-        <el-table-column prop="name" label="姓名" min-width="80" />
-        <el-table-column prop="sex" label="性别" min-width="60" />
-        <el-table-column prop="phone" label="手机号" min-width="120" />
-        <el-table-column prop="number" label="编号" min-width="60" />
-        <el-table-column prop="department" label="部门" min-width="70" />
-        <el-table-column prop="position" label="职位" min-width="70" />
-        <el-table-column prop="date" label="入职时间" min-width="110" />
-        <el-table-column prop="status" label="在职状态" min-width="90" />
+        <el-table-column prop="userName" label="姓名" min-width="80" />
+        <el-table-column prop="userSex" label="性别" min-width="60" />
+        <el-table-column prop="userNumber" label="手机号" min-width="120" />
+        <el-table-column prop="userCode" label="编号" min-width="60" />
+        <el-table-column prop="userDept" label="部门" min-width="70" />
+        <el-table-column prop="userPosition" label="职位" min-width="70" />
+        <el-table-column prop="userBirthday" label="入职时间" min-width="110" />
+        <el-table-column prop="userStatus" label="在职状态" min-width="90" />
         <el-table-column label="操作" min-width="120">
           <template #default="scope">
             <div class="operation-bths">
@@ -63,7 +63,8 @@
 
 <script setup lang="ts">
 import { Search } from '@element-plus/icons-vue';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { reqStaffList } from '@/api/staffMain/index';
 
 const value = ref('Option2');
 
@@ -93,18 +94,33 @@ const options = [
 
 const input3 = ref('');
 
-const tableData = ref(
-  new Array(30).fill({
-    name: '李园园',
-    sex: '女',
-    phone: '15932440095',
-    number: '2',
-    department: '技师部',
-    position: '采耳师',
-    date: '2023-09-04',
-    status: '在职',
-  }),
-);
+const tableData: any = ref([]);
+
+const init = async () => {
+  const res = await reqStaffList();
+  tableData.value = res.data;
+};
+onMounted(() => {
+  // init();
+  tableData.value = new Array(30).fill({
+    id: 1,
+    userCode: 'EMP002',
+    userPassword: 'password123',
+    userName: '张三',
+    userNumber: '13800138000',
+    userPosition: '店长',
+    userSex: 1,
+    userBirthday: '2025-03-11',
+    userDept: '管理部',
+    userEntryDate: null,
+    userStatus: '在职',
+    userIdCard: '110101199001011234',
+    userAddress: '北京市朝阳区',
+    userMarry: '已婚',
+    userEdu: '本科',
+    userHealth: null,
+  });
+});
 
 // #region 表格事件
 const handleEdit = (row: any, titleIndex: number) => {

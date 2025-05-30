@@ -2,6 +2,50 @@
   <div class="test-container">
     <h2>通用组件使用示例</h2>
 
+    <!-- 卡片组件 -->
+    <section class="component-section">
+      <h3>卡片组件</h3>
+      <div class="card-examples">
+        <Card shadow="always" bgColor="#ffffff" class="card-example">
+          <template #header>
+            <div class="card-header">总是显示阴影的卡片</div>
+          </template>
+          <div>这是一个背景为白色，总是显示阴影的卡片</div>
+          <template #footer>
+            <div class="card-footer">卡片底部</div>
+          </template>
+        </Card>
+
+        <Card shadow="hover" bgColor="#f0f9eb" class="card-example">
+          <template #header>
+            <div class="card-header">鼠标悬停显示阴影的卡片</div>
+          </template>
+          <div>这是一个背景为浅绿色，鼠标悬停时显示阴影的卡片</div>
+        </Card>
+
+        <Card shadow="never" bgColor="#fef0f0" class="card-example">
+          <div>这是一个背景为浅红色，从不显示阴影的卡片（无header和footer）</div>
+        </Card>
+
+        <Card shadow="always" bgColor="#ecf5ff" shadowColor="0 4px 12px 0 rgba(64, 158, 255, 0.4)" class="card-example">
+          <template #header>
+            <div class="card-header">自定义阴影颜色的卡片</div>
+          </template>
+          <div>这是一个背景为浅蓝色，使用自定义蓝色阴影的卡片</div>
+          <template #footer>
+            <div class="card-footer">自定义阴影效果</div>
+          </template>
+        </Card>
+
+        <Card shadow="hover" bgColor="#fdf6ec" shadowColor="0 4px 12px 0 rgba(230, 162, 60, 0.4)" class="card-example">
+          <template #header>
+            <div class="card-header">悬停时显示自定义阴影</div>
+          </template>
+          <div>这是一个背景为浅橙色，悬停时显示自定义橙色阴影的卡片</div>
+        </Card>
+      </div>
+    </section>
+
     <!-- 时间选择器 -->
     <section class="component-section">
       <h3>时间选择器</h3>
@@ -107,6 +151,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import Card from './Card/index.vue';
 
 // 引入 Message 和 Notification
 import { inject } from 'vue';
@@ -132,7 +177,7 @@ const handleDialogClose = () => {
   console.log('对话框关闭事件触发');
 };
 
-// Message 和 Notification 相关
+// #region Message 和 Notification 相关
 const showMessage = (type: 'success' | 'warning' | 'info' | 'error') => {
   switch (type) {
     case 'success':
@@ -167,7 +212,9 @@ const showNotification = (type: 'success' | 'warning' | 'info' | 'error') => {
   }
 };
 
-// Table 相关
+// #endregion
+
+// #region Table 相关
 const tableData = ref([
   {
     date: '2023-05-01',
@@ -209,7 +256,9 @@ const handlePaginationChange = (page: number) => {
   console.log('分页组件页码变化:', page);
 };
 
-// Form 相关
+// #endregion
+
+// #region Form 相关
 const formData = ref({
   username: '',
   password: '',
@@ -233,6 +282,8 @@ const handleFormSubmit = (model: any) => {
 const handleFormReset = () => {
   console.log('表单重置');
 };
+
+// #endregion
 </script>
 
 <style scoped>
@@ -255,5 +306,29 @@ const handleFormReset = () => {
 
 .button-group .el-button {
   margin-right: 10px;
+}
+
+.card-examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.card-example {
+  width: 300px;
+  margin-bottom: 20px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+}
+
+.card-footer {
+  text-align: right;
+  color: #909399;
+  font-size: 13px;
 }
 </style>

@@ -153,7 +153,7 @@
 <script setup lang="ts">
 import { Search } from '@element-plus/icons-vue';
 import { ref, onMounted } from 'vue';
-import { reqProductList } from '@/api/ps/product';
+import { reqProductList } from '@/api/setGroup/product';
 
 // #region 初始化渲染
 const tableData = ref();
@@ -162,15 +162,15 @@ const statusOptions: any = ref([]);
 const commissionOptions: any = ref([]);
 
 onMounted(() => {
-  // init()
-  tableData.value = new Array(30).fill({
-    productEncode: '0003',
-    productName: '肤康抑菌颗粒',
-    unit: '个',
-    productPrice: '15',
-    vipProductPrice: '10',
-    isDiscount: '不允许',
-  });
+  init();
+  // tableData.value = new Array(30).fill({
+  //   productEncode: '0003',
+  //   productName: '肤康抑菌颗粒',
+  //   unit: '个',
+  //   productPrice: '15',
+  //   vipProductPrice: '10',
+  //   isDiscount: '不允许',
+  // });
 
   unitOptions.value = [
     {
@@ -219,7 +219,8 @@ onMounted(() => {
 
 // 初始化
 const init = async () => {
-  const res = await reqProductList();
+  const params = '?productStatus=0';
+  const res = await reqProductList(params);
   tableData.value = res.data;
 };
 
