@@ -1,36 +1,36 @@
-//进行axios二次封装:使用请求与响应拦截器
+// 进行axios二次封装:使用请求与响应拦截器
 import axios from 'axios';
-import { ElMessage } from 'element-plus';
-//引入用户相关的仓库
+import Message from '@/components/Message/index';
+// 引入用户相关的仓库
 import useUserStore from '@/store/modules/user';
-//第一步:利用axios对象的create方法,去创建axios实例(其他的配置:基础路径、超时的时间)
+
+// 创建axios实例
 const request = axios.create({
-  //基础路径
-  baseURL: import.meta.env.VITE_APP_BASE_API, //基础路径上会携带/api
-  timeout: 5000, //超时的时间的设置
+  baseURL: import.meta.env.VITE_APP_BASE_API, // 基础路径
+  timeout: 5000, // 超时的时间的设置
 });
-//第二步:request实例添加请求与响应拦截器
+
+// 添加请求拦截器
 request.interceptors.request.use((config) => {
-  //获取用户相关的小仓库:获取仓库内部token,登录成功以后携带给服务器
+  // 如果用户登录成功,则会携带token
   const userStore = useUserStore();
   if (userStore.token) {
     config.headers.token = userStore.token;
   }
-  //config配置对象,headers属性请求头,经常给服务器端携带公共参数
   //返回配置对象
   return config;
 });
 
-//第三步:响应拦截器
+// 添加响应拦截器
 request.interceptors.response.use(
   (response) => {
-    //成功回调
-    //简化数据
+    // 成功回调
+    // 简化数据
     return response.data;
   },
   (error) => {
-    //失败回调:处理http网络错误的
-    //定义一个变量:存储网络错误信息
+    // 失败回调:处理http网络错误的
+    // 定义一个变量:存储网络错误信息
     let message = '';
     //http状态码
     const status = error.response.status;
@@ -52,12 +52,63 @@ request.interceptors.response.use(
         break;
     }
     //提示错误信息
-    ElMessage({
-      type: 'error',
-      message,
-    });
+    Message.error(message);
     return Promise.reject(error);
   },
 );
-//对外暴露
+
+// 封装GET请求
+export const get = (url: string, params = {}, config = {}) => {
+  return request({
+    method: 'GET',
+    url,
+    params,
+    ...config,
+  });
+};
+
+// 封装POST请求
+export const post = (url: string, data = {}, config = {}) => {
+  return request({
+    method: 'POST',
+    url,
+    data,
+    ...config,
+  });
+};
+
+// 封装PUT请求
+export const put = (url: string, data = {}, config = {}) => {
+  return request({
+    method: 'PUT',
+    url,
+    data,
+    ...config,
+  });
+};
+
+// 封装DELETE请求
+export const del = (url: string, params = {}, config = {}) => {
+  return request({
+    method: 'DELETE',
+    url,
+    params,
+    ...config,
+  });
+};
+
+// 封装PATCH请求（额外提供）
+export const patch = (url: string, data = {}, config = {}) => {
+  return request({
+    method: 'PATCH',
+    url,
+    data,
+    ...config,
+  });
+};
+
+// 统一导出所有方法
+export { get as GET, post as POST, put as PUT, del as DELETE, patch as PATCH };
+
+//对外暴露原始request实例
 export default request;
