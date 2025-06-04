@@ -27,13 +27,36 @@ export const constantRoute = [
   // 通用组件使用样例
   {
     path: '/samples',
-    component: () => import('@/components/UseSamples.vue'),
+    component: () => import('@/components/UseSamples/index.vue'),
     name: 'Samples',
     meta: {
       title: 'Samples',
       hidden: true,
       icon: 'DocumentDelete',
     },
+    redirect: '/samples/all',
+    children: [
+      {
+        path: '/samples/all',
+        name: 'AllSamples',
+        component: () => import('@/components/UseSamples/UseSamples.vue'),
+        meta: {
+          title: 'Samples',
+          hidden: true,
+          icon: 'DocumentDelete',
+        },
+      },
+      {
+        path: '/samples/messageBox',
+        name: 'MessageBox',
+        component: () => import('@/components/UseSamples/MessageBox.vue'),
+        meta: {
+          title: 'Samples',
+          hidden: true,
+          icon: 'DocumentDelete',
+        },
+      },
+    ],
   },
 ];
 

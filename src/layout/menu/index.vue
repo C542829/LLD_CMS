@@ -23,7 +23,7 @@
       </el-menu-item>
     </template>
     <!-- 有子路由且个数大于一个1 -->
-    <el-sub-menu :index="item.path" v-if="item.children && item.children.length > 1">
+    <el-sub-menu :index="item.path" v-if="!item.meta.hidden && item.children && item.children.length > 1">
       <template #title>
         <el-icon>
           <component :is="item.meta.icon"></component>
