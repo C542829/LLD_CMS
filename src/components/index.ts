@@ -8,6 +8,7 @@ import Table from './Table/index.vue';
 import Form from './Form/index.vue';
 import Card from './Card/index.vue';
 import Message from './Message';
+import MessageBox from './MessageBox';
 import Notification from './Notification';
 
 //引入element-plus提供全部图标组件
@@ -41,9 +42,8 @@ export default {
     }
 
     //添加全局属性
-    app.config.globalProperties.$message = Message;
-    app.config.globalProperties.$notification = Notification;
-    app.provide('$message', Message);
-    app.provide('$notification', Notification);
+    app.provide('$Message', Message);
+    app.provide('$MessageBox', MessageBox);
+    app.provide('$Notification', Notification);
   },
 };

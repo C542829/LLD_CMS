@@ -151,7 +151,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import Card from './Card/index.vue';
+import Card from '@/components/Card/index.vue';
 
 // 引入 Message 和 Notification
 import { inject } from 'vue';

@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import { withDefaults, computed } from 'vue';
+import { withDefaults } from 'vue';
 
 interface CardProps {
   shadow?: 'always' | 'hover' | 'never';

@@ -29,7 +29,6 @@ const Notification = {
   success: (message: string, title?: string, options?: Partial<NotificationParams>) => {
     return createNotification({
       type: 'success',
-      title: title || '成功',
       message,
       // @ts-ignore
       ...(options || {}),
@@ -40,7 +39,6 @@ const Notification = {
   warning: (message: string, title?: string, options?: Partial<NotificationParams>) => {
     return createNotification({
       type: 'warning',
-      title: title || '警告',
       message,
       // @ts-ignore
       ...(options || {}),
@@ -51,7 +49,6 @@ const Notification = {
   info: (message: string, title?: string, options?: Partial<NotificationParams>) => {
     return createNotification({
       type: 'info',
-      title: title || '信息',
       message,
       // @ts-ignore
       ...(options || {}),
@@ -62,7 +59,6 @@ const Notification = {
   error: (message: string, title?: string, options?: Partial<NotificationParams>) => {
     return createNotification({
       type: 'error',
-      title: title || '错误',
       message,
       // @ts-ignore
       ...(options || {}),

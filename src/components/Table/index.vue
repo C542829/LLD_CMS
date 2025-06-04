@@ -1,7 +1,6 @@
 <template>
   <div>
     <el-table
-      v-sticky-header
       :height="props.height"
       :data="props.data"
       :max-height="props.maxHeight"
