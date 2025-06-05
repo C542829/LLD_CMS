@@ -1,6 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import { constantRoute, asyncRoute, anyRoute } from '@/router/routes';
-console.log(constantRoute);
 
 const router = createRouter({
   //路由模式hash
