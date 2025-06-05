@@ -56,7 +56,6 @@ request.interceptors.response.use(
       console.error(error.response);
       $Message.error(error.response);
     }
-
     return Promise.reject(error);
   },
 );
