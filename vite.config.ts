@@ -10,7 +10,7 @@ export default defineConfig(({ command, mode }) => {
   //获取各种环境下的对应的变量
   const env = loadEnv(mode, process.cwd());
   return {
-    publicPath: 'https://gitee.com/jch1011/guiguzhenxuan',
+    publicPath: 'http://localhost:8080',
     plugins: [
       vue(),
       createSvgIconsPlugin({
@@ -31,7 +31,7 @@ export default defineConfig(({ command, mode }) => {
       preprocessorOptions: {
         scss: {
           javascriptEnabled: true,
-          additionalData: '@import "./src/styles/variable.scss";',
+          additionalData: '@import "./src/styles/variable.scss"; @import "./src/styles/mixins.scss";',
         },
       },
     },
