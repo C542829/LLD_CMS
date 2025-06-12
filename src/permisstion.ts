@@ -8,7 +8,7 @@ import 'nprogress/nprogress.css';
 nprogress.configure({ showSpinner: false });
 
 //获取用户相关的小仓库内部token数据,去判断用户是否登录成功
-import useUserStore from './store/modules/user';
+import useUserStore from './store/modules/acl/user';
 import pinia from './store';
 const userStore = useUserStore(pinia);
 

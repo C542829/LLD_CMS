@@ -2,7 +2,7 @@
 import axios from 'axios';
 import $Message from '@/components/Message/index';
 // 引入用户相关的仓库
-import useUserStore from '@/store/modules/user';
+import useUserStore from '@/store/modules/acl/user';
 
 // 创建axios实例
 const request = axios.create({
@@ -29,9 +29,9 @@ request.interceptors.response.use(
     return response.data;
   },
   (error) => {
-    // 失败回调:处理http网络错误的
-    let message = '';
-    if (error.response.status) {
+    // 失败回调：处理http网络错误的
+    try {
+      let message = '';
       const status = error.response.status;
       switch (status) {
         case 401:
@@ -52,10 +52,11 @@ request.interceptors.response.use(
       }
       //提示错误信息
       $Message.error(message);
-    } else {
-      console.error(error.response);
-      $Message.error(error.response);
+    } catch (error: any) {
+      console.error(error);
+      $Message.error('网络出现问题');
     }
+
     return Promise.reject(error);
   },
 );

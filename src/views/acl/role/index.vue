@@ -86,7 +86,7 @@ import { ref, onMounted, reactive, nextTick } from 'vue';
 import { reqRemoveRole, reqAllRoleList, reqAddOrUpdateRole, reqAllMenuList, reqSetPermisstion } from '@/api/acl/role';
 import type { RoleResponseData, Records, RoleData, MenuResponseData, MenuList } from '@/api/acl/role/type';
 //引入骨架的仓库
-import useLayOutSettingStore from '@/store/modules/setting';
+import useLayOutSettingStore from '@/store/modules/acl/setting';
 import { ElMessage } from 'element-plus';
 let settingStore = useLayOutSettingStore();
 //当前页码

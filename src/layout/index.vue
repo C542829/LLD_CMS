@@ -48,8 +48,8 @@ import Main from './main/index.vue';
 import Tabbar from './tabbar/index.vue';
 
 //获取用户相关的小仓库
-import useUserStore from '@/store/modules/user';
-import useLayOutSettingStore from '@/store/modules/setting';
+import useUserStore from '@/store/modules/acl/user';
+import useLayOutSettingStore from '@/store/modules/acl/setting';
 let userStore = useUserStore();
 //获取layout配置仓库
 

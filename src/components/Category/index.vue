@@ -41,7 +41,7 @@
 //引入组件挂载完毕方法
 import { onMounted } from 'vue';
 //引入分类相关的仓库
-import useCategoryStore from '@/store/modules/category';
+import useCategoryStore from '@/store/modules/acl/category';
 let categoryStore = useCategoryStore();
 //分类全局组件挂载完毕,通知仓库发请求获取一级分类的数据
 onMounted(() => {

@@ -9,7 +9,7 @@
 <script setup lang="ts">
 //引入设置标题与logo这配置文件
 import setting from '@/setting';
-import useLayOutSettingStore from '@/store/modules/setting';
+import useLayOutSettingStore from '@/store/modules/acl/setting';
 import { watch, ref } from 'vue';
 let layOutSettingStore = useLayOutSettingStore();
 const logoTitle = ref(setting.title);

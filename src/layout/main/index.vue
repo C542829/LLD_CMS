@@ -12,7 +12,7 @@
 
 <script setup lang="ts">
 import { watch, ref, nextTick } from 'vue';
-import useLayOutSettingStore from '@/store/modules/setting';
+import useLayOutSettingStore from '@/store/modules/acl/setting';
 let layOutSettingStore = useLayOutSettingStore();
 
 //控制当前组件是否销毁重建

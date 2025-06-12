@@ -1,5 +1,5 @@
 import pinia from '@/store';
-import useUserStore from '@/store/modules/user';
+import useUserStore from '@/store/modules/acl/user';
 const userStore = useUserStore(pinia);
 export const isHasButton = (app: any) => {
   //获取对应的用户仓库

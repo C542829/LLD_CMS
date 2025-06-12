@@ -56,9 +56,9 @@
 import { ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 //获取用户相关的小仓库
-import useUserStore from '@/store/modules/user';
+import useUserStore from '@/store/modules/acl/user';
 //获取骨架的小仓库
-import useLayOutSettingStore from '@/store/modules/setting';
+import useLayOutSettingStore from '@/store/modules/acl/setting';
 let layoutSettingStore = useLayOutSettingStore();
 let userStore = useUserStore();
 //获取路由器对象

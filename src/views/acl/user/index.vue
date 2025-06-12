@@ -114,7 +114,7 @@
   </el-drawer>
 </template>
 <script setup lang="ts">
-import useLayOutSettingStore from '@/store/modules/setting';
+import useLayOutSettingStore from '@/store/modules/acl/setting';
 import { ref, onMounted, reactive, nextTick } from 'vue';
 import {
   reqSelectUser,
