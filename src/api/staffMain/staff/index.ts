@@ -1,4 +1,6 @@
 import request from '@/utils/request';
+import { get, post, put, del } from '@/utils/request';
+
 // 人员管理模块接口地址
 enum API {
   // 获取人员列表
@@ -7,11 +9,11 @@ enum API {
   UPDATE_URL = '/system/user/update-user',
 }
 
-export const reqStaffList = () => request.get<any, any>(API.LIST_URL);
+export const reqStaffList = (params = {}) => get(API.LIST_URL, params);
 
-export const reqAddStaff = (data: Attr) => request.post<any, any>(API.ADD_URL, data);
+export const reqAddStaff = (data = {}) => post(API.ADD_URL, data);
 
-export const reqUpdateStaff = (data: Attr) => request.post<any, any>(API.UPDATE_URL, data);
+export const reqUpdateStaff = (data = {}) => put(API.UPDATE_URL, data);
 
 // {
 //     "id": 1,
