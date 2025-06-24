@@ -19,7 +19,10 @@ watch(
     if (newVal) {
       logoTitle.value = '';
     } else {
-      setTimeout(() => (logoTitle.value = setting.title), 300);
+      let timer: any = setTimeout(() => {
+        logoTitle.value = setting.title;
+        timer && (timer = null);
+      }, 300);
     }
   },
 );
