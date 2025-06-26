@@ -1,8 +1,12 @@
 <template>
   <el-card
     class="card-container"
+    body-class="card-body"
     :shadow="props.shadow"
-    :style="{
+    :body-style="{
+      gap: `${props.gap}px`,
+      flexDirection: props.flex,
+      padding: `${props.padding}px`,
       backgroundColor: props.bgColor,
     }"
   >
@@ -23,12 +27,16 @@ interface CardProps {
   shadow?: 'always' | 'hover' | 'never';
   bgColor?: string;
   flex?: 'row' | 'column';
+  gap?: number;
+  padding?: number;
 }
 
 const props = withDefaults(defineProps<CardProps>(), {
   shadow: 'never',
   bgColor: '#f5f7fa',
   flex: 'column',
+  gap: 10,
+  padding: 20,
 });
 </script>
 <script lang="ts">
@@ -37,9 +45,13 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .card-container {
   width: 100%;
   border: none;
+
+  .card-body {
+    display: flex;
+  }
 }
 </style>
