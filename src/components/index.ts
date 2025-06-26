@@ -7,6 +7,8 @@ import Drawer from './Drawer/index.vue';
 import Table from './Table/index.vue';
 import Form from './Form/index.vue';
 import Card from './Card/index.vue';
+import BtnForm from './BtnForm/index.vue';
+import DynamicInput from './DynamicInput/index.vue';
 import Message from './Message';
 import MessageBox from './MessageBox';
 import Notification from './Notification';
@@ -24,6 +26,8 @@ const allGlobalComponent: any = {
   Table,
   Form,
   Card,
+  BtnForm,
+  DynamicInput,
 };
 
 //对外暴露插件对象
