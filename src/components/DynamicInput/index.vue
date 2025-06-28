@@ -25,21 +25,12 @@ import { ref, withDefaults, inject } from 'vue';
 
 const $Message: any = inject('$Message');
 
-const props = withDefaults(
-  defineProps<{
-    value: {
-      id: number;
-      value: string;
-    };
-    width?: number;
-  }>(),
-  { width: 160 },
-);
+const props = withDefaults(defineProps<DynamicInputProps>(), { value: '', width: 160 });
 
 const $emit = defineEmits(['update']);
 
-// 初始值
-let inputValue = ref(props.value.value);
+// 输入框初始值
+let inputValue = ref(props.value);
 // 是否处于编辑状态
 let isEditing = ref(false);
 
@@ -49,14 +40,30 @@ const handleConfirm = () => {
     $Message.error('内容不能为空');
     return;
   }
-  $emit('update', { id: props.value.id, value: inputValue.value });
+  // 传递数据
+  const params: DynamicInputData = { value: inputValue.value };
+  props.params && (params.params = props.params);
+  $emit('update', params);
+  // 关闭编辑状态
   isEditing.value = false;
 };
 
+// 取消编辑
 const handleCancel = () => {
   isEditing.value = false;
-  inputValue.value = props.value.value;
+  inputValue.value = props.value;
 };
+
+interface DynamicInputProps {
+  value: string; // 输入框值
+  width?: number; // 输入框宽度
+  params?: object; // 额外参数
+}
+
+interface DynamicInputData {
+  value: string;
+  params?: object;
+}
 </script>
 <script lang="ts">
 export default {
