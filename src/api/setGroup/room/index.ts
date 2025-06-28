@@ -9,7 +9,8 @@ enum API {
   // 床位
   BED_LIST = '/room/bed/list',
   BED_ADD = '/room/bed/add',
-  BED_UPDATE = '/room/bed/update-status',
+  BED_UPDATE = '/room/bed/update',
+  BED_UPDATE_STATUS = '/room/bed/update-status',
 }
 
 // 房间管理模块接口方法
@@ -20,8 +21,10 @@ export const reqAddRoom = (data = {}) => post(API.ADD_URL, data);
 export const reqUpdateRoom = (data = {}) => put(API.UPDATE_URL, data);
 
 // 床位管理模块接口方法
-export const reqBedList = (roomId: number) => get(API.BED_LIST, roomId);
+export const reqBedList = (params = {}) => get(API.BED_LIST, params);
 
 export const reqAddBed = (data = {}) => post(API.BED_ADD, data);
 
 export const reqUpdateBed = (data = {}) => put(API.BED_UPDATE, data);
+
+export const reqUpdateBedStatus = (data = {}) => put(API.BED_UPDATE_STATUS, data);

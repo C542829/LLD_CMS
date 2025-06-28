@@ -43,13 +43,13 @@
     </Card>
   </div>
 
-  <!-- 抽屉表单 -->
+  <!-- 抽屉 -->
   <Drawer v-model="drawerVisible" title="房间信息">
     <div class="bed-list">
       <Card :padding="15">
         <div class="room-name-area">
           房间名：
-          <DynamicInput :value="{ id: editRoom.id, value: editRoom.roomName }" @update="updateRoomName"></DynamicInput>
+          <DynamicInput :value="editRoom.roomName" @update="updateRoomName"></DynamicInput>
         </div>
         <div>床位数：{{ editRoom.bedTotal }}</div>
         <div>空闲中：{{ editRoom.bedRemaining }}</div>
@@ -58,15 +58,16 @@
       <Card :padding="15">
         <div class="bed-list-header">
           <span>床位信息</span>
-          <BtnForm @submit="addRoom" btnText="添加床位" tipText="请输入床位名称" />
+          <BtnForm @submit="addBed" btnText="添加床位" tipText="请输入床位名称" />
         </div>
         <Table :data="store.bedList" :border="true" :row-class-name="getRowClassName">
           <el-table-column prop="bedName" label="床位名" width="230">
             <template #default="scope">
               <DynamicInput
-                :value="{ id: scope.row.id, value: scope.row.bedName }"
-                @update="updateRoomName"
+                :value="scope.row.bedName"
+                :params="scope.row.id"
                 :width="120"
+                @update="updateBedName"
               ></DynamicInput>
             </template>
           </el-table-column>
@@ -92,36 +93,44 @@ const store = useRoomStore();
 
 const $MessageBox: any = inject('$MessageBox');
 
-const tableData: any = ref([]);
-
+// 初始化
 onMounted(() => {
   store.setRoomList();
 });
 
+// 搜索
 const search = () => {
   store.setRoomList();
 };
 
+// 添加房间
 const addRoom = (value: object) => {
   store.updateRoom({ roomName: value });
 };
 
-const updateRoomName = (room: { id: number; value: string }) => {
-  store.updateRoom({ id: room.id, roomName: room.value });
+// 修改房间名
+const updateRoomName = (data: { value: string }) => {
+  store.updateRoom({ id: editRoom.value.id, roomName: data.value });
 };
 
+// 当前编辑的房间信息
 const editRoom: any = ref({});
-const editRoomInfo = (room = {}) => {
+// 点击编辑获取当前房间的床位数据列表
+const editRoomInfo = (room: { id: number }) => {
   editRoom.value = { ...room };
+  store.setBedList(room.id);
   drawerVisible.value = true;
 };
 
+// 添加床位
 const addBed = (value: string) => {
-  store.updateBed({ roomInfoId: editRoom.id, bedName: value });
+  const params = { roomInfoId: editRoom.value.id, bedName: value };
+  store.updateBed(params);
 };
 
-const updateBed = (bed: { id: number; value: string }) => {
-  store.updateBed({ id: bed.id, bedName: bed.value });
+// 修改床位名称
+const updateBedName = (data: { value: string; params: number }) => {
+  store.updateBed({ id: data.params, bedName: data.value });
 };
 
 // 禁用
@@ -131,11 +140,12 @@ const showConfirm = async ($row: any) => {
     message: `你确定要禁用床位【${$row.bedName}】吗？`,
     type: 'warning',
   });
-  result && store.updateBed({ id: $row.id, status: '暂停使用' });
+  result && store.updateBedStatus({ ...$row, status: '暂停使用' });
 };
 
+// 控制抽屉
 const drawerVisible = ref(false);
-
+// 禁用行
 const getRowClassName = ({ row }: { row: { status: string } }) => {
   return row.status === '暂停使用' ? 'disabled-row' : '';
 };
