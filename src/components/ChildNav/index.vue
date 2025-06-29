@@ -10,7 +10,7 @@
             <span>{{ item.label }}</span>
           </span>
         </template>
-        <component :is="item.component" :title="item.label" />
+        <component :is="item.component" />
       </el-tab-pane>
     </el-tabs>
   </div>

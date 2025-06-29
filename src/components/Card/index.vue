@@ -36,7 +36,7 @@ const props = withDefaults(defineProps<CardProps>(), {
   bgColor: '#f5f7fa',
   flex: 'column',
   gap: 10,
-  padding: 20,
+  padding: 15,
 });
 </script>
 <script lang="ts">
