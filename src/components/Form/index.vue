@@ -19,11 +19,16 @@
     >
       <slot></slot>
 
+      <!-- 自定义表单底部 -->
+      <el-form-item label="&nbsp;" v-if="$slots.footer">
+        <slot name="footer"></slot>
+      </el-form-item>
+
       <!-- 表单操作按钮 -->
       <el-form-item v-if="props.showButtons" label="&nbsp;">
-        <slot name="buttons"></slot>
         <el-button type="primary" @click="submitForm">{{ props.submitText }}</el-button>
         <el-button @click="resetForm">{{ props.resetText }}</el-button>
+        <slot name="buttons"></slot>
       </el-form-item>
     </el-form>
   </div>
