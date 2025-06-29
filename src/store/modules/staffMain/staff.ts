@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import $Message from '@/components/Message';
 import $Notification from '@/components/Notification';
 import { reqStaffList, reqAddStaff, reqUpdateStaff } from '@/api/staffMain/staff/index';
-import { ReponseCode, ReponseCodeMeaning } from '@/enums/response';
+import { reqNotification } from '@/utils/feedback';
 
 export const useStaffStore = defineStore('Staff', () => {
   // #region
@@ -204,26 +204,14 @@ export const useStaffStore = defineStore('Staff', () => {
     // 浅拷贝避免修改原数据
     data = { ...data };
 
-    try {
-      // 发送请求
-      let res: any = {};
-      if (data?.id) {
-        res = await reqUpdateStaff(data);
-      } else {
-        res = await reqAddStaff(data);
-      }
-      if (res.code === ReponseCode.SUCCESS) {
-        $Notification.success(res.data); // 显示成功消息
-        setStaffList(); // 重新获取数据
-        return true;
-      } else {
-        $Notification.error(res.data); // 显示错误消息
-        return false;
-      }
-    } catch (error) {
-      console.error(error);
-      $Message.error(ReponseCodeMeaning.FAIL);
-    }
+    // 发送请求
+    const result = await reqNotification(async () => {
+      console.log('员工数据 = ', data);
+      return await (data?.id ? reqUpdateStaff(data) : reqAddStaff(data));
+    });
+    // 刷新数据
+    result && setStaffList();
+    return result;
   };
 
   // 表单数据

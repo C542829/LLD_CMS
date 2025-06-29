@@ -1,9 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import $Message from '@/components/Message';
-import $Notification from '@/components/Notification';
 import { reqProductList, reqAddProduct, reqUpdateProduct, reqUnitList } from '@/api/setGroup/product';
-import { ReponseCode, ReponseCodeMeaning } from '@/enums/response';
+import { reqNotification } from '@/utils/feedback';
 
 export const useProductStore = defineStore('Product', () => {
   // 是否允许折扣
@@ -70,26 +69,13 @@ export const useProductStore = defineStore('Product', () => {
 
     // 如果没有产品状态属性赋默认值
     data.productStatus = data?.productStatus || 0;
-    try {
-      // 发送请求
-      let res: any = {};
-      if (data?.id) {
-        res = await reqUpdateProduct(data);
-      } else {
-        res = await reqAddProduct(data);
-      }
-      if (res.code === ReponseCode.SUCCESS) {
-        $Notification.success(res.data); // 显示成功消息
-        setProductList(); // 重新获取数据
-        return true;
-      } else {
-        $Notification.error(res.data); // 显示错误消息
-        return false;
-      }
-    } catch (error) {
-      console.error(error);
-      $Message.error(ReponseCodeMeaning.FAIL);
-    }
+
+    const result = await reqNotification(async () => {
+      return await (data?.id ? reqUpdateProduct(data) : reqAddProduct(data));
+    });
+    // 刷新数据
+    result && setProductList();
+    return result;
   };
   const updateProductStatus = async (data: any) => {
     data = { ...data };
