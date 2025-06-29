@@ -5,6 +5,7 @@ import Category from './Category/index.vue';
 import Dialog from './Dialog/index.vue';
 import Drawer from './Drawer/index.vue';
 import Table from './Table/index.vue';
+import PaginationTable from './PaginationTable/index.vue';
 import Form from './Form/index.vue';
 import Card from './Card/index.vue';
 import BtnForm from './BtnForm/index.vue';
@@ -24,6 +25,7 @@ const allGlobalComponent: any = {
   Dialog,
   Drawer,
   Table,
+  PaginationTable,
   Form,
   Card,
   BtnForm,
