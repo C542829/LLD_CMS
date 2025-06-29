@@ -44,43 +44,42 @@
   </div>
 
   <!-- 抽屉 -->
-  <Drawer v-model="drawerVisible" title="房间信息">
-    <div class="bed-list">
-      <Card :padding="15">
-        <div class="room-name-area">
-          房间名：
-          <DynamicInput :value="editRoom.roomName" @update="updateRoomName"></DynamicInput>
-        </div>
-        <div>床位数：{{ editRoom.bedTotal }}</div>
-        <div>空闲中：{{ editRoom.bedRemaining }}</div>
-      </Card>
+  <keep-alive>
+    <Drawer v-model="drawerVisible" title="房间信息" :key="editRoom.id">
+      <div class="bed-list">
+        <!-- 房间信息 -->
+        <Card :padding="15">
+          <div class="room-name-area">
+            <span>房间名：</span>
+            <DynamicInput :value="editRoom.roomName" @update="updateRoomName" />
+          </div>
+          <div>床位数：{{ editRoom.bedTotal }}</div>
+          <div>空闲中：{{ editRoom.bedRemaining }}</div>
+        </Card>
 
-      <Card :padding="15">
-        <div class="bed-list-header">
-          <span>床位信息</span>
-          <BtnForm @submit="addBed" btnText="添加床位" tipText="请输入床位名称" />
-        </div>
-        <Table :data="store.bedList" :border="true" :row-class-name="getRowClassName">
-          <el-table-column prop="bedName" label="床位名" width="230">
-            <template #default="scope">
-              <DynamicInput
-                :value="scope.row.bedName"
-                :params="scope.row.id"
-                :width="120"
-                @update="updateBedName"
-              ></DynamicInput>
-            </template>
-          </el-table-column>
-          <el-table-column prop="status" label="状态" min-width="50" />
-          <el-table-column label="操作" width="60">
-            <template #default="scope">
-              <el-button @click="showConfirm(scope.row)" link type="warning">暂停</el-button>
-            </template>
-          </el-table-column>
-        </Table>
-      </Card>
-    </div>
-  </Drawer>
+        <!-- 床位列表 -->
+        <Card :padding="15">
+          <div class="bed-list-header">
+            <span>床位信息</span>
+            <BtnForm @submit="addBed" btnText="添加床位" tipText="请输入床位名称" />
+          </div>
+          <Table :data="store.bedList" :border="true" :row-class-name="getRowClassName">
+            <el-table-column prop="bedName" label="床位名" width="230">
+              <template #default="scope">
+                <DynamicInput :value="scope.row.bedName" :params="scope.row.id" @update="updateBedName" :width="120" />
+              </template>
+            </el-table-column>
+            <el-table-column prop="status" label="状态" min-width="50" />
+            <el-table-column label="操作" width="60">
+              <template #default="scope">
+                <el-button @click="showConfirm(scope.row)" link type="warning">暂停</el-button>
+              </template>
+            </el-table-column>
+          </Table>
+        </Card>
+      </div>
+    </Drawer>
+  </keep-alive>
 </template>
 
 <script setup lang="ts">
@@ -118,6 +117,7 @@ const editRoom: any = ref({});
 // 点击编辑获取当前房间的床位数据列表
 const editRoomInfo = (room: { id: number }) => {
   editRoom.value = { ...room };
+  console.log('当前房间信息 = ', editRoom.value);
   store.setBedList(room.id);
   drawerVisible.value = true;
 };
