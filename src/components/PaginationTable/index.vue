@@ -70,9 +70,6 @@
 
     <!-- 分页部分 -->
     <div class="pagination-container" v-if="props.showPagination">
-      <!-- <template #total v-if="$slots.total">
-        <slot name="total"></slot>
-      </template> -->
       <div>
         <slot name="total"></slot>
       </div>
