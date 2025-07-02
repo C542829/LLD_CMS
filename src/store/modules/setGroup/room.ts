@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import $Message from '@/components/Message';
 import $Notification from '@/components/Notification';
-import { reqNotification } from '@/utils/feedback';
+import { parseReqInform, parseReqList } from '@/utils/feedback';
 import {
   reqRoomList,
   reqAddRoom,
@@ -25,9 +25,10 @@ export const useRoomStore = defineStore('Room', () => {
   const setRoomList = async () => {
     try {
       // 获取房间列表
-      const data: any = (await reqRoomList(searchParams.value)).data;
+      const res = await reqRoomList(searchParams.value);
+      const data = parseReqList(res);
       // 处理数据
-      Array.isArray(data) ? (roomList.value = data) : $Message.error(data);
+      roomList.value = data;
     } catch (error) {
       $Message.error('获取房间列表失败');
     }
@@ -38,17 +39,17 @@ export const useRoomStore = defineStore('Room', () => {
     data = { ...data };
 
     // 发送请求
-    const result = await reqNotification(async () => {
-      console.log('房间数据 = ', data);
-      return await (data?.id ? reqUpdateRoom(data) : reqAddRoom(data));
-    });
+    console.log('房间数据 = ', data);
+    const res = await (data?.id ? reqUpdateRoom(data) : reqAddRoom(data));
+    const result = parseReqInform(res);
+
     // 刷新数据
     result && setRoomList();
     return result;
   };
   // #endregion
 
-  // 床位
+  // #region 床位
   const bedList: any = ref([]);
   const setBedList = async (id: number) => {
     try {
@@ -63,16 +64,15 @@ export const useRoomStore = defineStore('Room', () => {
 
   const updateBed = async (data: any) => {
     // 发送请求
-    const result = await reqNotification(async () => {
-      let res: any = {};
-      if (data?.id) {
-        res = await reqUpdateBed(data);
-      } else {
-        data.status = '空闲';
-        res = await reqAddBed(data);
-      }
-      return res;
-    });
+    let res: any = {};
+    if (data?.id) {
+      res = await reqUpdateBed(data);
+    } else {
+      data.status = '空闲';
+      res = await reqAddBed(data);
+    }
+    const result = parseReqInform(res);
+
     // 刷新数据
     result && setBedList(data.roomInfoId);
     return result;
@@ -80,13 +80,14 @@ export const useRoomStore = defineStore('Room', () => {
 
   const updateBedStatus = async (data: { id: number; status: string; roomInfoId: number }) => {
     // 发送请求
-    const result = await reqNotification(async () => {
-      return await reqUpdateBedStatus(data);
-    });
+    const res = await reqUpdateBedStatus(data);
+    const result = parseReqInform(res);
+
     // 刷新数据
     result && setBedList(data.roomInfoId);
     return result;
   };
+  // #endregion
 
   return {
     searchParams,

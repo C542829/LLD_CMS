@@ -1,85 +1,86 @@
 <template>
   <div class="room-container">
     <!-- 搜索操作 -->
-    <Card shadow="never">
-      <div class="room-header">
-        <div class="header-container">
-          <BtnForm @submit="addRoom" btnText="添加房间" tipText="请输入房间名称" />
-        </div>
-        <div class="search-container">
-          <div class="search-item">
-            <el-input
-              v-model="store.searchParams.roomName"
-              :prefix-icon="Search"
-              @keydown.enter="search"
-              placeholder="搜索房间名称"
-              class="search-input"
-            >
-              <template #append>
-                <el-button type="primary" @click="search">搜索</el-button>
-              </template>
-            </el-input>
-          </div>
-        </div>
+    <Card flex="row" :gap="20">
+      <div><BtnForm @submit="addRoom" btnText="添加房间" tipText="请输入房间名称" /></div>
+      <div>
+        <el-input
+          v-model="store.searchParams.roomName"
+          :prefix-icon="Search"
+          @keydown.enter="search"
+          placeholder="搜索房间名称"
+          clearable
+          class="search-input"
+        >
+          <template #append>
+            <el-button type="primary" @click="search">搜索</el-button>
+          </template>
+        </el-input>
       </div>
     </Card>
 
     <!-- 房间列表 -->
-    <Card>
-      <div class="room-list">
-        <Card v-for="room in store.roomList" class="room-content" bgColor="#5cb3cc">
-          <div class="room-card">
-            <div class="card-top">
-              <span class="name">{{ room.roomName }}</span>
-              <el-button @click="editRoomInfo(room)" link size="small" style="color: #dff9fb">编辑</el-button>
-            </div>
-            <div class="card-bottom">
-              <span>总床位：{{ room.bedTotal }}</span>
-              <span>空闲数：{{ room.bedRemaining }}</span>
-            </div>
-          </div>
-        </Card>
-      </div>
+    <Card flex="row" :gap="30" class="room-list">
+      <Card v-for="room in store.roomList" bgColor="#5cb3cc" class="room-card">
+        <div class="card-top">
+          <span class="name">{{ room.roomName }}</span>
+          <el-button @click="editRoomInfo(room)" link size="small" style="color: #dff9fb">编辑</el-button>
+        </div>
+        <div class="card-bottom">
+          <span>总床位：{{ room.bedTotal }}</span>
+          <span>空闲数：{{ room.bedRemaining }}</span>
+        </div>
+      </Card>
     </Card>
+
+    <!-- 抽屉 -->
+    <keep-alive>
+      <Drawer v-model="drawerVisible" title="房间信息" :key="editRoom.id">
+        <div class="bed-list">
+          <!-- 房间信息 -->
+          <Card :padding="15">
+            <div class="room-name-area">
+              <span>房间名：</span>
+              <DynamicInput :value="editRoom.roomName" @update="updateRoomName" />
+            </div>
+            <div>床位数：{{ editRoom.bedTotal }}</div>
+            <div>空闲中：{{ editRoom.bedRemaining }}</div>
+          </Card>
+
+          <!-- 床位列表 -->
+          <Card :padding="15">
+            <div class="bed-list-header">
+              <span>床位信息</span>
+              <BtnForm @submit="addBed" btnText="添加床位" tipText="请输入床位名称" />
+            </div>
+            <Table :data="store.bedList" :border="true" :row-class-name="getRowClassName">
+              <el-table-column prop="bedName" label="床位名" width="230">
+                <template #default="scope">
+                  <DynamicInput
+                    :value="scope.row.bedName"
+                    :params="scope.row.id"
+                    @update="updateBedName"
+                    :width="120"
+                  />
+                </template>
+              </el-table-column>
+              <el-table-column prop="status" label="状态" min-width="50" />
+              <el-table-column label="操作" width="60">
+                <template #default="scope">
+                  <template v-if="scope.row !== '暂停使用'">
+                    <el-button @click="disabledBed(scope.row)" link type="warning">停用</el-button>
+                  </template>
+                  <template v-if="scope.row === '暂停使用'">
+                    <el-button @click="enabledBed(scope.row)" link type="primary">恢复</el-button>
+                  </template>
+                </template>
+              </el-table-column>
+            </Table>
+          </Card>
+        </div>
+      </Drawer>
+    </keep-alive>
   </div>
-
-  <!-- 抽屉 -->
-  <keep-alive>
-    <Drawer v-model="drawerVisible" title="房间信息" :key="editRoom.id">
-      <div class="bed-list">
-        <!-- 房间信息 -->
-        <Card :padding="15">
-          <div class="room-name-area">
-            <span>房间名：</span>
-            <DynamicInput :value="editRoom.roomName" @update="updateRoomName" />
-          </div>
-          <div>床位数：{{ editRoom.bedTotal }}</div>
-          <div>空闲中：{{ editRoom.bedRemaining }}</div>
-        </Card>
-
-        <!-- 床位列表 -->
-        <Card :padding="15">
-          <div class="bed-list-header">
-            <span>床位信息</span>
-            <BtnForm @submit="addBed" btnText="添加床位" tipText="请输入床位名称" />
-          </div>
-          <Table :data="store.bedList" :border="true" :row-class-name="getRowClassName">
-            <el-table-column prop="bedName" label="床位名" width="230">
-              <template #default="scope">
-                <DynamicInput :value="scope.row.bedName" :params="scope.row.id" @update="updateBedName" :width="120" />
-              </template>
-            </el-table-column>
-            <el-table-column prop="status" label="状态" min-width="50" />
-            <el-table-column label="操作" width="60">
-              <template #default="scope">
-                <el-button @click="showConfirm(scope.row)" link type="warning">暂停</el-button>
-              </template>
-            </el-table-column>
-          </Table>
-        </Card>
-      </div>
-    </Drawer>
-  </keep-alive>
 </template>
 
 <script setup lang="ts">
@@ -133,14 +134,19 @@ const updateBedName = (data: { value: string; params: number }) => {
   store.updateBed({ id: data.params, bedName: data.value });
 };
 
-// 禁用
-const showConfirm = async ($row: any) => {
+// 停用
+const disabledBed = async (row: any) => {
   const result = await $MessageBox.confirm({
     title: '确认操作',
-    message: `你确定要禁用床位【${$row.bedName}】吗？`,
+    message: `你确定要禁用床位【${row.bedName}】吗？`,
     type: 'warning',
   });
-  result && store.updateBedStatus({ ...$row, status: '暂停使用' });
+  result && store.updateBedStatus({ ...row, status: '暂停使用' });
+};
+
+// 启用
+const enabledBed = (row: any) => {
+  store.updateBedStatus({ ...row, status: '空闲' });
 };
 
 // 控制抽屉
@@ -159,45 +165,36 @@ const getRowClassName = ({ row }: { row: { status: string } }) => {
   gap: $main-padding;
   padding: $main-padding;
 
-  .room-header {
-    display: flex;
-    gap: $main-padding;
-  }
+  // 房间
   .room-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: $main-padding * 2;
+    > div > div {
+      width: 180px;
+    }
 
-    .room-content {
+    > div > div:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .room-card {
       color: white;
       line-height: 30px;
-      width: 180px;
 
-      &:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+      .card-top {
+        display: flex;
+        justify-content: space-between;
       }
 
-      .room-card {
+      .card-bottom {
         display: flex;
-        flex-direction: column;
-        gap: $main-padding;
         justify-content: space-between;
-        > div {
-          display: flex;
-          justify-content: space-between;
-        }
-
-        .card-bottom {
-          display: flex;
-          justify-content: space-between;
-          font-size: 12px;
-        }
+        font-size: 12px;
       }
     }
   }
 }
 
+// 床位
 .bed-list {
   display: flex;
   flex-direction: column;
