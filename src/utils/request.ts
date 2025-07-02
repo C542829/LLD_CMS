@@ -25,14 +25,14 @@ request.interceptors.request.use((config) => {
 request.interceptors.response.use(
   (response) => {
     // 成功回调
-    // 简化数据
+    console.log('response = ', response);
     return response.data;
   },
   (error) => {
     // 失败回调：处理http网络错误的
     try {
       let message = '';
-      const status = error.response.status;
+      const status = error.response?.status || 0;
       switch (status) {
         case 401:
           message = 'TOKEN过期';
