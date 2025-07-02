@@ -9,14 +9,19 @@
         <div class="search-item" v-if="false">
           <label for="staffStatus" class="search-label">选择店铺：</label>
           <el-select v-model="store.searchParams.storeId" id="staffStatus" style="width: 120px" placeholder="Select">
-            <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
+            <el-option
+              v-for="item in searchEmployedOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
           </el-select>
         </div>
         <div class="search-item">
           <label for="staffStatus" class="search-label">人员在职状态：</label>
           <el-select v-model="store.searchParams.userStatus" id="staffStatus" style="width: 120px" placeholder="Select">
             <el-option
-              v-for="item in store.employedOptions"
+              v-for="item in searchEmployedOptions"
               :key="item.value"
               :label="item.label"
               :value="item.value"
@@ -43,12 +48,12 @@
     <Card class="table-card">
       <Table :data="store.tableData" :border="true" :stripe="true" :row-class-name="getRowClassName" class="table-main">
         <el-table-column prop="userName" label="姓名" min-width="80" />
-        <el-table-column prop="sexStr" label="性别" min-width="60" />
-        <el-table-column prop="userNumber" label="手机号" min-width="120" />
+        <el-table-column prop="userSex" label="性别" width="60" :formatter="sexMap" />
+        <el-table-column prop="userNumber" label="手机号" width="120" />
         <el-table-column prop="userCode" label="编号" min-width="60" />
         <el-table-column prop="userDept" label="部门" min-width="70" />
         <el-table-column prop="userPosition" label="职位" min-width="70" />
-        <el-table-column prop="userBirthday" label="入职时间" min-width="110" />
+        <el-table-column prop="userEntryDate" label="入职时间" min-width="110" />
         <el-table-column prop="userStatus" label="在职状态" min-width="90" />
         <el-table-column label="操作" min-width="120">
           <template #default="scope">
@@ -68,145 +73,7 @@
   </div>
   <Drawer v-model="drawer.visible" :title="drawer.title" @close="handleDrawerClose">
     <!-- 表单 -->
-    <Form
-      :model="store.formData"
-      :rules="store.formRules"
-      :showButtons="!drawer.disabled"
-      :disabled="drawer.disabled"
-      @submit="handleFormSubmit"
-      @reset="handleFormReset"
-    >
-      <!-- 人员编号 -->
-      <el-form-item label="人员编号" prop="userCode">
-        <el-input v-model="store.formData.userCode" placeholder="请输入人员编号" />
-      </el-form-item>
-      <!-- 姓名 -->
-      <el-form-item label="姓名" prop="userName">
-        <el-input v-model="store.formData.userName" placeholder="请输入姓名" />
-      </el-form-item>
-      <!-- 手机号 -->
-      <el-form-item label="手机号" prop="userNumber">
-        <el-input v-model="store.formData.userNumber" placeholder="请输入手机号" />
-      </el-form-item>
-      <!-- 人员职位 -->
-      <el-form-item label="人员职位" prop="userPosition">
-        <div style="width: 100%; display: flex; gap: 10px">
-          <el-select v-model="store.formData.userPosition" style="width: 200px" placeholder="选择职位">
-            <el-option
-              v-for="item in store.positionOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
-          <div><el-button link type="primary" @click="">职位管理</el-button></div>
-        </div>
-      </el-form-item>
-      <!-- 性别 -->
-      <el-form-item label="性别" prop="userSex">
-        <div style="width: 100%; display: flex; gap: 10px">
-          <el-select v-model="store.formData.userSex" style="width: 200px" placeholder="性别">
-            <el-option v-for="item in store.sex" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
-        </div>
-      </el-form-item>
-
-      <!-- 生日 -->
-      <el-form-item label="生日" prop="userBirthday">
-        <el-date-picker
-          v-model="store.formData.userBirthday"
-          type="date"
-          placeholder="选择生日"
-          value-format="YYYY-MM-DD"
-        />
-      </el-form-item>
-
-      <!-- 所属部门 -->
-      <el-form-item label="所属部门" prop="userDept">
-        <div style="width: 100%; display: flex; gap: 10px">
-          <el-select v-model="store.formData.deptOptions" style="width: 200px" placeholder="选择职位">
-            <el-option
-              v-for="item in store.positionOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
-          <div><el-button link type="primary" @click="">部门管理</el-button></div>
-        </div>
-      </el-form-item>
-
-      <!-- 入职时间 -->
-      <el-form-item label="入职时间" prop="userEntryDate">
-        <el-date-picker
-          v-model="store.formData.userEntryDate"
-          type="date"
-          placeholder="选择入职时间"
-          value-format="YYYY-MM-DD"
-        />
-      </el-form-item>
-
-      <!-- 在职状态 -->
-      <el-form-item label="在职状态" prop="userStatus">
-        <el-select v-model="store.formData.userStatus" style="width: 200px" placeholder="请选择在职状态">
-          <el-option
-            v-for="item in store.formEmployedOptions"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          />
-        </el-select>
-      </el-form-item>
-
-      <!-- 身份证号 -->
-      <el-form-item label="身份证号" prop="userIdCard">
-        <el-input v-model="store.formData.userIdCard" placeholder="请输入身份证号" />
-      </el-form-item>
-
-      <!-- 人员地址 -->
-      <el-form-item label="人员地址" prop="userAddress">
-        <el-input v-model="store.formData.userAddress" placeholder="请输入居住地址" />
-      </el-form-item>
-
-      <!-- 婚姻状况 -->
-      <el-form-item label="婚姻状况" prop="userMarry">
-        <el-select v-model="store.formData.userMarry" style="width: 200px" placeholder="请选择婚姻状况">
-          <el-option
-            v-for="item in store.maritalStatusOptions"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          />
-        </el-select>
-      </el-form-item>
-
-      <!-- 学历状况 -->
-      <el-form-item label="学历状况" prop="userEdu">
-        <el-select v-model="store.formData.userEdu" style="width: 200px" placeholder="请选择学历">
-          <el-option v-for="item in store.educationOptions" :key="item.value" :label="item.label" :value="item.value" />
-        </el-select>
-      </el-form-item>
-
-      <!-- 人员职称 -->
-      <el-form-item label="人员职称" prop="userTitle">
-        <div style="width: 100%; display: flex; gap: 10px">
-          <el-select v-model="store.formData.userPosition" style="width: 200px" placeholder="选择职位">
-            <el-option v-for="item in store.titleOptions" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
-          <div><el-button link type="primary" @click="">职称管理</el-button></div>
-        </div>
-      </el-form-item>
-
-      <!-- 健康证到期 -->
-      <el-form-item label="健康证到期" prop="userHealth">
-        <el-date-picker
-          v-model="store.formData.userHealth"
-          type="date"
-          placeholder="选择健康证到期时间"
-          value-format="YYYY-MM-DD"
-        />
-      </el-form-item>
-    </Form>
+    <StaffForm :disabled="drawer.disabled" @close-drawer="drawer.visible = false" />
     <!-- 抽屉操作按钮 -->
     <template v-if="drawer.disabled">
       <div class="drawer-buttons">
@@ -219,47 +86,28 @@
 <script setup lang="ts">
 import { Search } from '@element-plus/icons-vue';
 import { ref, onMounted } from 'vue';
+import StaffForm from './form.vue';
 
 // 导入枚举数据
-import { statusOptions } from '@/enums/index';
+import { searchEmployedOptions } from '@/enums/index';
+import { sexMap } from '@/enums/map';
+
 // 引入数据仓库
 import { useStaffStore } from '@/store/modules/staffMain/staff';
 const store = useStaffStore();
 
-defineProps({
-  title: {
-    type: String,
-    default: '产品管理',
-  },
-});
+import { useEnumsStore } from '@/store/modules/enums/index';
+const enumsStore = useEnumsStore();
 
 onMounted(() => {
   store.setStaffList();
-  // 获取产品单位列表
-  store.setStatusList();
 });
-
-// #region 事件处理
 
 // 搜索
 const search = () => {
   store.setStaffList();
 };
 
-// 表单提交
-const handleFormSubmit = async (model: any) => {
-  const result = await store.updateStaff(model);
-  result && (drawer.value.visible = false);
-};
-
-// 表单重置
-const handleFormReset = () => {
-  store.resetFormData();
-};
-
-// #endregion
-
-// #region 抽屉
 const drawer: any = ref({
   title: '新增人员信息',
   visible: false,
@@ -276,26 +124,21 @@ const showDrawer = (titleIndex: number, $row: any = {}) => {
   // 显示抽屉
   drawer.value.visible = true;
 
-  // 获取产品单位列表
-  store.setPositionList();
-  // 获取产品单位列表
-  store.setDeptList();
-  // 获取产品单位列表
-  store.setTitleList();
+  // 获取职位列表
+  enumsStore.setPositionList();
+  // 获取部门列表
+  enumsStore.setDeptList();
+  // 获取职称列表
+  enumsStore.setTitleList();
 
   // 如果点击更多 禁用表单
   titleIndex === 2 && (drawer.value.disabled = true);
-  titleIndex === 0 && store.setStatusList();
 
   // 浅拷贝防止直接操作原对象
   $row = { ...$row };
 
   // 表单数据回显
-  if ($row?.id) {
-    store.formData = $row;
-  } else {
-    store.resetFormData();
-  }
+  $row?.id ? (store.formData = $row) : store.resetFormData();
 };
 
 // 关闭抽屉触发
@@ -309,7 +152,6 @@ const handleDrawerClose = () => {
     timer && clearTimeout(timer);
   }, 100);
 };
-// #endregion
 
 // 设置行样式
 const getRowClassName = ({ row }: { row: { userStatus: string } }) => {

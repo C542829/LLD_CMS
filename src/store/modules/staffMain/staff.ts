@@ -3,180 +3,9 @@ import { ref } from 'vue';
 import $Message from '@/components/Message';
 import $Notification from '@/components/Notification';
 import { reqStaffList, reqAddStaff, reqUpdateStaff } from '@/api/staffMain/staff/index';
-import { reqNotification } from '@/utils/feedback';
+import { reqNotification, reqList } from '@/utils/feedback';
 
 export const useStaffStore = defineStore('Staff', () => {
-  // #region
-
-  // 性别
-  const sex = [
-    {
-      value: 0,
-      label: '男',
-    },
-    {
-      value: 1,
-      label: '女',
-    },
-  ];
-
-  // 婚姻状态
-  const maritalStatusOptions = [
-    { label: '未知', value: '未知' },
-    { label: '未婚', value: '未婚' },
-    { label: '已婚', value: '已婚' },
-    { label: '离异', value: '离异' },
-    { label: '丧偶', value: '丧偶' },
-  ];
-
-  // 学历
-  const educationOptions = [
-    { label: '未知', value: '未知' },
-    { label: '小学', value: '小学' },
-    { label: '初中', value: '初中' },
-    { label: '高中', value: '高中' },
-    { label: '中专', value: '中专' },
-    { label: '大专', value: '大专' },
-    { label: '本科', value: '本科' },
-    { label: '硕士', value: '硕士' },
-    { label: '博士', value: '博士' },
-    { label: '技校', value: '技校' },
-  ];
-
-  // 在职状态
-  const formEmployedOptions = [
-    {
-      value: '未知',
-      label: '未知',
-    },
-    {
-      value: '在职',
-      label: '在职',
-    },
-    {
-      value: '已离职',
-      label: '已离职',
-    },
-    {
-      value: '试用期',
-      label: '试用期',
-    },
-    {
-      value: '停薪留职',
-      label: '停薪留职',
-    },
-  ];
-
-  // 在职状态
-  const employedOptions: any = ref([]);
-  const setStatusList = async () => {
-    try {
-      // const data = await reqUnitList();
-      // unitOptions.value = data;
-      employedOptions.value = [
-        {
-          value: '全部状态',
-          label: '全部状态',
-        },
-        {
-          value: '在职',
-          label: '在职',
-        },
-        {
-          value: '已离职',
-          label: '已离职',
-        },
-        {
-          value: '试用期',
-          label: '试用期',
-        },
-        {
-          value: '停薪留职',
-          label: '停薪留职',
-        },
-      ];
-    } catch (error) {
-      $Message.error('获取在职状态列表失败');
-    }
-  };
-
-  // 职位
-  const positionOptions: any = ref([]);
-  const setPositionList = async () => {
-    try {
-      // const data = await reqUnitList();
-      // unitOptions.value = data;
-      positionOptions.value = [
-        {
-          value: '店长',
-          label: '店长',
-        },
-        {
-          value: '收银员',
-          label: '收银员',
-        },
-        {
-          value: '采耳师',
-          label: '采耳师',
-        },
-        {
-          value: '修脚师',
-          label: '修脚师',
-        },
-      ];
-    } catch (error) {
-      $Message.error('获取职位列表失败');
-    }
-  };
-
-  // 部门
-  const deptOptions: any = ref([]);
-  const setDeptList = async () => {
-    try {
-      // const data = await reqUnitList();
-      // unitOptions.value = data;
-      deptOptions.value = [
-        {
-          value: '管理部',
-          label: '管理部',
-        },
-        {
-          value: '技师部',
-          label: '技师部',
-        },
-      ];
-    } catch (error) {
-      $Message.error('获取部门列表失败');
-    }
-  };
-
-  // 职称
-  const titleOptions: any = ref([]);
-  const setTitleList = async () => {
-    try {
-      // const data = await reqUnitList();
-      // unitOptions.value = data;
-      titleOptions.value = [
-        {
-          value: '无',
-          label: '无',
-        },
-        {
-          value: '店长',
-          label: '店长',
-        },
-        {
-          value: '技师',
-          label: '技师',
-        },
-      ];
-    } catch (error) {
-      $Message.error('获取部门列表失败');
-    }
-  };
-
-  // #endregion
-
   // 搜索参数
   const searchParams = ref({
     storeId: 0,
@@ -187,17 +16,13 @@ export const useStaffStore = defineStore('Staff', () => {
   // 人员
   const tableData: any = ref([]);
   const setStaffList = async () => {
-    try {
-      // 获取人员列表
-      const data: any = (await reqStaffList(searchParams.value)).data;
-      // 处理数据
-      tableData.value = data.map((item: any) => {
-        item.sexStr = item.userSex ? '女' : '男';
-        return item;
-      });
-    } catch (error) {
-      $Message.error('获取人员列表失败');
-    }
+    // 获取人员列表
+    const data: any = await reqList(async () => {
+      return (await reqStaffList(searchParams.value)).data;
+    }, '获取人员列表失败');
+
+    // 处理数据
+    tableData.value = data;
   };
 
   const updateStaff = async (data: any) => {
@@ -241,34 +66,29 @@ export const useStaffStore = defineStore('Staff', () => {
 
   // 表单验证规则
   const formRules = {
-    productEncode: [{ required: false, message: '请输入产品编码', trigger: 'blur' }],
-    productName: [{ required: true, message: '请输入产品名称', trigger: 'blur' }],
-    productPrice: [{ required: true, message: '请输入产品价格', trigger: 'blur' }],
-    vipProductPrice: [{ required: true, message: '请输入会员价格', trigger: 'blur' }],
-    productCommissionValue: [{ required: false, message: '请输入提成价格', trigger: 'blur' }],
-    productCommissionPrice: [{ required: false, message: '请输入提成比例', trigger: 'blur' }],
-    productCommissionValueType: [{ required: false, message: '请选择提成价格类型', trigger: 'blur' }],
+    userCode: [{ required: true, message: '人员编号为必填项', trigger: 'blur' }],
+    userName: [
+      { required: true, message: '姓名为必填项', trigger: 'blur' },
+      { min: 2, max: 20, message: '姓名长度在2到20个字符之间', trigger: 'blur' },
+    ],
+    userNumber: [
+      { required: true, message: '手机号为必填项', trigger: 'blur' },
+      { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' },
+    ],
+    userPosition: [{ required: true, message: '请选择人员职位', trigger: 'change' }],
+    userIdCard: [
+      { pattern: /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/, message: '请输入正确的身份证号码', trigger: 'blur' },
+    ],
+    userAddress: [{ max: 200, message: '人员地址长度不能超过200个字符', trigger: 'blur' }],
   };
 
   return {
     searchParams,
     tableData,
-    setStatusList,
     setStaffList,
     updateStaff,
-    employedOptions,
     formData,
     resetFormData,
     formRules,
-    positionOptions,
-    setPositionList,
-    deptOptions,
-    setDeptList,
-    titleOptions,
-    setTitleList,
-    sex,
-    educationOptions,
-    maritalStatusOptions,
-    formEmployedOptions,
   };
 });
