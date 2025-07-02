@@ -8,6 +8,9 @@
  * @param index
  * @returns
  */
-export const sexMap = (row: any, column: any, cellValue: any, index: number) => {
-  return cellValue === 0 ? '男' : '女';
+export const sexMap = (row: any, column: any, cellValue: number, index: number) => {
+  let result = '未知';
+  cellValue === 0 && (result = '男');
+  cellValue === 1 && (result = '女');
+  return result;
 };
