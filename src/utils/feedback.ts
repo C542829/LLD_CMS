@@ -5,11 +5,16 @@ import $Notification from '@/components/Notification';
 // 业务状态码
 import { ResponseCode, ResponseCodeMeaning } from '@/enums/response';
 
-export const reqNotification = async (callback: Function) => {
+interface ResponseType {
+  code: number;
+  message: string;
+  data: string | Array<object>;
+}
+
+export const parseReqInform = (res: any) => {
   try {
-    const res: { code: number; message: string; data: string } = await callback();
     if (res.code === ResponseCode.SUCCESS) {
-      $Notification.success(res.data); // 显示成功消息
+      $Notification.success(res.data as string); // 显示成功消息
       return true;
     } else {
       $Notification.error(`${res.message}：${res.data}`); // 显示错误消息
@@ -22,11 +27,15 @@ export const reqNotification = async (callback: Function) => {
   return false;
 };
 
-export const reqList = async (callback: Function, msg = '获取数据列表失败') => {
+export const parseReqList = (res: any, msg = '获取数据列表失败') => {
   try {
-    // 获取数据列表
-    return await callback();
+    if (res.code !== ResponseCode.SUCCESS) {
+      $Notification.error(`${res.message}：${res.data}`);
+    }
+
+    return Array.isArray(res.data) ? res.data : [];
   } catch (error) {
+    console.warn('请求出错：', error);
     $Message.error(msg);
   }
   return [];
