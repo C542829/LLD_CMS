@@ -6,8 +6,9 @@
         <el-button type="primary" @click="showDrawer(0)" class="add-button">添加人员</el-button>
       </div>
       <div class="search-container">
+        <!-- 选择门店 -->
         <div class="search-item" v-if="false">
-          <label for="staffStatus" class="search-label">选择店铺：</label>
+          <label for="staffStatus" class="search-label">选择门店：</label>
           <el-select v-model="store.searchParams.storeId" id="staffStatus" style="width: 120px" placeholder="Select">
             <el-option
               v-for="item in searchEmployedOptions"
@@ -17,6 +18,8 @@
             />
           </el-select>
         </div>
+
+        <!-- 人员在职状态 -->
         <div class="search-item">
           <label for="staffStatus" class="search-label">人员在职状态：</label>
           <el-select v-model="store.searchParams.userStatus" id="staffStatus" style="width: 120px" placeholder="Select">
@@ -28,12 +31,15 @@
             />
           </el-select>
         </div>
+
+        <!-- 搜索 -->
         <div class="search-item">
           <el-input
             v-model="store.searchParams.userName"
             @keydown.enter="search"
             :prefix-icon="Search"
-            placeholder="姓名|登录名"
+            placeholder="姓名 | 登录名"
+            clearable
             class="search-input"
           >
             <template #append>
@@ -71,6 +77,8 @@
       </Table>
     </Card>
   </div>
+
+  <!-- 抽屉 -->
   <Drawer v-model="drawer.visible" :title="drawer.title" @close="handleDrawerClose">
     <!-- 表单 -->
     <StaffForm :disabled="drawer.disabled" @close-drawer="drawer.visible = false" />
@@ -96,9 +104,7 @@ import { sexMap } from '@/enums/map';
 import { useStaffStore } from '@/store/modules/staffMain/staff';
 const store = useStaffStore();
 
-import { useEnumsStore } from '@/store/modules/enums/index';
-const enumsStore = useEnumsStore();
-
+// 初始化
 onMounted(() => {
   store.setStaffList();
 });
@@ -119,23 +125,11 @@ const drawerTitles = ['新增人员信息', '人员信息', '修改人员信息'
 
 // 打开抽屉
 const showDrawer = (titleIndex: number, $row: any = {}) => {
-  // 修改抽屉标题
-  drawer.value.title = drawerTitles[titleIndex];
-  // 显示抽屉
-  drawer.value.visible = true;
-
-  // 获取职位列表
-  enumsStore.setPositionList();
-  // 获取部门列表
-  enumsStore.setDeptList();
-  // 获取职称列表
-  enumsStore.setTitleList();
+  drawer.value.title = drawerTitles[titleIndex]; // 修改抽屉标题
+  drawer.value.visible = true; // 显示抽屉
 
   // 如果点击更多 禁用表单
   titleIndex === 2 && (drawer.value.disabled = true);
-
-  // 浅拷贝防止直接操作原对象
-  $row = { ...$row };
 
   // 表单数据回显
   $row?.id ? (store.formData = $row) : store.resetFormData();
@@ -144,12 +138,9 @@ const showDrawer = (titleIndex: number, $row: any = {}) => {
 // 关闭抽屉触发
 const handleDrawerClose = () => {
   const timer = setTimeout(() => {
-    // 当抽屉关闭时重置表单
-    store.resetFormData();
-    // 去除预览禁用
-    drawer.value.disabled = false;
-    // 清除定时器
-    timer && clearTimeout(timer);
+    store.resetFormData(); // 当抽屉关闭时重置表单
+    drawer.value.disabled = false; // 去除预览禁用
+    timer && clearTimeout(timer); // 清除定时器
   }, 100);
 };
 

@@ -1,9 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import $Message from '@/components/Message';
-import $Notification from '@/components/Notification';
 import { reqStaffList, reqAddStaff, reqUpdateStaff } from '@/api/staffMain/staff/index';
-import { reqNotification, reqList } from '@/utils/feedback';
+import { parseReqInform, parseReqList } from '@/utils/feedback';
 
 export const useStaffStore = defineStore('Staff', () => {
   // 搜索参数
@@ -16,10 +14,9 @@ export const useStaffStore = defineStore('Staff', () => {
   // 人员
   const tableData: any = ref([]);
   const setStaffList = async () => {
-    // 获取人员列表
-    const data: any = await reqList(async () => {
-      return (await reqStaffList(searchParams.value)).data;
-    }, '获取人员列表失败');
+    // 获取数据列表
+    const res: any = await reqStaffList(searchParams.value);
+    const data = parseReqList(res, '获取人员列表失败');
 
     // 处理数据
     tableData.value = data;
@@ -30,10 +27,10 @@ export const useStaffStore = defineStore('Staff', () => {
     data = { ...data };
 
     // 发送请求
-    const result = await reqNotification(async () => {
-      console.log('员工数据 = ', data);
-      return await (data?.id ? reqUpdateStaff(data) : reqAddStaff(data));
-    });
+    console.log('更新员工数据 = ', data);
+    const res: any = await (data?.id ? reqUpdateStaff(data) : reqAddStaff(data));
+    const result = parseReqInform(res);
+
     // 刷新数据
     result && setStaffList();
     return result;

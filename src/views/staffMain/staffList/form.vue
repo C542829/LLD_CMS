@@ -115,7 +115,7 @@
 
       <!-- 人员职称 -->
       <el-form-item label="人员职称" prop="userTitle">
-        <div style="width: 100%; display: flex; gap: 10px">
+        <div style="display: flex; gap: 10px">
           <el-select v-model="store.formData.userPosition" style="width: 200px" placeholder="选择职位">
             <el-option
               v-for="item in enumsStore.titleOptions"
@@ -138,17 +138,16 @@
         />
       </el-form-item>
     </Form>
-    <EnumHandler
-      v-model="enumDialog.visible"
-      :title="enumDialog.title"
-      :config="enumConfig"
-      destroy-on-close
-    ></EnumHandler>
+
+    <!-- 枚举操作dialog -->
+    <template v-if="enumDialog.visible">
+      <EnumHandler v-model="enumDialog.visible" :title="enumDialog.title" :config="enumConfig"></EnumHandler>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import EnumHandler from '@/components/EnumHandler/index.vue';
 
 // 导入枚举数据
@@ -163,6 +162,15 @@ const enumsStore = useEnumsStore();
 const $emit = defineEmits(['close-drawer']);
 
 defineProps(['disabled']);
+
+onMounted(() => {
+  // 获取职位列表
+  enumsStore.setPositionList();
+  // 获取部门列表
+  enumsStore.setDeptList();
+  // 获取职称列表
+  enumsStore.setTitleList();
+});
 
 // 表单提交
 const handleFormSubmit = async (model: any) => {

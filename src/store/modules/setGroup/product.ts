@@ -2,7 +2,10 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import $Message from '@/components/Message';
 import { reqProductList, reqAddProduct, reqUpdateProduct, reqUnitList } from '@/api/setGroup/product';
-import { reqNotification } from '@/utils/feedback';
+import { parseReqInform, parseReqList } from '@/utils/feedback';
+
+import { useEnumsStore } from '@/store/modules/enums/index';
+const enumsStore = useEnumsStore();
 
 export const useProductStore = defineStore('Product', () => {
   // 是否允许折扣
@@ -15,48 +18,21 @@ export const useProductStore = defineStore('Product', () => {
     productStatus: 0,
   });
 
-  // 单位
-  const unitOptions: any = ref([]);
-  const setUnitList = async () => {
-    try {
-      // const data = await reqUnitList();
-      // unitOptions.value = data;
-      unitOptions.value = [
-        {
-          value: 0,
-          label: '盒',
-        },
-        {
-          value: 1,
-          label: '个',
-        },
-        {
-          value: 2,
-          label: '瓶',
-        },
-      ];
-    } catch (error) {
-      $Message.error('获取产品单位列表失败');
-    }
-  };
-
   // 产品
   const productList: any = ref([]);
   const setProductList = async () => {
-    try {
-      // 获取产品单位列表
-      setUnitList();
-      // 获取产品列表
-      const data: any = (await reqProductList(searchParams.value)).data;
-      // 处理数据
-      productList.value = data.map((item: any) => {
-        item.isDiscountStr = isDiscount[item.isDiscount] || '未知';
-        item.unit = unitOptions.value.find((unit: any) => unit.value === item.unit)?.label || '未知';
-        return item;
-      });
-    } catch (error) {
-      $Message.error('获取产品列表失败');
-    }
+    // 获取数据列表
+    const res = await reqProductList(searchParams.value);
+    const data = parseReqList(res);
+
+    await enumsStore.setUnitList();
+
+    // 处理数据
+    productList.value = data.map((item: any) => {
+      item.isDiscountStr = isDiscount[item.isDiscount] || '未知';
+      item.unit = enumsStore.unitOptions.find((unit: any) => unit.value === item.unit)?.label || '未知';
+      return item;
+    });
   };
 
   const updateProduct = async (data: any) => {
@@ -70,13 +46,15 @@ export const useProductStore = defineStore('Product', () => {
     // 如果没有产品状态属性赋默认值
     data.productStatus = data?.productStatus || 0;
 
-    const result = await reqNotification(async () => {
-      return await (data?.id ? reqUpdateProduct(data) : reqAddProduct(data));
-    });
+    // 发送请求
+    const res = await (data?.id ? reqUpdateProduct(data) : reqAddProduct(data));
+    const result = parseReqInform(res);
+
     // 刷新数据
     result && setProductList();
     return result;
   };
+
   const updateProductStatus = async (data: any) => {
     data = { ...data };
     data.productStatus = data.productStatus === 0 ? 1 : 0;
@@ -122,8 +100,6 @@ export const useProductStore = defineStore('Product', () => {
     setProductList,
     updateProduct,
     updateProductStatus,
-    unitOptions,
-    setUnitList,
     formData,
     resetFormData,
     formRules,
