@@ -1,4 +1,4 @@
-export enum ReponseCode {
+export enum ResponseCode {
   UNAUTHORIZED = 401,
   FORBIDDEN = 403,
   SERVER_ERROR = 9994,
@@ -10,7 +10,7 @@ export enum ReponseCode {
   SUCCESS = 10000,
 }
 
-export enum ReponseCodeMeaning {
+export enum ResponseCodeMeaning {
   UNAUTHORIZED = '暂未登录或TOKEN已经过期',
   FORBIDDEN = '没有相关权限',
   SERVER_ERROR = '服务器错误',
