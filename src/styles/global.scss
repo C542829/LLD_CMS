@@ -7,8 +7,10 @@
 
 /* 禁用行样式（置灰） */
 .disabled-row {
-  color: #c0c4cc; /* 浅灰色，模拟禁用态 */
-  background-color: #f8f9fa; /* 浅背景强化区分 */
+  color: #c0c4cc;
+  /* 浅灰色，模拟禁用态 */
+  background-color: #f8f9fa;
+  /* 浅背景强化区分 */
 }
 
 // 列表容器
@@ -26,7 +28,7 @@
   width: 100%;
   height: $operation-card-height;
 
-  > div {
+  >div {
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -46,7 +48,7 @@
   $parent-height: calc(1px + $base-child-nav-height + $base-tabbar-height + $operation-card-height + $main-padding * 5);
   height: calc(100vh - $parent-height);
 
-  > div {
+  >div {
     height: calc(100vh - $parent-height);
   }
 }
@@ -56,4 +58,9 @@
   display: flex;
   gap: $main-padding;
   padding: 10px 80px;
+}
+
+
+.table-header-bg {
+  background-color: $base-child-nav-bg;
 }
