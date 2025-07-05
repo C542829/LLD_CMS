@@ -51,6 +51,7 @@
       @current-change="handleCurrentChange"
       @header-dragend="handleHeaderDragend"
       @expand-change="handleExpandChange"
+      class="custom-table"
     >
       <!-- 表格列 -->
       <slot></slot>
@@ -386,4 +387,9 @@ const handleExpandChange = (row: any, expanded: boolean) => {
 };
 // #endregion
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+/* 使用深度选择器修改表格表头样式 */
+:deep(.custom-table .el-table__header-wrapper th) {
+  background-color: $base-child-nav-bg; // 使用自定义颜色变量
+}
+</style>
