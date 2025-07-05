@@ -1,51 +1,59 @@
 <template>
-  <div class="demo-date-picker">
-    <div class="block">
-      <span class="demonstration">{{ props.title }}：</span>
-      <el-date-picker
-        v-model="value"
-        type="daterange"
-        unlink-panels
-        range-separator="至"
-        start-placeholder="开始日期"
-        end-placeholder="结束日期"
-        :shortcuts="shortcuts"
-        :size="props.size"
-        :touch-config="{ passive: true }"
-      />
-    </div>
-  </div>
+  <component
+    v-model="value"
+    :shortcuts="shortcuts"
+    :is="h(ElDatePicker, { ...$attrs, ...props, ref: changeRef }, $slots)"
+    @clear="reset"
+    type="daterange"
+    unlink-panels
+    range-separator="至"
+    start-placeholder="开始日期"
+    end-placeholder="结束日期"
+  />
 </template>
 
 <script lang="ts" setup>
 import { formatDate } from '@/utils/time';
-import { ref, watch, withDefaults } from 'vue';
+import { ElDatePicker, type DatePickerProps } from 'element-plus';
+import { ref, h, getCurrentInstance, watch } from 'vue';
 
-// 导入自定义事件
-let $emit = defineEmits(['selectDate']);
+/**
+ * 组件属性接口定义
+ * - 继承 DialogProps 并覆盖/扩展部分属性
+ * - config: 配置对象，包含API调用方法和父级ID
+ */
+interface MyDatePickerProps extends Partial<DatePickerProps> {
+  default?: Array<Date>;
+}
 
-// 使用 withDefaults 添加默认值
-const props = withDefaults(
-  defineProps<{
-    title?: string;
-    size: 'default' | 'large' | 'small';
-  }>(),
-  {
-    title: '选择日期',
-    size: 'default',
-  },
-);
+// 定义组件属性
+const props = defineProps<MyDatePickerProps>();
+
+// 获取当前组件实例，用于暴露对话框方法
+const vm: any = getCurrentInstance();
+function changeRef(dialogInstance: any) {
+  // 将对话框实例挂载到组件实例上，便于父组件调用
+  vm.exposeProxy = vm.exposed = dialogInstance || {};
+}
+
+const emit: any = defineEmits();
 
 // 绑定值
-const value = ref([]);
+const value = ref<Array<Date>>(props.default || []);
+
+// 重置
+const reset = () => (value.value = []);
 
 // 当值发生变化时，调用自定义事件
 watch(
   () => value.value,
-  (newValue, oldValue) => {
+  (newValue: Array<Date>, oldValue) => {
+    if (newValue.length === 0) {
+      return;
+    }
     const start: string = formatDate(newValue[0]);
     const end: string = formatDate(newValue[1]);
-    $emit('selectDate', start, end);
+    emit('selectDate', start, end);
   },
 );
 
@@ -90,11 +98,38 @@ const shortcuts = [
     },
   },
   {
+    text: '最近一个月',
+    value: () => {
+      const end = new Date();
+      const start = new Date();
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+      return [start, end];
+    },
+  },
+  {
     text: '最近三个月',
     value: () => {
       const end = new Date();
       const start = new Date();
       start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+      return [start, end];
+    },
+  },
+  {
+    text: '最近六个月',
+    value: () => {
+      const end = new Date();
+      const start = new Date();
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 180);
+      return [start, end];
+    },
+  },
+  {
+    text: '最近一年',
+    value: () => {
+      const end = new Date();
+      const start = new Date();
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 365);
       return [start, end];
     },
   },
@@ -105,30 +140,3 @@ export default {
   name: 'DatePicker',
 };
 </script>
-
-<style scoped>
-.demo-date-picker {
-  display: flex;
-  width: 100%;
-  padding: 0;
-  flex-wrap: wrap;
-}
-
-.demo-date-picker .block {
-  padding: 30px 0;
-  text-align: center;
-  border-right: solid 1px var(--el-border-color);
-  flex: 1;
-}
-
-.demo-date-picker .block:last-child {
-  border-right: none;
-}
-
-.demo-date-picker .demonstration {
-  display: inline-block;
-  color: var(--el-text-color-secondary);
-  font-size: 14px;
-  margin-bottom: 20px;
-}
-</style>
