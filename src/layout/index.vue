@@ -96,7 +96,7 @@ export default {
     width: $base-menu-width;
     background: $base-menu-bg;
     transition: all 0.3s;
-    z-index: 100;
+    z-index: 1;
     &.fold {
       width: $base-menu-min-width;
     }
@@ -133,8 +133,6 @@ export default {
       height: calc(100vh - $base-tabbar-height);
       padding: $main-padding;
       transition: all 0.3s;
-      z-index: 1;
-
       &.fold {
         width: calc(100vw - $base-menu-min-width);
       }
