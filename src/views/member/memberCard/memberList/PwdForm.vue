@@ -13,17 +13,17 @@
     <Form :model="formData" :rules="formRules" @submit="handleFormSubmit" @reset="handleFormReset">
       <!-- 原密码 -->
       <el-form-item label="原密码" prop="oldPwd">
-        <el-input v-model="formData.oldPwd" placeholder="请输入旧密码" />
+        <el-input v-model="formData.oldPwd" type="password" show-password placeholder="请输入旧密码" />
       </el-form-item>
 
       <!-- 新密码 -->
       <el-form-item label="新密码" prop="newPwd">
-        <el-input v-model="formData.newPwd" placeholder="请输入新密码" />
+        <el-input v-model="formData.newPwd" type="password" show-password placeholder="请输入新密码" />
       </el-form-item>
 
       <!-- 确认密码 -->
       <el-form-item label="确认密码" prop="confirmPwd">
-        <el-input v-model="formData.confirmPwd" placeholder="请输入确认密码" />
+        <el-input v-model="formData.confirmPwd" type="password" show-password placeholder="请输入确认密码" />
       </el-form-item>
 
       <template #footer>

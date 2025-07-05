@@ -35,17 +35,18 @@
     </Card>
 
     <!-- 数据列表 -->
-    <Card class="table-card" :padding="10">
+    <Card class="table-card" padding="15px 15px 0 15px">
       <PaginationTable
+        v-loading="store.isLoading"
         :data="store.tableData"
-        :total="store.tableData.length"
-        v-model:currentPage="currentPage"
-        v-model:pageSize="pageSize"
+        :total="store.searchParams.total"
+        v-model:currentPage="store.searchParams.currentPage"
+        v-model:pageSize="store.searchParams.pageSize"
         @size-change="handleSizeChange"
         @pagination-current-change="handleCurrentChange"
       >
         <el-table-column prop="infoName" label="姓名" min-width="80" />
-        <el-table-column prop="infoSex" label="性别" width="60" :formatter="sexMap" />
+        <el-table-column prop="infoGender" label="性别" width="60" :formatter="sexMap" />
         <el-table-column prop="infoCardNumber" label="卡号" min-width="100" />
         <el-table-column prop="infoPhoneNumber" label="手机号" width="120" />
         <el-table-column prop="infoLastConsumptionTime" label="末次消费" width="170" />
@@ -56,17 +57,27 @@
             <el-button link type="warning" @click="showDrawer(1, scope.row)">修改资料</el-button>
             <el-button link type="primary" @click="showDrawer(2, scope.row)">修改密码</el-button>
             <el-button link type="success" @click="showDrawer(3, scope.row)">赠送优惠券</el-button>
-            <el-button link type="warning" @click="showDrawer(4, scope.row)">取消优惠券</el-button>
+            <el-button link type="warning" @click="showDialog(4, scope.row)">取消优惠券</el-button>
             <el-button link type="success" @click="showDrawer(5, scope.row)">赠送卡金</el-button>
-            <el-button link type="info" @click="showDrawer(6, scope.row)">更多</el-button>
+            <el-button link type="info" @click="showDialog(6, scope.row)">更多</el-button>
           </template>
         </el-table-column>
       </PaginationTable>
     </Card>
   </div>
   <Drawer v-model="drawer.visible" :title="drawer.title" @close="handleDrawerClose">
-    <component :is="drawer.component" @close-drawer="handleDrawerClose" />
+    <component :is="drawer.component" @close-drawer="drawer.visible = false" />
   </Drawer>
+
+  <el-dialog
+    v-model="dialog.visible"
+    :title="dialog.title"
+    :width="dialog.width"
+    @close="handleDrawerClose"
+    :top="dialog.width === '80%' ? '3vh' : ''"
+  >
+    <component :is="dialog.component" @close-drawer="dialog.visible = false" />
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
@@ -74,27 +85,11 @@ import { Search } from '@element-plus/icons-vue';
 import { ref, onMounted, markRaw, reactive } from 'vue';
 import { sexMap } from '@/enums/map';
 
-// 导入子组件
-import MemberForm from './MemberForm.vue';
-import PwdForm from './PwdForm.vue';
-
 // 引入数据仓库
 import { useMemberListStore } from '@/store/modules/member/memberList';
 const store = useMemberListStore();
 
-const currentPage = ref(1);
-const pageSize = ref(20);
-// 处理分页变化
-const handleSizeChange = (val: number) => {
-  console.log(`每页 ${val} 条`);
-  // 这里可以调用接口重新获取数据
-};
-
-const handleCurrentChange = (val: number) => {
-  console.log(`当前页: ${val}`);
-  // 这里可以调用接口重新获取数据
-};
-
+// 初始化
 onMounted(() => {
   store.setTableData();
 });
@@ -106,9 +101,29 @@ const search = () => {
   store.setTableData();
 };
 
+// 处理分页变化
+const handleSizeChange = (val: number) => {
+  store.searchParams.pageSize = val;
+  store.setTableData();
+};
+
+const handleCurrentChange = (val: number) => {
+  store.searchParams.currentPage = val;
+  store.setTableData();
+};
+
 // #endregion
 
 // #region 抽屉
+
+// 导入子组件
+import MemberForm from './MemberForm.vue';
+import PwdForm from './PwdForm.vue';
+import GiveCouponForm from './GiveCouponForm.vue';
+import CancelCoupon from './CancelCoupon.vue';
+import GiveCardAmount from './GiveCardAmount.vue';
+import MemberInfo from './MemberInfo.vue';
+
 const drawer: any = reactive({
   title: '新增会员',
   visible: false,
@@ -116,7 +131,7 @@ const drawer: any = reactive({
 });
 
 // 抽屉标题
-const drawerTitles = ['新增会员', '修改会员信息', '修改会员密码'];
+const drawerTitles = ['新增会员', '修改会员信息', '修改会员密码', '赠送优惠券', '优惠券列表', '赠送卡金', '会员信息'];
 
 // 打开抽屉
 const showDrawer = (handleIndex: number, row: any = {}) => {
@@ -125,11 +140,10 @@ const showDrawer = (handleIndex: number, row: any = {}) => {
   // 显示抽屉
   drawer.visible = true;
 
-  // 浅拷贝防止直接操作原对象
-  row = { ...row };
   // 表单数据回显
   row?.id ? (store.formData = row) : store.resetFormData;
 
+  // 切换子组件
   switch (handleIndex) {
     case 0:
       drawer.component = markRaw(MemberForm);
@@ -141,28 +155,56 @@ const showDrawer = (handleIndex: number, row: any = {}) => {
       drawer.component = markRaw(PwdForm);
       break;
     case 3:
+      drawer.component = markRaw(GiveCouponForm);
       break;
-    case 4:
-      break;
-    default:
+    case 5:
+      drawer.component = markRaw(GiveCardAmount);
       break;
   }
 };
 
 // 关闭抽屉触发
 const handleDrawerClose = () => {
-  console.log();
-
   const timer = setTimeout(() => {
     // 当抽屉关闭时重置表单
     store.resetFormData();
-    // 去除预览禁用
-    drawer.visible = false;
     // 清除定时器
     timer && clearTimeout(timer);
   }, 100);
 };
+
 // #endregion
+
+// 模态框
+const dialog: any = reactive({
+  title: '优惠券列表',
+  visible: false,
+  component: markRaw(CancelCoupon),
+  width: '60%',
+});
+
+// 打开模态框
+const showDialog = (handleIndex: number, row: any = {}) => {
+  // 修改模态框标题
+  dialog.title = drawerTitles[handleIndex];
+  // 显示模态框
+  dialog.visible = true;
+
+  // 表单数据回显
+  row?.id ? (store.formData = row) : store.resetFormData;
+
+  // 切换子组件
+  switch (handleIndex) {
+    case 4:
+      dialog.width = '60%';
+      dialog.component = markRaw(CancelCoupon);
+      break;
+    case 6:
+      dialog.width = '80%';
+      dialog.component = markRaw(MemberInfo);
+      break;
+  }
+};
 </script>
 
 <style scoped lang="scss">
