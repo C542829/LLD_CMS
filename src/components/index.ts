@@ -10,6 +10,7 @@ import Form from './Form/index.vue';
 import Card from './Card/index.vue';
 import BtnForm from './BtnForm/index.vue';
 import DynamicInput from './DynamicInput/index.vue';
+import DatePicker from './DatePicker/index.vue';
 import Message from './Message';
 import MessageBox from './MessageBox';
 import Notification from './Notification';
@@ -30,6 +31,7 @@ const allGlobalComponent: any = {
   Card,
   BtnForm,
   DynamicInput,
+  DatePicker,
 };
 
 //对外暴露插件对象
