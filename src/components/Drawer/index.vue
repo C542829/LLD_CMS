@@ -1,9 +1,8 @@
 <template>
   <div class="custom-drawer">
     <el-drawer
-      style="min-width: 400px"
+      style="min-width: 400px; max-width: 500px"
       v-model="visible"
-      :title="props.title"
       :size="props.size"
       :direction="props.direction"
       :before-close="handleClose"
@@ -16,6 +15,9 @@
       :show-close="props.showClose"
       :custom-class="props.customClass"
     >
+      <template #header>
+        <h1 class="title">{{ props.title }}</h1>
+      </template>
       <slot></slot>
       <template #footer v-if="$slots.footer">
         <slot name="footer"></slot>
@@ -101,5 +103,11 @@ export default {
 <style scoped>
 .custom-drawer {
   /* 自定义样式 */
+
+  .title {
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+  }
 }
 </style>
