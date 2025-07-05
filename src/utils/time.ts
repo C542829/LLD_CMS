@@ -68,3 +68,15 @@ export const formatDate = (date: Date, format = 'YYYY-MM-DD') => {
   // 利用正则表达式 /YYYY|MM|DD|HH|mm|ss/g 匹配 format 字符串里的所有占位符，然后用 replacements 对象中的对应值替换
   return format.replace(/YYYY|MM|DD/g, (match) => replacements[match]);
 };
+
+/**
+ * 表格日期格式化器
+ * @param row
+ * @param column
+ * @param cellValue
+ * @param index
+ * @returns
+ */
+export const dateFormatter = (row: any, column: any, cellValue: string, index: number) => {
+  return formatDate(new Date(cellValue)) || '';
+};
