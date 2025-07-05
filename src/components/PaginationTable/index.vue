@@ -518,11 +518,10 @@ defineExpose({
   }
 
   .pagination-container {
-    padding: 10px 0 0 0;
+    padding: 10px 0;
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
-    background-color: #f5f7fa;
     z-index: 10;
 
     > div:first-child {
