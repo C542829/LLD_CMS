@@ -38,7 +38,7 @@
       <Drawer v-model="drawerVisible" title="房间信息" :key="editRoom.id">
         <div class="bed-list">
           <!-- 房间信息 -->
-          <Card :padding="15">
+          <Card>
             <div class="room-name-area">
               <span>房间名：</span>
               <DynamicInput :value="editRoom.roomName" @update="updateRoomName" />
@@ -48,7 +48,7 @@
           </Card>
 
           <!-- 床位列表 -->
-          <Card :padding="15">
+          <Card padding="10px">
             <div class="bed-list-header">
               <span>床位信息</span>
               <BtnForm @submit="addBed" btnText="添加床位" tipText="请输入床位名称" />
