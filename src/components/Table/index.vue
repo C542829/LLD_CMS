@@ -1,72 +1,72 @@
 <template>
-  <div>
-    <el-table
-      :height="props.height"
-      :data="props.data"
-      :max-height="props.maxHeight"
-      :stripe="props.stripe"
-      :border="props.border"
-      :size="props.size"
-      :fit="props.fit"
-      :show-header="props.showHeader"
-      :highlight-current-row="props.highlightCurrentRow"
-      :row-class-name="props.rowClassName"
-      :row-style="props.rowStyle"
-      :cell-class-name="props.cellClassName"
-      :cell-style="props.cellStyle"
-      :header-row-class-name="props.headerRowClassName"
-      :header-row-style="props.headerRowStyle"
-      :header-cell-class-name="props.headerCellClassName"
-      :header-cell-style="props.headerCellStyle"
-      :row-key="props.rowKey"
-      :empty-text="props.emptyText"
-      :default-expand-all="props.defaultExpandAll"
-      :tree-props="props.treeProps"
-      :default-sort="props.defaultSort"
-      :tooltip-effect="props.tooltipEffect"
-      :show-summary="props.showSummary"
-      :sum-text="props.sumText"
-      :summary-method="props.summaryMethod"
-      :span-method="props.spanMethod"
-      :select-on-indeterminate="props.selectOnIndeterminate"
-      :indent="props.indent"
-      :lazy="props.lazy"
-      :load="props.load"
-      :table-layout="props.tableLayout"
-      @select="handleSelect"
-      @select-all="handleSelectAll"
-      @selection-change="handleSelectionChange"
-      @cell-mouse-enter="handleCellMouseEnter"
-      @cell-mouse-leave="handleCellMouseLeave"
-      @cell-click="handleCellClick"
-      @cell-dblclick="handleCellDblclick"
-      @cell-contextmenu="handleCellContextmenu"
-      @row-click="handleRowClick"
-      @row-contextmenu="handleRowContextmenu"
-      @row-dblclick="handleRowDblclick"
-      @header-click="handleHeaderClick"
-      @header-contextmenu="handleHeaderContextmenu"
-      @sort-change="handleSortChange"
-      @filter-change="handleFilterChange"
-      @current-change="handleCurrentChange"
-      @header-dragend="handleHeaderDragend"
-      @expand-change="handleExpandChange"
-      class="custom-table"
-    >
-      <!-- 表格列 -->
-      <slot></slot>
+  <!-- <div> -->
+  <el-table
+    :height="props.height"
+    :data="props.data"
+    :max-height="props.maxHeight"
+    :stripe="props.stripe"
+    :border="props.border"
+    :size="props.size"
+    :fit="props.fit"
+    :show-header="props.showHeader"
+    :highlight-current-row="props.highlightCurrentRow"
+    :row-class-name="props.rowClassName"
+    :row-style="props.rowStyle"
+    :cell-class-name="props.cellClassName"
+    :cell-style="props.cellStyle"
+    :header-row-class-name="props.headerRowClassName"
+    :header-row-style="props.headerRowStyle"
+    :header-cell-class-name="props.headerCellClassName"
+    :header-cell-style="props.headerCellStyle"
+    :row-key="props.rowKey"
+    :empty-text="props.emptyText"
+    :default-expand-all="props.defaultExpandAll"
+    :tree-props="props.treeProps"
+    :default-sort="props.defaultSort"
+    :tooltip-effect="props.tooltipEffect"
+    :show-summary="props.showSummary"
+    :sum-text="props.sumText"
+    :summary-method="props.summaryMethod"
+    :span-method="props.spanMethod"
+    :select-on-indeterminate="props.selectOnIndeterminate"
+    :indent="props.indent"
+    :lazy="props.lazy"
+    :load="props.load"
+    :table-layout="props.tableLayout"
+    @select="handleSelect"
+    @select-all="handleSelectAll"
+    @selection-change="handleSelectionChange"
+    @cell-mouse-enter="handleCellMouseEnter"
+    @cell-mouse-leave="handleCellMouseLeave"
+    @cell-click="handleCellClick"
+    @cell-dblclick="handleCellDblclick"
+    @cell-contextmenu="handleCellContextmenu"
+    @row-click="handleRowClick"
+    @row-contextmenu="handleRowContextmenu"
+    @row-dblclick="handleRowDblclick"
+    @header-click="handleHeaderClick"
+    @header-contextmenu="handleHeaderContextmenu"
+    @sort-change="handleSortChange"
+    @filter-change="handleFilterChange"
+    @current-change="handleCurrentChange"
+    @header-dragend="handleHeaderDragend"
+    @expand-change="handleExpandChange"
+    class="custom-table"
+  >
+    <!-- 表格列 -->
+    <slot></slot>
 
-      <!-- 自定义空数据显示 -->
-      <template #empty v-if="$slots.empty">
-        <slot name="empty"></slot>
-      </template>
+    <!-- 自定义空数据显示 -->
+    <template #empty v-if="$slots.empty">
+      <slot name="empty"></slot>
+    </template>
 
-      <!-- 自定义表尾合计行 -->
-      <template #append v-if="$slots.append">
-        <slot name="append"></slot>
-      </template>
-    </el-table>
-  </div>
+    <!-- 自定义表尾合计行 -->
+    <template #append v-if="$slots.append">
+      <slot name="append"></slot>
+    </template>
+  </el-table>
+  <!-- </div> -->
 </template>
 
 <script lang="ts" setup>
