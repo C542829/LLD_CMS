@@ -17,27 +17,29 @@
 .main-container {
   display: flex;
   width: 100%;
+  height: 100%;
   flex-direction: column;
   justify-content: space-between;
   gap: $main-padding;
-  overflow: auto;
+
+  >div:last-child {
+    flex: 1;
+    overflow: auto;
+  }
 }
 
 // 增删改查卡片样式
 .operation-card {
   width: 100%;
-  height: $operation-card-height;
-
-  >div {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
 
   .search-container {
     display: flex;
     gap: $main-padding;
+
+    .search-item {
+      display: flex;
+      align-items: center;
+    }
   }
 }
 
