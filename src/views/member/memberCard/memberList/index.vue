@@ -83,7 +83,7 @@
 <script setup lang="ts">
 import { Search } from '@element-plus/icons-vue';
 import { ref, onMounted, markRaw, reactive } from 'vue';
-import { sexMap } from '@/enums/map';
+import { sexMap } from '@/enums/mapFormatter';
 
 // 引入数据仓库
 import { useMemberListStore } from '@/store/modules/member/memberList';
