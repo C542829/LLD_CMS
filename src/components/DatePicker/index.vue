@@ -39,10 +39,7 @@ function changeRef(dialogInstance: any) {
 const emit: any = defineEmits();
 
 // 绑定值
-const value = ref<Array<Date>>(props.default || []);
-
-// 重置
-const reset = () => (value.value = []);
+const value = ref<Array<Date>>([]);
 
 // 当值发生变化时，调用自定义事件
 watch(
@@ -51,11 +48,17 @@ watch(
     if (newValue.length === 0) {
       return;
     }
+
     const start: string = formatDate(newValue[0]);
     const end: string = formatDate(newValue[1]);
     emit('selectDate', start, end);
   },
 );
+
+props.default && (value.value = props.default);
+
+// 重置
+const reset = () => (value.value = []);
 
 // 设置快捷选项
 const shortcuts = [
