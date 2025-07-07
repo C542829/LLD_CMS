@@ -41,7 +41,7 @@ const props = withDefaults(defineProps<MyCardProps>(), {
   shadow: 'never',
   bgColor: '#f5f7fa',
   flex: 'column',
-  gap: 10,
+  gap: 15,
   padding: '15px',
   border: 'none',
 });
@@ -56,6 +56,8 @@ export default {
 .card-container {
   .card-body {
     display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
     height: 100%;
   }
 }
