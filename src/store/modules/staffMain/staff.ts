@@ -4,6 +4,8 @@ import { reqStaffList, reqAddStaff, reqUpdateStaff } from '@/api/staffMain/staff
 import { parseReqInform, parseReqList } from '@/utils/feedback';
 
 export const useStaffStore = defineStore('Staff', () => {
+  const loading = ref(false);
+
   // 搜索参数
   const searchParams = ref({
     storeId: 0,
@@ -14,12 +16,13 @@ export const useStaffStore = defineStore('Staff', () => {
   // 人员
   const tableData: any = ref([]);
   const setStaffList = async () => {
+    loading.value = true;
     // 获取数据列表
     const res: any = await reqStaffList(searchParams.value);
     const data = parseReqList(res, '获取人员列表失败');
-
     // 处理数据
     tableData.value = data;
+    loading.value = false;
   };
 
   const updateStaff = async (data: any) => {
@@ -80,6 +83,7 @@ export const useStaffStore = defineStore('Staff', () => {
   };
 
   return {
+    loading,
     searchParams,
     tableData,
     setStaffList,

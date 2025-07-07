@@ -14,6 +14,8 @@ import {
 } from '@/api/setGroup/room';
 
 export const useRoomStore = defineStore('Room', () => {
+  const loading = ref(false);
+
   // 搜索参数
   const searchParams = ref({
     storeId: 0,
@@ -23,15 +25,13 @@ export const useRoomStore = defineStore('Room', () => {
   // #region 房间
   const roomList: any = ref([]);
   const setRoomList = async () => {
-    try {
-      // 获取房间列表
-      const res = await reqRoomList(searchParams.value);
-      const data = parseReqList(res);
-      // 处理数据
-      roomList.value = data;
-    } catch (error) {
-      $Message.error('获取房间列表失败');
-    }
+    loading.value = true;
+    // 获取房间列表
+    const res = await reqRoomList(searchParams.value);
+    const data = parseReqList(res);
+    // 处理数据
+    roomList.value = data;
+    loading.value = false;
   };
 
   const updateRoom = async (data: any) => {
@@ -52,14 +52,13 @@ export const useRoomStore = defineStore('Room', () => {
   // #region 床位
   const bedList: any = ref([]);
   const setBedList = async (id: number) => {
-    try {
-      // 获取床位列表
-      const data: any = (await reqBedList({ roomId: id })).data;
-      // 处理数据
-      Array.isArray(data) ? (bedList.value = data) : $Message.error(data);
-    } catch (error) {
-      $Message.error('获取床位列表失败');
-    }
+    loading.value = true;
+    // 获取床位列表
+    const res = await reqBedList({ roomId: id });
+    const data = parseReqList(res);
+    // 处理数据
+    bedList.value = data;
+    loading.value = false;
   };
 
   const updateBed = async (data: any) => {
@@ -90,6 +89,7 @@ export const useRoomStore = defineStore('Room', () => {
   // #endregion
 
   return {
+    loading,
     searchParams,
     roomList,
     setRoomList,

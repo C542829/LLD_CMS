@@ -52,7 +52,14 @@
 
     <!-- 数据列表 -->
     <Card class="table-card">
-      <Table :data="store.tableData" :border="true" :stripe="true" :row-class-name="getRowClassName" class="table-main">
+      <Table
+        :data="store.tableData"
+        v-loading="store.loading"
+        :border="true"
+        :stripe="true"
+        :row-class-name="getRowClassName"
+        class="table-main"
+      >
         <el-table-column prop="userName" label="姓名" min-width="80" />
         <el-table-column prop="userSex" label="性别" width="60" :formatter="sexMap" />
         <el-table-column prop="userNumber" label="手机号" width="120" />
@@ -98,7 +105,7 @@ import StaffForm from './form.vue';
 
 // 导入枚举数据
 import { searchEmployedOptions } from '@/enums/index';
-import { sexMap } from '@/enums/map';
+import { sexMap } from '@/enums/mapFormatter';
 
 // 引入数据仓库
 import { useStaffStore } from '@/store/modules/staffMain/staff';
