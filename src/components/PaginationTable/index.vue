@@ -244,7 +244,7 @@ const props = withDefaults(
     showPagination: true,
     currentPage: 1,
     pageSize: 10,
-    pageSizes: () => [10, 20, 30, 50],
+    pageSizes: () => [10, 20, 30, 50, 100],
     layout: 'total, sizes, prev, pager, next, jumper',
     total: 0,
     small: false,
