@@ -10,6 +10,7 @@
       gap: `${props.gap}px`,
       flexDirection: props.flex,
       padding: props.padding,
+      flexWrap: props.wrap,
     }"
     class="card-container"
     body-class="card-body"
@@ -28,6 +29,7 @@ interface MyCardProps extends Partial<CardProps> {
   padding?: string;
   border?: string;
   borderRadius?: string;
+  wrap?: string;
 }
 
 // 获取当前组件实例，用于暴露实例方法
@@ -44,6 +46,7 @@ const props = withDefaults(defineProps<MyCardProps>(), {
   gap: 15,
   padding: '15px',
   border: 'none',
+  wrap: 'wrap',
 });
 </script>
 <script lang="ts">
@@ -56,9 +59,9 @@ export default {
 .card-container {
   .card-body {
     display: flex;
-    flex-wrap: wrap;
     align-content: flex-start;
     height: 100%;
+    overflow: auto;
   }
 }
 </style>
