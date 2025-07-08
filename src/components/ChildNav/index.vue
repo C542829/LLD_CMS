@@ -17,9 +17,7 @@
       </template>
 
       <!-- 仅当标签页激活时渲染组件 -->
-      <keep-alive>
-        <component :is="item.component" v-if="activeName === item.label" />
-      </keep-alive>
+      <component :is="item.component" v-if="activeName === item.label" />
     </el-tab-pane>
   </component>
 </template>
