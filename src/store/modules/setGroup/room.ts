@@ -39,7 +39,7 @@ export const useRoomStore = defineStore('Room', () => {
     data = { ...data };
 
     // 发送请求
-    console.log('房间数据 = ', data);
+    console.log('更新房间数据 = ', data);
     const res = await (data?.id ? reqUpdateRoom(data) : reqAddRoom(data));
     const result = parseReqInform(res);
 
@@ -62,24 +62,28 @@ export const useRoomStore = defineStore('Room', () => {
   };
 
   const updateBed = async (data: any) => {
-    // 发送请求
-    let res: any = {};
-    if (data?.id) {
-      res = await reqUpdateBed(data);
-    } else {
-      data.status = '空闲';
-      res = await reqAddBed(data);
-    }
-    const result = parseReqInform(res);
+    // 浅拷贝
+    data = { ...data };
+    console.log('更新床位信息 = ', data);
 
+    // 处理请求参数
+    data.status = data?.id ? data.status : '空闲';
+    // 发送请求
+    const res = await (data?.id ? reqUpdateBed(data) : reqAddBed(data));
+    const result = parseReqInform(res);
     // 刷新数据
     result && setBedList(data.roomInfoId);
     return result;
   };
 
-  const updateBedStatus = async (data: { id: number; status: string; roomInfoId: number }) => {
+  const updateBedStatus = async (data: any) => {
+    // 处理请求参数
+    const bedId = data.id;
+    const status = data.status === '暂停使用' ? '空闲' : '暂停使用';
+    const params = { bedId, status };
+
     // 发送请求
-    const res = await reqUpdateBedStatus(data);
+    const res = await reqUpdateBedStatus(params);
     const result = parseReqInform(res);
 
     // 刷新数据

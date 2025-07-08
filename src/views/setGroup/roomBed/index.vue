@@ -21,7 +21,7 @@
 
     <!-- 房间列表 -->
     <Card v-loading="store.loading" flex="row" :gap="30" class="room-list">
-      <Card v-for="room in store.roomList" bgColor="#5cb3cc" class="room-card">
+      <Card v-for="room in store.roomList" wrap="nowrap" bgColor="#5cb3cc" class="room-card">
         <div class="card-top">
           <span class="name">{{ room.roomName }}</span>
           <el-button @click="editRoomInfo(room)" link size="small" style="color: #dff9fb">编辑</el-button>
@@ -54,19 +54,27 @@
             <span>床位信息</span>
             <BtnForm @submit="addBed" btnText="添加床位" tipText="请输入床位名称" />
           </div>
+
+          <!-- 床位列表 -->
           <Table :data="store.bedList" :border="true" :row-class-name="getRowClassName">
             <el-table-column prop="bedName" label="床位名" width="230">
               <template #default="scope">
-                <DynamicInput :value="scope.row.bedName" :params="scope.row.id" @update="updateBedName" :width="120" />
+                <DynamicInput
+                  :value="scope.row.bedName"
+                  :params="scope.row"
+                  @update="updateBedName"
+                  :width="120"
+                  :key="scope.row.id"
+                />
               </template>
             </el-table-column>
             <el-table-column prop="status" label="状态" min-width="50" />
             <el-table-column label="操作" width="60">
               <template #default="scope">
-                <template v-if="scope.row !== '暂停使用'">
+                <template v-if="scope.row.status === '空闲'">
                   <el-button @click="disabledBed(scope.row)" link type="warning">停用</el-button>
                 </template>
-                <template v-if="scope.row === '暂停使用'">
+                <template v-if="scope.row.status === '暂停使用'">
                   <el-button @click="enabledBed(scope.row)" link type="primary">恢复</el-button>
                 </template>
               </template>
@@ -94,8 +102,13 @@ onMounted(() => {
 });
 
 // 搜索
-const search = () => {
-  store.setRoomList();
+const search = async () => {
+  await store.setRoomList();
+  if (store.searchParams.roomName) {
+    store.roomList = store.roomList.filter((item: any) => {
+      return item.roomName.toLocaleLowerCase().includes(store.searchParams.roomName.toLocaleLowerCase());
+    });
+  }
 };
 
 // 添加房间
@@ -104,8 +117,8 @@ const addRoom = (value: object) => {
 };
 
 // 修改房间名
-const updateRoomName = (data: { value: string }) => {
-  store.updateRoom({ id: editRoom.value.id, roomName: data.value });
+const updateRoomName = (value: string) => {
+  store.updateRoom({ id: editRoom.value.id, roomName: value });
 };
 
 // 当前编辑的房间信息
@@ -113,7 +126,6 @@ const editRoom: any = ref({});
 // 点击编辑获取当前房间的床位数据列表
 const editRoomInfo = (room: { id: number }) => {
   editRoom.value = { ...room };
-  console.log('当前房间信息 = ', editRoom.value);
   store.setBedList(room.id);
   drawerVisible.value = true;
 };
@@ -125,8 +137,8 @@ const addBed = (value: string) => {
 };
 
 // 修改床位名称
-const updateBedName = (data: { value: string; params: number }) => {
-  store.updateBed({ id: data.params, bedName: data.value });
+const updateBedName = (value: string, params: any) => {
+  store.updateBed({ ...params, bedName: value });
 };
 
 // 停用
@@ -136,12 +148,12 @@ const disabledBed = async (row: any) => {
     message: `你确定要禁用床位【${row.bedName}】吗？`,
     type: 'warning',
   });
-  result && store.updateBedStatus({ ...row, status: '暂停使用' });
+  result && store.updateBedStatus(row);
 };
 
 // 启用
 const enabledBed = (row: any) => {
-  store.updateBedStatus({ ...row, status: '空闲' });
+  store.updateBedStatus(row);
 };
 
 // 控制抽屉

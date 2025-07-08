@@ -27,4 +27,9 @@ export const reqAddBed = (data = {}) => post(API.BED_ADD, data);
 
 export const reqUpdateBed = (data = {}) => put(API.BED_UPDATE, data);
 
-export const reqUpdateBedStatus = (data = {}) => put(API.BED_UPDATE_STATUS, data);
+export const reqUpdateBedStatus = (data = {}) =>
+  put(API.BED_UPDATE_STATUS, data, {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+  });
