@@ -25,6 +25,17 @@ import { ref, withDefaults, inject } from 'vue';
 
 const $Message: any = inject('$Message');
 
+interface DynamicInputProps {
+  value: string; // 输入框值
+  width?: number; // 输入框宽度
+  params?: any; // 额外参数
+}
+
+interface DynamicInputData {
+  value: string;
+  params?: any;
+}
+
 const props = withDefaults(defineProps<DynamicInputProps>(), { value: '', width: 160 });
 
 const $emit = defineEmits(['update']);
@@ -41,9 +52,10 @@ const handleConfirm = () => {
     return;
   }
   // 传递数据
-  const params: DynamicInputData = { value: inputValue.value };
-  props.params && (params.params = props.params);
-  $emit('update', params);
+  const value = inputValue.value;
+  let params = {};
+  props.params && (params = props.params);
+  $emit('update', value, params);
   // 关闭编辑状态
   isEditing.value = false;
 };
@@ -53,17 +65,6 @@ const handleCancel = () => {
   isEditing.value = false;
   inputValue.value = props.value;
 };
-
-interface DynamicInputProps {
-  value: string; // 输入框值
-  width?: number; // 输入框宽度
-  params?: object; // 额外参数
-}
-
-interface DynamicInputData {
-  value: string;
-  params?: object;
-}
 </script>
 <script lang="ts">
 export default {
