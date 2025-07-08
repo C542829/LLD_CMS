@@ -1,13 +1,7 @@
 <template>
-  <div>{{ title }}</div>
+  <div>资产转移</div>
 </template>
 
-<script setup lang="ts">
-defineProps({
-  title: {
-    type: String,
-  },
-});
-</script>
+<script setup lang="ts"></script>
 
 <style scoped lang="scss"></style>

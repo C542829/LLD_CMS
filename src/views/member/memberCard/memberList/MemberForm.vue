@@ -57,8 +57,8 @@
 <script setup lang="ts">
 import { ref, withDefaults } from 'vue';
 import { vipLevelOptions, sexOptions } from '@/enums';
-import { useMemberListStore } from '@/store/modules/member/memberList';
-const store = useMemberListStore();
+import { useMemberStore } from '@/store/modules/member/member';
+const store = useMemberStore();
 
 const $emit = defineEmits(['close-drawer']);
 

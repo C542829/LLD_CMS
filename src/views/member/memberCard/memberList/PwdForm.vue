@@ -35,8 +35,8 @@
 
 <script setup lang="ts">
 import { reactive, inject } from 'vue';
-import { useMemberListStore } from '@/store/modules/member/memberList';
-const store = useMemberListStore();
+import { useMemberStore } from '@/store/modules/member/member';
+const store = useMemberStore();
 
 const $MessageBox: any = inject('$MessageBox');
 

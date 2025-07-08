@@ -39,7 +39,7 @@
       <PaginationTable
         v-loading="store.isLoading"
         :data="store.tableData"
-        :total="store.searchParams.total"
+        :total="store.resData.total"
         v-model:currentPage="store.searchParams.currentPage"
         v-model:pageSize="store.searchParams.pageSize"
         @size-change="handleSizeChange"
@@ -75,6 +75,7 @@
     :width="dialog.width"
     @close="handleDrawerClose"
     :top="dialog.width === '80%' ? '3vh' : ''"
+    center
   >
     <component :is="dialog.component" @close-drawer="dialog.visible = false" />
   </el-dialog>
@@ -82,16 +83,18 @@
 
 <script setup lang="ts">
 import { Search } from '@element-plus/icons-vue';
-import { ref, onMounted, markRaw, reactive } from 'vue';
+import { ref, onMounted, markRaw, reactive, onUnmounted } from 'vue';
 import { sexMap } from '@/enums/mapFormatter';
 
 // 引入数据仓库
-import { useMemberListStore } from '@/store/modules/member/memberList';
-const store = useMemberListStore();
+import { useMemberStore } from '@/store/modules/member/member';
+const store = useMemberStore();
 
 // 初始化
-onMounted(() => {
-  store.setTableData();
+onMounted(() => {});
+
+onUnmounted(() => {
+  store.isLoading = false;
 });
 
 // #region 事件处理

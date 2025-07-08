@@ -3,7 +3,7 @@
     <PaginationTable
       :data="arr"
       :border="true"
-      :total="store.searchParams.total"
+      :total="store.resData.total"
       v-loading="store.isLoading"
       v-model:currentPage="store.searchParams.currentPage"
       v-model:pageSize="store.searchParams.pageSize"
@@ -78,8 +78,8 @@
 import { ref } from 'vue';
 
 // 导入数据仓库
-import { useMemberListStore } from '@/store/modules/member/memberList';
-const store = useMemberListStore();
+import { useMemberStore } from '@/store/modules/member/member';
+const store = useMemberStore();
 
 const visible = ref(false);
 

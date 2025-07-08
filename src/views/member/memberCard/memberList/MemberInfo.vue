@@ -1,9 +1,9 @@
 <template>
   <div class="vip-info-container">
     <!-- 会员基本信息 -->
-    <el-card>
+    <Card shadow="always" bgColor="#fff" wrap="nowrap" style="width: 350px">
       <!-- 会员卡 -->
-      <div class="member-card" style="">
+      <div class="member-card">
         <div>
           <h1>王鹏</h1>
           <span>先生</span>
@@ -13,7 +13,7 @@
       </div>
 
       <!-- 基本信息 -->
-      <Card :padding="10" shadow="always" bgColor="#fff" style="margin-top: 10px; line-height: 20px">
+      <Card shadow="always" bgColor="#fff" wrap="nowrap" style="line-height: 15px">
         <p>
           <span>微信：</span>
           <el-button type="primary" link icon="Promotion">去绑定</el-button>
@@ -25,7 +25,7 @@
       </Card>
 
       <!-- 资产信息 -->
-      <Card :padding="10" shadow="always" bgColor="#fff" style="margin-top: 10px; line-height: 20px">
+      <Card shadow="always" bgColor="#fff" wrap="nowrap" style="line-height: 15px">
         <p>
           <span>本店余额：</span>
           <el-button type="primary" link icon="Promotion">去充值</el-button>
@@ -35,22 +35,18 @@
       </Card>
 
       <!-- 标签 -->
-      <Card
-        :padding="10"
-        shadow="always"
-        bgColor="#fff"
-        style="margin-top: 10px; line-height: 20px; padding-bottom: 10px"
-      >
-        <h2>郑州棉纺路店</h2>
-        <div>
+      <Card shadow="always" bgColor="#fff" wrap="nowrap" style="line-height: 20px">
+        <h1>郑州棉纺路店</h1>
+        <div class="tag-list-container">
+          <el-tag v-for="tag in 30" :key="tag" closable :disable-transitions="false" @close="">标签{{ tag }}</el-tag>
           <el-button size="small" plain icon="Plus">标签</el-button>
         </div>
       </Card>
-    </el-card>
+    </Card>
 
     <!-- 资产明细 -->
     <Card bgColor="#fff" shadow="always">
-      <div style="margin-top: 10px; flex-grow: 0">
+      <div style="margin-top: 10px; flex-grow: 0; width: 100%">
         <span>时间段：</span>
         <DatePicker @selectDate="selectDate" :default="defaultDate" style="width: 260px; margin-right: 10px" />
         <el-button type="primary">查询</el-button>
@@ -112,5 +108,13 @@ const selectDate = (start: string, end: string) => {
       align-self: flex-end;
     }
   }
+}
+
+.tag-list-container {
+  height: 100px;
+  overflow: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: $main-padding - 5px;
 }
 </style>

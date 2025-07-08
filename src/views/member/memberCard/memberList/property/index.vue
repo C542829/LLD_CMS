@@ -22,5 +22,6 @@ const navList = ref([
 <style scoped lang="scss">
 .container {
   flex: 1;
+  height: 100%;
 }
 </style>

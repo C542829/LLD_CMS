@@ -30,8 +30,8 @@
 import { ref } from 'vue';
 
 // 导入数据仓库
-import { useMemberListStore } from '@/store/modules/member/memberList';
-const store = useMemberListStore();
+import { useMemberStore } from '@/store/modules/member/member';
+const store = useMemberStore();
 
 const $emit = defineEmits(['close-drawer']);
 
