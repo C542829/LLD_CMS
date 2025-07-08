@@ -3,7 +3,7 @@
     <template #default>
       <el-form @submit.prevent="submitForm" ref="form">
         <el-form-item>
-          <el-input v-model="value" :placeholder="props.tipText" />
+          <el-input v-model="value" :placeholder="props.tipText" clearable />
         </el-form-item>
         <div class="submit-area">
           <el-button type="primary" link @click="visible = false">取消</el-button>
@@ -37,8 +37,9 @@ const visible = ref(false);
 const form = ref(null);
 
 const submitForm = (e: any) => {
-  visible.value = false;
   $emit('submit', value.value);
+  visible.value = false;
+  value.value = '';
 };
 </script>
 <style scoped lang="scss">
