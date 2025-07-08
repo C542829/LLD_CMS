@@ -82,8 +82,6 @@
 import { ref, reactive, onMounted } from 'vue';
 import EnumHandler from '@/components/EnumHandler/index.vue';
 
-// 导入枚举数据
-import { commissionOptions } from '@/enums/index';
 // 引入产品数据仓库
 import { useCouponStore } from '@/store/modules/member/memberCoupon';
 const store = useCouponStore();

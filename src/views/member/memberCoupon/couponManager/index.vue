@@ -78,15 +78,6 @@ const store = useCouponStore();
 // 引入消息提示组件
 const $MessageBox: any = inject('$MessageBox');
 
-const coupon = ref({
-  name: 'A 78代金券', // 代金券名称
-  type: '线下券', // 代金券类型
-  description: '代金券描述', // 新增描述字段
-  usageCondition: '满0元，优惠88元', // 新增使用条件字段
-  isDisabled: true, // 新增是否禁用字段
-  remark: '备注',
-});
-
 onMounted(() => {
   store.setTableData();
 });
