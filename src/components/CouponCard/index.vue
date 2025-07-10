@@ -52,7 +52,7 @@
 
 <script setup lang="ts">
 import { ElButton, ElPopover } from 'element-plus';
-import { defineProps, defineEmits, ref, computed, withDefaults } from 'vue';
+import { ref, computed, withDefaults } from 'vue';
 
 interface CouponCard {
   coupon: any;
