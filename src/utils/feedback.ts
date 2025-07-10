@@ -5,12 +5,6 @@ import $Notification from '@/components/Notification';
 // 业务状态码
 import { ResponseCode, ResponseCodeMeaning } from '@/enums/response';
 
-interface ResponseType {
-  code: number;
-  message: string;
-  data: string | Array<object>;
-}
-
 export const parseReqInform = (res: any) => {
   if (!res) {
     $Message.error('响应数据为空');
@@ -49,4 +43,27 @@ export const parseReqList = (res: any, msg = '获取数据列表失败') => {
     $Message.error(msg);
   }
   return [];
+};
+
+export const parseRes = (res: any, msg = '获取数据失败') => {
+  if (!res) {
+    $Message.error('响应数据为空');
+    return null;
+  }
+
+  if (!res.data) {
+    $Message.error(msg);
+    return null;
+  }
+
+  try {
+    if (res?.code !== ResponseCode.SUCCESS) {
+      $Notification.error(`${res.message}：${res.data}`);
+    }
+
+    return res.data;
+  } catch (error) {
+    $Message.error('请求出错：' + error);
+  }
+  return null;
 };
