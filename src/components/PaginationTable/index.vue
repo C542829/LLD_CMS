@@ -232,7 +232,7 @@ const props = withDefaults(
     size: 'default',
     fit: true,
     showHeader: true,
-    highlightCurrentRow: false,
+    highlightCurrentRow: true,
     emptyText: '暂无数据',
     defaultExpandAll: false,
     tooltipEffect: 'dark',
