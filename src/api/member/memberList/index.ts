@@ -11,7 +11,7 @@ enum API {
 
 export const reqVipList = (params = {}) => get(API.LIST_URL, params);
 
-export const reqVipInfo = (params = {}) => get(API.LIST_URL, params);
+export const reqVipInfo = (params = {}) => get(API.INFO_URL, params);
 
 export const reqAddVip = (data = {}) => post(API.ADD_URL, data);
 
