@@ -52,6 +52,7 @@
         @current-change="handleCurrentChange"
         @header-dragend="handleHeaderDragend"
         @expand-change="handleExpandChange"
+        class="pagination-table"
       >
         <!-- 表格列 -->
         <slot></slot>
@@ -225,7 +226,7 @@ const props = withDefaults(
   {
     // 表格默认值
     data: () => [],
-    height: 'auto',
+    height: '100%',
     maxHeight: 'auto',
     stripe: true,
     border: true,
@@ -262,9 +263,9 @@ const pageSize = ref(props.pageSize);
 // 计算表格高度，确保表头和分页固定
 const tableHeight = computed(() => {
   if (typeof props.height === 'number') {
-    return props.height - (props.showPagination ? 50 : 0) + 'px';
+    return props.height - (props.showPagination ? 44 : 0) + 'px';
   } else if (props.height === 'auto') {
-    return '100%';
+    return 'auto';
   } else {
     return props.height;
   }
@@ -528,5 +529,10 @@ defineExpose({
       flex: 1;
     }
   }
+}
+
+/* 使用深度选择器修改表格表头样式 */
+:deep(.pagination-table .el-table__header-wrapper th) {
+  background-color: $base-child-nav-bg;
 }
 </style>
