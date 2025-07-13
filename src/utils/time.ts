@@ -70,6 +70,18 @@ export const formatDate = (date: Date, format = 'YYYY-MM-DD') => {
 };
 
 /**
+ * 表格时间格式化器
+ * @param row
+ * @param column
+ * @param cellValue
+ * @param index
+ * @returns
+ */
+export const datetimeFormatter = (row: any, column: any, cellValue: string, index: number) => {
+  return formatDateTime(new Date(cellValue)) || cellValue;
+};
+
+/**
  * 表格日期格式化器
  * @param row
  * @param column
@@ -78,5 +90,17 @@ export const formatDate = (date: Date, format = 'YYYY-MM-DD') => {
  * @returns
  */
 export const dateFormatter = (row: any, column: any, cellValue: string, index: number) => {
-  return formatDate(new Date(cellValue)) || '';
+  return formatDate(new Date(cellValue)) || cellValue;
+};
+
+/**
+ * 表格时间格式化器
+ * @param row
+ * @param column
+ * @param cellValue
+ * @param index
+ * @returns
+ */
+export const timeFormatter = (row: any, column: any, cellValue: string, index: number) => {
+  return formatDateTime(new Date(cellValue), 'HH:mm:ss') || cellValue;
 };
