@@ -1,13 +1,114 @@
 <template>
-  <div>{{ title }}</div>
+  <div class="main-container">
+    <!-- 数据筛选 -->
+    <Card class="operation-card">
+      <!-- 第一行 -->
+      <div class="search-container">
+        <div class="search-item" v-if="false">
+          <label>
+            选择门店：
+            <el-select v-model="store.searchParams.storeId" style="width: 120px" placeholder="选择门店">
+              <el-option
+                v-for="item in [{ value: 1, label: '' }]"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </label>
+        </div>
+        <div class="search-item">
+          <label>
+            销售时段：
+            <DatePicker v-model="store.searchParams.date" style="width: 260px" />
+          </label>
+        </div>
+      </div>
+
+      <!-- 第二行 -->
+      <div class="search-container">
+        <div class="search-item">
+          <label>
+            选择部门：
+            <el-select v-model="store.searchParams.saleStaff" clearable placeholder="选择部门" style="width: 120px">
+              <el-option label="未指定" value="0" />
+              <el-option
+                v-for="item in [{ value: 1, label: '' }]"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </label>
+        </div>
+        <div class="search-item">
+          <label>
+            选择技师：
+            <el-select v-model="store.searchParams.saleStaff" clearable placeholder="选择技师" style="width: 120px">
+              <el-option label="全部" value="0" />
+              <el-option
+                v-for="item in [{ value: 1, label: '' }]"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </label>
+        </div>
+        <div class="search-item">
+          <el-button type="primary" @click="search">搜索</el-button>
+          <el-button type="success" @click="search">导出表格</el-button>
+        </div>
+      </div>
+    </Card>
+
+    <!-- 数据列表 -->
+    <Card padding="0px">
+      <PaginationTable v-loading="store.loading" :data="store.performanceSummary" :showPagination="false" show-summary>
+        <el-table-column type="index" label="序号" width="60" fixed />
+        <el-table-column prop="memName" label="技师" width="100" fixed />
+        <el-table-column prop="shouldAmount" label="总业绩" width="85" fixed />
+        <el-table-column prop="shouldAmount" label="总提成" width="85" fixed />
+        <el-table-column prop="shouldAmount" label="总项目次" width="85" />
+        <el-table-column prop="shouldAmount" label="点钟次数" width="85" />
+        <el-table-column prop="shouldAmount" label="轮牌次数" width="85" />
+        <el-table-column prop="shouldAmount" label="加钟次数" width="85" />
+        <el-table-column prop="shouldAmount" label="项目业绩" width="85" />
+        <el-table-column prop="shouldAmount" label="项目提成" width="85" />
+        <el-table-column prop="shouldAmount" label="产品业绩" width="85" />
+        <el-table-column prop="shouldAmount" label="产品提成" width="85" />
+        <el-table-column prop="shouldAmount" label="疗程销售业绩" width="110" />
+        <el-table-column prop="shouldAmount" label="疗程销售提成" width="110" />
+        <el-table-column prop="shouldAmount" label="卡金业绩" width="85" />
+        <el-table-column prop="shouldAmount" label="卡金提成" width="85" />
+        <el-table-column prop="shouldAmount" label="劳动业绩" width="85" />
+        <el-table-column prop="shouldAmount" label="拓客业绩" width="85" />
+        <el-table-column prop="shouldAmount" label="拓客提成" width="85" />
+      </PaginationTable>
+    </Card>
+  </div>
 </template>
 
 <script setup lang="ts">
-defineProps({
-  title: {
-    type: String,
-  },
+import { ref, reactive, onMounted, onUnmounted } from 'vue';
+
+// 引入数据仓库
+import { useStaffPerformanceStore } from '@/store/modules/dataGroup/staffPerformance';
+const store = useStaffPerformanceStore();
+
+// 初始化
+onMounted(() => {
+  store.setPerformanceSummary();
 });
+
+onUnmounted(() => {
+  store.loading = false;
+});
+
+// 搜索
+const search = () => {
+  store.setPerformanceSummary();
+};
 </script>
 
 <style scoped lang="scss"></style>
