@@ -247,15 +247,6 @@ export const asyncRoute = [
           icon: 'Management',
         },
       },
-      {
-        path: '/dataGroup/payData',
-        component: () => import('@/views/dataGroup/payData/index.vue'),
-        name: 'PayData',
-        meta: {
-          title: '支付数据',
-          icon: 'DataLine',
-        },
-      },
     ],
   },
 
