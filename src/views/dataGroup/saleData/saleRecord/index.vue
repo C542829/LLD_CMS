@@ -1,0 +1,243 @@
+<template>
+  <div class="main-container">
+    <!-- 数据筛选 -->
+    <Card class="operation-card">
+      <!-- 第一行 -->
+      <div class="search-container">
+        <div class="search-item" v-if="false">
+          <label for="staffStatus">选择店铺：</label>
+          <el-select v-model="store.searchParams.storeId" id="staffStatus" style="width: 120px" placeholder="选择店铺">
+            <el-option
+              v-for="item in [{ value: 1, label: '' }]"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </div>
+        <div class="search-item">
+          <label>
+            开单时段：
+            <DatePicker v-model="store.searchParams.date" style="width: 260px" />
+          </label>
+        </div>
+        <div class="search-item">
+          <label for="saleStaff">收银员：</label>
+          <el-select
+            v-model="store.searchParams.saleStaff"
+            clearable
+            id="saleStaff"
+            placeholder="选择收银员"
+            style="width: 120px"
+          >
+            <el-option label="未指定" value="0" />
+            <el-option
+              v-for="item in [{ value: 1, label: '' }]"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </div>
+        <div class="search-item">
+          <el-switch v-model="store.searchParams.payZero" :active-value="0" :inactive-value="1" id="payZero" />
+          <label for="payZero">&nbsp;仅查看支付为0的订单</label>
+        </div>
+      </div>
+
+      <!-- 第二行 -->
+      <div class="search-container">
+        <div class="search-item">
+          <label for="orderStatus">订单状态：</label>
+          <el-select v-model="store.searchParams.orderStatus" clearable id="orderStatus" style="width: 120px">
+            <el-option key="所有" label="所有" :value="2" />
+            <el-option key="已结账" label="已结账" :value="0" />
+            <el-option key="已取消" label="已取消" :value="1" />
+            <el-option key="已冲正" label="已冲正" :value="2" />
+          </el-select>
+        </div>
+        <div class="search-item">
+          <label for="payType">支付类型：</label>
+          <el-select
+            v-model="store.searchParams.storeId"
+            clearable
+            id="payType"
+            placeholder="选择支付类型"
+            style="width: 130px"
+          >
+            <el-option
+              v-for="item in [{ value: 1, label: '' }]"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </div>
+        <div class="search-item">
+          <label for="memberInfo">会员信息：</label>
+          <div>
+            <el-input
+              v-model="store.searchParams.inputValue"
+              id="memberInfo"
+              placeholder="会员卡号 | 手机号"
+              clearable
+            />
+          </div>
+        </div>
+        <div class="search-item">
+          <label for="orderID">订单号：</label>
+          <div>
+            <el-input v-model="store.searchParams.orderID" id="orderID" placeholder="请输入销售单号" clearable />
+          </div>
+        </div>
+        <div class="search-item">
+          <el-button type="primary" @click="search">搜索</el-button>
+        </div>
+      </div>
+    </Card>
+
+    <!-- 数据列表 -->
+    <Card padding="15px 15px 0 15px">
+      <PaginationTable
+        v-loading="store.loading"
+        :data="store.saleRecord.data"
+        :total="store.saleRecord.total"
+        v-model:currentPage="store.searchParams.currentPage"
+        v-model:pageSize="store.searchParams.pageSize"
+        @size-change="handleSizeChange"
+        @pagination-current-change="handleCurrentChange"
+      >
+        <el-table-column type="index" label="序号" width="60" />
+        <el-table-column prop="tradeTime" label="开单日期" width="105" :formatter="dateFormatter" />
+        <el-table-column prop="createTime" label="开单时间" width="85" :formatter="timeFormatter" />
+        <el-table-column prop="updateTime" label="结算时间" width="85" :formatter="timeFormatter" />
+        <el-table-column prop="salesNo" label="销售单号" min-width="100" />
+        <el-table-column label="顾客信息" width="160">
+          <template #default="scope">
+            <p>姓名：{{ scope.row.memName }}</p>
+            <p>卡号：{{ scope.row.memCode }}</p>
+            <p>电话：{{ scope.row.cellPhoneNo }}</p>
+            <p>余额：{{ scope.row.afterBalance }}元</p>
+          </template>
+        </el-table-column>
+        <el-table-column label="应收金额" min-width="60">
+          <template #default="scope">￥{{ scope.row.shouldAmount }}</template>
+        </el-table-column>
+        <el-table-column label="实收金额" min-width="80">
+          <template #default="scope">实收：￥{{ scope.row.actualAmount }}</template>
+        </el-table-column>
+        <el-table-column label="优惠金额" min-width="60">
+          <template #default="scope">￥{{ scope.row.discountAmount }}</template>
+        </el-table-column>
+        <el-table-column label="付款方式" min-width="100">
+          <template #default="scope">会员卡：￥{{ scope.row.memberCardPay }}</template>
+        </el-table-column>
+        <el-table-column label="状态" min-width="80">
+          <template #default="scope">
+            <p>状态：{{ scope.row.orderStatus }}</p>
+            <p>收银：{{ scope.row.settleUserName }}</p>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="115">
+          <template #default="scope">
+            <el-button @click="showDrawer(scope.row)" link type="info">明细</el-button>
+            <el-button @click="reversal(scope.row)" link type="danger">冲正</el-button>
+            <br />
+            <el-button @click="showDialog(scope.row)" link type="warning">修改销售单据</el-button>
+            <br />
+            <el-button @click="printReceipt(scope.row)" link type="primary">重打小票</el-button>
+          </template>
+        </el-table-column>
+      </PaginationTable>
+    </Card>
+  </div>
+
+  <Drawer v-model="drawer.visible" :title="drawer.title">
+    <OrderDetail />
+  </Drawer>
+  <el-dialog v-model="dialog.visible" :title="dialog.title" width="60%">
+    <OrderModify />
+  </el-dialog>
+</template>
+
+<script setup lang="ts">
+import { ref, reactive, inject, onMounted, onUnmounted } from 'vue';
+import { dateFormatter, timeFormatter } from '@/utils/time';
+import OrderDetail from './OrderDetail.vue';
+import OrderModify from './OrderModify.vue';
+
+// 引入数据仓库
+import { useSaleStore } from '@/store/modules/dataGroup/saleData';
+const store = useSaleStore();
+
+// 引入消息弹框
+const MessageBox: any = inject('$MessageBox');
+
+// 初始化
+onMounted(() => {
+  store.setSaleRecord();
+});
+
+onUnmounted(() => {
+  store.loading = false;
+});
+
+// 搜索
+const search = () => {
+  store.setSaleRecord();
+};
+
+// 处理分页变化
+const handleSizeChange = (val: number) => {
+  store.searchParams.pageSize = val;
+  store.setSaleRecord();
+};
+
+const handleCurrentChange = (val: number) => {
+  store.searchParams.currentPage = val;
+  store.setSaleRecord();
+};
+
+const reversal = async (row: any) => {
+  const isReversal = await MessageBox.confirm({
+    title: '销售订单-冲正',
+    message: '冲正后，订单将退还“会员卡支付”的金额, 同时将不计算此单业绩，你确定要对此订单进行冲正吗？',
+    type: 'warning',
+  });
+  console.log(isReversal);
+};
+
+const printReceipt = (row: any) => {
+  // 打印小票
+};
+
+// 抽屉
+const drawer: any = reactive({
+  title: '销售明细',
+  visible: false,
+});
+
+const showDrawer = (row: any) => {
+  // 显示模态框
+  drawer.visible = true;
+
+  // 表单数据回显
+  // store = row;
+};
+
+// 模态框
+const dialog: any = reactive({
+  title: '修改单据',
+  visible: false,
+});
+
+const showDialog = (row: any) => {
+  // 显示模态框
+  dialog.visible = true;
+
+  // 表单数据回显
+  // store = row;
+};
+</script>
+
+<style scoped lang="scss"></style>
