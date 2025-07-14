@@ -1,13 +1,18 @@
-// 进行axios二次封装:使用请求与响应拦截器
+// 进行axios二次封装:
 import axios from 'axios';
+
+// 引入消息提示
 import $Message from '@/components/Message/index';
+
 // 引入用户相关的仓库
 import useUserStore from '@/store/modules/acl/user';
+// 引入配置相关的仓库
+import { useSettingStore } from '@/store/modules/acl/setting';
 
 // 创建axios实例
 const request = axios.create({
   baseURL: import.meta.env.VITE_APP_BASE_API, // 基础路径
-  timeout: 5000, // 超时的时间的设置
+  timeout: 5000, // 超时时间
 });
 
 // 添加请求拦截器
@@ -24,44 +29,59 @@ request.interceptors.request.use((config) => {
 // 添加响应拦截器
 request.interceptors.response.use(
   (response) => {
-    // 成功回调
-    console.log('response = ', response);
     return response.data;
   },
   (error) => {
-    // 失败回调：处理http网络错误的
-    try {
-      let message = '';
-      const status = error.response?.status || 0;
-      switch (status) {
-        case 401:
-          message = 'TOKEN过期';
-          break;
-        case 403:
-          message = '无权访问';
-          break;
-        case 404:
-          message = '请求地址错误';
-          break;
-        case 500:
-          message = '服务器出现问题';
-          break;
-        default:
-          message = '网络出现问题';
-          break;
-      }
-      //提示错误信息
-      $Message.error(message);
-    } catch (error: any) {
-      console.error(error);
-      $Message.error('网络出现问题');
-    }
-
+    errorHandler(error);
     return Promise.reject(error);
   },
 );
 
-// 封装GET请求
+/**
+ * 错误处理函数
+ * @param error 错误对象
+ */
+const errorHandler = (error: any) => {
+  // 关闭加载状态
+  const settingStore = useSettingStore();
+  settingStore.loading = false;
+
+  // 失败回调：处理http网络错误的
+  try {
+    let message = '';
+    const status = error.response?.status || 0;
+    switch (status) {
+      case 401:
+        message = 'TOKEN过期';
+        break;
+      case 403:
+        message = '无权访问';
+        break;
+      case 404:
+        message = '请求地址错误';
+        break;
+      case 500:
+        message = '服务器出现问题';
+        break;
+      default:
+        message = '网络出现问题';
+        break;
+    }
+    //提示错误信息
+    $Message.error(message);
+  } catch (error: any) {
+    console.error(error);
+    $Message.error('网络出现问题');
+  }
+};
+
+/**
+ * 封装GET请求
+ * @param url 请求地址
+ * @param params 请求参数
+ * @param config 请求配置
+ * @returns 响应数据
+ */
 export const get = (url: string, params = {}, config = {}) => {
   return request({
     method: 'GET',
@@ -71,7 +91,13 @@ export const get = (url: string, params = {}, config = {}) => {
   });
 };
 
-// 封装POST请求
+/**
+ * 封装POST请求
+ * @param url 请求地址
+ * @param data 请求数据
+ * @param config 请求配置
+ * @returns 响应数据
+ */
 export const post = (url: string, data = {}, config = {}) => {
   return request({
     method: 'POST',
@@ -81,7 +107,13 @@ export const post = (url: string, data = {}, config = {}) => {
   });
 };
 
-// 封装PUT请求
+/**
+ * 封装PUT请求
+ * @param url 请求地址
+ * @param data 请求数据
+ * @param config 请求配置
+ * @returns 响应数据
+ */
 export const put = (url: string, data = {}, config = {}) => {
   return request({
     method: 'PUT',
@@ -91,7 +123,13 @@ export const put = (url: string, data = {}, config = {}) => {
   });
 };
 
-// 封装DELETE请求
+/**
+ * 封装DELETE请求
+ * @param url 请求地址
+ * @param data 请求数据
+ * @param config 请求配置
+ * @returns 响应数据
+ */
 export const del = (url: string, params = {}, config = {}) => {
   return request({
     method: 'DELETE',
@@ -101,7 +139,13 @@ export const del = (url: string, params = {}, config = {}) => {
   });
 };
 
-// 封装PATCH请求（额外提供）
+/**
+ * 封装PATCH请求
+ * @param url 请求地址
+ * @param data 请求数据
+ * @param config 请求配置
+ * @returns 响应数据
+ */
 export const patch = (url: string, data = {}, config = {}) => {
   return request({
     method: 'PATCH',
@@ -113,12 +157,6 @@ export const patch = (url: string, data = {}, config = {}) => {
 
 // 统一导出所有方法
 export { get as GET, post as POST, put as PUT, del as DELETE, patch as PATCH };
-
-export interface ResponseData<T> {
-  code: number;
-  message: string;
-  data: T;
-}
 
 //对外暴露原始request实例
 export default request;
