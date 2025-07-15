@@ -5,9 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
-  '@cell-x/el-table-sticky':
-    specifier: ^1.0.4
-    version: 1.0.4
   '@element-plus/icons-vue':
     specifier: ^2.1.0
     version: registry.npmmirror.com/@element-plus/icons-vue@2.1.0(vue@3.2.47)
@@ -17,9 +14,6 @@ dependencies:
   echarts:
     specifier: ^5.4.2
     version: registry.npmmirror.com/echarts@5.4.2
-  echarts-liquidfill:
-    specifier: ^3.1.0
-    version: registry.npmmirror.com/echarts-liquidfill@3.1.0(echarts@5.4.2)
   element-plus:
     specifier: ^2.9.10
     version: 2.9.10(vue@3.2.47)
@@ -353,14 +347,6 @@ packages:
       '@babel/helper-validator-identifier': 7.19.1
       to-fast-properties: 2.0.0
     dev: true
-
-  /@cell-x/el-table-sticky@1.0.4:
-    resolution: {integrity: sha512-2IYDq5czDFamyaqdY0s2A7T5crqslw/a3riKBJSxOlBNOOHdfSfLt1AlLOnkaFhYWg+/QApR0ysokAGRiTXnGQ==}
-    dependencies:
-      gemini-scrollbar: 1.5.3
-      resize-observer-polyfill: 1.5.1
-      throttle-debounce: 1.1.0
-    dev: false
 
   /@ctrl/tinycolor@3.6.1:
     resolution: {integrity: sha512-SITSV6aIXsuVNV3f3O0f2n/cgyEDWoSqtZMYiAmcsYHydcKrOz3gUxB/iXd/Qf08+IZX4KpgNbvUdMBmWz+kcA==}
@@ -1025,10 +1011,6 @@ packages:
     dev: true
     optional: true
 
-  /gemini-scrollbar@1.5.3:
-    resolution: {integrity: sha512-3Q4SrxkJ+ei+I5PlcRZCfPePv3EduP7xusOWp7Uw0+XywEWred7Nq9hoaP2IQh1vRjoidaVODV3rO3icFH/e5A==}
-    dev: false
-
   /gensync@1.0.0-beta.2:
     resolution: {integrity: sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg==}
     engines: {node: '>=6.9.0'}
@@ -1172,10 +1154,6 @@ packages:
       safe-buffer: 5.2.1
     dev: true
 
-  /resize-observer-polyfill@1.5.1:
-    resolution: {integrity: sha512-LwZrotdHOo12nQuZlHEmtuXdqGoOD0OhaxopaNFxWzInpEgaLWoVuAMbTzixuosCx2nEG58ngzW3vxdWoxIgdg==}
-    dev: false
-
   /rollup@2.79.1:
     resolution: {integrity: sha512-uKxbd0IhMZOhjAiD5oAFp7BqvkA4Dv47qpOCtaNvng4HBwdbWtdOh8f5nZNuk2rp51PMGk3bzfWu5oayNEuYnw==}
     engines: {node: '>=10.0.0'}
@@ -1273,11 +1251,6 @@ packages:
       commander: 2.20.3
       source-map-support: 0.5.21
     dev: true
-
-  /throttle-debounce@1.1.0:
-    resolution: {integrity: sha512-XH8UiPCQcWNuk2LYePibW/4qL97+ZQ1AN3FNXwZRBNPPowo/NRU5fAlDCSNBJIYCKbioZfuYtMhG4quqoJhVzg==}
-    engines: {node: '>=4'}
-    dev: false
 
   /to-fast-properties@2.0.0:
     resolution: {integrity: sha512-/OaKK0xYrs3DmxRYqL/yDc+FxFUVYhDlXMhRmv3z915w2HF1tnN1omB354j8VUGO/hbRzyD6Y3sA7v7GS/ceog==}
@@ -3326,17 +3299,6 @@ packages:
     dependencies:
       is-obj: registry.npmmirror.com/is-obj@2.0.0
     dev: true
-
-  registry.npmmirror.com/echarts-liquidfill@3.1.0(echarts@5.4.2):
-    resolution: {integrity: sha512-5Dlqs/jTsdTUAsd+K5LPLLTgrbbNORUSBQyk8PSy1Mg2zgHDWm83FmvA4s0ooNepCJojFYRITTQ4GU1UUSKYLw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/echarts-liquidfill/-/echarts-liquidfill-3.1.0.tgz}
-    id: registry.npmmirror.com/echarts-liquidfill/3.1.0
-    name: echarts-liquidfill
-    version: 3.1.0
-    peerDependencies:
-      echarts: ^5.0.1
-    dependencies:
-      echarts: registry.npmmirror.com/echarts@5.4.2
-    dev: false
 
   registry.npmmirror.com/echarts@5.4.2:
     resolution: {integrity: sha512-2W3vw3oI2tWJdyAz+b8DuWS0nfXtSDqlDmqgin/lfzbkB01cuMEN66KWBlmur3YMp5nEDEEt5s23pllnAzB4EA==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/echarts/-/echarts-5.4.2.tgz}
