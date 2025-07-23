@@ -1,99 +1,134 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import $Message from '@/components/Message';
-import $Notification from '@/components/Notification';
-import { parseReqInform, parseReqList } from '@/utils/feedback';
+import { parseResList, parseResMsg } from '@/utils/parseResponse';
 import {
   reqRoomList,
   reqAddRoom,
   reqUpdateRoom,
+  reqBedListAll,
   reqBedList,
   reqAddBed,
   reqUpdateBed,
   reqUpdateBedStatus,
 } from '@/api/setGroup/room';
 
-export const useRoomStore = defineStore('Room', () => {
-  const loading = ref(false);
+import { useSettingStore } from '@/store/modules/acl/setting';
+const settingStore = useSettingStore();
 
+export const useRoomStore = defineStore('Room', () => {
   // 搜索参数
   const searchParams = ref({
     storeId: 0,
     roomName: '',
   });
 
-  // #region 房间
-  const roomList: any = ref([]);
-  const setRoomList = async () => {
-    loading.value = true;
-    // 获取房间列表
-    const res = await reqRoomList(searchParams.value);
-    const data = parseReqList(res);
-    // 处理数据
-    roomList.value = data;
-    loading.value = false;
+  /**
+   * 所有床位列表
+   */
+  const allBedList: any = ref([]);
+  /**
+   * 所有床位列表
+   */
+  const setAllBedList = async () => {
+    settingStore.loading = true;
+    const res = await reqBedListAll();
+    const data = parseResList(res);
+    allBedList.value = data
+      .filter((item: any) => item.status !== 2)
+      .sort((a: any, b: any) => a.roomInfoId - b.roomInfoId);
+    settingStore.loading = false;
   };
 
+  /**
+   * 房间列表
+   */
+  const roomList: any = ref([]);
+  /**
+   * 获取房间列表
+   */
+  const setRoomList = async () => {
+    settingStore.loading = true;
+    // 获取房间列表
+    const res = await reqRoomList(searchParams.value);
+    let data = parseResList(res);
+    // 处理数据
+    roomList.value = data;
+    settingStore.loading = false;
+  };
+
+  /**
+   * 更新房间信息
+   * @param { object } data - 房间信息
+   * @returns 是否成功
+   */
   const updateRoom = async (data: any) => {
     // 浅拷贝避免修改原数据
     data = { ...data };
-
     // 发送请求
-    console.log('更新房间数据 = ', data);
     const res = await (data?.id ? reqUpdateRoom(data) : reqAddRoom(data));
-    const result = parseReqInform(res);
-
+    const result = parseResMsg(res);
     // 刷新数据
     result && setRoomList();
     return result;
   };
-  // #endregion
 
-  // #region 床位
+  /**
+   * 床位列表
+   */
   const bedList: any = ref([]);
+  /**
+   * 获取床位列表
+   * @param { number } id - 房间id
+   */
   const setBedList = async (id: number) => {
-    loading.value = true;
+    settingStore.loading = true;
     // 获取床位列表
     const res = await reqBedList({ roomId: id });
-    const data = parseReqList(res);
+    const data = parseResList(res);
     // 处理数据
     bedList.value = data;
-    loading.value = false;
+    settingStore.loading = false;
   };
 
+  /**
+   * 更新床位信息
+   * @param { object } data - 床位信息
+   * @returns 是否成功
+   */
   const updateBed = async (data: any) => {
-    // 浅拷贝
-    data = { ...data };
-    console.log('更新床位信息 = ', data);
-
     // 处理请求参数
-    data.status = data?.id ? data.status : '空闲';
+    data = { ...data };
+    data.status = data?.id ? data.status : 0;
     // 发送请求
     const res = await (data?.id ? reqUpdateBed(data) : reqAddBed(data));
-    const result = parseReqInform(res);
+    const result = parseResMsg(res);
     // 刷新数据
-    result && setBedList(data.roomInfoId);
+    result && setBedList(data.roomInfoId || data.roomId);
+    result && setRoomList();
     return result;
   };
 
-  const updateBedStatus = async (data: any) => {
+  /**
+   * 更新床位状态
+   * @param { object } data - 床位id、状态、房间id
+   * @returns 是否成功
+   */
+  const updateBedStatus = async (data: { id: number; status: number; roomInfoId: number }) => {
     // 处理请求参数
     const bedId = data.id;
-    const status = data.status === '暂停使用' ? '空闲' : '暂停使用';
+    let status = data.status;
+    status !== 1 && (status = status === 0 ? 2 : 0);
     const params = { bedId, status };
-
     // 发送请求
     const res = await reqUpdateBedStatus(params);
-    const result = parseReqInform(res);
-
+    const result = parseResMsg(res);
     // 刷新数据
     result && setBedList(data.roomInfoId);
+    result && setRoomList();
     return result;
   };
-  // #endregion
 
   return {
-    loading,
     searchParams,
     roomList,
     setRoomList,
@@ -102,5 +137,7 @@ export const useRoomStore = defineStore('Room', () => {
     setBedList,
     updateBed,
     updateBedStatus,
+    allBedList,
+    setAllBedList,
   };
 });

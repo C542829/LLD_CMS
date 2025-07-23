@@ -1,4 +1,4 @@
-import { get, post, put, del } from '@/utils/request';
+import { get, post, put, ContentType } from '@/utils/request';
 
 enum API {
   // 房间
@@ -7,9 +7,10 @@ enum API {
   UPDATE_URL = '/room/update',
 
   // 床位
+  BED_LIST_ALL = '/room/bed/query-all',
   BED_LIST = '/room/bed/list',
   BED_ADD = '/room/bed/add',
-  BED_UPDATE = '/room/bed/update',
+  BED_UPDATE = '/room/bed/update-name',
   BED_UPDATE_STATUS = '/room/bed/update-status',
 }
 
@@ -21,15 +22,12 @@ export const reqAddRoom = (data = {}) => post(API.ADD_URL, data);
 export const reqUpdateRoom = (data = {}) => put(API.UPDATE_URL, data);
 
 // 床位管理模块接口方法
+export const reqBedListAll = () => get(API.BED_LIST_ALL);
+
 export const reqBedList = (params = {}) => get(API.BED_LIST, params);
 
 export const reqAddBed = (data = {}) => post(API.BED_ADD, data);
 
-export const reqUpdateBed = (data = {}) => put(API.BED_UPDATE, data);
+export const reqUpdateBed = (data = {}) => put(API.BED_UPDATE, data, ContentType.URLencoded);
 
-export const reqUpdateBedStatus = (data = {}) =>
-  put(API.BED_UPDATE_STATUS, data, {
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-  });
+export const reqUpdateBedStatus = (data = {}) => put(API.BED_UPDATE_STATUS, data, ContentType.URLencoded);
