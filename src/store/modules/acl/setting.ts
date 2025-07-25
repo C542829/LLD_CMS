@@ -1,7 +1,7 @@
 // 设置配置仓库
 import { defineStore } from 'pinia';
 
-const useLayOutSettingStore = defineStore('SettingStore', {
+export const useSettingStore = defineStore('SettingStore', {
   state: () => {
     return {
       fold: false, // 控制菜单折叠还是收起控制
@@ -13,6 +13,4 @@ const useLayOutSettingStore = defineStore('SettingStore', {
   actions: {},
 });
 
-export default useLayOutSettingStore;
-
-export const useSettingStore = useLayOutSettingStore;
+export default useSettingStore;

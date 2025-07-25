@@ -1,7 +1,7 @@
 <template>
   <!-- 顶部左侧静态 -->
-  <el-icon @click="changeIcon">
-    <component :is="LayOutSettingStore.fold ? 'Fold' : 'Expand'"></component>
+  <el-icon @click="changeIcon" style="cursor: pointer">
+    <component :is="settingStore.fold ? 'Fold' : 'Expand'"></component>
   </el-icon>
   <!-- 左侧面包屑 -->
   <el-breadcrumb separator-icon="ArrowRight">
@@ -21,15 +21,15 @@
 
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
-import useLayOutSettingStore from '@/store/modules/acl/setting';
-//获取layout配置相关的仓库
-let LayOutSettingStore = useLayOutSettingStore();
-//获取路由对象
+import { useSettingStore } from '@/store/modules/acl/setting';
+// 获取layout配置相关的仓库
+let settingStore = useSettingStore();
+// 获取路由对象
 let $route = useRoute();
-//点击图标的方法
+// 点击图标的方法
 const changeIcon = () => {
-  //图标进行切换
-  LayOutSettingStore.fold = !LayOutSettingStore.fold;
+  // 图标进行切换
+  settingStore.fold = !settingStore.fold;
 };
 </script>
 <script lang="ts">
@@ -44,5 +44,6 @@ export default {
   align-items: center;
   gap: 5px;
   color: $base-header-color;
+  cursor: pointer;
 }
 </style>

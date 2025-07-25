@@ -1,14 +1,14 @@
 <template>
   <div class="layout_container">
     <!-- 左侧菜单 -->
-    <div class="layout_slider" :class="{ fold: LayOutSettingStore.fold ? true : false }">
+    <div class="layout_slider" :class="{ fold: settingStore.fold ? true : false }">
       <Logo></Logo>
       <!-- 展示菜单 -->
       <!-- 滚动组件 -->
       <el-scrollbar class="scrollbar">
         <!-- 菜单组件-->
         <el-menu
-          :collapse="LayOutSettingStore.fold ? true : false"
+          :collapse="settingStore.fold ? true : false"
           :default-active="$route.path"
           background-color="#001529"
           text-color="white"
@@ -17,15 +17,19 @@
           <Menu :menuList="userStore.menuRoutes"></Menu>
         </el-menu>
       </el-scrollbar>
+      <div class="driver-down" v-show="!settingStore.fold">
+        <el-link href="./Pdriver.exe" class="down-link" underline="never">小票打印机驱动</el-link>
+        <el-link href="./printer.exe" class="down-link" underline="never">打印加速控件下载</el-link>
+      </div>
     </div>
     <div class="layout_right">
       <!-- 顶部导航 -->
-      <div class="layout_tabbar" :class="{ fold: LayOutSettingStore.fold ? true : false }">
+      <div class="layout_tabbar" :class="{ fold: settingStore.fold ? true : false }">
         <!-- layout组件的顶部导航tabbar -->
         <Tabbar></Tabbar>
       </div>
       <!-- 内容展示区域 -->
-      <div class="layout_main" :class="{ fold: LayOutSettingStore.fold ? true : false }">
+      <div class="layout_main" :class="{ fold: settingStore.fold ? true : false }">
         <Main></Main>
       </div>
     </div>
@@ -49,11 +53,11 @@ import Tabbar from './tabbar/index.vue';
 
 //获取用户相关的小仓库
 import useUserStore from '@/store/modules/acl/user';
-import useLayOutSettingStore from '@/store/modules/acl/setting';
+import { useSettingStore } from '@/store/modules/acl/setting';
 let userStore = useUserStore();
 //获取layout配置仓库
 
-let LayOutSettingStore = useLayOutSettingStore();
+let settingStore = useSettingStore();
 
 //获取路由对象
 let $route = useRoute();
@@ -65,9 +69,9 @@ const handleResize = debounce(() => {
 
   // 当窗口小于1024px时，自动折叠菜单
   if (windowWidth.value <= 1024) {
-    LayOutSettingStore.fold = true;
+    settingStore.fold = true;
   } else {
-    LayOutSettingStore.fold = false;
+    settingStore.fold = false;
   }
 }, 300);
 onMounted(() => {
@@ -102,11 +106,22 @@ export default {
     }
     .scrollbar {
       width: 100%;
-      height: calc(100vh - $base-menu-logo-height);
+      height: calc(100vh - $base-menu-logo-height - 70px);
 
       .el-menu {
-        height: calc(100vh - $base-menu-logo-height);
+        height: 100%;
         border-right: none;
+      }
+    }
+    .driver-down {
+      height: 70px;
+      padding: 5px 0;
+      line-height: 25px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      .down-link {
+        font-size: 12px !important;
       }
     }
   }
