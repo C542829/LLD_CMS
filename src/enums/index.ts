@@ -6,7 +6,7 @@ export { ResponseCode, ResponseCodeMeaning };
  * 搜索状态
  */
 export const statusOptions = [
-  { value: 3, label: '全部状态' },
+  { value: '', label: '全部状态' },
   { value: 0, label: '启用' },
   { value: 1, label: '禁用' },
 ];
