@@ -29,14 +29,7 @@ const app = createApp(App);
 
 // 安装element-plus插件
 app.use(ElementPlus, {
-  locale: zhCn, // element-plus国际化配置
-  touchConfig: {
-    passive: true, // 启用被动事件监听器以提高滚动性能
-  },
-  experimentalFeatures: {
-    // 启用实验性功能，确保所有触摸事件都是被动的
-    passiveEventListeners: true,
-  },
+  locale: zhCn, //element-plus国际化配置
 });
 
 // 安装自定义插件
