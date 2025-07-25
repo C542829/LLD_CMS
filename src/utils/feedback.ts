@@ -9,7 +9,7 @@ import { ResponseCode, ResponseCodeMeaning } from '@/enums/response';
  * 解析请求通知
  * @param res 响应数据
  * @returns 是否解析成功
- * @deprecated 该函数即将被弃用，请使用 parseResMsg 替代。
+ * @deprecated 该函数即将被弃用，请使用 /src/utils/parseResponse.parseResMsg 替代。
  */
 export const parseReqInform = (res: any) => {
   if (!res) {
@@ -37,7 +37,7 @@ export const parseReqInform = (res: any) => {
  * @param res 响应数据
  * @param msg 失败提示
  * @returns 解析后的数据列表
- * @deprecated 该函数即将被弃用，请使用 parseResList 替代。
+ * @deprecated 该函数即将被弃用，请使用 /src/utils/parseResponse.parseResList 替代。
  */
 export const parseReqList = (res: any, msg = '获取数据列表失败') => {
   if (!res) {
@@ -68,6 +68,7 @@ export const parseReqList = (res: any, msg = '获取数据列表失败') => {
  * 1. 响应是否存在
  * 2. 状态码是否为成功状态
  * 3. 错误提示处理
+ * @deprecated 该函数即将被弃用，请使用 /src/utils/parseResponse.parseRes 替代。
  */
 export const parseRes = (res: any) => {
   // 处理无响应情况
@@ -101,6 +102,7 @@ export const parseRes = (res: any) => {
  * 1. 使用parseRes进行基础校验
  * 2. 成功时显示成功通知
  * 3. 返回布尔值结果
+ * @deprecated 该函数即将被弃用，请使用 /src/utils/parseResponse.parseResMsg 替代。
  */
 export const parseResMsg = (res: any, msg = '') => {
   // 调用基础解析器
@@ -119,6 +121,7 @@ export const parseResMsg = (res: any, msg = '') => {
  * 1. 使用parseRes进行基础校验
  * 2. 验证返回数据是否为对象类型
  * 3. 处理空对象情况
+ * @deprecated 该函数即将被弃用，请使用 /src/utils/parseResponse.parseResObj 替代。
  */
 export const parseResObj = (res: any, msg = '获取数据失败') => {
   // 调用基础解析器
@@ -142,6 +145,7 @@ export const parseResObj = (res: any, msg = '获取数据失败') => {
  * 1. 使用parseRes进行基础校验
  * 2. 验证返回数据是否为数组类型
  * 3. 处理空列表情况
+ * @deprecated 该函数即将被弃用，请使用 /src/utils/parseResponse.parseResList 替代。
  */
 export const parseResList = (res: any, msg = '获取数据列表失败') => {
   // 调用基础解析器
