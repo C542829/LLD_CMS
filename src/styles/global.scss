@@ -8,9 +8,8 @@
 /* 禁用行样式（置灰） */
 .disabled-row {
   color: #c0c4cc;
-  /* 浅灰色，模拟禁用态 */
   background-color: #f8f9fa;
-  /* 浅背景强化区分 */
+  cursor: not-allowed;
 }
 
 // 列表容器
@@ -37,6 +36,7 @@
     gap: $main-padding;
 
     .search-item {
+      color: var(--el-text-color-regular);
       display: flex;
       align-items: center;
     }
