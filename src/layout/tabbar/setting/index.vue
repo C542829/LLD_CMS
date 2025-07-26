@@ -22,7 +22,7 @@
     </template>
   </el-dropdown>
   <el-dialog v-model="visible" title="修改密码" @close="visible = false" width="350">
-    <PwdForm />
+    <PwdForm @close="visible = false" />
   </el-dialog>
 </template>
 

@@ -21,12 +21,16 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue';
+import { reactive, onMounted } from 'vue';
 
 import useUserStore from '@/store/modules/acl/user';
 const store = useUserStore();
 
-const $emit = defineEmits(['close-drawer']);
+const $emit = defineEmits(['close']);
+
+onMounted(async () => {
+  await store.getUserInfo();
+});
 
 const formData = reactive({
   oldPwd: '',
@@ -36,7 +40,8 @@ const formData = reactive({
 
 // 表单提交
 const handleFormSubmit = async () => {
-  await store.updatePwd(formData);
+  const isSuccess = await store.updatePwd(formData);
+  isSuccess && $emit('close');
 };
 
 // 表单重置
@@ -51,6 +56,19 @@ const formRules = {
   oldPwd: [
     { required: true, message: '请输入原密码', trigger: 'blur' },
     { min: 3, max: 20, message: '密码长度3-20位', trigger: 'change' },
+    {
+      validator: async (rule: any, value: any, callback: any) => {
+        if (!store.user.userPassword) {
+          await store.getUserInfo();
+        }
+        if (value !== store.user.userPassword) {
+          callback(new Error('原密码错误'));
+        } else {
+          callback();
+        }
+      },
+      trigger: 'blur',
+    },
   ],
   newPwd: [
     { required: true, message: '请输入新密码', trigger: 'blur' },
