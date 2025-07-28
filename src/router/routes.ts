@@ -1,4 +1,4 @@
-// 对外暴露配置路由(常量路由):全部用户都可以访问到的路由
+// 对外暴露配置路由(常量路由): 全部用户都可以访问到的路由
 export const constantRoute = [
   // 登录
   {
@@ -7,8 +7,7 @@ export const constantRoute = [
     name: 'login',
     meta: {
       title: '登录', // 菜单标题
-      hidden: true, // 代表路由标题在菜单中是否隐藏  true:隐藏 false:不隐藏
-      icon: 'Promotion', // 菜单文字左侧的图标，支持element-plus全部图标
+      hidden: true, // 代表路由标题在菜单中是否隐藏  true: 隐藏 false: 不隐藏
     },
   },
 
@@ -22,41 +21,6 @@ export const constantRoute = [
       hidden: true,
       icon: 'DocumentDelete',
     },
-  },
-
-  // 通用组件使用样例
-  {
-    path: '/samples',
-    component: () => import('@/components/UseSamples/index.vue'),
-    name: 'Samples',
-    meta: {
-      title: 'Samples',
-      hidden: true,
-      icon: 'DocumentDelete',
-    },
-    redirect: '/samples/all',
-    children: [
-      {
-        path: '/samples/all',
-        name: 'AllSamples',
-        component: () => import('@/components/UseSamples/UseSamples.vue'),
-        meta: {
-          title: 'Samples',
-          hidden: true,
-          icon: 'DocumentDelete',
-        },
-      },
-      {
-        path: '/samples/messageBox',
-        name: 'MessageBox',
-        component: () => import('@/components/UseSamples/MessageBox.vue'),
-        meta: {
-          title: 'Samples',
-          hidden: true,
-          icon: 'DocumentDelete',
-        },
-      },
-    ],
   },
 ];
 
@@ -156,19 +120,19 @@ export const asyncRoute = [
 
   // 门店
   {
-    path: '/orgMgr',
+    path: '/org',
     component: () => import('@/layout/index.vue'),
-    name: 'OrgMgr',
+    name: 'Org',
     meta: {
       title: '门店',
       icon: 'Shop',
     },
-    redirect: '/orgMgr',
+    redirect: '/org',
     children: [
       {
-        path: '/orgMgr',
+        path: '/org',
         component: () => import('@/views/orgMgr/index.vue'),
-        name: 'OrgMgr',
+        name: 'Org',
         meta: {
           title: '门店',
           icon: 'Shop',
@@ -195,6 +159,7 @@ export const asyncRoute = [
         meta: {
           title: '电子会员卡',
           icon: 'CreditCard',
+          tabs: ['会员列表', '会员统计', '会员活跃分析', '资产转移'],
         },
       },
       {
@@ -204,6 +169,7 @@ export const asyncRoute = [
         meta: {
           title: '会员卡充值 ',
           icon: 'Coin',
+          tabs: ['会员充值', '充值记录', '充值活动'],
         },
       },
       {
@@ -213,6 +179,7 @@ export const asyncRoute = [
         meta: {
           title: '会员优惠券',
           icon: 'Ticket',
+          tabs: ['优惠券管理', '优惠券统计', '优惠券汇总'],
         },
       },
     ],
@@ -236,6 +203,7 @@ export const asyncRoute = [
         meta: {
           title: '销售数据',
           icon: 'ScaleToOriginal',
+          tabs: ['销售记录', '销售汇总', '销售明细', '跨店消费'],
         },
       },
       {
@@ -245,6 +213,7 @@ export const asyncRoute = [
         meta: {
           title: '人员绩效 ',
           icon: 'Management',
+          tabs: ['业绩明细', '业绩汇总'],
         },
       },
     ],
@@ -268,6 +237,7 @@ export const asyncRoute = [
         meta: {
           title: '品项设定',
           icon: 'GoodsFilled',
+          tabs: ['产品管理', '项目管理', '疗程券管理', '套餐管理', '充值提成规则'],
         },
       },
       {
@@ -297,11 +267,20 @@ export const asyncRoute = [
     component: () => import('@/layout/index.vue'),
     name: 'Acl',
     meta: {
-      title: '权限',
-      icon: 'Lock',
+      title: '系统设置',
+      icon: 'Setting',
     },
-    redirect: '/acl/user',
+    redirect: '/acl/orgMgr',
     children: [
+      {
+        path: '/acl/orgMgr',
+        component: () => import('@/views/acl/orgMgr/index.vue'),
+        name: 'OrgMgr',
+        meta: {
+          title: '门店管理',
+          icon: 'Shop',
+        },
+      },
       {
         path: '/acl/user',
         component: () => import('@/views/acl/user/index.vue'),
@@ -325,8 +304,17 @@ export const asyncRoute = [
         component: () => import('@/views/acl/permission/index.vue'),
         name: 'Permission',
         meta: {
-          title: '菜单管理',
-          icon: 'Menu',
+          title: '权限管理',
+          icon: 'Lock',
+        },
+      },
+      {
+        path: '/acl/enum',
+        component: () => import('@/views/acl/permission/index.vue'),
+        name: 'Enum',
+        meta: {
+          title: '枚举管理',
+          icon: 'List',
         },
       },
     ],
