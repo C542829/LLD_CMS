@@ -4,6 +4,9 @@ import axios from 'axios';
 // 引入消息提示
 import $Message from '@/components/Message/index';
 
+// 业务状态码
+import { ResponseCode } from '@/enums/response';
+
 // 引入用户相关的仓库
 import useUserStore from '@/store/modules/acl/user';
 // 引入配置相关的仓库
@@ -20,7 +23,7 @@ request.interceptors.request.use((config) => {
   // 如果用户登录成功,则会携带token
   const userStore = useUserStore();
   if (userStore.token) {
-    config.headers.token = userStore.token;
+    config.headers.Authorization = userStore.token;
   }
   //返回配置对象
   return config;
@@ -29,7 +32,14 @@ request.interceptors.request.use((config) => {
 // 添加响应拦截器
 request.interceptors.response.use(
   (response) => {
-    return response.data;
+    const res = response.data;
+    if (response.config.url !== '/auth/login' && res.code === ResponseCode.UNAUTHORIZED) {
+      $Message.error('登录失效，请重新登录！');
+      const userStore = useUserStore();
+      userStore.clearUserInfo();
+      window.location.reload();
+    }
+    return res;
   },
   (error) => {
     errorHandler(error);
@@ -158,5 +168,14 @@ export const patch = (url: string, data = {}, config = {}) => {
 // 统一导出所有方法
 export { get as GET, post as POST, put as PUT, del as DELETE, patch as PATCH };
 
-//对外暴露原始request实例
+/**
+ * Content-Type 类型枚举
+ */
+export const ContentType = {
+  JSON: { headers: { 'Content-Type': 'application/json' } },
+  FormData: { headers: { 'Content-Type': 'multipart/form-data' } },
+  URLencoded: { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
+};
+
+// 对外暴露原始request实例
 export default request;
