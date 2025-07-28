@@ -9,23 +9,26 @@
         页面未找到
       </h1>
       <p class="error-desc">抱歉，您访问的页面不存在或已被删除</p>
-      <el-button type="primary" size="large" @click="goHome" class="return-btn">
-        <el-icon>
-          <House />
-        </el-icon>
+      <el-button @click="goHome" type="primary" size="large" class="return-btn">
+        <el-icon><House /></el-icon>
         返回首页
       </el-button>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { useRouter } from 'vue-router';
-import { CircleCloseFilled, House } from '@element-plus/icons-vue';
-
-const $router = useRouter();
-const goHome = () => {
-  $router.push('/');
+<script lang="ts">
+export default {
+  created() {
+    if (this.$route.redirectedFrom?.path) {
+      this.$router.push(this.$route.redirectedFrom.path);
+    }
+  },
+  methods: {
+    goHome() {
+      this.$router.push('/');
+    },
+  },
 };
 </script>
 
