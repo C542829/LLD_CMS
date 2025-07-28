@@ -1,16 +1,43 @@
-//统一管理咱们项目用户相关的接口
-import request from '@/utils/request';
-import type { loginFormData, loginResponseData, userInfoReponseData } from './type';
-//项目用户相关的请求地址
+import { get, post, put, ContentType } from '@/utils/request';
+
+// 项目用户相关的请求地址
 enum API {
-  LOGIN_URL = '/admin/acl/index/login',
-  USERINFO_URL = '/admin/acl/index/info',
-  LOGOUT_URL = '/admin/acl/index/logout',
+  LOGIN_URL = '/auth/login',
+  USERINFO_URL = '/system/user/query-info',
+  LOGOUT_URL = '/auth/logout',
+  UPDATE_URL = '/system/user/update-user',
+  UPDATE_PWD_URL = '/system/user/update-pwd',
 }
 
-//登录接口
-export const reqLogin = (data: loginFormData) => request.post<any, loginResponseData>(API.LOGIN_URL, data);
-//获取用户信息
-export const reqUserInfo = () => request.get<any, userInfoReponseData>(API.USERINFO_URL);
-//退出登录
-export const reqLogout = () => request.post<any, any>(API.LOGOUT_URL);
+/**
+ * 登录接口
+ * @param data 登录参数
+ * @returns 登录结果
+ */
+export const reqLogin = (data: any) => post(API.LOGIN_URL, data, ContentType.URLencoded);
+
+/**
+ * 获取用户信息
+ * @returns 用户信息
+ */
+export const reqUserInfo = (id: number) => get(API.USERINFO_URL, { id });
+
+/**
+ * 退出登录
+ * @returns 退出登录结果
+ */
+export const reqLogout = (data: any) => post(API.LOGOUT_URL, data, ContentType.URLencoded);
+
+/**
+ * 更新用户信息
+ * @param data 更新用户信息参数
+ * @returns 更新用户信息结果
+ */
+export const reqUpdate = (data: any) => put(API.UPDATE_URL, data);
+
+/**
+ * 更新密码
+ * @param data 更新密码参数
+ * @returns 更新密码结果
+ */
+export const reqUpdatePwd = (data: any) => post(API.UPDATE_PWD_URL, data);
