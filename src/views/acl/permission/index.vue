@@ -1,51 +1,86 @@
 <template>
-  <el-table
-    :data="PermisstionArr"
-    style="width: 100%; margin-bottom: 20px"
-    row-key="id"
-    :border="true"
-    default-expand-all
-    :touch-config="{ passive: true }"
-  >
-    <el-table-column label="名称" prop="name"></el-table-column>
-    <el-table-column label="权限值" prop="code"></el-table-column>
-    <el-table-column label="修改时间" prop="updateTime"></el-table-column>
-    <el-table-column label="操作">
-      <!-- row:即为已有的菜单对象|按钮的对象的数据 -->
-      <template #="{ row, $index }">
-        <el-button type="primary" @click="addPermisstion(row)" size="small" :disabled="row.level == 4 ? true : false">
-          {{ row.level == 3 ? '添加功能' : '添加菜单' }}
-        </el-button>
-        <el-button
-          type="primary"
-          @click="updatePermisstion(row)"
-          size="small"
-          :disabled="row.level == 1 ? true : false"
-        >
-          编辑
-        </el-button>
-        <el-popconfirm :title="`你确定要删除${row.name}?`" width="260px" @confirm="removeMenu(row.id)">
-          <template #reference>
-            <el-button type="primary" size="small" :disabled="row.level == 1 ? true : false">删除</el-button>
+  <div class="main-container">
+    <!-- 搜索操作 -->
+    <Card class="operation-card">
+      <div class="search-container">
+        <div><el-button type="primary" @click="addPermisstion(0)">添加一级权限</el-button></div>
+        <!-- <div><el-button type="success" @click="importPermisstion">从路由导入</el-button></div> -->
+      </div>
+      <div class="search-container">
+        <!-- 状态 -->
+        <div class="search-item">
+          <label>
+            <span>状态：</span>
+            <el-select v-model="store.search.status" @change="search" style="width: 100px">
+              <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
+            </el-select>
+          </label>
+        </div>
+        <!-- 搜索框 -->
+        <div class="search-item">
+          <el-input
+            v-model="store.search.name"
+            @keydown.enter="search"
+            @clear="search"
+            :prefix-icon="Search"
+            placeholder="请输入权限关键字"
+            clearable
+          >
+            <template #append>
+              <el-button type="primary" @click="search">搜索</el-button>
+            </template>
+          </el-input>
+        </div>
+      </div>
+    </Card>
+    <Card padding="0">
+      <el-table
+        :data="store.tableData"
+        v-loading="settingStore.loading"
+        :element-loading-text="settingStore.loadingMsg"
+        :border="true"
+        row-key="id"
+        height="100%"
+      >
+        <el-table-column label="权限名称" prop="name"></el-table-column>
+        <el-table-column label="权限标识" prop="permCode"></el-table-column>
+        <el-table-column label="资源路径" prop="path"></el-table-column>
+        <el-table-column label="组件名称" prop="component"></el-table-column>
+        <el-table-column label="备注" prop="remark"></el-table-column>
+        <el-table-column label="操作" width="220">
+          <template #="{ row, $index }">
+            <el-button @click="addPermisstion(row.id)" type="primary" size="small">添加权限</el-button>
+            <el-button @click="updatePermisstion(row)" type="warning" size="small">编辑</el-button>
+            <el-button v-if="row.permStatus === 0" @click="forbid(row)" type="danger" size="small">禁用</el-button>
+            <el-button v-else @click="store.updateStatus(row)" type="success" size="small">启用</el-button>
           </template>
-        </el-popconfirm>
-      </template>
-    </el-table-column>
-  </el-table>
+        </el-table-column>
+      </el-table>
+    </Card>
+  </div>
+
   <!-- 对话框组件:添加或者更新已有的菜单的数据结构 -->
-  <el-dialog v-model="dialogVisible" :title="menuData.id ? '更新菜单' : '添加菜单'">
-    <!-- 表单组件:收集新增与已有的菜单的数据 -->
-    <el-form>
-      <el-form-item label="名称">
-        <el-input placeholder="请你输入菜单名称" v-model="menuData.name"></el-input>
+  <el-dialog v-model="dialog.visible" :title="dialog.title" @close="handleClose" width="400px">
+    <el-form :model="store.formData" :rules="formRules" ref="formRef" label-width="80">
+      <el-form-item label="名称" prop="name">
+        <el-input placeholder="请你输入权限名称" v-model="store.formData.name"></el-input>
       </el-form-item>
-      <el-form-item label="权限">
-        <el-input placeholder="请你输入权限数值" v-model="menuData.code"></el-input>
+      <el-form-item label="权限" prop="permCode">
+        <el-input placeholder="请你输入权限标识" v-model="store.formData.permCode"></el-input>
+      </el-form-item>
+      <el-form-item label="资源路径" prop="path">
+        <el-input placeholder="请你输入资源路径" v-model="store.formData.path"></el-input>
+      </el-form-item>
+      <el-form-item label="组件名称" prop="component">
+        <el-input placeholder="请你输入组件名称" v-model="store.formData.component"></el-input>
+      </el-form-item>
+      <el-form-item label="备注" prop="remark">
+        <el-input placeholder="请你输入备注" v-model="store.formData.remark"></el-input>
       </el-form-item>
     </el-form>
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button @click="dialog.visible = false">取消</el-button>
         <el-button type="primary" @click="save">确定</el-button>
       </span>
     </template>
@@ -53,84 +88,117 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive } from 'vue';
-//引入获取菜单请求API
-import { reqAllPermisstion, reqAddOrUpdateMenu, reqRemoveMenu } from '@/api/acl/menu';
-//引入ts类型
-import type { MenuParams, PermisstionResponseData, PermisstionList, Permisstion } from '@/api/acl/menu/type';
-import { ElMessage } from 'element-plus';
-//存储菜单的数据
-let PermisstionArr = ref<PermisstionList>([]);
-//控制对话框的显示与隐藏
-let dialogVisible = ref<boolean>(false);
-//携带的参数
-let menuData = reactive<MenuParams>({
-  code: '',
-  level: 0,
-  name: '',
-  pid: 0,
-});
-//组件挂载完毕
+import { Search } from '@element-plus/icons-vue';
+import { ref, onMounted, reactive, inject } from 'vue';
+import { statusOptions } from '@/enums/index';
+
+// 引入消息提示组件
+const $MessageBox: any = inject('$MessageBox');
+
+import { useSettingStore } from '@/store/modules/acl/setting';
+const settingStore = useSettingStore();
+import { usePermissionStore } from '@/store/modules/acl/permission';
+const store = usePermissionStore();
+
 onMounted(() => {
-  // getHasPermisstion()
+  search();
 });
-//获取菜单数据的方法
-const getHasPermisstion = async () => {
-  let result: PermisstionResponseData = await reqAllPermisstion();
-  if (result.code == 200) {
-    PermisstionArr.value = result.data;
-  }
+
+// 搜索
+const search = () => {
+  store.setTableData();
 };
 
-//添加菜单按钮的回调
-const addPermisstion = (row: Permisstion) => {
-  //清空数据
-  Object.assign(menuData, {
-    id: 0,
-    code: '',
-    level: 0,
-    name: '',
-    pid: 0,
+// 禁用
+const forbid = async (row: any) => {
+  const result = await $MessageBox.confirm({
+    title: '确认操作',
+    message: `你确定要禁用权限【${row.name}】吗？`,
+    type: 'warning',
   });
-  //对话框显示出来
-  dialogVisible.value = true;
-  //收集新增的菜单的level数值
-  menuData.level = row.level + 1;
-  //给谁新增子菜单
-  menuData.pid = row.id as number;
-};
-//编辑已有的菜单
-const updatePermisstion = (row: Permisstion) => {
-  dialogVisible.value = true;
-  //点击修改按钮:收集已有的菜单的数据进行更新
-  Object.assign(menuData, row);
+  result && store.updateStatus(row);
 };
 
-//确定按钮的回调
+// 添加菜单按钮的回调
+const addPermisstion = (parentId: number) => {
+  dialog.title = '新增权限';
+  dialog.visible = true;
+  store.formData.parentId = parentId;
+};
+
+// 编辑已有的菜单
+const updatePermisstion = (row: any) => {
+  dialog.title = '编辑权限';
+  dialog.visible = true;
+  store.formData = { ...row };
+};
+
+const formRef = ref<any>(null);
+
+// 确定按钮的回调
 const save = async () => {
-  //发请求:新增子菜单|更新某一个已有的菜单的数据
-  let result: any = await reqAddOrUpdateMenu(menuData);
-  if (result.code == 200) {
-    //对话框隐藏
-    dialogVisible.value = false;
-    //提示信息
-    ElMessage({
-      type: 'success',
-      message: menuData.id ? '更新成功' : '添加成功',
-    });
-    //再次获取全部最新的菜单的数据
-    getHasPermisstion();
-  }
+  // 表单验证
+  await formRef.value.validate();
+  const result = await store.update(store.formData);
+  result && (dialog.visible = false);
 };
 
-//删除按钮回调
-const removeMenu = async (id: number) => {
-  let result = await reqRemoveMenu(id);
-  if (result.code == 200) {
-    ElMessage({ type: 'success', message: '删除成功' });
-    getHasPermisstion();
-  }
+const dialog = reactive({
+  title: '新增权限',
+  visible: false,
+});
+
+// 关闭抽屉触发
+const handleClose = () => {
+  store.resetFormData();
+  formRef.value.resetFields();
+};
+
+// 从路由导入权限
+// import { asyncRoute } from '@/router/demo';
+const importPermisstion = async () => {
+  const deep = async (routes: any) => {
+    for (const route of routes) {
+      const permCode = route.path.split('/').slice(1).join(':') || '';
+      const data = {
+        // @ts-ignore
+        id: route.meta.id,
+        name: route.meta.title,
+        permCode,
+        path: route.path,
+        component: route.name,
+        // @ts-ignore
+        parentId: route.meta.parentId || 0,
+        permStatus: 0,
+        // @ts-ignore
+        remark: JSON.stringify(route.meta.tabs || '') === '""' ? '' : JSON.stringify(route.meta.tabs || ''),
+      };
+      const is = await store.importPerm(data);
+      is && console.log(`导入【${data.name}】成功`);
+      !is && console.log(`导入【${data.name}】失败`);
+      if (route.children) {
+        await deep(route.children);
+      }
+    }
+  };
+  // deep(asyncRoute);
+};
+
+// 表单验证规则
+const formRules = {
+  name: [{ required: true, message: '权限名称为必填项', trigger: 'blur' }],
+  permCode: [{ required: true, message: '权限标识为必填项', trigger: 'blur' }],
+  path: [{ required: true, message: '资源路径为必填项', trigger: 'blur' }],
+  component: [{ required: true, message: '组件名称为必填项', trigger: 'blur' }],
 };
 </script>
 
-<style scoped></style>
+<style scoped lang="scss">
+.main-container {
+  padding: $main-padding;
+}
+
+:deep(.el-input-group__append .el-button--primary) {
+  @include primary-button;
+}
+</style>
