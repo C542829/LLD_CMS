@@ -10,11 +10,21 @@ import CouponOverview from './couponOverview/index.vue';
 
 import { ref, markRaw } from 'vue';
 
-const navList = ref([
+const originalNavList = ref([
   { label: '优惠券管理', icon: '', component: markRaw(CouponManager) },
   { label: '优惠券统计', icon: '', component: markRaw(CouponCount) },
   { label: '优惠券汇总', icon: '', component: markRaw(CouponOverview) },
 ]);
+
+const navList: any = ref([]);
+
+import { useRoute } from 'vue-router';
+const tabs: any = useRoute().meta.tabs;
+for (const item of originalNavList.value) {
+  if (tabs.includes(item.label)) {
+    navList.value.push(item);
+  }
+}
 </script>
 
 <style scoped lang="scss"></style>

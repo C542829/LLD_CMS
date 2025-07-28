@@ -12,7 +12,7 @@ import TreatmentCouponManager from './treatmentCouponManager/index.vue';
 
 import { ref, markRaw } from 'vue';
 
-const navList = ref([
+const originalNavList = ref([
   { label: '产品管理', icon: '', component: markRaw(ProductManager) },
   { label: '项目管理', icon: '', component: markRaw(ServiceItemManager) },
   { label: '疗程券管理', icon: '', component: markRaw(TreatmentCouponManager) },
@@ -23,6 +23,16 @@ const navList = ref([
     component: markRaw(RechargeCommissionRules),
   },
 ]);
+
+const navList: any = ref([]);
+
+import { useRoute } from 'vue-router';
+const tabs: any = useRoute().meta.tabs;
+for (const item of originalNavList.value) {
+  if (tabs.includes(item.label)) {
+    navList.value.push(item);
+  }
+}
 </script>
 
 <style scoped lang="scss"></style>

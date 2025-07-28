@@ -11,12 +11,22 @@ import AssetTransfer from './assetTransfer/index.vue';
 
 import { ref, markRaw } from 'vue';
 
-const navList = ref([
+const originalNavList: any = ref([
   { label: '会员列表', icon: '', component: markRaw(MemberList) },
   { label: '会员统计', icon: '', component: markRaw(MemberCount) },
   { label: '会员活跃分析', icon: '', component: markRaw(ActivityAnalysis) },
   { label: '资产转移', icon: '', component: markRaw(AssetTransfer) },
 ]);
+
+const navList: any = ref([]);
+
+import { useRoute } from 'vue-router';
+const tabs: any = useRoute().meta.tabs;
+for (const item of originalNavList.value) {
+  if (tabs.includes(item.label)) {
+    navList.value.push(item);
+  }
+}
 </script>
 
 <style scoped lang="scss"></style>
