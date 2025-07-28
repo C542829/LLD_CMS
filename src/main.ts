@@ -44,6 +44,9 @@ app.use(router);
 // 引入路由鉴权文件
 import './permisstion';
 
+// 导入原型扩展
+import './utils/array-extensions';
+
 // 引入自定义指令文件
 import { isHasButton } from '@/directive/has';
 isHasButton(app);
