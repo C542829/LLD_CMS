@@ -20,10 +20,10 @@ const originalNavList: any = ref([
 
 const navList: any = ref([]);
 
-import { useRoute } from 'vue-router';
-const tabs: any = useRoute().meta.tabs;
+import useUserStore from '@/store/modules/acl/user';
+const userStore = useUserStore();
 for (const item of originalNavList.value) {
-  if (tabs.includes(item.label)) {
+  if (userStore.tabs.includes(item.label)) {
     navList.value.push(item);
   }
 }

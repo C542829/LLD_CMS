@@ -20,14 +20,11 @@ import { parseResObj } from '@/utils/parseResponse';
 import { usePermissionStore } from '@/store/modules/acl/permission';
 
 // 用于过滤当前用户需要展示的异步路由
-function filterAsyncRoute(asyncRoute: any, routes: any, tabs: Map<string, string[]>) {
+function filterAsyncRoute(asyncRoute: any, routes: any) {
   return asyncRoute.filter((item: any) => {
-    if (tabs.get(item.name)) {
-      item.meta.tabs = tabs.get(item.name);
-    }
     if (routes.includes(item.name)) {
       if (item.children && item.children.length > 0) {
-        item.children = filterAsyncRoute(item.children, routes, tabs);
+        item.children = filterAsyncRoute(item.children, routes);
       }
       return true;
     }
@@ -43,8 +40,9 @@ const useUserStore = defineStore('User', {
       nickname: '',
       avatar: setting.logo || '',
       token: getToken() || '', // 用户唯一标识token
-      buttons: [], // 存储当前用户是否包含某一个按钮
+      buttons: <string[]>[], // 存储当前用户是否包含某一个按钮
       menuRoutes: <object[]>[], // 仓库存储生成菜单需要数组(路由)
+      tabs: <string[]>[],
     };
   },
   actions: {
@@ -80,13 +78,18 @@ const useUserStore = defineStore('User', {
       if (this.menuRoutes.length === 0) {
         const perms = await permStore.getPermTreeByUserId(this.userId);
         const routes = perms.treeMap((item) => item.component);
-        const tabs: any = perms.treeMap((item) => {
-          if (item.remark) {
-            const tabs = item.children.map((child: any) => child.name);
-            return [item.component, tabs];
-          }
-        });
-        const userAsyncRoute = filterAsyncRoute(cloneDeep(asyncRoute), routes, new Map(tabs));
+        this.buttons = perms
+          .treeMap((item) => item.permCode)
+          .filter((item: string) => {
+            const btnCode = ['add', 'update', 'disabled'];
+            for (const code of btnCode) {
+              if (item.includes(code)) {
+                return true;
+              }
+            }
+          });
+        this.tabs = perms.treeMap((item) => item.remark && [...item.children.map((child: any) => child.name)]).flat();
+        const userAsyncRoute = filterAsyncRoute(cloneDeep(asyncRoute), routes);
         this.menuRoutes = [...constantRoute, ...userAsyncRoute, anyRoute];
       }
 
