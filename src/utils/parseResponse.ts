@@ -48,7 +48,7 @@ export const parseRes = (res: any) => {
  * 2. 成功时显示成功通知
  * 3. 返回布尔值结果
  */
-export const parseResMsg = (res: any, msg = '') => {
+export const parseResMsg = (res: any, msg?: string) => {
   // 调用基础解析器
   const response = parseRes(res);
   // 成功时显示通知
@@ -68,16 +68,18 @@ export const parseResMsg = (res: any, msg = '') => {
  * 2. 验证返回数据是否为对象类型
  * 3. 处理空对象情况
  */
-export const parseResObj = (res: any, msg = '获取数据失败') => {
+export const parseResObj = (res: any, msg?: string) => {
   // 调用基础解析器
   const response = parseRes(res);
   const data = response.data;
   // 验证是否为对象类型
   const isObj = isObject(data);
   // 非对象类型提示警告
-  !isObj && $Message.warning(msg);
+  !isObj && $Message.warning(`数据格式错误：${data}`);
   // 空对象提示
   isObj && Object.keys(data).length === 0 && $Message.success('数据为空');
+  // 自定义提示
+  msg && $Message.success(msg);
   // 确保返回对象类型
   return isObj ? data : {};
 };
@@ -92,16 +94,18 @@ export const parseResObj = (res: any, msg = '获取数据失败') => {
  * 2. 验证返回数据是否为数组类型
  * 3. 处理空列表情况
  */
-export const parseResList = (res: any, msg = '获取数据列表失败') => {
+export const parseResList = (res: any, msg?: string) => {
   // 调用基础解析器
   const response = parseRes(res);
   const data = response.data;
   // 验证是否为数组类型
   const isArray = Array.isArray(data);
   // 非数组类型提示警告
-  !isArray && $Message.warning(msg);
+  !isArray && $Message.warning(`数据格式错误：${data}`);
   // 空数组提示
   data?.length === 0 && $Message.success('暂无数据');
+  // 自定义提示
+  msg && $Message.success(msg);
   // 确保返回数组类型
   return isArray ? data : [];
 };
