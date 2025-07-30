@@ -104,6 +104,8 @@ const useUserStore = defineStore('User', {
       const res: any = await reqLogout(params);
       if (res.code === ResponseCode.SUCCESS) {
         this.clearUserInfo();
+        $Message.success('退出登录成功');
+        router.push({ path: '/login' });
       } else {
         $Message.error('退出登录失败');
       }
@@ -122,6 +124,9 @@ const useUserStore = defineStore('User', {
 
     async getUserInfo() {
       this.user = parseResObj(await reqUserInfo(this.userId)) || {};
+      if (this.user?.role?.id) {
+        this.user.roleId = this.user.role.id;
+      }
       return this.user;
     },
 

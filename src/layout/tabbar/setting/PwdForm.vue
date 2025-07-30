@@ -55,7 +55,7 @@ const handleFormReset = () => {
 const formRules = {
   oldPwd: [
     { required: true, message: '请输入原密码', trigger: 'blur' },
-    { min: 3, max: 20, message: '密码长度3-20位', trigger: 'change' },
+    { min: 6, max: 20, message: '密码长度6-20位', trigger: 'change' },
     {
       validator: async (rule: any, value: any, callback: any) => {
         if (!store.user.userPassword) {
@@ -72,7 +72,7 @@ const formRules = {
   ],
   newPwd: [
     { required: true, message: '请输入新密码', trigger: 'blur' },
-    { min: 3, max: 20, message: '密码长度3-20位', trigger: 'change' },
+    { min: 6, max: 20, message: '密码长度6-20位', trigger: 'change' },
   ],
   confirmPwd: [
     { required: true, message: '请输入确认密码', trigger: 'blur' },

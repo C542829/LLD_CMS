@@ -65,8 +65,8 @@ const login = async () => {
 // 定义表单校验需要配置对象
 const rules = {
   orgCode: [{ required: true, message: '请输入门店编码', trigger: 'blur' }],
-  username: [{ required: true, min: 3, max: 20, message: '账号长度3-20位', trigger: 'blur' }],
-  password: [{ required: true, min: 3, max: 20, message: '密码长度3-20位', trigger: 'blur' }],
+  username: [{ required: true, min: 6, max: 20, message: '账号长度6-20位', trigger: 'blur' }],
+  password: [{ required: true, min: 6, max: 20, message: '密码长度6-20位', trigger: 'blur' }],
 };
 </script>
 
