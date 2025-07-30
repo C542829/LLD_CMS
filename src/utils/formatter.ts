@@ -1,16 +1,18 @@
 // 表格数据格式化工具
 import { formatDateTime, formatDate } from '@/utils/time';
+// import {} from '@/enums/index';
 
 /**
- * 金额格式化器
+ * 床位状态枚举映射
  * @param row
  * @param column
  * @param cellValue
  * @param index
  * @returns
  */
-export const amountFormatter = (row: any, column: any, cellValue: number, index: number) => {
-  return `¥ ${typeof cellValue === 'number' ? cellValue : ''}`;
+export const bedStatusMap = (row: any, column: any, cellValue: number, index: number) => {
+  let bedStatus = ['空闲中', '服务中', '暂停使用'];
+  return bedStatus[cellValue] || '';
 };
 
 /**
@@ -54,6 +56,18 @@ export const isDiscountMap = (row: any, column: any, cellValue: number, index: n
 export const couponTypeMap = (row: any, column: any, cellValue: number, index: number) => {
   let couponType = ['实体券', '线上领取', '地推活动领取', '手动赠送', '充值活动获赠', '', '', '疗程项目获得'];
   return couponType[cellValue] || '';
+};
+
+/**
+ * 金额格式化器
+ * @param row
+ * @param column
+ * @param cellValue
+ * @param index
+ * @returns
+ */
+export const amountFormatter = (row: any, column: any, cellValue: number, index: number) => {
+  return `¥ ${typeof cellValue === 'number' ? cellValue : ''}`;
 };
 
 /**
