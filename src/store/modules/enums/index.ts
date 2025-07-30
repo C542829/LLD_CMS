@@ -1,73 +1,150 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
-import $Message from '@/components/Message';
+import { ref, reactive } from 'vue';
 
-// 导入请求方法
-import { reqPositionList } from '@/api/enums/position';
-import { parseReqList } from '@/utils/feedback';
+import {
+  reqEnumList,
+  reqAddEnum,
+  reqUpdateEnum,
+  reqDelEnum,
+  reqEnumItemList,
+  reqAddEnumItem,
+  reqUpdateEnumItem,
+  reqDelEnumItem,
+} from '@/api/enums/index';
 
-export const useEnumsStore = defineStore('Enums', () => {
-  // 职位
-  const positionOptions: any = ref([]);
-  const setPositionList = async () => {
-    const params = { parentId: 1 };
-    const res = await reqPositionList(params);
-    const data = parseReqList(res);
+import { parseResList, parseResMsg } from '@/utils/parseResponse';
 
-    positionOptions.value = [
-      { value: '店长', label: '店长' },
-      { value: '收银员', label: '收银员' },
-      { value: '采耳师', label: '采耳师' },
-      { value: '修脚师', label: '修脚师' },
-    ];
+export enum Enums {
+  BED_STATUS = 'bed_status',
+  UNIT = 'unit',
+  POSITION = 'position',
+  DEPARTMENT = 'department',
+}
+
+import { useSettingStore } from '@/store/modules/acl/setting';
+
+export const useEnumStore = defineStore('Enum', () => {
+  const settingStore = useSettingStore();
+
+  // 搜索参数
+  const search = reactive({
+    dictName: '',
+    dictCode: '',
+  });
+
+  const tableData: any = ref([]);
+  const setTableData = async () => {
+    settingStore.loading = true;
+    const res = await reqEnumList(search);
+    let data = parseResList(res);
+    tableData.value = data;
+    settingStore.loading = false;
   };
 
-  // 部门
-  const deptOptions: any = ref([]);
-  const setDeptList = async () => {
-    const params = { parentId: 1 };
-    const res = await reqPositionList(params);
-    const data = parseReqList(res);
-    deptOptions.value = [
-      { value: '管理部', label: '管理部' },
-      { value: '技师部', label: '技师部' },
-    ];
+  const dict: any = ref({});
+  const resetDict = () => {
+    dict.value = {
+      dictTypeId: null,
+      dictName: '',
+      dictCode: '',
+      sort: 0,
+      remark: '',
+    };
   };
 
-  // 职称
-  const titleOptions: any = ref([]);
-  const setTitleList = async () => {
-    const params = { parentId: 1 };
-    const res = await reqPositionList(params);
-    const data = parseReqList(res);
-    titleOptions.value = [
-      { value: '无', label: '无' },
-      { value: '店长', label: '店长' },
-      { value: '技师', label: '技师' },
-    ];
+  const updateDict = async () => {
+    const res = await (dict.value.dictTypeId ? reqUpdateEnum(dict.value) : reqAddEnum(dict.value));
+    const result = parseResMsg(res);
+    result && setTableData();
+    return result;
   };
 
-  // 单位
-  const unitOptions: any = ref([]);
-  const setUnitList = async () => {
-    const params = { parentId: 1 };
-    const res = await reqPositionList(params);
-    const data = parseReqList(res);
-    unitOptions.value = [
-      { value: 0, label: '盒' },
-      { value: 1, label: '个' },
-      { value: 2, label: '瓶' },
-    ];
+  const delDict = async (dictTypeId: number) => {
+    const res = await reqDelEnum(dictTypeId);
+    const result = parseResMsg(res);
+    result && setTableData();
+    return result;
+  };
+
+  const dictItem: any = ref({});
+  const resetDictItem = () => {
+    dictItem.value = {
+      dictItemId: null,
+      dictCode: '',
+      itemValue: '',
+      itemLabel: '',
+      sort: 0,
+      remark: '',
+    };
+  };
+
+  const updateDictItem = async (data?: any) => {
+    const params = data || dictItem.value;
+    const res = await (params.dictItemId ? reqUpdateEnumItem(params) : reqAddEnumItem(params));
+    const result = parseResMsg(res);
+    return result;
+  };
+
+  const delDictItem = async (dictItemId: number) => {
+    const res = await reqDelEnumItem(dictItemId);
+    const result = parseResMsg(res);
+    return result;
+  };
+
+  /**
+   * 获取枚举项列表
+   * @param dictCode 枚举编码
+   * @returns 枚举项列表
+   */
+  const getEnumItemList = async (dictCode: string) => {
+    const params = { dictCode };
+    const res = await reqEnumItemList(params);
+    const data = parseResList(res);
+    return data;
+  };
+
+  /**
+   * 获取单位列表
+   * @returns 单位列表
+   */
+  const getUnits = async () => {
+    return await getEnumItemList(Enums.UNIT);
+  };
+
+  /**
+   * 获取岗位列表
+   * @returns 岗位列表
+   */
+  const getPositionList = async () => {
+    return await getEnumItemList(Enums.POSITION);
+  };
+
+  /**
+   * 获取部门列表
+   * @returns 部门列表
+   */
+  const getDeptList = async () => {
+    return await getEnumItemList(Enums.DEPARTMENT);
   };
 
   return {
-    positionOptions,
-    setPositionList,
-    deptOptions,
-    setDeptList,
-    titleOptions,
-    setTitleList,
-    unitOptions,
-    setUnitList,
+    getDeptList,
+    getUnits,
+    getPositionList,
+    getEnumItemList,
+
+    search,
+    tableData,
+    setTableData,
+    dict,
+    resetDict,
+    updateDict,
+    dictItem,
+    resetDictItem,
+    updateDictItem,
+    delDict,
+    delDictItem,
   };
 });
+
+export const useEnumsStore = useEnumStore;
