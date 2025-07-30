@@ -6,21 +6,11 @@
         <el-button type="primary" @click="showDrawer(0)" class="add-button">新增会员</el-button>
       </div>
       <div class="search-container">
-        <div class="search-item" v-if="false">
-          <label for="staffStatus" class="search-label">选择店铺：</label>
-          <el-select v-model="store.searchParams.storeId" id="staffStatus" style="width: 120px" placeholder="Select">
-            <el-option
-              v-for="item in [{ value: 1, label: '' }]"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
-        </div>
         <div class="search-item">
           <el-input
-            v-model="store.searchParams.inputValue"
+            v-model="store.search.queryField"
             @keydown.enter="search"
+            @clear="search"
             :prefix-icon="Search"
             placeholder="会员卡号 | 姓名 | 手机号"
             clearable
@@ -35,13 +25,14 @@
     </Card>
 
     <!-- 数据列表 -->
-    <Card class="table-card" padding="15px 15px 0 15px">
+    <Card padding="0">
       <PaginationTable
-        v-loading="store.isLoading"
-        :data="store.tableData"
-        :total="store.resData.total"
-        v-model:currentPage="store.searchParams.currentPage"
-        v-model:pageSize="store.searchParams.pageSize"
+        v-loading="settingStore.loading"
+        :element-loading-text="settingStore.loadingMsg"
+        :data="store.tableData.list"
+        :total="store.tableData.total"
+        v-model:currentPage="store.search.pageNum"
+        v-model:pageSize="store.search.pageSize"
         @size-change="handleSizeChange"
         @pagination-current-change="handleCurrentChange"
       >
@@ -65,7 +56,7 @@
       </PaginationTable>
     </Card>
   </div>
-  <Drawer v-model="drawer.visible" :title="drawer.title" @close="handleDrawerClose">
+  <Drawer v-model="drawer.visible" :title="drawer.title" @closed="handleDrawerClose">
     <component :is="drawer.component" @close-drawer="drawer.visible = false" />
   </Drawer>
 
@@ -73,7 +64,7 @@
     v-model="dialog.visible"
     :title="dialog.title"
     :width="dialog.width"
-    @close="handleDrawerClose"
+    @closed="handleDrawerClose"
     :top="dialog.width === '80%' ? '3vh' : ''"
     center
   >
@@ -84,20 +75,16 @@
 <script setup lang="ts">
 import { Search } from '@element-plus/icons-vue';
 import { ref, onMounted, markRaw, reactive, onUnmounted } from 'vue';
-import { sexMap } from '@/enums/mapFormatter';
+import { sexMap } from '@/utils/formatter';
 
 // 引入数据仓库
+import { useSettingStore } from '@/store/modules/acl/setting';
+const settingStore = useSettingStore();
 import { useMemberStore } from '@/store/modules/member/member';
 const store = useMemberStore();
 
 // 初始化
 onMounted(() => {});
-
-onUnmounted(() => {
-  store.isLoading = false;
-});
-
-// #region 事件处理
 
 // 搜索
 const search = () => {
@@ -106,18 +93,14 @@ const search = () => {
 
 // 处理分页变化
 const handleSizeChange = (val: number) => {
-  store.searchParams.pageSize = val;
+  store.search.pageSize = val;
   store.setTableData();
 };
 
 const handleCurrentChange = (val: number) => {
-  store.searchParams.currentPage = val;
+  store.search.pageNum = val;
   store.setTableData();
 };
-
-// #endregion
-
-// #region 抽屉
 
 // 导入子组件
 import MemberForm from './MemberForm.vue';
@@ -168,15 +151,9 @@ const showDrawer = (handleIndex: number, row: any = {}) => {
 
 // 关闭抽屉触发
 const handleDrawerClose = () => {
-  const timer = setTimeout(() => {
-    // 当抽屉关闭时重置表单
-    store.resetFormData();
-    // 清除定时器
-    timer && clearTimeout(timer);
-  }, 100);
+  // 当抽屉关闭时重置表单
+  store.resetFormData();
 };
-
-// #endregion
 
 // 模态框
 const dialog: any = reactive({
@@ -211,10 +188,6 @@ const showDialog = (handleIndex: number, row: any = {}) => {
 </script>
 
 <style scoped lang="scss">
-.table-main {
-  height: 100%;
-}
-
 :deep(.el-input-group__append .el-button--primary) {
   @include primary-button;
 }

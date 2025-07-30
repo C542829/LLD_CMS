@@ -1,67 +1,39 @@
 import { defineStore } from 'pinia';
 import { reactive, ref } from 'vue';
-import $Message from '@/components/Message';
-import { validChinese, validPhone } from '@/utils/strHandle';
 import { reqVipList, reqVipInfo, reqAddVip, reqUpdateVip } from '@/api/member/memberList';
-import { parseReqInform, parseReqList } from '@/utils/feedback';
+import { parseResList, parseResObj, parseResMsg } from '@/utils/parseResponse';
+
 import { formatDate } from '@/utils/time';
 
+import { useSettingStore } from '@/store/modules/acl/setting';
+
 export const useMemberStore = defineStore('Member', () => {
-  // 加载状态
-  const isLoading = ref(false);
+  const settingStore = useSettingStore();
 
   // #region 会员列表
 
   // 搜索参数
-  const searchParams = ref({
-    storeId: 0,
-    inputValue: '',
+  const search = reactive({
+    queryField: '',
+    pageNum: 1,
     pageSize: 20,
-    currentPage: 1,
   });
 
-  // 处理搜索参数
-  const handleSearchParams = () => {
-    const params: any = { ...searchParams.value };
-    const inputValue = searchParams.value.inputValue.trim();
-
-    // 删除多余参数
-    delete params.inputValue;
-
-    if (inputValue) {
-      // 判断参数类型
-      if (validPhone(inputValue)) {
-        params.vipPhone = inputValue;
-      } else if (validChinese(inputValue)) {
-        params.vipName = inputValue;
-      } else {
-        params.vipCardNumber = inputValue;
-      }
-    }
-
-    return params || {};
-  };
-
   // 会员列表
-  const tableData: any = ref([]);
-  const resData: any = reactive({ total: 0 });
+  const tableData: any = reactive({ total: 0, list: [] });
   const setTableData = async () => {
-    isLoading.value = true;
-
+    settingStore.loading = true;
     // 获取数据列表
-    const params = handleSearchParams();
-    const res = await reqVipList(params);
-    let data = parseReqList(res);
-    console.log(params);
+    const res = await reqVipList(search);
+    let data = parseResList(res);
 
     // 处理数据
-    resData.total = data.length;
-    const start = params.pageSize * (params.currentPage - 1);
-    const end = params.pageSize * params.currentPage;
+    tableData.total = data.length;
+    const start = search.pageSize * (search.pageNum - 1);
+    const end = search.pageSize * search.pageNum;
     data = data.slice(start, end);
-    tableData.value = data;
-
-    isLoading.value = false;
+    tableData.list = data;
+    settingStore.loading = false;
   };
 
   // #endregion
@@ -104,12 +76,12 @@ export const useMemberStore = defineStore('Member', () => {
     data: [],
   });
   const setTotalRecord = async () => {
-    isLoading.value = true;
+    settingStore.loading = true;
 
     // 获取数据列表
     const params = handleTotalParams();
     const res = await reqVipList(params);
-    let data = parseReqList(res);
+    let data = parseResList(res);
 
     // 处理数据
     totalRecord.total = data.length;
@@ -118,7 +90,7 @@ export const useMemberStore = defineStore('Member', () => {
     data = data.slice(start, end);
     totalRecord.data = data;
 
-    isLoading.value = false;
+    settingStore.loading = false;
   };
 
   // #endregion
@@ -158,12 +130,12 @@ export const useMemberStore = defineStore('Member', () => {
     data: [],
   });
   const setActiveRecord = async () => {
-    isLoading.value = true;
+    settingStore.loading = true;
 
     // 获取数据列表
     const params = handleActiveParams();
     const res = await reqVipList(params);
-    let data = parseReqList(res);
+    let data = parseResList(res);
 
     // 处理数据
     activeRecord.total = data.length;
@@ -172,7 +144,7 @@ export const useMemberStore = defineStore('Member', () => {
     data = data.slice(start, end);
     activeRecord.data = data;
 
-    isLoading.value = false;
+    settingStore.loading = false;
   };
 
   // #endregion
@@ -187,24 +159,19 @@ export const useMemberStore = defineStore('Member', () => {
     data.infoCardNumber = 'VIP000001';
     data.infoBirthday = data.infoBirthday + ' 00:00:00';
 
-    console.log('更新会员数据 = ', data);
     const res = await (data?.id ? reqUpdateVip(data) : reqAddVip(data));
-    const result = parseReqInform(res);
-
+    const result = parseResMsg(res);
     // 刷新数据
     result && setTableData();
-    return result;
   };
-
   const updatePwd = async (infoPwd = '123456') => {
     const data = { ...formData.value, infoPwd };
     const res = await reqUpdateVip(data);
-    const result = parseReqInform(res);
+    const result = parseResMsg(res);
     // 刷新数据
     result && setTableData();
     return result;
   };
-
   // 表单数据
   const formData: any = ref({});
 
@@ -230,10 +197,7 @@ export const useMemberStore = defineStore('Member', () => {
   // #endregion
 
   return {
-    isLoading,
-
-    searchParams,
-    resData,
+    search,
     tableData,
     setTableData,
     update,
