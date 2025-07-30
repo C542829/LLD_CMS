@@ -70,7 +70,6 @@ export const educationOptions = [
  * 在职状态
  */
 export const employedOptions = [
-  { value: '未知', label: '未知' },
   { value: '在职', label: '在职' },
   { value: '离职', label: '离职' },
   { value: '试用期', label: '试用期' },
@@ -80,7 +79,7 @@ export const employedOptions = [
 /**
  * 过滤框的在职状态
  */
-export const searchEmployedOptions = [{ value: '全部状态', label: '全部状态' }, ...employedOptions.slice(1)];
+export const searchEmployedOptions = [{ value: '', label: '全部状态' }, ...employedOptions];
 
 /**
  * 活动类型
