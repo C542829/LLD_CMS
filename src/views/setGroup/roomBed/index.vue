@@ -43,7 +43,7 @@
 
   <!-- 抽屉 -->
   <keep-alive>
-    <Drawer v-model="drawerVisible" title="房间信息" :key="editRoom.id">
+    <Drawer v-model="drawerVisible" title="房间信息">
       <div class="bed-list">
         <!-- 房间信息 -->
         <Card>
