@@ -214,9 +214,6 @@ const colors = [
             display: flex;
             flex-direction: column;
           }
-
-          .card-progress {
-          }
         }
         .card-option {
           height: 24px;
