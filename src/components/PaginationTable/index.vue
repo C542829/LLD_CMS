@@ -519,7 +519,7 @@ defineExpose({
   }
 
   .pagination-container {
-    padding: 10px 0;
+    padding: 10px;
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
