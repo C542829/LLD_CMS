@@ -310,10 +310,10 @@ export const asyncRoute = [
       },
       {
         path: '/acl/enum',
-        component: () => import('@/views/acl/permission/index.vue'),
+        component: () => import('@/views/acl/enum/index.vue'),
         name: 'Enum',
         meta: {
-          title: '枚举管理',
+          title: '字典管理',
           icon: 'List',
         },
       },
