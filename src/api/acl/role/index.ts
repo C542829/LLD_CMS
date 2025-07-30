@@ -21,9 +21,9 @@ export const reqUpdate = (params: any) => put(API.UPDATE_URL, params);
 
 export const reqUpdateStatus = (params: any) => put(API.UPDATE_STATUS_URL, params, ContentType.URLencoded);
 
-export const reqAllocatedList = (params: any) => get(API.ALLOCATED_LIST_URL, params);
+export const reqAllocatedList = (roleId: number) => get(API.ALLOCATED_LIST_URL, { roleId });
 
-export const reqUnallocatedList = (params: any) => get(API.UNALLOCATED_LIST_URL, params);
+export const reqUnallocatedList = () => get(API.UNALLOCATED_LIST_URL);
 
 export const reqAddAllocatedUser = (params: any) => post(API.ADD_ALLOCATED_USER_URL, params);
 
