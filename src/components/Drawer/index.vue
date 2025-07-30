@@ -1,113 +1,37 @@
 <template>
-  <div class="custom-drawer">
-    <el-drawer
-      style="min-width: 400px; max-width: 500px"
-      v-model="visible"
-      :size="props.size"
-      :direction="props.direction"
-      :before-close="handleClose"
-      :with-header="props.withHeader"
-      :destroy-on-close="props.destroyOnClose"
-      :modal="props.modal"
-      :append-to-body="props.appendToBody"
-      :close-on-click-modal="props.closeOnClickModal"
-      :close-on-press-escape="props.closeOnPressEscape"
-      :show-close="props.showClose"
-      :custom-class="props.customClass"
-    >
-      <template #header>
-        <h1 class="title">{{ props.title }}</h1>
-      </template>
-      <slot></slot>
-      <template #footer v-if="$slots.footer">
-        <slot name="footer"></slot>
-      </template>
-    </el-drawer>
-  </div>
+  <component
+    :is="h(ElDrawer, { ...$attrs, ...props, ref: changeRef }, $slots)"
+    style="min-width: 400px; max-width: 500px"
+    header-class="custom-header"
+  />
 </template>
 
 <script lang="ts" setup>
-import { ref, watch, withDefaults } from 'vue';
+import { ElDrawer, type DrawerProps } from 'element-plus';
+import { h, getCurrentInstance, withDefaults } from 'vue';
 
-// 定义事件
-const $emit = defineEmits(['update:modelValue', 'open', 'opened', 'close', 'closed']);
+// 获取当前组件实例，用于暴露实例方法
+const vm: any = getCurrentInstance();
+function changeRef(instance: any) {
+  // 将实例挂载到组件实例上，便于父组件调用
+  vm.exposeProxy = vm.exposed = instance || {};
+}
 
-// 使用 withDefaults 添加默认值
-const props = withDefaults(
-  defineProps<{
-    modelValue: boolean;
-    title?: string;
-    size?: string | number;
-    direction?: 'rtl' | 'ltr' | 'ttb' | 'btt';
-    withHeader?: boolean;
-    destroyOnClose?: boolean;
-    modal?: boolean;
-    appendToBody?: boolean;
-    closeOnClickModal?: boolean;
-    closeOnPressEscape?: boolean;
-    showClose?: boolean;
-    customClass?: string;
-  }>(),
-  {
-    title: '信息',
-    size: '30%',
-    direction: 'rtl',
-    withHeader: true,
-    destroyOnClose: false,
-    modal: true,
-    appendToBody: false,
-    closeOnClickModal: true,
-    closeOnPressEscape: true,
-    showClose: true,
-    customClass: '',
-  },
-);
+interface CustomProps extends Partial<DrawerProps> {}
 
-// 控制抽屉显示状态
-const visible = ref(props.modelValue);
-
-// 监听 modelValue 变化
-watch(
-  () => props.modelValue,
-  (newValue) => {
-    visible.value = newValue;
-  },
-);
-
-// 监听 visible 变化
-watch(
-  () => visible.value,
-  (newValue) => {
-    $emit('update:modelValue', newValue);
-    if (newValue) {
-      $emit('open');
-    } else {
-      $emit('close');
-    }
-  },
-);
-
-// 关闭前的回调
-const handleClose = (done: () => void) => {
-  $emit('close');
-  done();
-};
+const props = defineProps<CustomProps>();
 </script>
-
 <script lang="ts">
 export default {
   name: 'CustomDrawer',
 };
 </script>
 
-<style scoped>
-.custom-drawer {
-  /* 自定义样式 */
-
-  .title {
-    text-align: center;
-    font-size: 16px;
-    font-weight: bold;
-  }
+<style lang="scss">
+.custom-header {
+  font-size: 18px;
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 </style>
