@@ -41,7 +41,7 @@
 
   <!-- 新建入库单 -->
   <Dialog v-model="dialog2.visible" :title="dialog2.title" top="8vh" width="75%" center>
-    <CreateOrder :handle="dialog2.handle" />
+    <CreateOrder :handle="dialog2.handle" @submit="handleSubmit" />
   </Dialog>
 </template>
 
@@ -61,6 +61,10 @@ const store = useStockStore();
 onMounted(() => {
   search();
 });
+
+const handleSubmit = () => {
+  search();
+};
 
 const tableData = reactive<any>({ total: 0, list: [] });
 

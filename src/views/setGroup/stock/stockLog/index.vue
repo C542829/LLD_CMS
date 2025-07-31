@@ -39,7 +39,11 @@
 
   <!-- 详情 -->
   <Dialog v-model="dialog.visible" :title="dialog.title" center>
-    <ShowDetail :data="dialog.data" />
+    <ShowDetail
+      :data="dialog.data"
+      v-loading="settingStore.loading && dialog.visible"
+      :element-loading-text="settingStore.loadingMsg"
+    />
   </Dialog>
 </template>
 
@@ -100,6 +104,9 @@ const dialog = reactive({
 });
 
 const showDetail = async (row: any) => {
+  settingStore.loading = true;
+  dialog.visible = true;
+
   const { orderType, orderCode } = row;
   if (orderType === '入库') {
     dialog.title = '入库详情';
@@ -109,7 +116,7 @@ const showDetail = async (row: any) => {
     dialog.data = await store.getOutStockInfo(orderCode);
   }
 
-  dialog.visible = true;
+  settingStore.loading = false;
 };
 </script>
 

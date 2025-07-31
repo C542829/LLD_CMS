@@ -85,9 +85,11 @@ const productStore = useProductStore();
 const props = defineProps({
   handle: {
     type: String,
-    default: 'in',
+    default: 'out',
   },
 });
+
+const emit = defineEmits(['submit']);
 
 const productList = ref<any>();
 const getProductList = async () => {
@@ -127,10 +129,16 @@ const createOrder = async () => {
   if (result) {
     resetFormData();
     await getProductList();
+    emit('submit');
   }
 };
 
 const addItem = (item: any) => {
+  if (props.handle === 'out' && item.quantity == 0) {
+    $Message.warning('库存不足');
+    return;
+  }
+
   formData.items.push({
     id: item.productId,
     productPrice: item.productPrice,
