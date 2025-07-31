@@ -152,11 +152,9 @@ const formRules = {
     { required: false, message: '请输入产品编码', trigger: 'blur' },
     {
       validator: (rule: any, value: string, callback: any) => {
-        for (const item of store.tableData) {
-          if (item.productEncode === value) {
-            callback(new Error('产品编码已存在'));
-            break;
-          }
+        const isExist = store.tableData.filter((item: any) => item.productEncode === value);
+        if (isExist.length > 1) {
+          callback(new Error('产品编码已存在'));
         }
         callback();
       },
