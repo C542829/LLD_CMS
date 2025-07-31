@@ -1,18 +1,47 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
-import { parseResMsg, parseResList } from '@/utils/feedback';
-import { reqItemList, reqItemInfo, reqAddItem, reqUpdateItem } from '@/api/setGroup/serviceItem';
+import { reactive, ref } from 'vue';
+import {
+  reqServiceItemList,
+  reqServiceItemInfo,
+  reqAddServiceItem,
+  reqUpdateServiceItem,
+  reqUpdateServiceItemStatus,
+} from '@/api/setGroup/serviceItem';
 
-import { useEnumsStore } from '@/store/modules/enums/index';
-const enumsStore = useEnumsStore();
+import { parseResMsg, parseResList, parseResObj } from '@/utils/parseResponse';
+
 import { useSettingStore } from '@/store/modules/acl/setting';
-const settingStore = useSettingStore();
 
 export const useServiceItemStore = defineStore('ServiceItem', () => {
-  // 搜索参数
-  const searchParams = ref({
-    storeId: 0,
-    itemName: '',
+  const settingStore = useSettingStore();
+
+  /**
+   * 获取服务项目详情
+   * @param id 服务项目id
+   * @returns 服务项目详情
+   */
+  const getServiceItemInfo = async (id: number) => {
+    const res = await reqServiceItemInfo(id);
+    const data = parseResObj(res);
+    return data;
+  };
+
+  /**
+   * 获取服务项目列表
+   * @param params 搜索参数
+   * @returns 服务项目列表
+   */
+  const getServiceItems = async (params = { keyWord: '', itemStatus: 0 }) => {
+    const res = await reqServiceItemList(params);
+    const data = parseResList(res);
+    return data;
+  };
+
+  /**
+   * 搜索参数
+   */
+  const searchParams = reactive({
+    keyWord: '',
     itemStatus: 0,
   });
 
@@ -20,25 +49,15 @@ export const useServiceItemStore = defineStore('ServiceItem', () => {
   const dataList: any = ref([]);
   const setDataList = async () => {
     settingStore.loading = true;
-    // 获取数据列表
-    const res = await reqItemList(searchParams.value);
-    const data = parseResList(res, '获取服务项目列表失败');
-
-    // 处理数据
-    dataList.value = data.map((item, i) => {
-      item.id = i + 1;
-      return item;
-    });
+    const data = await getServiceItems(searchParams);
+    dataList.value = data;
     settingStore.loading = false;
   };
 
   // 更新数据
   const updateData = async (data: any) => {
-    // 如果没有状态属性赋默认值
-    data.itemStatus = data?.itemStatus || 0;
-
     // 发送请求
-    const res = await (data?.id ? reqUpdateItem(data) : reqAddItem(data));
+    const res = await (data?.id ? reqUpdateServiceItem(data) : reqAddServiceItem(data));
     const result = parseResMsg(res);
     // 刷新数据
     result && setDataList();
@@ -47,9 +66,14 @@ export const useServiceItemStore = defineStore('ServiceItem', () => {
 
   // 更新数据状态
   const updateDataStatus = async (data: any) => {
-    data = { ...data };
-    data.itemStatus = data.itemStatus === 0 ? 1 : 0;
-    updateData(data);
+    const params = {
+      id: data.id,
+      status: data.itemStatus === 0 ? 1 : 0,
+    };
+    const res = await reqUpdateServiceItemStatus(params);
+    const result = parseResMsg(res);
+    result && setDataList();
+    return result;
   };
 
   // 表单数据
@@ -61,16 +85,16 @@ export const useServiceItemStore = defineStore('ServiceItem', () => {
       id: null,
       itemName: '',
       itemEncode: '',
-      employeeType: '',
-      serverTime: 0,
+      serverTime: null,
       itemPrice: null,
       vipItemPrice: null,
-      isDiscounts: 0, // 允许打折
-      commissionType: 1, // 提成类型
-      commissionValueRotation: 0, // 提成值(轮牌)
-      commissionValueAppointment: 0, // 提成值(点钟)
-      commissionValueExtend: 0, // 提成值(加钟)
-      commissionBase: 0, // 提成价格
+      isDiscounts: 1,
+      commissionType: 0,
+      commissionValueRotation: null,
+      commissionValueAppointment: null,
+      commissionValueExtend: null,
+      commissionBase: 0,
+      itemStatus: 0,
       remark: '',
     };
   };
@@ -83,5 +107,7 @@ export const useServiceItemStore = defineStore('ServiceItem', () => {
     updateDataStatus,
     formData,
     resetFormData,
+    getServiceItemInfo,
+    getServiceItems,
   };
 });
