@@ -654,39 +654,40 @@ export const asyncRoute = [
         ],
       },
       {
-        path: '/setGroup/stockSet',
-        name: 'StockSet',
+        path: '/setGroup/stock',
+        name: 'Stock',
         meta: {
           id: 67,
           parentId: 46, // 父节点为id=46
-          title: '库存设定 ',
+          title: '库存管理',
+          tabs: ['入库', '出库', '库存流水'],
         },
         children: [
           {
-            path: '/setGroup/stockSet/add',
-            name: 'StockAdd',
+            path: '/setGroup/stock/inStock',
+            name: 'InStock',
             meta: {
               id: 68,
               parentId: 67,
-              title: '添加库存',
+              title: '入库',
             },
           },
           {
-            path: '/setGroup/stockSet/update',
-            name: 'StockUpdate',
+            path: '/setGroup/stock/outStock',
+            name: 'OutStock',
             meta: {
               id: 69,
               parentId: 67,
-              title: '修改库存',
+              title: '出库',
             },
           },
           {
-            path: '/setGroup/stockSet/disabled',
-            name: 'StockDisabled',
+            path: '/setGroup/stock/stockLog',
+            name: 'StockLog',
             meta: {
               id: 70,
               parentId: 67,
-              title: '禁用库存',
+              title: '库存流水',
             },
           },
         ],

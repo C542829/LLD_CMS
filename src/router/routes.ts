@@ -250,12 +250,13 @@ export const asyncRoute = [
         },
       },
       {
-        path: '/setGroup/stockSet',
-        component: () => import('@/views/setGroup/stockSet/index.vue'),
-        name: 'StockSet',
+        path: '/setGroup/stock',
+        component: () => import('@/views/setGroup/stock/index.vue'),
+        name: 'Stock',
         meta: {
-          title: '库存设定 ',
+          title: '库存管理',
           icon: 'List',
+          tabs: ['入库', '出库', '库存流水'],
         },
       },
     ],
