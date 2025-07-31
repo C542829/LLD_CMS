@@ -6,34 +6,23 @@
         <el-button type="primary" @click="showDrawer(0)" class="add-button">添加产品</el-button>
       </div>
       <div class="search-container">
-        <!-- 选择门店 -->
-        <div class="search-item" v-if="false">
-          <label>
-            选择门店：
-            <el-select v-model="store.searchParams.storeId" style="width: 120px">
-              <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
-            </el-select>
-          </label>
-        </div>
-
         <!-- 产品状态 -->
         <div class="search-item">
           <label>
-            产品状态：
-            <el-select v-model="store.searchParams.productStatus" style="width: 120px">
+            <span>产品状态：</span>
+            <el-select v-model="store.search.productStatus" @change="search" style="width: 120px">
               <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </label>
         </div>
-
         <!-- 搜索框 -->
         <div class="search-item">
           <el-input
-            v-model="store.searchParams.productName"
+            v-model="store.search.keyWord"
             @keydown.enter="search"
             @clear="search"
             :prefix-icon="Search"
-            placeholder="产品名称"
+            placeholder="编码 | 产品名称"
             clearable
           >
             <template #append>
@@ -47,30 +36,25 @@
     <!-- 表格组件 -->
     <Card padding="0px">
       <PaginationTable
-        :data="store.dataList"
+        :data="store.tableData"
         v-loading="settingStore.loading"
         :element-loading-text="settingStore.loadingMsg"
-        :border="true"
-        :stripe="true"
         :row-class-name="getRowClassName"
         :showPagination="false"
       >
         <el-table-column prop="productName" label="产品" />
         <el-table-column prop="productEncode" label="编码" />
-        <el-table-column prop="unit" label="单位/规格" />
+        <el-table-column prop="quantity" label="库存" />
+        <el-table-column prop="unit" label="单位/规格" :formatter="unitFormatter" width="90" />
         <el-table-column prop="productPrice" label="标准价(元)" />
         <el-table-column prop="vipProductPrice" label="会员价(元)" />
         <el-table-column prop="isDiscount" label="参与折扣卡打折" :formatter="isDiscountMap" />
         <el-table-column label="操作">
-          <template #default="scope">
-            <el-button link type="info" @click="showDrawer(2, scope.row)">详情</el-button>
-            <el-button link type="primary" :disabled="!!scope.row.productStatus" @click="showDrawer(1, scope.row)">
-              编辑
-            </el-button>
-            <el-button link type="warning" v-if="scope.row.productStatus" @click="store.updateDataStatus(scope.row)">
-              启用
-            </el-button>
-            <el-button link type="warning" v-else @click="showConfirm(scope.row)">禁用</el-button>
+          <template #default="{ row }">
+            <el-button @click="showDrawer(2, row)" link type="info">详情</el-button>
+            <el-button @click="showDrawer(1, row)" :disabled="!!row.productStatus" link type="primary">编辑</el-button>
+            <el-button @click="store.updateStatus(row)" v-if="row.productStatus" link type="success">启用</el-button>
+            <el-button @click="showConfirm(row)" v-else link type="warning">禁用</el-button>
           </template>
         </el-table-column>
       </PaginationTable>
@@ -78,30 +62,30 @@
   </div>
 
   <!-- 抽屉表单 -->
-  <Drawer v-model="drawer.visible" :title="drawer.title" @close="handleDrawerClose">
+  <Drawer v-model="drawer.visible" :title="drawer.title" @closed="handleDrawerClose">
     <!-- 表单 -->
     <ProductForm :disabled="drawer.disabled" @close-drawer="drawer.visible = false" />
     <!-- 抽屉操作按钮 -->
-    <template v-if="drawer.disabled">
-      <div class="drawer-buttons">
-        <el-button @click="drawer.visible = false">取消</el-button>
-      </div>
-    </template>
+    <div v-show="drawer.disabled" class="drawer-buttons">
+      <el-button @click="drawer.visible = false">取消</el-button>
+    </div>
   </Drawer>
 </template>
 
 <script setup lang="ts">
 import { Search } from '@element-plus/icons-vue';
-import { ref, onMounted, inject } from 'vue';
+import { ref, onMounted, inject, reactive } from 'vue';
 import ProductForm from './form.vue';
 
 // 导入枚举数据
 import { statusOptions } from '@/enums/index';
-import { isDiscountMap } from '@/enums/mapFormatter';
+import { isDiscountMap } from '@/utils/formatter';
 
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
 const settingStore = useSettingStore();
+import { useEnumStore } from '@/store/modules/enums/index';
+const enumStore = useEnumStore();
 import { useProductStore } from '@/store/modules/setGroup/product';
 const store = useProductStore();
 
@@ -114,7 +98,7 @@ onMounted(() => {
 
 // 搜索产品
 const search = () => {
-  store.setDataList();
+  store.setTableData();
 };
 
 // 禁用产品
@@ -124,13 +108,12 @@ const showConfirm = async (row: any) => {
     message: `你确定要禁用产品【${row.productName}】吗？`,
     type: 'warning',
   });
-  result && store.updateDataStatus(row);
+  result && store.updateStatus(row);
 };
 
 // 抽屉标题
 const drawerTitles = ['新增产品信息', '修改产品信息', '产品信息'];
-
-const drawer: any = ref({
+const drawer: any = reactive({
   title: '新增产品信息',
   visible: false,
   disabled: false,
@@ -138,38 +121,42 @@ const drawer: any = ref({
 
 // 打开抽屉
 const showDrawer = (handleIndex: number, row: any = {}) => {
-  drawer.value.title = drawerTitles[handleIndex]; // 修改抽屉标题
-  drawer.value.visible = true; // 显示抽屉
-
-  // 如果点击更多 禁用表单
-  handleIndex === 2 && (drawer.value.disabled = true);
-
-  // 浅拷贝防止直接操作原对象
-  row = { ...row };
-
-  // 如果提成比例小于1，将其转为整数
-  if (row && row.productCommissionValue < 1) {
-    row.productCommissionValue = Math.floor(row.productCommissionValue * 100);
-  }
-  // 表单数据回显
-  row?.id ? (store.formData = row) : store.resetFormData();
+  drawer.title = drawerTitles[handleIndex];
+  drawer.visible = true;
+  handleIndex === 2 && (drawer.disabled = true);
+  row?.id ? (store.formData = { ...row }) : store.resetFormData();
 };
 
 // 关闭抽屉触发
 const handleDrawerClose = () => {
-  const timer = setTimeout(() => {
-    // 当抽屉关闭时重置表单
-    store.resetFormData();
-    // 去除预览禁用
-    drawer.value.disabled = false;
-    // 清除定时器
-    timer && clearTimeout(timer);
-  }, 100);
+  // 当抽屉关闭时重置表单
+  store.resetFormData();
+  // 去除预览禁用
+  drawer.disabled = false;
+};
+
+const unitList = ref<any>([]);
+const getUnitList = async () => {
+  unitList.value = await enumStore.getUnits();
+};
+getUnitList();
+
+/**
+ * 单位格式化
+ * @param row 行数据
+ * @param column 列数据
+ * @param cellValue 单元格值
+ * @param index 行索引
+ * @returns 单位名称
+ */
+const unitFormatter = (row: any, column: any, cellValue: number, index: number) => {
+  const unit = unitList.value.find((item: any) => item.itemValue === cellValue);
+  return unit?.itemLabel || '-';
 };
 
 // 设置行样式
 const getRowClassName = ({ row }: { row: { productStatus: number } }) => {
-  return row.productStatus ? 'disabled-row' : '';
+  return row.productStatus === 1 ? 'disabled-row' : '';
 };
 </script>
 

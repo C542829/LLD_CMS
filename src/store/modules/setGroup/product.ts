@@ -1,66 +1,97 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
-import { parseResMsg, parseResList } from '@/utils/feedback';
-import { reqProductList, reqAddProduct, reqUpdateProduct } from '@/api/setGroup/product';
+import { reactive, ref } from 'vue';
+import {
+  reqProductList,
+  reqProductInfo,
+  reqAddProduct,
+  reqUpdateProduct,
+  reqUpdateStatus,
+} from '@/api/setGroup/product';
 
-import { useEnumsStore } from '@/store/modules/enums/index';
-const enumsStore = useEnumsStore();
+import { Product } from '@/api/setGroup/product/type';
+
+import { parseResMsg, parseResList, parseResObj } from '@/utils/parseResponse';
+
 import { useSettingStore } from '@/store/modules/acl/setting';
-const settingStore = useSettingStore();
 
 export const useProductStore = defineStore('Product', () => {
+  const settingStore = useSettingStore();
+
+  /**
+   * 获取产品详情
+   * @param id 产品ID
+   * @returns 产品详情
+   */
+  const getProductInfo = async (id: number) => {
+    const res = await reqProductInfo({ id });
+    const result = parseResObj(res);
+    return result;
+  };
+
+  /**
+   * 获取产品列表
+   * @param params - 搜索参数
+   * @returns 产品列表
+   */
+  const getProductList = async (params: { keyWord: string; productStatus: number }) => {
+    const res = await reqProductList(params);
+    const data = parseResList(res);
+    return data;
+  };
+
   // 搜索参数
-  const searchParams = ref({
-    storeId: 0,
-    productName: '',
+  const search = reactive({
+    keyWord: '',
     productStatus: 0,
   });
 
-  // 数据列表
-  const dataList: any = ref([]);
-  const setDataList = async () => {
-    settingStore.loading = true;
-    // 初始化单位列表
-    await enumsStore.setUnitList();
-    // 获取数据列表
-    const res = await reqProductList(searchParams.value);
-    const data = parseResList(res, '获取产品列表失败');
+  /**
+   * 数据列表
+   */
+  const tableData = ref<Product[]>([]);
 
-    // 处理数据
-    dataList.value = data.map((item: any) => {
-      item.unit = enumsStore.unitOptions.find((unit: any) => unit.value === item.unit)?.label || '未知';
-      return item;
-    });
+  /**
+   * 刷新数据列表
+   */
+  const setTableData = async () => {
+    settingStore.loading = true;
+    tableData.value = await getProductList(search);
     settingStore.loading = false;
   };
 
-  // 更新数据
-  const updateData = async (data: any) => {
-    // 将数据中的提成比例转为小数
-    if (data.productCommissionValue > 1) {
-      data.productCommissionValue = data.productCommissionValue / 100;
-    }
-
-    // 如果没有产品状态属性赋默认值
-    data.productStatus = data?.productStatus || 0;
-
+  /**
+   * 更新数据
+   * @param data - 数据对象
+   * @returns 更新结果
+   */
+  const update = async (data: any) => {
     // 发送请求
     const res = await (data?.id ? reqUpdateProduct(data) : reqAddProduct(data));
     const result = parseResMsg(res);
     // 刷新数据
-    result && setDataList();
+    result && setTableData();
     return result;
   };
 
-  // 更新数据状态
-  const updateDataStatus = async (data: any) => {
-    data = { ...data };
-    data.productStatus = data.productStatus === 0 ? 1 : 0;
-    updateData(data);
+  /**
+   * 更新数据状态
+   * @param data - 数据对象
+   * @returns 更新结果
+   */
+  const updateStatus = async (data: any) => {
+    const status = data.productStatus === 0 ? 1 : 0;
+    const params = { id: data.id, status };
+    const res = await reqUpdateStatus(params);
+    let msg = status === 0 ? '启用' : '禁用';
+    msg = `产品${msg}成功`;
+    const result = parseResMsg(res, msg);
+    // 刷新数据
+    result && setTableData();
+    return result;
   };
 
   // 表单数据
-  const formData: any = ref({});
+  const formData = ref<Product>({} as Product);
 
   // 重置表单数据模型
   const resetFormData = () => {
@@ -71,23 +102,24 @@ export const useProductStore = defineStore('Product', () => {
       productEncode: '',
       productPrice: null,
       vipProductPrice: null,
-      isDiscount: 0,
-      commissioinType: 1,
-      productCommissionValue: null,
-      productCommissionPrice: null,
-      productCommissionValueType: 0,
+      isDiscount: 1,
+      commissionType: 1,
+      commissionValue: null,
+      commissionBase: 0,
       productStatus: 0,
-      unit: null,
+      unit: '',
     };
   };
 
   return {
-    searchParams,
-    dataList,
-    setDataList,
-    updateData,
-    updateDataStatus,
+    search,
+    tableData,
+    setTableData,
+    update,
+    updateStatus,
     formData,
     resetFormData,
+    getProductInfo,
+    getProductList,
   };
 });
