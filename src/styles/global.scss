@@ -39,6 +39,11 @@
       color: var(--el-text-color-regular);
       display: flex;
       align-items: center;
+
+      >label {
+        display: flex;
+        align-items: center;
+      }
     }
   }
 }
