@@ -9,6 +9,8 @@
     range-separator="至"
     start-placeholder="开始日期"
     end-placeholder="结束日期"
+    clearable
+    ref="datePickerRef"
   />
 </template>
 
@@ -58,25 +60,37 @@ watch(
 props.default && (value.value = props.default);
 
 // 重置
-const reset = () => (value.value = []);
+const reset = () => {
+  value.value = [];
+};
 
 // 设置快捷选项
 const shortcuts = [
   {
     text: '今天',
     value: () => {
-      const end = new Date();
+      // 起始时间：00:00:00.000
       const start = new Date();
+      start.setHours(0, 0, 0, 0);
+      // 结束时间：23:59:59.999
+      const tomorrow = new Date(start.getTime() + 24 * 60 * 60 * 1000);
+      const end = new Date(tomorrow);
+      end.setHours(23, 59, 59, 999);
       return [start, end];
     },
   },
   {
     text: '昨天',
     value: () => {
+      // 获取当前时间
+      const now = new Date();
+      // 计算昨天的时间（当前时间减去一天的毫秒数）
+      const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+      // 起始时间：00:00:00.000
+      const start = new Date(yesterday);
+      start.setHours(0, 0, 0, 0);
+      // 结束时间：23:59:59.999
       const end = new Date();
-      const start = new Date();
-      start.setTime(start.getTime() - 3600 * 1000 * 24 * 1);
-      end.setTime(end.getTime() - 3600 * 1000 * 24 * 1);
       return [start, end];
     },
   },
