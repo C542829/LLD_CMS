@@ -33,7 +33,7 @@ export const useProductStore = defineStore('Product', () => {
    * @param params - 搜索参数
    * @returns 产品列表
    */
-  const getProductList = async (params: { keyWord: string; productStatus: number }) => {
+  const getProductList = async (params: { keyWord?: string; productStatus?: number }) => {
     const res = await reqProductList(params);
     const data = parseResList(res);
     return data;
