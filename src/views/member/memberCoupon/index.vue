@@ -7,6 +7,7 @@ import ChildNav from '@/components/ChildNav/index.vue';
 import CouponManager from './couponManager/index.vue';
 import CouponCount from './couponCount/index.vue';
 import CouponOverview from './couponOverview/index.vue';
+import useUserStore from '@/store/modules/acl/user';
 
 import { ref, markRaw } from 'vue';
 
@@ -18,7 +19,6 @@ const originalNavList = ref([
 
 const navList: any = ref([]);
 
-import useUserStore from '@/store/modules/acl/user';
 const userStore = useUserStore();
 for (const item of originalNavList.value) {
   if (userStore.tabs.includes(item.label)) {

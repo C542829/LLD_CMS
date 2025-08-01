@@ -3,14 +3,14 @@
 </template>
 
 <script setup lang="ts">
+import { ref, markRaw } from 'vue';
 import ChildNav from '@/components/ChildNav/index.vue';
 import PackageManager from './packageManager/index.vue';
 import ProductManager from './productManager/index.vue';
 import RechargeCommissionRules from './rechargeCommissionRules/index.vue';
 import ServiceItemManager from './serviceItemManager/index.vue';
 import TreatmentCouponManager from './treatmentCouponManager/index.vue';
-
-import { ref, markRaw } from 'vue';
+import useUserStore from '@/store/modules/acl/user';
 
 const originalNavList = ref([
   { label: '产品管理', icon: '', component: markRaw(ProductManager) },
@@ -26,7 +26,6 @@ const originalNavList = ref([
 
 const navList: any = ref([]);
 
-import useUserStore from '@/store/modules/acl/user';
 const userStore = useUserStore();
 for (const item of originalNavList.value) {
   if (userStore.tabs.includes(item.label)) {
