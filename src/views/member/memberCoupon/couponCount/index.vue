@@ -58,9 +58,10 @@
     </Card>
 
     <!-- 数据列表 -->
-    <Card class="table-card" padding="15px 15px 0 15px">
+    <Card padding="0">
       <PaginationTable
-        v-loading="store.loading"
+        v-loading="settingStore.loading"
+        :element-loading-text="settingStore.loadingMsg"
         :data="store.couponRecord"
         :total="store.page.total"
         v-model:currentPage="store.page.currentPage"
@@ -70,23 +71,23 @@
       >
         <el-table-column prop="couponName" label="代金券名称" min-width="80" />
         <el-table-column label="领取人" min-width="60">
-          <template #default="scope">
-            <p>会员姓名：{{ scope.row.memName }}</p>
-            <p>会员卡号：{{ scope.row.memCode }}</p>
-            <p>电话号码：{{ scope.row.memPhone }}</p>
+          <template #default="{ row }">
+            <p>会员姓名：{{ row.memName }}</p>
+            <p>会员卡号：{{ row.memCode }}</p>
+            <p>电话号码：{{ row.memPhone }}</p>
           </template>
         </el-table-column>
         <el-table-column prop="isEntityTicket" label="使用状态" width="90" />
         <el-table-column label="时间" width="200">
-          <template #default="scope">
-            <p>领取时间：{{ formatDate(new Date(scope.row.updateTime)) }}</p>
-            <p>到期时间：{{ formatDate(new Date(scope.row.limitTime)) }}</p>
+          <template #default="{ row }">
+            <p>领取时间：{{ formatDate(new Date(row.updateTime)) }}</p>
+            <p>到期时间：{{ formatDate(new Date(row.limitTime)) }}</p>
           </template>
         </el-table-column>
         <el-table-column prop="fromType" label="领取来源类型" min-width="60" />
         <el-table-column prop="expandStaffName" label="销售员" min-width="50" />
         <el-table-column label="操作" width="120">
-          <template #default="scope">
+          <template #default="{ row }">
             <el-button link type="info" @click="">延期</el-button>
           </template>
         </el-table-column>
@@ -103,6 +104,8 @@ import { formatDate } from '@/utils/time';
 // 导入枚举数据
 import { statusOptions } from '@/enums/index';
 // 引入数据仓库
+import { useSettingStore } from '@/store/modules/acl/setting';
+const settingStore = useSettingStore();
 import { useCouponStore } from '@/store/modules/member/memberCoupon';
 const store = useCouponStore();
 

@@ -26,24 +26,24 @@
 
     <!-- 数据列表 -->
     <Card class="table-card">
-      <Table v-loading="store.loading" :data="store.couponTotal">
+      <Table v-loading="settingStore.loading" :element-loading-text="settingStore.loadingMsg" :data="store.couponTotal">
         <el-table-column prop="couponStatType" label="优惠券统计类型" :formatter="couponTypeMap" />
         <el-table-column label="赠送数量/金额">
-          <template #default="scope">
-            <p>赠送数量：{{ scope.row.numOfSend }}张</p>
-            <p>赠送金额：￥{{ scope.row.amountOfSend }}</p>
+          <template #default="{ row }">
+            <p>赠送数量：{{ row.numOfSend }}张</p>
+            <p>赠送金额：￥{{ row.amountOfSend }}</p>
           </template>
         </el-table-column>
         <el-table-column label="使用数量/金额">
-          <template #default="scope">
-            <p>使用数量：{{ scope.row.numOfUse }}张</p>
-            <p>使用金额：￥{{ scope.row.amountOfUse }}</p>
+          <template #default="{ row }">
+            <p>使用数量：{{ row.numOfUse }}张</p>
+            <p>使用金额：￥{{ row.amountOfUse }}</p>
           </template>
         </el-table-column>
         <el-table-column label="取消和失效数量/金额">
-          <template #default="scope">
-            <p>取消和失效数量：{{ scope.row.numOfCancel }}张</p>
-            <p>取消和失效金额：￥{{ scope.row.amountOfCancel }}</p>
+          <template #default="{ row }">
+            <p>取消和失效数量：{{ row.numOfCancel }}张</p>
+            <p>取消和失效金额：￥{{ row.amountOfCancel }}</p>
           </template>
         </el-table-column>
       </Table>
@@ -56,8 +56,10 @@ import { ref, onMounted, inject } from 'vue';
 import { formatDate } from '@/utils/time';
 // 导入枚举数据
 import { statusOptions } from '@/enums/index';
-import { couponTypeMap } from '@/enums/mapFormatter';
+import { couponTypeMap } from '@/utils/formatter';
 // 引入数据仓库
+import { useSettingStore } from '@/store/modules/acl/setting';
+const settingStore = useSettingStore();
 import { useCouponStore } from '@/store/modules/member/memberCoupon';
 const store = useCouponStore();
 

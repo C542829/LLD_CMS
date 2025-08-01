@@ -1,12 +1,13 @@
 import { defineStore } from 'pinia';
 import { reactive, ref } from 'vue';
-import $Message from '@/components/Message';
 import { reqTicketList, reqAddTicket, reqUpdateTicket } from '@/api/member/coupon/index';
-import { parseReqInform, parseReqList } from '@/utils/feedback';
+import { parseResList, parseResMsg, parseResObj } from '@/utils/parseResponse';
 import { formatDate } from '@/utils/time';
 
+import { useSettingStore } from '@/store/modules/acl/setting';
+
 export const useCouponStore = defineStore('CouponStore', () => {
-  const loading = ref(false);
+  const settingStore = useSettingStore();
   // 搜索参数
   const searchParams = ref({
     storeId: 0,
@@ -24,7 +25,7 @@ export const useCouponStore = defineStore('CouponStore', () => {
   // 优惠券列表
   const tableData: any = ref([]);
   const setTableData = async () => {
-    loading.value = true;
+    settingStore.loading = true;
     // @ts-ignore 获取数据列表
     // delete searchParams.value.dateRange;
     // const res = await reqTicketList(searchParams.value);
@@ -203,13 +204,13 @@ export const useCouponStore = defineStore('CouponStore', () => {
 
     console.log(tableData.value);
 
-    loading.value = false;
+    settingStore.loading = false;
   };
 
   // 优惠券发放记录
   const couponRecord: any = ref([]);
   const setCouponRecord = async () => {
-    loading.value = true;
+    settingStore.loading = true;
     // const res = await reqTicketList(searchParams.value);
     // let data = parseReqList(res);
 
@@ -270,13 +271,13 @@ export const useCouponStore = defineStore('CouponStore', () => {
       },
     ];
 
-    loading.value = false;
+    settingStore.loading = false;
   };
 
   // 优惠券统计
   const couponTotal: any = ref([]);
   const setCouponTotal = async () => {
-    loading.value = true;
+    settingStore.loading = true;
 
     // const res = await reqTicketList(searchParams.value);
     // let data = parseReqList(res);
@@ -335,7 +336,7 @@ export const useCouponStore = defineStore('CouponStore', () => {
       },
     ];
 
-    loading.value = false;
+    settingStore.loading = false;
   };
 
   /**
@@ -347,7 +348,7 @@ export const useCouponStore = defineStore('CouponStore', () => {
     data = { ...data };
     // 发送请求
     const res = await (data?.id ? reqUpdateTicket(data) : reqAddTicket(data));
-    const result = parseReqInform(res);
+    const result = parseResMsg(res);
     // 刷新数据
     result && setTableData();
     return result;
@@ -386,7 +387,6 @@ export const useCouponStore = defineStore('CouponStore', () => {
   const formRules: any = {};
 
   return {
-    loading,
     searchParams,
     page,
     tableData,

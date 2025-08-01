@@ -80,13 +80,9 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
-import EnumHandler from '@/components/EnumHandler/index.vue';
 
-// 引入产品数据仓库
 import { useCouponStore } from '@/store/modules/member/memberCoupon';
 const store = useCouponStore();
-import { useEnumsStore } from '@/store/modules/enums/index';
-const enumsStore = useEnumsStore();
 
 const $emit = defineEmits(['close-drawer']);
 

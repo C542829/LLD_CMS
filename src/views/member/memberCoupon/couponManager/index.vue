@@ -41,7 +41,7 @@
     </Card>
 
     <!-- 表格组件 -->
-    <Card flex="row" :gap="7">
+    <Card v-loading="settingStore.loading" :element-loading-text="settingStore.loadingMsg" flex="row" :gap="7">
       <CouponCard
         v-for="item in store.tableData"
         :coupon="item"
@@ -72,6 +72,8 @@ import CouponCard from '@/components/CouponCard/index.vue';
 // 导入枚举数据
 import { statusOptions } from '@/enums/index';
 // 引入数据仓库
+import { useSettingStore } from '@/store/modules/acl/setting';
+const settingStore = useSettingStore();
 import { useCouponStore } from '@/store/modules/member/memberCoupon';
 const store = useCouponStore();
 
