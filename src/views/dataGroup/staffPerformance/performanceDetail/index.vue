@@ -81,9 +81,10 @@
     </Card>
 
     <!-- 数据列表 -->
-    <Card padding="0px" bgColor="#fff">
+    <Card padding="0">
       <PaginationTable
-        v-loading="store.loading"
+        v-loading="settingStore.loading"
+        :element-loading-text="settingStore.loadingMsg"
         :data="store.performanceRecord.data"
         :total="store.performanceRecord.total"
         v-model:currentPage="store.searchParams.currentPage"
@@ -121,21 +122,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, onUnmounted } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { dateFormatter } from '@/utils/time';
 import Receipt from './Receipt.vue';
 
 // 引入数据仓库
+import { useSettingStore } from '@/store/modules/acl/setting';
+const settingStore = useSettingStore();
 import { useStaffPerformanceStore } from '@/store/modules/dataGroup/staffPerformance';
 const store = useStaffPerformanceStore();
 
 // 初始化
 onMounted(() => {
   store.setPerformanceRecord();
-});
-
-onUnmounted(() => {
-  store.loading = false;
 });
 
 // 搜索

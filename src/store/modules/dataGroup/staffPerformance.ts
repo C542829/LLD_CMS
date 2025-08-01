@@ -1,10 +1,12 @@
 import { defineStore } from 'pinia';
 import { ref, reactive } from 'vue';
-import { parseRes, parseResList } from '@/utils/feedback';
 import { reqPerformanceRecord, reqPerformanceSummary } from '@/api/dataGroup/staffPerformance';
+import { parseResMsg, parseResList, parseResObj } from '@/utils/parseResponse';
+
+import { useSettingStore } from '@/store/modules/acl/setting';
 
 export const useStaffPerformanceStore = defineStore('StaffPerformance', () => {
-  const loading = ref(false);
+  const settingStore = useSettingStore();
 
   const searchParams: any = ref({
     currentPage: 1,
@@ -17,13 +19,13 @@ export const useStaffPerformanceStore = defineStore('StaffPerformance', () => {
     data: [],
   });
   const setPerformanceRecord = async () => {
-    loading.value = true;
+    settingStore.loading = true;
 
     const params = { ...searchParams.value };
-    const res = await reqPerformanceRecord(params);
-    let data: any = parseResList(res, '获取员工绩效记录失败');
+    // const res = await reqPerformanceRecord(params);
+    // let data: any = parseResList(res, '获取员工绩效记录失败');
 
-    data = [
+    let data: any = [
       {
         id: 49417107,
         orgId: 1459,
@@ -552,26 +554,25 @@ export const useStaffPerformanceStore = defineStore('StaffPerformance', () => {
 
     performanceRecord.total = data.length;
     performanceRecord.data = data;
-    loading.value = false;
+    settingStore.loading = false;
   };
 
   // 员工绩效汇总
   const performanceSummary = ref([]);
   const setPerformanceSummary = async () => {
-    loading.value = true;
+    settingStore.loading = true;
 
     const params = { ...searchParams.value };
-    const res = await reqPerformanceSummary(params);
-    let data: any = parseResList(res, '获取员工绩效汇总失败');
+    // const res = await reqPerformanceSummary(params);
+    // let data: any = parseResList(res, '获取员工绩效汇总失败');
 
-    data = [];
+    let data: any = [];
 
     performanceSummary.value = data;
-    loading.value = false;
+    settingStore.loading = false;
   };
 
   return {
-    loading,
     searchParams,
 
     performanceRecord,

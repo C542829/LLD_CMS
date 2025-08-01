@@ -63,8 +63,14 @@
     </Card>
 
     <!-- 数据列表 -->
-    <Card padding="0px">
-      <PaginationTable v-loading="store.loading" :data="store.performanceSummary" :showPagination="false" show-summary>
+    <Card padding="0">
+      <PaginationTable
+        v-loading="settingStore.loading"
+        :element-loading-text="settingStore.loadingMsg"
+        :data="store.performanceSummary"
+        :showPagination="false"
+        show-summary
+      >
         <el-table-column type="index" label="序号" width="60" fixed />
         <el-table-column prop="memName" label="技师" width="100" fixed />
         <el-table-column prop="shouldAmount" label="总业绩" width="85" fixed />
@@ -90,19 +96,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, onUnmounted } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 
 // 引入数据仓库
+import { useSettingStore } from '@/store/modules/acl/setting';
+const settingStore = useSettingStore();
 import { useStaffPerformanceStore } from '@/store/modules/dataGroup/staffPerformance';
 const store = useStaffPerformanceStore();
 
 // 初始化
 onMounted(() => {
   store.setPerformanceSummary();
-});
-
-onUnmounted(() => {
-  store.loading = false;
 });
 
 // 搜索
