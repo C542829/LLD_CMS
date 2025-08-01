@@ -1,19 +1,17 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { parseResMsg, parseResList } from '@/utils/feedback';
 import {
   reqTreatmentCouponList,
   reqTreatmentCouponInfo,
   reqAddTreatmentCoupon,
   reqUpdateTreatmentCoupon,
 } from '@/api/setGroup/treatmentCoupon';
+import { parseResMsg, parseResList } from '@/utils/parseResponse';
 
-import { useEnumsStore } from '@/store/modules/enums/index';
-const enumsStore = useEnumsStore();
 import { useSettingStore } from '@/store/modules/acl/setting';
-const settingStore = useSettingStore();
 
 export const useTreatmentCouponStore = defineStore('TreatmentCoupon', () => {
+  const settingStore = useSettingStore();
   // 搜索参数
   const searchParams = ref({
     storeId: 0,
