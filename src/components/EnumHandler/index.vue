@@ -88,12 +88,17 @@ onUpdated(() => {
 });
 
 const init = () => {
-  if (!tableData.value || tableData.value.length === 0) {
-    if (props.defaultData && props.defaultData.length !== 0) {
-      tableData.value = props.defaultData;
-    } else {
-      getList();
-    }
+  if (props.defaultData && props.defaultData.length !== 0) {
+    tableData.value = props.defaultData;
+    return;
+  }
+  if (tableData.value.length === 0) {
+    getList();
+    return;
+  }
+  if (tableData.value.length !== 0 && tableData.value[0].dictCode !== props.dictCode) {
+    getList();
+    return;
   }
 };
 
