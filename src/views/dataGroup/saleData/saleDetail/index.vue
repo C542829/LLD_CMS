@@ -68,9 +68,10 @@
     </Card>
 
     <!-- 数据列表 -->
-    <Card padding="15px 15px 0 15px">
+    <Card padding="0">
       <PaginationTable
-        v-loading="store.loading"
+        v-loading="settingStore.loading"
+        :element-loading-text="settingStore.loadingMsg"
         :data="store.saleRecord.data"
         :total="store.saleRecord.total"
         v-model:currentPage="store.searchParams.currentPage"
@@ -116,11 +117,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, inject, onMounted, onUnmounted } from 'vue';
-import { datetimeFormatter, dateFormatter, timeFormatter } from '@/utils/time';
+import { ref, reactive, inject, onMounted } from 'vue';
+import { datetimeFormatter } from '@/utils/formatter';
 import Receipt from './Receipt.vue';
 
 // 引入数据仓库
+import { useSettingStore } from '@/store/modules/acl/setting';
+const settingStore = useSettingStore();
 import { useSaleStore } from '@/store/modules/dataGroup/saleData';
 const store = useSaleStore();
 
@@ -130,10 +133,6 @@ const MessageBox: any = inject('$MessageBox');
 // 初始化
 onMounted(() => {
   store.setSaleRecord();
-});
-
-onUnmounted(() => {
-  store.loading = false;
 });
 
 // 搜索

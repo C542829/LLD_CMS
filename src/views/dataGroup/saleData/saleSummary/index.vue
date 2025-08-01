@@ -31,8 +31,14 @@
     </Card>
 
     <!-- 数据列表 -->
-    <Card padding="15px 15px 0 15px">
-      <PaginationTable v-loading="store.loading" :data="store.saleRecord.data" :showPagination="false" show-summary>
+    <Card padding="0">
+      <PaginationTable
+        v-loading="settingStore.loading"
+        :element-loading-text="settingStore.loadingMsg"
+        :data="store.saleRecord.data"
+        :showPagination="false"
+        show-summary
+      >
         <el-table-column type="index" label="序号" width="60" fixed />
         <el-table-column prop="tradeTime" label="日期" width="105" :formatter="dateFormatter" fixed />
         <el-table-column prop="shouldAmount" label="总营业额" width="85" fixed />
@@ -61,20 +67,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, onUnmounted } from 'vue';
-import { dateFormatter } from '@/utils/time';
+import { ref, reactive, onMounted } from 'vue';
+import { dateFormatter } from '@/utils/formatter';
 
 // 引入数据仓库
+import { useSettingStore } from '@/store/modules/acl/setting';
+const settingStore = useSettingStore();
 import { useSaleStore } from '@/store/modules/dataGroup/saleData';
 const store = useSaleStore();
 
 // 初始化
 onMounted(() => {
   store.setSaleRecord();
-});
-
-onUnmounted(() => {
-  store.loading = false;
 });
 
 // 搜索

@@ -1,10 +1,12 @@
 import { defineStore } from 'pinia';
 import { ref, reactive } from 'vue';
-import { parseRes, parseResList } from '@/utils/feedback';
 import { reqSaleRecord, reqSaleDetail, reqSaleSummary } from '@/api/dataGroup/saleData';
+import { parseResMsg, parseResList, parseResObj } from '@/utils/parseResponse';
+
+import { useSettingStore } from '@/store/modules/acl/setting';
 
 export const useSaleStore = defineStore('SaleData', () => {
-  const loading = ref(false);
+  const settingStore = useSettingStore();
 
   const searchParams: any = ref({
     currentPage: 1,
@@ -16,13 +18,13 @@ export const useSaleStore = defineStore('SaleData', () => {
     data: [],
   });
   const setSaleRecord = async () => {
-    loading.value = true;
+    settingStore.loading = true;
 
     const params = { ...searchParams.value };
-    const res = await reqSaleRecord(params);
-    let data: any = parseResList(res, '获取销售记录失败') || [];
+    // const res = await reqSaleRecord(params);
+    // let data: any = parseResList(res, '获取销售记录失败') || [];
 
-    data = [
+    let data: any = [
       {
         id: 23086539,
         orgId: 1459,
@@ -776,13 +778,11 @@ export const useSaleStore = defineStore('SaleData', () => {
 
     saleRecord.total = data.length;
     saleRecord.data = data;
-    loading.value = false;
+    settingStore.loading = false;
   };
 
   return {
-    loading,
     searchParams,
-
     saleRecord,
     setSaleRecord,
   };
