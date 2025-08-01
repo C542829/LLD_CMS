@@ -6,16 +6,6 @@
         <el-button type="primary" @click="showDrawer(0)" class="add-button">添加套餐</el-button>
       </div>
       <div class="search-container">
-        <!-- 选择门店 -->
-        <div class="search-item" v-if="false">
-          <label>
-            选择门店：
-            <el-select v-model="store.searchParams.storeId" style="width: 120px">
-              <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
-            </el-select>
-          </label>
-        </div>
-
         <!-- 套餐状态 -->
         <div class="search-item">
           <label>
@@ -47,11 +37,9 @@
     <!-- 表格组件 -->
     <Card padding="0px">
       <PaginationTable
-        :data="store.dataList"
         v-loading="settingStore.loading"
         :element-loading-text="settingStore.loadingMsg"
-        :border="true"
-        :stripe="true"
+        :data="store.dataList"
         :row-class-name="getRowClassName"
         :showPagination="false"
       >

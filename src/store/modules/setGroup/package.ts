@@ -1,14 +1,12 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { parseResMsg, parseResList } from '@/utils/feedback';
 import { reqPackageList, reqPackageInfo, reqAddPackage, reqUpdatePackage } from '@/api/setGroup/package';
+import { parseResMsg, parseResList } from '@/utils/parseResponse';
 
-import { useEnumsStore } from '@/store/modules/enums/index';
-const enumsStore = useEnumsStore();
 import { useSettingStore } from '@/store/modules/acl/setting';
-const settingStore = useSettingStore();
 
 export const usePackageStore = defineStore('Package', () => {
+  const settingStore = useSettingStore();
   // 搜索参数
   const searchParams = ref({
     storeId: 0,
