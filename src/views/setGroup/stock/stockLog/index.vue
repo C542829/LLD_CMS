@@ -8,7 +8,7 @@
     <!-- 表格组件 -->
     <Card padding="0">
       <PaginationTable
-        v-loading="settingStore.loading"
+        v-loading="settingStore.loading && !dialog.visible"
         :element-loading-text="settingStore.loadingMsg"
         :data="tableData.list"
         :total="tableData.total"
@@ -18,17 +18,17 @@
         @pagination-current-change="handleCurrentChange"
       >
         <el-table-column prop="orderType" label="订单类型" width="85" />
-        <el-table-column prop="orderCode" label="订单编号" />
-        <el-table-column prop="productName" label="产品名称&编码">
+        <el-table-column prop="orderCode" label="订单编号" min-width="100" />
+        <el-table-column prop="productName" label="产品名称&编码" min-width="100">
           <template #default="{ row }">{{ row.productName }}({{ row.productCode }})</template>
         </el-table-column>
-        <el-table-column prop="totalPrice" label="总金额" :formatter="amountFormatter" />
-        <el-table-column prop="price" label="单价" :formatter="amountFormatter" />
-        <el-table-column prop="quantity" label="数量" />
-        <el-table-column prop="operator" label="操作人" />
-        <el-table-column prop="createTime" label="创建时间" />
-        <el-table-column prop="remark" label="备注" />
-        <el-table-column label="操作">
+        <el-table-column prop="totalPrice" label="总金额" :formatter="amountFormatter" min-width="70" />
+        <el-table-column prop="price" label="单价" :formatter="amountFormatter" min-width="60" />
+        <el-table-column prop="quantity" label="数量" min-width="50" />
+        <el-table-column prop="operator" label="操作人" min-width="60" />
+        <el-table-column prop="createTime" label="创建时间" min-width="90" />
+        <el-table-column prop="remark" label="备注" min-width="80" />
+        <el-table-column label="操作" min-width="60">
           <template #default="{ row }">
             <el-button @click="showDetail(row)" link type="primary">查看原单</el-button>
           </template>
