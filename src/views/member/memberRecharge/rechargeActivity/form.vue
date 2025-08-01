@@ -110,7 +110,7 @@
         </template>
 
         <el-form-item label="累加赠送" prop="isAccum">
-          <el-checkbox v-model="store.formData.isAccum" :true-label="1" :false-label="0">是否累加</el-checkbox>
+          <el-checkbox v-model="store.formData.isAccum" :true-value="1" :false-value="0">是否累加</el-checkbox>
           <el-alert type="warning">
             <span style="padding: 0 20px">
               勾选累加后，会根据充值金额累计赠送。比如“充值100送10元”活动，用户充值200则会赠送20元

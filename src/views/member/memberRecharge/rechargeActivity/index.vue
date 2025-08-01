@@ -40,7 +40,7 @@
         :element-loading-text="settingStore.loadingMsg"
         :data="store.tableData"
         :row-class-name="getRowClassName"
-        :show-pagination="false"
+        :showPagination="false"
       >
         <el-table-column type="index" label="序号" width="60" />
         <el-table-column prop="productName" label="活动名称" :center="true" min-width="100" />
