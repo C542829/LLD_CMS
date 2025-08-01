@@ -93,6 +93,9 @@ const emit = defineEmits(['submit']);
 
 const productList = ref<any>();
 const getProductList = async () => {
+  if (formData.items.length > 0) {
+    return;
+  }
   const params = { productStatus: 0 };
   productList.value = await productStore.getProductList(params);
 };

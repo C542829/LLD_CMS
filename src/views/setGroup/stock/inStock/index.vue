@@ -40,7 +40,7 @@
   </Dialog>
 
   <!-- 新建入库单 -->
-  <Dialog v-model="dialog2.visible" :title="dialog2.title" top="8vh" width="75%" center>
+  <Dialog v-model="dialog2.visible" :title="dialog2.title" top="8vh" style="max-width: 1400px" width="75%" center>
     <CreateOrder :handle="dialog2.handle" @submit="handleSubmit" />
   </Dialog>
 </template>
