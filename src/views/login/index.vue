@@ -56,7 +56,8 @@ const login = async () => {
   settingStore.loading = false;
   if (isSuccess) {
     // 获取路由
-    const redirect: any = $route.query.redirect;
+    let redirect: any = $route.query.redirect;
+    redirect = redirect === '/404' ? '/' : redirect;
     // 跳转路由
     $router.push({ path: redirect || '/' });
   }

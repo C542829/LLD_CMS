@@ -12,6 +12,12 @@ import useUserStore from './store/modules/acl/user';
 import pinia from './store';
 const userStore = useUserStore(pinia);
 
+// 初始化注册路由
+const routes = router.getRoutes();
+if (userStore.token && routes.length === 3) {
+  await userStore.userInfo();
+}
+
 // 全局前置守卫
 router.beforeEach(async (to: any, from: any, next: any) => {
   // 设置页面标题
