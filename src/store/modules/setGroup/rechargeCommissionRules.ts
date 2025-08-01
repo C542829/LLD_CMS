@@ -1,21 +1,20 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { parseResMsg, parseResList } from '@/utils/feedback';
 import {
   reqRechargeCommissionRulesList,
   reqAddRechargeCommissionRules,
   reqUpdateRechargeCommissionRules,
 } from '@/api/setGroup/rechargeCommissionRules';
 
-import { useEnumsStore } from '@/store/modules/enums/index';
-const enumsStore = useEnumsStore();
+import { parseResMsg, parseResList } from '@/utils/parseResponse';
+
 import { useSettingStore } from '@/store/modules/acl/setting';
-const settingStore = useSettingStore();
 
 export const useRechargeCommissionRulesStore = defineStore('RechargeCommissionRules', () => {
+  const settingStore = useSettingStore();
+
   // 搜索参数
   const searchParams = ref({
-    storeId: 0,
     rechargeRoleName: '',
     status: 0,
   });
@@ -26,7 +25,7 @@ export const useRechargeCommissionRulesStore = defineStore('RechargeCommissionRu
     settingStore.loading = true;
     // 获取数据列表
     const res = await reqRechargeCommissionRulesList(searchParams.value);
-    const data = parseResList(res, '获取提成规则列表失败');
+    const data = parseResList(res);
 
     // 处理数据
     dataList.value = data.map((item: any) => {
@@ -58,13 +57,13 @@ export const useRechargeCommissionRulesStore = defineStore('RechargeCommissionRu
   // 重置表单数据模型
   const resetFormData = () => {
     formData.value = {
-      id: 0,
+      id: null,
       remark: '',
       rechargeRoleName: '',
-      rechargePrice: 0,
+      rechargePrice: null,
       commissionType: 1,
-      rechargeCommissionValue: 0,
-      double: 0,
+      rechargeCommissionValue: null,
+      double: 1,
     };
   };
 

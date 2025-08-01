@@ -1,13 +1,6 @@
 <template>
   <div>
-    <Form
-      :model="store.formData"
-      :rules="formRules"
-      :showButtons="!disabled"
-      :disabled="disabled"
-      @submit="handleFormSubmit"
-      @reset="handleFormReset"
-    >
+    <Form :model="store.formData" :rules="formRules" @submit="handleFormSubmit" @reset="handleFormReset">
       <!-- 提成规则名称 -->
       <el-form-item label="提成规则名称" prop="rechargeRoleName">
         <el-input v-model="store.formData.rechargeRoleName" placeholder="请输入提成规则名称" />
@@ -75,10 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
-
-// 导入枚举数据
-import { commissionOptions } from '@/enums/index';
+import { onMounted } from 'vue';
 
 // 引入数据仓库
 import { useRechargeCommissionRulesStore } from '@/store/modules/setGroup/rechargeCommissionRules';
@@ -86,9 +76,6 @@ const store = useRechargeCommissionRulesStore();
 
 // 定义组件触发的事件 - 关闭抽屉
 const $emit = defineEmits(['close-drawer']);
-
-// 定义组件接收的props - 是否禁用表单
-defineProps(['disabled']);
 
 onMounted(() => {});
 
