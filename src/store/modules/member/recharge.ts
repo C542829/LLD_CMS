@@ -1,9 +1,5 @@
 import { defineStore } from 'pinia';
 import { reactive, ref } from 'vue';
-import $Message from '@/components/Message';
-import { validChinese, validPhone } from '@/utils/strHandle';
-import { parseReqInform, parseReqList, parseRes } from '@/utils/feedback';
-import { formatDate } from '@/utils/time';
 import { reqVipList, reqVipInfo, reqAddVip, reqUpdateVip } from '@/api/member/memberList';
 import {
   reqRechargeHistoryList,
@@ -12,47 +8,28 @@ import {
   reqAddActive,
   reqActiveInfo,
 } from '@/api/member/recharge';
+import { parseResList, parseResMsg, parseResObj } from '@/utils/parseResponse';
+import { formatDate } from '@/utils/time';
+
+import { useSettingStore } from '@/store/modules/acl/setting';
 
 export const useRechargeStore = defineStore('Recharge', () => {
-  // 加载状态
-  const loading = ref(false);
+  const settingStore = useSettingStore();
 
   // #region 会员充值
-
-  // 处理搜索参数
-  const handleParams = (param: string | number) => {
-    const params: any = {};
-
-    if (typeof param === 'string') {
-      let inputValue = param.trim();
-      // 判断参数类型
-      if (validPhone(inputValue)) {
-        params.vipPhone = inputValue;
-      } else if (validChinese(inputValue)) {
-        params.vipName = inputValue;
-      } else {
-        params.vipCardNumber = inputValue;
-      }
-    } else {
-      params.id = param;
-    }
-
-    return params || {};
-  };
 
   const member: any = ref({});
 
   const setMember = async (params: any) => {
-    loading.value = true;
+    settingStore.loading = true;
 
     // 获取数据列表
-    const reqParams = handleParams(params);
-    const res = await reqVipInfo(reqParams);
-    let data = parseRes(res, '获取会员信息失败') || {};
+    const res = await reqVipInfo(params);
+    let data = parseResObj(res) || {};
 
     // 处理数据
     member.value = data;
-    loading.value = false;
+    settingStore.loading = false;
   };
 
   const rechargeFormData: any = ref({
@@ -126,12 +103,12 @@ export const useRechargeStore = defineStore('Recharge', () => {
     data: [],
   });
   const setTotalRecord = async () => {
-    loading.value = true;
+    settingStore.loading = true;
 
     // 获取数据列表
     const params = handleTotalParams();
     const res = await reqVipList(params);
-    let data = parseReqList(res);
+    let data = parseResList(res);
 
     // 处理数据
     totalRecord.total = data.length;
@@ -140,7 +117,7 @@ export const useRechargeStore = defineStore('Recharge', () => {
     data = data.slice(start, end);
     totalRecord.data = data;
 
-    loading.value = false;
+    settingStore.loading = false;
   };
 
   // #endregion
@@ -157,7 +134,7 @@ export const useRechargeStore = defineStore('Recharge', () => {
   // 响应结果
   const activityList: any = ref([]);
   const setActivityList = async () => {
-    loading.value = true;
+    settingStore.loading = true;
 
     // 获取数据列表
     const params = activityParams;
@@ -180,7 +157,7 @@ export const useRechargeStore = defineStore('Recharge', () => {
       { id: 11, title: '1380两个月半价6', subtitle: '标准价6.9折', status: 'active', 'end-date': '2026-06-16' },
       { id: 12, title: '1380两个月半价6', subtitle: '标准价6.9折', status: 'active', 'end-date': '2026-06-16' },
     ];
-    loading.value = false;
+    settingStore.loading = false;
   };
 
   const update = async (data: any) => {
@@ -190,7 +167,7 @@ export const useRechargeStore = defineStore('Recharge', () => {
 
     // 发送请求
     const res = await reqAddActive(data);
-    const result = parseReqInform(res);
+    const result = parseResMsg(res);
     // 刷新数据
     result && setActivityList();
     return result;
@@ -221,8 +198,6 @@ export const useRechargeStore = defineStore('Recharge', () => {
   // #endregion
 
   return {
-    loading,
-
     member,
     rechargeFormData,
     rechargeActivity,

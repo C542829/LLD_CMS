@@ -49,7 +49,7 @@
     <!-- 右侧 -->
     <Card bgColor="#fff" shadow="always">
       <!-- 搜索 -->
-      <div v-if="!store.member.id" v-loading="store.loading" class="search-container">
+      <div v-if="!store.member.id" v-loading="settingStore.loading" class="search-container">
         <el-form class="search-form">
           <div>
             <el-input
@@ -89,7 +89,7 @@
           </div>
 
           <!-- 充值活动列表 -->
-          <div v-loading="store.loading" class="activity-list">
+          <div v-loading="settingStore.loading" class="activity-list">
             <h1>可选充值活动</h1>
             <div>
               <ActivityCard
@@ -124,7 +124,8 @@ import { Search } from '@element-plus/icons-vue';
 import { ref, watch, onMounted } from 'vue';
 import RechargeForm from './form.vue';
 import ActivityCard from './ActivityCard.vue';
-
+import { useSettingStore } from '@/store/modules/acl/setting';
+const settingStore = useSettingStore();
 import { useRechargeStore } from '@/store/modules/member/recharge';
 const store = useRechargeStore();
 

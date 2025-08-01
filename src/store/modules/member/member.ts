@@ -13,7 +13,7 @@ export const useMemberStore = defineStore('Member', () => {
   // #region 会员列表
 
   // 搜索参数
-  const search = reactive({
+  const search = reactive<any>({
     queryField: '',
     pageNum: 1,
     pageSize: 20,

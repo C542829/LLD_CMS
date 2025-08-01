@@ -6,7 +6,7 @@
       <div class="search-container">
         <div class="search-item" v-if="false">
           <label for="staffStatus" class="search-label">选择店铺：</label>
-          <el-select v-model="store.searchParams.storeId" id="staffStatus" style="width: 120px" placeholder="选择店铺">
+          <el-select v-model="store.search.storeId" id="staffStatus" style="width: 120px" placeholder="选择店铺">
             <el-option
               v-for="item in [{ value: 1, label: '' }]"
               :key="item.value"
@@ -27,7 +27,7 @@
       <div class="search-container">
         <div class="search-item">
           <label for="rechargeStatus">充值状态：</label>
-          <el-select v-model="store.searchParams.storeId" id="rechargeStatus" style="width: 120px">
+          <el-select v-model="store.search.status" id="rechargeStatus" style="width: 120px">
             <el-option key="全部状态" label="全部状态" :value="2" />
             <el-option key="充值成功" label="充值成功" :value="0" />
             <el-option key="已冲正" label="已冲正" :value="1" />
@@ -35,7 +35,7 @@
         </div>
         <div class="search-item">
           <label for="payType">支付类型：</label>
-          <el-select v-model="store.searchParams.storeId" id="payType" placeholder="选择支付类型" style="width: 120px">
+          <el-select v-model="store.search.payType" id="payType" placeholder="选择支付类型" style="width: 120px">
             <el-option
               v-for="item in [{ value: 1, label: '' }]"
               :key="item.value"
@@ -46,7 +46,7 @@
         </div>
         <div class="search-item">
           <label for="saleStaff">销售人员：</label>
-          <el-select v-model="store.searchParams.storeId" id="saleStaff" style="width: 120px">
+          <el-select v-model="store.search.salesperson" id="saleStaff" style="width: 120px">
             <el-option key="未指定" label="未指定" :value="0" />
             <el-option
               v-for="item in [{ value: 1, label: '' }]"
@@ -59,12 +59,7 @@
         <div class="search-item">
           <label for="memberInfo">会员信息：</label>
           <div>
-            <el-input
-              v-model="store.searchParams.inputValue"
-              id="memberInfo"
-              placeholder="姓名 | 卡号 | 手机号"
-              clearable
-            />
+            <el-input v-model="store.search.inputValue" id="memberInfo" placeholder="姓名 | 卡号 | 手机号" clearable />
           </div>
         </div>
         <div class="search-item">
@@ -74,9 +69,10 @@
     </Card>
 
     <!-- 数据列表 -->
-    <Card padding="15px 15px 0 15px">
+    <Card padding="0">
       <PaginationTable
-        v-loading="store.isLoading"
+        v-loading="settingStore.loading"
+        :element-loading-text="settingStore.loadingMsg"
         :data="[{}, {}]"
         :total="store.totalRecord.total"
         v-model:currentPage="store.totalParams.currentPage"
@@ -130,18 +126,16 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, onUnmounted } from 'vue';
-import { sexMap } from '@/enums/mapFormatter';
+import { sexMap } from '@/utils/formatter';
 
 // 引入数据仓库
+import { useSettingStore } from '@/store/modules/acl/setting';
+const settingStore = useSettingStore();
 import { useMemberStore } from '@/store/modules/member/member';
 const store = useMemberStore();
 
 // 初始化
 onMounted(() => {});
-
-onUnmounted(() => {
-  store.isLoading = false;
-});
 
 // 搜索
 const search = () => {
