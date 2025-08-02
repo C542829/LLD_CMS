@@ -92,12 +92,13 @@ import { Search } from '@element-plus/icons-vue';
 import { ref, onMounted, reactive, inject } from 'vue';
 import { statusOptions } from '@/enums/index';
 
+import { useSettingStore } from '@/store/modules/acl/setting';
+import { usePermissionStore } from '@/store/modules/acl/permission';
+
 // 引入消息提示组件
 const $MessageBox: any = inject('$MessageBox');
 
-import { useSettingStore } from '@/store/modules/acl/setting';
 const settingStore = useSettingStore();
-import { usePermissionStore } from '@/store/modules/acl/permission';
 const store = usePermissionStore();
 
 onMounted(() => {
@@ -155,34 +156,34 @@ const handleClose = () => {
 };
 
 // 从路由导入权限
-// import { asyncRoute } from '@/router/demo';
-const importPermisstion = async () => {
-  const deep = async (routes: any) => {
-    for (const route of routes) {
-      const permCode = route.path.split('/').slice(1).join(':') || '';
-      const data = {
-        // @ts-ignore
-        id: route.meta.id,
-        name: route.meta.title,
-        permCode,
-        path: route.path,
-        component: route.name,
-        // @ts-ignore
-        parentId: route.meta.parentId || 0,
-        permStatus: 0,
-        // @ts-ignore
-        remark: JSON.stringify(route.meta.tabs || '') === '""' ? '' : JSON.stringify(route.meta.tabs || ''),
-      };
-      const is = await store.importPerm(data);
-      is && console.log(`导入【${data.name}】成功`);
-      !is && console.log(`导入【${data.name}】失败`);
-      if (route.children) {
-        await deep(route.children);
-      }
-    }
-  };
-  // deep(asyncRoute);
-};
+// import { asyncRoute } from '@/router/perms';
+// const importPermisstion = async () => {
+//   const deep = async (routes: any) => {
+//     for (const route of routes) {
+//       const permCode = route.path.split('/').slice(1).join(':') || '';
+//       const data = {
+//         // @ts-ignore
+//         id: route.meta.id,
+//         name: route.meta.title,
+//         permCode,
+//         path: route.path,
+//         component: route.name,
+//         // @ts-ignore-error
+//         parentId: route.meta.parentId || 0,
+//         permStatus: 0,
+//         // @ts-ignore-error
+//         remark: JSON.stringify(route.meta.tabs || '') === '""' ? '' : JSON.stringify(route.meta.tabs || ''),
+//       };
+//       const is = await store.importPerm(data);
+//       is && console.log(`导入【${data.name}】成功`);
+//       !is && console.log(`导入【${data.name}】失败`);
+//       if (route.children) {
+//         await deep(route.children);
+//       }
+//     }
+//   };
+//   deep(asyncRoute);
+// };
 
 // 表单验证规则
 const formRules = {
