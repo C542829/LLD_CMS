@@ -1,7 +1,5 @@
 <template>
-  <div class="container">
-    <ChildNav :navList="navList" />
-  </div>
+  <ChildNav :navList="navList" />
 </template>
 
 <script setup lang="ts">
@@ -19,9 +17,4 @@ const navList = ref([
 ]);
 </script>
 
-<style scoped lang="scss">
-.container {
-  flex: 1;
-  height: 100%;
-}
-</style>
+<style scoped lang="scss"></style>

@@ -1,17 +1,13 @@
 <template>
   <div class="container">
     <PaginationTable
+      v-loading="settingStore.loading"
       :data="arr"
-      :border="true"
-      :total="store.resData.total"
-      v-loading="store.isLoading"
-      v-model:currentPage="store.searchParams.currentPage"
-      v-model:pageSize="store.searchParams.pageSize"
+      :total="tableData.total"
+      v-model:currentPage="searchParams.pageNum"
+      v-model:pageSize="searchParams.pageSize"
       @size-change="handleSizeChange"
       @pagination-current-change="handleCurrentChange"
-      height="100%"
-      stripe
-      class="table-container"
     >
       <el-table-column prop="tradeTime" label="消费时间" />
       <el-table-column prop="actualAmount" label="支付类型" />
@@ -75,23 +71,43 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { reactive, ref } from 'vue';
 
 // 导入数据仓库
+import { useSettingStore } from '@/store/modules/acl/setting';
 import { useMemberStore } from '@/store/modules/member/member';
+const settingStore = useSettingStore();
 const store = useMemberStore();
 
 const visible = ref(false);
 
+const searchParams = reactive({
+  pageNum: 1,
+  pageSize: 10,
+});
+
+const tableData = reactive({ total: 0, list: [] });
+
+const getConsumptionRecord = async () => {
+  settingStore.loading = true;
+  // const res = await reqGetConsumptionRecord(searchParams);
+  // const result = parseResMsg(res, '获取消费记录成功');
+  // if (result) {
+  //   tableData.total = result.total;
+  //   tableData.list = result.list;
+  // }
+  settingStore.loading = false;
+};
+
 // 处理分页变化
 const handleSizeChange = (val: number) => {
-  store.searchParams.pageSize = val;
-  store.setTableData();
+  searchParams.pageSize = val;
+  getConsumptionRecord();
 };
 
 const handleCurrentChange = (val: number) => {
-  store.searchParams.currentPage = val;
-  store.setTableData();
+  searchParams.pageNum = val;
+  getConsumptionRecord();
 };
 
 const consumptions = ref([
@@ -642,7 +658,7 @@ const arr = ref(new Array(20).fill(consumptions.value[0]));
 
 <style lang="scss" scoped>
 .container {
-  height: 65vh;
+  height: 100%;
 }
 
 .dialog-container {
@@ -683,10 +699,5 @@ const arr = ref(new Array(20).fill(consumptions.value[0]));
       }
     }
   }
-}
-
-/* 使用深度选择器修改表格表头样式 */
-:deep(.table-container .el-table__header-wrapper th) {
-  background-color: $base-child-nav-bg; // 使用自定义颜色变量
 }
 </style>

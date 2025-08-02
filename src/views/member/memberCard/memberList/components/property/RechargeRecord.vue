@@ -138,7 +138,7 @@ const arr = ref(new Array(20).fill(consumptions.value[0]));
 
 <style lang="scss" scoped>
 .container {
-  height: 65vh;
+  height: 100%;
 }
 
 /* 使用深度选择器修改表格表头样式 */

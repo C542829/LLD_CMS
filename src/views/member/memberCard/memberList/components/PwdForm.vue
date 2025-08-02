@@ -5,7 +5,7 @@
       <h3 style="font-weight: bold">会员信息确认</h3>
       <p style="font-size: 14px; line-height: 24px">
         您正在为：
-        <b style="font-weight: bold">{{ store.formData.infoName }}（{{ store.formData.infoCardNumber }}）</b>
+        <b style="font-weight: bold">{{ store.formData.name }}（{{ store.formData.cardNumber }}）</b>
         修改密码
       </p>
     </Card>
@@ -34,13 +34,13 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, inject } from 'vue';
+import { reactive, inject, watchEffect } from 'vue';
 import { useMemberStore } from '@/store/modules/member/member';
 const store = useMemberStore();
 
 const $MessageBox: any = inject('$MessageBox');
 
-const $emit = defineEmits(['close-drawer']);
+const emit = defineEmits(['close-drawer']);
 
 const formData = reactive({
   oldPwd: '',
@@ -48,21 +48,31 @@ const formData = reactive({
   confirmPwd: '',
 });
 
+watchEffect(() => {
+  formData.oldPwd = store.formData.pwd;
+});
+
 // 重置密码
 const resetPwd = async () => {
   const result = await $MessageBox.confirm({
     title: '确认操作',
-    message: `重置后会员密码为：123456，你确定要重置会员【${store.formData.infoName}】的密码吗？`,
+    message: `重置后会员密码为：123456，你确定要重置会员【${store.formData.name}】的密码吗？`,
     type: 'warning',
   });
-  const res = result ? store.updatePwd() : false;
-  res && $emit('close-drawer');
+  const isSuccess = result ? store.updatePwd() : false;
+  if (isSuccess) {
+    emit('close-drawer');
+    handleFormReset();
+  }
 };
 
 // 表单提交
 const handleFormSubmit = async () => {
   const result = await store.updatePwd(formData.newPwd);
-  result && $emit('close-drawer');
+  if (result) {
+    emit('close-drawer');
+    handleFormReset();
+  }
 };
 
 // 表单重置

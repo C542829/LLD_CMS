@@ -128,7 +128,7 @@ const memberOrgFinInfos = ref([
 </script>
 <style lang="scss" scoped>
 .container {
-  height: 65vh;
+  height: 100%;
   border: 1px $base-header-color solid;
   padding-bottom: 20px;
 

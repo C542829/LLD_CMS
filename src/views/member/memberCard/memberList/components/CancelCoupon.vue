@@ -17,51 +17,56 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-import { dateFormatter } from '@/utils/time';
+import { dateFormatter } from '@/utils/formatter';
 
 // 导入数据仓库
 import { useMemberStore } from '@/store/modules/member/member';
 const store = useMemberStore();
 
-const coupons = ref([
-  {
-    id: 2445739,
-    orgId: 1459,
-    couponId: 7179,
-    couponNo: '145900000559',
-    getTime: '2025-07-04 00:28:16',
-    limitTime: '2028-03-29',
-    memberId: 1223597,
-    status: 0,
-    promotionId: 0,
-    expandStaffId: 46713,
-    fromType: 3,
-    fromBusId: 204801,
-    transOutBusId: 0,
-    updateUser: 46713,
-    updateTime: '2025-07-04 00:28:15',
-    shortDate: 250704,
-    couponDefInfo: {
-      id: 7179,
+const coupons = ref(
+  new Array(20)
+    .fill({
+      id: 2445739,
       orgId: 1459,
-      isEntityTicket: 1,
-      couponType: 151,
-      couponName: '88元代金券',
-      content: '88元代金券',
-      quantityLimit: 1,
-      useLimitRule: '{"value":88,"limitBuy":0}',
-      shouldPay: 0.0,
-      timeLimit: 999,
-      isValid: 1,
-      creator: 19149,
-      createTime: '2024-07-05 23:55:58',
-      updateUser: 19149,
-      updateTime: '2024-07-05 23:55:58',
-      remark: '',
-      ruleDis: '优惠88.0元',
-    },
-  },
-]);
+      couponId: 7179,
+      couponNo: '145900000559',
+      getTime: '2025-07-04 00:28:16',
+      limitTime: '2028-03-29',
+      memberId: 1223597,
+      status: 0,
+      promotionId: 0,
+      expandStaffId: 46713,
+      fromType: 3,
+      fromBusId: 204801,
+      transOutBusId: 0,
+      updateUser: 46713,
+      updateTime: '2025-07-04 00:28:15',
+      shortDate: 250704,
+      couponDefInfo: {
+        id: 7179,
+        orgId: 1459,
+        isEntityTicket: 1,
+        couponType: 151,
+        couponName: '88元代金券',
+        content: '88元代金券',
+        quantityLimit: 1,
+        useLimitRule: '{"value":88,"limitBuy":0}',
+        shouldPay: 0.0,
+        timeLimit: 999,
+        isValid: 1,
+        creator: 19149,
+        createTime: '2024-07-05 23:55:58',
+        updateUser: 19149,
+        updateTime: '2024-07-05 23:55:58',
+        remark: '',
+        ruleDis: '优惠88.0元',
+      },
+    })
+    .map((item, index) => ({
+      ...item,
+      id: index,
+    })),
+);
 
 const selectedCoupons: any = ref([]);
 
@@ -85,7 +90,7 @@ const selectAll = <T = any>(selection: T[]) => {
 </script>
 <style lang="scss" scoped>
 .coupon-list-container {
-  height: 60vh;
+  height: 500px;
   display: flex;
   flex-direction: column;
   gap: $main-padding;
