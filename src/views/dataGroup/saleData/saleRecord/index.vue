@@ -162,15 +162,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, inject, onMounted } from 'vue';
+import { reactive, inject, onMounted } from 'vue';
 import { dateFormatter, timeFormatter } from '@/utils/formatter';
 import OrderDetail from './OrderDetail.vue';
 import OrderModify from './OrderModify.vue';
 
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
-const settingStore = useSettingStore();
 import { useSaleStore } from '@/store/modules/dataGroup/saleData';
+const settingStore = useSettingStore();
 const store = useSaleStore();
 
 // 引入消息弹框

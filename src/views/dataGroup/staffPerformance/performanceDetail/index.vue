@@ -128,8 +128,8 @@ import Receipt from './Receipt.vue';
 
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
-const settingStore = useSettingStore();
 import { useStaffPerformanceStore } from '@/store/modules/dataGroup/staffPerformance';
+const settingStore = useSettingStore();
 const store = useStaffPerformanceStore();
 
 // 初始化

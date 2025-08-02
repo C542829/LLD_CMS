@@ -117,18 +117,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, inject, onMounted } from 'vue';
+import { reactive, inject, onMounted } from 'vue';
 import { datetimeFormatter } from '@/utils/formatter';
 import Receipt from './Receipt.vue';
 
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
-const settingStore = useSettingStore();
 import { useSaleStore } from '@/store/modules/dataGroup/saleData';
+const settingStore = useSettingStore();
 const store = useSaleStore();
-
-// 引入消息弹框
-const MessageBox: any = inject('$MessageBox');
 
 // 初始化
 onMounted(() => {

@@ -67,13 +67,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
+import { onMounted } from 'vue';
 import { dateFormatter } from '@/utils/formatter';
 
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
-const settingStore = useSettingStore();
 import { useSaleStore } from '@/store/modules/dataGroup/saleData';
+const settingStore = useSettingStore();
 const store = useSaleStore();
 
 // 初始化
