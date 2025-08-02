@@ -83,10 +83,10 @@ import { isDiscountMap } from '@/utils/formatter';
 
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
-const settingStore = useSettingStore();
 import { useEnumStore } from '@/store/modules/enums/index';
-const enumStore = useEnumStore();
 import { useProductStore } from '@/store/modules/setGroup/product';
+const settingStore = useSettingStore();
+const enumStore = useEnumStore();
 const store = useProductStore();
 
 // 引入消息提示组件
@@ -113,18 +113,18 @@ const showConfirm = async (row: any) => {
 
 // 抽屉标题
 const drawerTitles = ['新增产品信息', '修改产品信息', '产品信息'];
-const drawer: any = reactive({
+const drawer = reactive({
   title: '新增产品信息',
   visible: false,
   disabled: false,
 });
 
 // 打开抽屉
-const showDrawer = (handleIndex: number, row: any = {}) => {
+const showDrawer = (handleIndex: number, row?: any) => {
+  row?.id ? (store.formData = { ...row }) : store.resetFormData();
+  handleIndex === 2 && (drawer.disabled = true);
   drawer.title = drawerTitles[handleIndex];
   drawer.visible = true;
-  handleIndex === 2 && (drawer.disabled = true);
-  row?.id ? (store.formData = { ...row }) : store.resetFormData();
 };
 
 // 关闭抽屉触发

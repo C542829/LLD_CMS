@@ -105,8 +105,8 @@ import { commissionOptions } from '@/enums/index';
 
 // 引入数据仓库
 import { useProductStore } from '@/store/modules/setGroup/product';
-const store = useProductStore();
 import { useEnumStore, Enums } from '@/store/modules/enums/index';
+const store = useProductStore();
 const enumStore = useEnumStore();
 
 // 定义组件触发的事件 - 关闭抽屉

@@ -82,7 +82,7 @@
   </div>
 
   <!-- 抽屉表单 -->
-  <Drawer v-model="drawer.visible" :title="drawer.title" @close="handleDrawerClose" :destroy-on-close="true">
+  <Drawer v-model="drawer.visible" :title="drawer.title" @closed="handleDrawerClose">
     <!-- 表单 -->
     <TreatmentCouponForm :disabled="drawer.disabled" @close-drawer="drawer.visible = false" />
     <!-- 抽屉操作按钮 -->
@@ -96,7 +96,7 @@
 
 <script setup lang="ts">
 import { Search } from '@element-plus/icons-vue';
-import { ref, onMounted, inject } from 'vue';
+import { ref, onMounted, inject, reactive } from 'vue';
 import TreatmentCouponForm from './form.vue';
 
 // 导入表格数据格式化器
@@ -106,8 +106,8 @@ import { statusOptions } from '@/enums/index';
 
 // 导入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
-const settingStore = useSettingStore();
 import { useTreatmentCouponStore } from '@/store/modules/setGroup/treatmentCoupon';
+const settingStore = useSettingStore();
 const store = useTreatmentCouponStore();
 
 // 引入消息提示组件
@@ -135,36 +135,26 @@ const showConfirm = async (row: any) => {
 
 // 抽屉标题
 const drawerTitles = ['新增疗程券信息', '修改疗程券信息', '疗程券信息'];
-const drawer: any = ref({
+const drawer = reactive({
   title: '新增疗程券信息',
   visible: false,
   disabled: false,
 });
 
 // 打开抽屉
-const showDrawer = (handleIndex: number, row: any = {}) => {
-  // 如果点击详情 禁用表单
-  handleIndex === 2 && (drawer.value.disabled = true);
-  // 浅拷贝避免操作元数据
-  row = { ...row };
-
-  // 表单数据回显
-  row?.id ? (store.formData = row) : store.resetFormData();
-
-  drawer.value.title = drawerTitles[handleIndex]; // 修改抽屉标题
-  drawer.value.visible = true; // 显示抽屉
+const showDrawer = (handleIndex: number, row?: any) => {
+  handleIndex === 2 && (drawer.disabled = true);
+  row?.id ? (store.formData = { ...row }) : store.resetFormData();
+  drawer.title = drawerTitles[handleIndex];
+  drawer.visible = true;
 };
 
 // 关闭抽屉触发
 const handleDrawerClose = () => {
-  const timer = setTimeout(() => {
-    // 当抽屉关闭时重置表单
-    store.resetFormData();
-    // 去除预览禁用
-    drawer.value.disabled = false;
-    // 清除定时器
-    timer && clearTimeout(timer);
-  }, 100);
+  // 当抽屉关闭时重置表单
+  store.resetFormData();
+  // 去除预览禁用
+  drawer.disabled = false;
 };
 
 // 设置行样式

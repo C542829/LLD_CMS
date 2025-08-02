@@ -74,7 +74,7 @@
 
 <script setup lang="ts">
 import { Search } from '@element-plus/icons-vue';
-import { ref, onMounted, inject, reactive } from 'vue';
+import { onMounted, inject, reactive } from 'vue';
 import ServiceItemForm from './form.vue';
 
 // 导入表格数据格式化器
@@ -84,8 +84,8 @@ import { statusOptions } from '@/enums/index';
 
 // 导入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
-const settingStore = useSettingStore();
 import { useServiceItemStore } from '@/store/modules/setGroup/serviceItem';
+const settingStore = useSettingStore();
 const store = useServiceItemStore();
 
 // 引入消息提示组件
@@ -113,16 +113,16 @@ const showConfirm = async (row: any) => {
 
 // 抽屉标题
 const drawerTitles = ['新增服务项目信息', '修改服务项目信息', '服务项目信息'];
-const drawer: any = reactive({
+const drawer = reactive({
   title: '新增服务项目信息',
   visible: false,
   disabled: false,
 });
 
 // 打开抽屉
-const showDrawer = (handleIndex: number, row: any = {}) => {
-  handleIndex === 2 && (drawer.disabled = true);
+const showDrawer = (handleIndex: number, row?: any) => {
   row?.id ? (store.formData = { ...row }) : store.resetFormData();
+  handleIndex === 2 && (drawer.disabled = true);
   drawer.title = drawerTitles[handleIndex];
   drawer.visible = true;
 };

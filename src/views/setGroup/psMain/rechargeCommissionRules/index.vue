@@ -73,10 +73,6 @@
   <Drawer v-model="drawer.visible" :title="drawer.title" @closed="handleDrawerClose">
     <!-- 表单 -->
     <RechargeCommissionRulesForm @close-drawer="drawer.visible = false" />
-    <!-- 抽屉操作按钮 -->
-    <div v-show="drawer.disabled" class="drawer-buttons">
-      <el-button @click="drawer.visible = false">取消</el-button>
-    </div>
   </Drawer>
 </template>
 
@@ -93,8 +89,8 @@ import { statusOptions } from '@/enums/index';
 
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
-const settingStore = useSettingStore();
 import { useRechargeCommissionRulesStore } from '@/store/modules/setGroup/rechargeCommissionRules';
+const settingStore = useSettingStore();
 const store = useRechargeCommissionRulesStore();
 
 // 引入消息提示组件
@@ -121,19 +117,17 @@ const showConfirm = async (row: any) => {
 
 // 抽屉标题
 const drawerTitles = ['新增充值提成规则信息', '修改充值提成规则信息'];
-
-const drawer: any = reactive({
+const drawer = reactive({
   title: '新增充值提成规则信息',
   visible: false,
 });
 
 // 打开抽屉
-const showDrawer = (handleIndex: number, row: any = {}) => {
+const showDrawer = (handleIndex: number, row?: any) => {
   // 表单数据回显
   handleIndex ? (store.formData = { ...row }) : store.resetFormData();
-
-  drawer.title = drawerTitles[handleIndex]; // 修改抽屉标题
-  drawer.visible = true; // 显示抽屉
+  drawer.title = drawerTitles[handleIndex];
+  drawer.visible = true;
 };
 
 // 关闭抽屉触发
