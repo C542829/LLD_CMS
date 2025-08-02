@@ -10,7 +10,7 @@
         <div class="search-item">
           <label>
             <span>状态：</span>
-            <el-select v-model="store.search.orgStatus" clearable @clear="search" style="width: 100px">
+            <el-select v-model="store.search.orgStatus" @change="search" clearable style="width: 100px">
               <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </label>

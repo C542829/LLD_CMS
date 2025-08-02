@@ -46,7 +46,7 @@
       </el-form-item>
 
       <el-form-item label="行政区域" prop="orgArea">
-        <el-cascader :options="pcaTextArr" v-model="store.formData.orgArea" />
+        <el-cascader :options="pcaTextArr" v-model="store.formData.orgArea" filterable placement="left" />
       </el-form-item>
 
       <el-form-item label="详细地址" prop="orgAddress">
