@@ -6,7 +6,7 @@
       <div class="member-card">
         <div v-if="!!store.member.id" class="member-card-main">
           <div>
-            <h1>会员：{{ store.member.infoName }}</h1>
+            <h1>会员：{{ store.member.name }}</h1>
             <el-button
               @click="store.reset"
               size="small"
@@ -16,21 +16,17 @@
               重选会员
             </el-button>
           </div>
-          <p>电话：{{ store.member.infoPhoneNumber }}</p>
+          <p>电话：{{ store.member.phoneNumber }}</p>
           <el-tooltip
-            :content="
-              store.member.infoCardNumber
-                ? `卡号：${store.member.infoCardNumber}(${store.member.infoIdentity})`
-                : '无卡号'
-            "
+            :content="store.member.cardNumber ? `卡号：${store.member.cardNumber}(${store.member.identity})` : '无卡号'"
             placement="bottom"
             effect="light"
           >
             <p style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap">
-              卡号：{{ store.member.infoCardNumber }}({{ store.member.infoIdentity }})
+              卡号：{{ store.member.cardNumber }}({{ store.member.identity }})
             </p>
           </el-tooltip>
-          <p>门店余额：{{ store.member.assetBalance }} 元</p>
+          <p>门店余额：{{ store.member.balance }} 元</p>
         </div>
         <div v-else class="member-card-empty">未选择会员</div>
       </div>
@@ -93,7 +89,7 @@
             <h1>可选充值活动</h1>
             <div>
               <ActivityCard
-                v-for="item in store.activityList"
+                v-for="item in activityList"
                 :key="item.id"
                 :id="item.id"
                 :title="item.title"
@@ -102,7 +98,7 @@
                 :end-date="item['end-date']"
                 @click="handleCardClick"
               />
-              <div v-if="store.activityList.length === 0" style="padding: 30px 0; color: var(--el-color-info)">
+              <div v-if="activityList.length === 0" style="padding: 30px 0; color: var(--el-color-info)">
                 充值活动加载中...
               </div>
             </div>
@@ -122,22 +118,52 @@
 <script setup lang="ts">
 import { Search } from '@element-plus/icons-vue';
 import { ref, watch, onMounted } from 'vue';
+
 import RechargeForm from './form.vue';
 import ActivityCard from './ActivityCard.vue';
+
 import { useSettingStore } from '@/store/modules/acl/setting';
-const settingStore = useSettingStore();
+import { useRechargeActivityStore } from '@/store/modules/member/rechargeActivity';
 import { useRechargeStore } from '@/store/modules/member/recharge';
+const settingStore = useSettingStore();
+const rechargeActivityStore = useRechargeActivityStore();
 const store = useRechargeStore();
 
 onMounted(() => {});
-
 // 搜索
 const inputValue = ref('');
 const search = async () => {
   // store.setMember(inputValue.value);
-  await store.setMember(1);
-  await store.setActivityList();
+  // await store.setMember(1);
+  // await store.setActivityList();
 };
+
+const activityList = ref<any>([]);
+const getActivityList = async () => {
+  settingStore.loading = true;
+  // activityList.value = await rechargeActivityStore.getActiveList({});
+  new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve(true);
+    }, 1000);
+  });
+  activityList.value = [
+    { id: 1, title: '1380两个月半价1', subtitle: '标准价6.9折', status: 'active', 'end-date': '2026-06-16' },
+    { id: 2, title: '1380两个月半价2', subtitle: '标准价6.9折', status: 'active', 'end-date': '2026-06-16' },
+    { id: 3, title: '1380两个月半价3', subtitle: '标准价6.9折', status: 'active', 'end-date': '2026-06-16' },
+    { id: 4, title: '1380两个月半价4', subtitle: '标准价6.9折', status: 'active', 'end-date': '2026-06-16' },
+    { id: 5, title: '1380两个月半价5', subtitle: '标准价6.9折', status: 'active', 'end-date': '2026-06-16' },
+    { id: 6, title: '1380两个月半价6', subtitle: '标准价6.9折', status: 'active', 'end-date': '2026-06-16' },
+    { id: 7, title: '1380两个月半价6', subtitle: '标准价6.9折', status: 'active', 'end-date': '2026-06-16' },
+    { id: 8, title: '1380两个月半价6', subtitle: '标准价6.9折', status: 'active', 'end-date': '2026-06-16' },
+    { id: 9, title: '1380两个月半价6', subtitle: '标准价6.9折', status: 'active', 'end-date': '2026-06-16' },
+    { id: 10, title: '1380两个月半价6', subtitle: '标准价6.9折', status: 'active', 'end-date': '2026-06-16' },
+    { id: 11, title: '1380两个月半价6', subtitle: '标准价6.9折', status: 'active', 'end-date': '2026-06-16' },
+    { id: 12, title: '1380两个月半价6', subtitle: '标准价6.9折', status: 'active', 'end-date': '2026-06-16' },
+  ];
+  settingStore.loading = false;
+};
+getActivityList();
 
 const handleCardClick = (data: any) => {
   store.rechargeActivity = selectActivity(data);
@@ -146,7 +172,7 @@ const handleCardClick = (data: any) => {
 // 选择活动
 const selectActivity = (data: any) => {
   let result = {};
-  for (const item of store.activityList) {
+  for (const item of activityList.value) {
     if (item.id === data.id && item.status === 'selected') {
       item.status = 'active';
       return {};
@@ -155,7 +181,7 @@ const selectActivity = (data: any) => {
       item.status = 'active';
     }
   }
-  for (const item of store.activityList) {
+  for (const item of activityList.value) {
     if (item.id === data.id) {
       item.status = 'selected';
       result = item;
