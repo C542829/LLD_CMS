@@ -27,22 +27,21 @@
 import { User, Lock, HomeFilled } from '@element-plus/icons-vue';
 import { reactive, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-
-// 引入用户相关的小仓库
 import useUserStore from '@/store/modules/acl/user';
-let useStore = useUserStore();
 import { useSettingStore } from '@/store/modules/acl/setting';
+
+const store = useUserStore();
 const settingStore = useSettingStore();
 
 // 获取el-form组件
-let loginForms = ref();
+const loginForms = ref();
 // 获取路由器
-let $router = useRouter();
+const router = useRouter();
 // 路由对象
-let $route = useRoute();
+const route = useRoute();
 
 // 收集账号与密码的数据
-let loginForm = reactive({ orgCode: '1', username: 'N15572555269', password: '123456' });
+const loginForm = reactive({ orgCode: '1', username: 'N15572555269', password: '123456' });
 
 // 登录按钮回调
 const login = async () => {
@@ -51,15 +50,15 @@ const login = async () => {
   // 启用加载状态
   settingStore.loading = true;
   // 登录
-  const isSuccess = await useStore.login(loginForm);
+  const isSuccess = await store.login(loginForm);
   // 禁用加载状态
   settingStore.loading = false;
   if (isSuccess) {
     // 获取路由
-    let redirect: any = $route.query.redirect;
+    let redirect: any = route.query.redirect;
     redirect = redirect === '/404' ? '/' : redirect;
     // 跳转路由
-    $router.push({ path: redirect || '/' });
+    router.push({ path: redirect || '/' });
   }
 };
 
