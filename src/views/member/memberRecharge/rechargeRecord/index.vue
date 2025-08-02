@@ -125,13 +125,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, onUnmounted } from 'vue';
-import { sexMap } from '@/utils/formatter';
+import { reactive, onMounted } from 'vue';
 
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
-const settingStore = useSettingStore();
 import { useMemberStore } from '@/store/modules/member/member';
+const settingStore = useSettingStore();
 const store = useMemberStore();
 
 // 初始化
@@ -154,7 +153,7 @@ const handleCurrentChange = (val: number) => {
 };
 
 // 模态框
-const dialog: any = reactive({
+const dialog = reactive({
   title: '优惠券列表',
   visible: false,
 });
