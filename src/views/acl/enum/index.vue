@@ -73,16 +73,15 @@
 
 <script setup lang="ts">
 import { Search } from '@element-plus/icons-vue';
-import { ref, onMounted, reactive, inject } from 'vue';
+import { onMounted, reactive, inject } from 'vue';
 import EnumHandler from '@/components/EnumHandler/index.vue';
+import { useSettingStore } from '@/store/modules/acl/setting';
+import { useEnumStore } from '@/store/modules/enums';
 
 // 引入消息提示组件
 const $MessageBox: any = inject('$MessageBox');
-const $Message: any = inject('$Message');
 
-import { useSettingStore } from '@/store/modules/acl/setting';
 const settingStore = useSettingStore();
-import { useEnumStore } from '@/store/modules/enums';
 const store = useEnumStore();
 
 onMounted(() => {
