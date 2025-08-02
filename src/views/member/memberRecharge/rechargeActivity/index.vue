@@ -72,16 +72,17 @@
 
 <script setup lang="ts">
 import { Search } from '@element-plus/icons-vue';
-import { ref, onMounted, inject, reactive } from 'vue';
+import { onMounted, inject, reactive } from 'vue';
 import { dateFormatter } from '@/utils/formatter';
 import ActivityForm from './form.vue';
 
 // 导入枚举数据
 import { statusOptions } from '@/enums/index';
+
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
-const settingStore = useSettingStore();
 import { useRechargeActivityStore } from '@/store/modules/member/rechargeActivity';
+const settingStore = useSettingStore();
 const store = useRechargeActivityStore();
 
 // 引入消息提示组件
@@ -106,20 +107,19 @@ const showConfirm = async ($row: any) => {
   result && store.updateStatus($row);
 };
 
-const drawer: any = reactive({
+// 抽屉标题
+const drawerTitles = ['新增充值活动信息', '修改充值活动信息', '充值活动信息'];
+const drawer = reactive({
   title: '新增充值活动信息',
   visible: false,
   disabled: false,
 });
 
-// 抽屉标题
-const drawerTitles = ['新增充值活动信息', '修改充值活动信息', '充值活动信息'];
-
 // 打开抽屉
-const showDrawer = (titleIndex: number, row: any = {}) => {
+const showDrawer = (index: number, row?: any) => {
   row?.id ? (store.formData = { ...row }) : store.resetFormData();
-  titleIndex === 2 && (drawer.disabled = true);
-  drawer.title = drawerTitles[titleIndex];
+  index === 2 && (drawer.disabled = true);
+  drawer.title = drawerTitles[index];
   drawer.visible = true;
 };
 
