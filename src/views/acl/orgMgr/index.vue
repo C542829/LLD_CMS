@@ -80,16 +80,17 @@
 
 <script setup lang="ts">
 import { Search } from '@element-plus/icons-vue';
-import { ref, onMounted, inject, reactive } from 'vue';
+import { onMounted, inject, reactive } from 'vue';
 import { statusOptions } from '@/enums/index';
 import { dateFormatter } from '@/utils/formatter';
 import OrgForm from './form.vue';
-// 引入消息提示组件
-const $MessageBox: any = inject('$MessageBox');
 
 import { useSettingStore } from '@/store/modules/acl/setting';
-const settingStore = useSettingStore();
 import { useOrgStore } from '@/store/modules/acl/org';
+
+const $MessageBox: any = inject('$MessageBox');
+
+const settingStore = useSettingStore();
 const store = useOrgStore();
 
 onMounted(async () => {
@@ -100,6 +101,7 @@ onMounted(async () => {
 const search = () => {
   store.setTableData();
 };
+
 // 禁用
 const showConfirm = async (row: any) => {
   const result = await $MessageBox.confirm({
@@ -112,7 +114,6 @@ const showConfirm = async (row: any) => {
 
 // 抽屉标题
 const drawerTitles = ['新增门店信息', '修改门店信息', '门店详情'];
-
 const drawer: any = reactive({
   title: '新增门店信息',
   visible: false,
@@ -121,12 +122,10 @@ const drawer: any = reactive({
 
 // 打开抽屉
 const showDrawer = (handleIndex: number, row: any = {}) => {
+  row?.id ? (store.formData = { ...row }) : store.resetFormData();
   drawer.title = drawerTitles[handleIndex];
   drawer.visible = true;
   drawer.disabled = handleIndex === 2;
-
-  // 表单数据回显
-  row?.id ? (store.formData = { ...row }) : store.resetFormData();
 };
 
 // 关闭抽屉触发
