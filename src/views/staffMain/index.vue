@@ -101,10 +101,10 @@ import { sexMap } from '@/utils/formatter';
 
 // 引入数据仓库
 import { useStaffStore } from '@/store/modules/staffMain/staff';
-const store = useStaffStore();
 import { useSettingStore } from '@/store/modules/acl/setting';
-const settingStore = useSettingStore();
 import { useRoleStore } from '@/store/modules/acl/role';
+const store = useStaffStore();
+const settingStore = useSettingStore();
 const roleStore = useRoleStore();
 
 const roleList = ref<any>([]);
@@ -131,24 +131,22 @@ const handleCurrentChange = (val: number) => {
   search();
 };
 
+// 抽屉标题
+const drawerTitles = ['新增人员信息', '人员信息', '修改人员信息'];
 const drawer: any = reactive({
   title: '新增人员信息',
   visible: false,
   disabled: false,
 });
 
-// 抽屉标题
-const drawerTitles = ['新增人员信息', '人员信息', '修改人员信息'];
-
 // 打开抽屉
 const showDrawer = async (handleIndex: number, row: any = {}) => {
-  drawer.title = drawerTitles[handleIndex]; // 修改抽屉标题
-  drawer.visible = true; // 显示抽屉
+  row?.id ? (store.formData = { ...row }) : store.resetFormData();
+  drawer.title = drawerTitles[handleIndex];
+  drawer.visible = true;
 
   // 如果点击更多 禁用表单
   handleIndex === 2 && (drawer.disabled = true);
-  // 表单数据回显
-  row?.id ? (store.formData = { ...row }) : store.resetFormData();
 };
 
 // 关闭抽屉触发

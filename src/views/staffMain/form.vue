@@ -141,16 +141,17 @@ import EnumHandler from '@/components/EnumHandler/index.vue';
 // 导入枚举数据
 import { sexOptions, employedOptions, maritalStatusOptions, educationOptions } from '@/enums/index';
 
+// 引入数据仓库
+import { useStaffStore } from '@/store/modules/staffMain/staff';
+import { useEnumStore, Enums } from '@/store/modules/enums/index';
+import { useRoleStore } from '@/store/modules/acl/role';
+
 // 引入路由
 import { useRouter } from 'vue-router';
 const router = useRouter();
 
-// 引入数据仓库
-import { useStaffStore } from '@/store/modules/staffMain/staff';
 const store = useStaffStore();
-import { useEnumStore, Enums } from '@/store/modules/enums/index';
 const enumStore = useEnumStore();
-import { useRoleStore } from '@/store/modules/acl/role';
 const roleStore = useRoleStore();
 
 const $emit = defineEmits(['close-drawer']);
