@@ -100,8 +100,8 @@ import { bedStatusMap } from '@/utils/formatter';
 
 // 导入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
-const settingStore = useSettingStore();
 import { useRoomStore } from '@/store/modules/setGroup/room';
+const settingStore = useSettingStore();
 const store = useRoomStore();
 
 const $MessageBox: any = inject('$MessageBox');
