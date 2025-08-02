@@ -3,56 +3,48 @@
     <!-- 搜索组件区域 -->
     <Card class="operation-card">
       <div class="search-container">
-        <!-- 选择门店 -->
-        <div class="search-item" v-if="false">
-          <label for="storeId">选择门店：</label>
-          <el-select v-model="store.searchParams.storeId" id="storeId" style="width: 120px">
-            <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
-        </div>
-
         <!-- 状态 -->
         <div class="search-item">
-          <label for="staffStatus2">优惠券状态：</label>
-          <el-select v-model="store.searchParams.ticketStatus" id="staffStatus2" style="width: 120px">
-            <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
+          <label>
+            <span>优惠券状态：</span>
+            <el-select v-model="store.searchParams.ticketStatus" @change="search" style="width: 120px">
+              <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
+            </el-select>
+          </label>
         </div>
 
         <!-- 活动 -->
         <div class="search-item">
-          <label for="activity">活动：</label>
-          <el-select v-model="store.searchParams.ticketStatus" id="activity" style="width: 120px">
-            <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
+          <label>
+            <span>活动：</span>
+            <el-select v-model="store.searchParams.ticketStatus" @change="search" style="width: 120px">
+              <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
+            </el-select>
+          </label>
         </div>
 
         <!-- 发放员 -->
         <div class="search-item">
-          <label for="staff">发放员：</label>
-          <el-select v-model="store.searchParams.ticketStatus" id="staff" style="width: 120px">
-            <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
+          <label>
+            <span>发放员：</span>
+            <el-select v-model="store.searchParams.ticketStatus" @change="search" style="width: 120px">
+              <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
+            </el-select>
+          </label>
         </div>
-      </div>
-      <div class="search-container">
-        <!-- 搜索框 -->
         <div class="search-item">
-          <label for="searchStaffKey">关键字：</label>
-          <div>
-            <el-input
-              v-model="store.searchParams.ticketName"
-              @keydown.enter="search"
-              :prefix-icon="Search"
-              clearable
-              placeholder="优惠券名称"
-              id="searchStaffKey"
-            >
-              <template #append>
-                <el-button type="primary" @click="search">搜索</el-button>
-              </template>
-            </el-input>
-          </div>
+          <el-input
+            v-model="store.searchParams.ticketName"
+            @keydown.enter="search"
+            @clear="search"
+            :prefix-icon="Search"
+            clearable
+            placeholder="优惠券名称"
+          >
+            <template #append>
+              <el-button type="primary" @click="search">搜索</el-button>
+            </template>
+          </el-input>
         </div>
       </div>
     </Card>
@@ -97,16 +89,17 @@
 </template>
 
 <script setup lang="ts">
-import { ElInput } from 'element-plus';
 import { Search } from '@element-plus/icons-vue';
-import { ref, onMounted, inject } from 'vue';
+import { onMounted } from 'vue';
 import { formatDate } from '@/utils/time';
+
 // 导入枚举数据
 import { statusOptions } from '@/enums/index';
+
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
-const settingStore = useSettingStore();
 import { useCouponStore } from '@/store/modules/member/memberCoupon';
+const settingStore = useSettingStore();
 const store = useCouponStore();
 
 onMounted(() => {

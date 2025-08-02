@@ -51,30 +51,29 @@
     </Card>
   </div>
   <!-- 抽屉表单 -->
-  <Drawer v-model="drawer.visible" :title="drawer.title" @close="handleDrawerClose">
+  <Drawer v-model="drawer.visible" :title="drawer.title" @closed="handleDrawerClose">
     <!-- 表单 -->
     <CouponForm :disabled="drawer.disabled" @close-drawer="drawer.visible = false" />
     <!-- 抽屉操作按钮 -->
-    <template v-if="drawer.disabled">
-      <div class="drawer-buttons">
-        <el-button @click="drawer.visible = false">取消</el-button>
-      </div>
-    </template>
+    <div v-show="drawer.disabled" class="drawer-buttons">
+      <el-button @click="drawer.visible = false">取消</el-button>
+    </div>
   </Drawer>
 </template>
 
 <script setup lang="ts">
 import { Search } from '@element-plus/icons-vue';
-import { ref, onMounted, inject } from 'vue';
+import { onMounted, inject, reactive } from 'vue';
 import CouponForm from './form.vue';
 import CouponCard from '@/components/CouponCard/index.vue';
 
 // 导入枚举数据
 import { statusOptions } from '@/enums/index';
+
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
-const settingStore = useSettingStore();
 import { useCouponStore } from '@/store/modules/member/memberCoupon';
+const settingStore = useSettingStore();
 const store = useCouponStore();
 
 // 引入消息提示组件
@@ -106,37 +105,28 @@ const handleMore = (coupon: any) => {
   showDrawer(1, coupon);
 };
 
-const drawer: any = ref({
+// 抽屉标题
+const drawerTitles = ['新增优惠券', '优惠券详情'];
+const drawer = reactive({
   title: '新增优惠券',
   visible: false,
   disabled: false,
 });
 
-// 抽屉标题
-const drawerTitles = ['新增优惠券', '优惠券详情'];
-
 // 打开抽屉
-const showDrawer = (index: number, row: any = {}) => {
-  drawer.value.title = drawerTitles[index]; // 修改抽屉标题
-  drawer.value.visible = true; // 显示抽屉
-
-  // 如果点击更多 禁用表单
-  index === 1 && (drawer.value.disabled = true);
-
-  // 表单数据回显
-  row?.id ? (store.formData = row) : store.resetFormData();
+const showDrawer = (index: number, row?: any) => {
+  row?.id ? (store.formData = { ...row }) : store.resetFormData();
+  index === 1 && (drawer.disabled = true);
+  drawer.title = drawerTitles[index];
+  drawer.visible = true;
 };
 
 // 关闭抽屉触发
 const handleDrawerClose = () => {
-  const timer = setTimeout(() => {
-    // 当抽屉关闭时重置表单
-    store.resetFormData();
-    // 去除预览禁用
-    drawer.value.disabled = false;
-    // 清除定时器
-    timer && clearTimeout(timer);
-  }, 100);
+  // 当抽屉关闭时重置表单
+  store.resetFormData();
+  // 去除预览禁用
+  drawer.disabled = false;
 };
 </script>
 

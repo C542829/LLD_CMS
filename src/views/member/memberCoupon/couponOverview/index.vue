@@ -3,18 +3,12 @@
     <!-- 搜索组件区域 -->
     <Card class="operation-card">
       <div class="search-container">
-        <!-- 选择门店 -->
-        <div class="search-item" v-if="false">
-          <label for="storeId">选择门店：</label>
-          <el-select v-model="store.searchParams.storeId" id="storeId" style="width: 120px">
-            <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
-        </div>
-
         <!-- 状态 -->
         <div class="search-item">
-          <label for="staffStatus2">优惠券状态：</label>
-          <DatePicker v-model="store.searchParams.dateRange"></DatePicker>
+          <label>
+            <span>查询时段：</span>
+            <DatePicker v-model="store.searchParams.dateRange" @change="search"></DatePicker>
+          </label>
         </div>
 
         <!-- 搜索 -->
@@ -52,15 +46,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, inject } from 'vue';
-import { formatDate } from '@/utils/time';
+import { onMounted } from 'vue';
+
 // 导入枚举数据
-import { statusOptions } from '@/enums/index';
 import { couponTypeMap } from '@/utils/formatter';
+
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
-const settingStore = useSettingStore();
 import { useCouponStore } from '@/store/modules/member/memberCoupon';
+const settingStore = useSettingStore();
 const store = useCouponStore();
 
 onMounted(() => {
