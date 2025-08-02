@@ -71,3 +71,11 @@
 .table-header-bg {
   background-color: $base-child-nav-bg;
 }
+
+// 文本溢出隐藏，鼠标悬浮以alt方式显示完整内容
+.text-overflow {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
