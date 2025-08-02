@@ -115,3 +115,12 @@ export const paymentTypeOptions = [
   { value: '银行卡', label: '银行卡' },
   { value: '现金', label: '现金' },
 ];
+
+/**
+ * 充值状态
+ */
+export const rechargeStatusOptions = [
+  { value: '全部状态', label: '全部状态' },
+  { value: '充值成功', label: '充值成功' },
+  { value: '已冲正', label: '已冲正' },
+];
