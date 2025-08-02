@@ -1,7 +1,7 @@
 <template>
   <div class="create-container">
     <div class="container-left">
-      <el-button type="primary" @click="getProductList">获取产品数据</el-button>
+      <el-button type="primary" @click="getProductList" :disabled="formData.items.length > 0">获取产品数据</el-button>
       <div class="left-content">
         <div
           v-for="item in productList"
@@ -30,7 +30,14 @@
           </label>
         </div>
         <div class="header-item">
-          <el-button type="primary" @click="createOrder">提交</el-button>
+          <el-button
+            type="primary"
+            @click="createOrder"
+            :loading="settingStore.loading"
+            :disabled="formData.items.length === 0"
+          >
+            提交
+          </el-button>
         </div>
         <div class="header-item">
           <el-button type="info" @click="resetFormData">重置</el-button>
@@ -60,7 +67,7 @@
               <el-input v-model="row.remark" placeholder="请输入备注" clearable />
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="80">
+          <el-table-column prop="handle" label="操作" width="80">
             <template #default="{ row }">
               <el-button type="danger" size="small" @click="removeItem(row)">删除</el-button>
             </template>
@@ -75,12 +82,15 @@
 import { ref, reactive, onMounted, watch, inject } from 'vue';
 import { getUserInfo } from '@/utils/localStorageTools';
 
-const $Message: any = inject('$Message');
-
 import { useStockStore } from '@/store/modules/setGroup/stock';
-const store = useStockStore();
 import { useProductStore } from '@/store/modules/setGroup/product';
+import { useSettingStore } from '@/store/modules/acl/setting';
+
+const store = useStockStore();
 const productStore = useProductStore();
+const settingStore = useSettingStore();
+
+const $Message: any = inject('$Message');
 
 const props = defineProps({
   handle: {
@@ -122,8 +132,8 @@ const createOrder = async () => {
     $Message.warning('请输入操作人');
     return;
   }
-
-  let result = null;
+  settingStore.loading = true;
+  let result = false;
   if (props.handle === 'in') {
     result = await store.addInStock(formData);
   } else {
@@ -134,6 +144,7 @@ const createOrder = async () => {
     await getProductList();
     emit('submit');
   }
+  settingStore.loading = false;
 };
 
 const addItem = (item: any) => {
@@ -197,12 +208,14 @@ const summaryMethod = (data: { columns: any[]; data: any[] }) => {
       sums[index] = '';
       return;
     }
-
     if (item.property === 'remark') {
       sums[index] = '';
       return sums[index];
     }
-
+    if (item.property === 'handle') {
+      sums[index] = '';
+      return;
+    }
     if (item.property === 'price') {
       sums[index] = formData.totalPrice;
       return sums[index];
@@ -225,7 +238,6 @@ const summaryMethod = (data: { columns: any[]; data: any[] }) => {
 .create-container {
   height: 70vh;
   padding: 0 10px 10px 10px;
-  // border: 1px red solid;
   display: flex;
   gap: 15px;
 
@@ -292,7 +304,6 @@ const summaryMethod = (data: { columns: any[]; data: any[] }) => {
       display: flex;
       flex-direction: row;
       flex-wrap: nowrap;
-      // justify-content: flex-end;
       align-items: center;
       gap: 10px;
       padding: 10px 20px;

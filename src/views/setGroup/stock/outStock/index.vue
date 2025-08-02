@@ -11,7 +11,7 @@
     <!-- 表格组件 -->
     <Card padding="0">
       <PaginationTable
-        v-loading="settingStore.loading"
+        v-loading="settingStore.loading && !createDialog.visible"
         :element-loading-text="settingStore.loadingMsg"
         :data="tableData.list"
         :total="tableData.total"
@@ -40,8 +40,15 @@
   </Dialog>
 
   <!-- 新建入库单 -->
-  <Dialog v-model="dialog2.visible" :title="dialog2.title" top="8vh" style="max-width: 1400px" width="75%" center>
-    <CreateOrder :handle="dialog2.handle" @submit="handleSubmit" />
+  <Dialog
+    v-model="createDialog.visible"
+    :title="createDialog.title"
+    top="10vh"
+    width="75%"
+    style="max-width: 1400px"
+    center
+  >
+    <CreateOrder :handle="createDialog.handle" @submit="handleSubmit" />
   </Dialog>
 </template>
 
@@ -54,8 +61,8 @@ import CreateOrder from '@/views/setGroup/stock/components/CreateOrder.vue';
 import { amountFormatter } from '@/utils/formatter';
 
 import { useSettingStore } from '@/store/modules/acl/setting';
-const settingStore = useSettingStore();
 import { useStockStore } from '@/store/modules/setGroup/stock';
+const settingStore = useSettingStore();
 const store = useStockStore();
 
 onMounted(() => {
@@ -110,13 +117,13 @@ const showDetail = (row: any) => {
   dialog.visible = true;
 };
 
-const dialog2 = reactive({
+const createDialog = reactive({
   title: '新建出库单',
   visible: false,
   handle: 'out',
 });
 const createOrder = () => {
-  dialog2.visible = true;
+  createDialog.visible = true;
 };
 </script>
 

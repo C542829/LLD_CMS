@@ -55,8 +55,8 @@ import ShowDetail from '@/views/setGroup/stock/components/ShowDetail.vue';
 import { amountFormatter } from '@/utils/formatter';
 
 import { useSettingStore } from '@/store/modules/acl/setting';
-const settingStore = useSettingStore();
 import { useStockStore } from '@/store/modules/setGroup/stock';
+const settingStore = useSettingStore();
 const store = useStockStore();
 
 onMounted(() => {

@@ -45,8 +45,8 @@
 import { ref, onMounted, watch } from 'vue';
 
 import { useEnumStore } from '@/store/modules/enums/index';
-const enumStore = useEnumStore();
 import { useSettingStore } from '@/store/modules/acl/setting';
+const enumStore = useEnumStore();
 const settingStore = useSettingStore();
 
 const data = ref<any>({});
