@@ -61,10 +61,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, markRaw } from 'vue';
-
+import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-const router = useRouter();
 
 import BillSummary from './OrderSummary.vue';
 import ModifyBed from './ModifyBed.vue';
@@ -72,9 +70,11 @@ import CreateOrder from './CreateOrder.vue';
 
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
-const settingStore = useSettingStore();
 import { useRoomStore } from '@/store/modules/setGroup/room';
+const settingStore = useSettingStore();
 const roomStore = useRoomStore();
+
+const router = useRouter();
 
 onMounted(async () => {
   await roomStore.setAllBedList();
