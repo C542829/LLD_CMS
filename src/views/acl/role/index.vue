@@ -104,14 +104,16 @@ import { ref, onMounted, inject, reactive, watch } from 'vue';
 import { statusOptions } from '@/enums/index';
 import RoleForm from './form.vue';
 
-// 引入消息提示组件
-const $MessageBox: any = inject('$MessageBox');
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
-const settingStore = useSettingStore();
 import { useRoleStore } from '@/store/modules/acl/role';
-const store = useRoleStore();
 import { usePermissionStore } from '@/store/modules/acl/permission';
+
+// 引入消息提示组件
+const $MessageBox: any = inject('$MessageBox');
+
+const settingStore = useSettingStore();
+const store = useRoleStore();
 const permStore = usePermissionStore();
 
 onMounted(async () => {
