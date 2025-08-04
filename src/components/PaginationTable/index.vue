@@ -1,5 +1,5 @@
 <template>
-  <div class="pagination-table-container">
+  <div class="pagination-table-container" :style="{ height: props.containerHeight }">
     <!-- 表格部分 -->
     <div class="table-container">
       <el-table
@@ -133,6 +133,8 @@ const props = withDefaults(
     data: any[];
     // 表格高度
     height?: string | number;
+    // 容器高度
+    containerHeight?: string | number;
     // 表格最大高度
     maxHeight?: string | number;
     // 是否为斑马纹表格
@@ -227,6 +229,7 @@ const props = withDefaults(
     // 表格默认值
     data: () => [],
     height: '100%',
+    containerHeight: '100%',
     maxHeight: 'auto',
     stripe: true,
     border: true,
