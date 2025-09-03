@@ -17,18 +17,18 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  created() {
-    if (this.$route.redirectedFrom?.path) {
-      this.$router.push(this.$route.redirectedFrom.path);
-    }
-  },
-  methods: {
-    goHome() {
-      this.$router.push('/');
-    },
-  },
+<script setup lang="ts">
+import { useRouter } from 'vue-router';
+import useUserStore from '@/store/modules/acl/user';
+
+const router = useRouter();
+const userStore = useUserStore();
+
+if (!userStore.token) {
+  router.push('/login');
+}
+const goHome = () => {
+  router.push('/');
 };
 </script>
 
