@@ -14,7 +14,7 @@ const userStore = useUserStore(pinia);
 
 // 初始化注册路由
 const routes = router.getRoutes();
-if (userStore.token && routes.length === 3) {
+if (userStore.token && routes.length === 4) {
   await userStore.userInfo();
 }
 
@@ -28,6 +28,7 @@ router.beforeEach(async (to: any, from: any, next: any) => {
   // 如果错误跳转对应页面
   if (to.path === '/500' || to.path === '/404') {
     next();
+    return; // 添加return语句，防止后续代码继续执行
   }
 
   // 获取token
