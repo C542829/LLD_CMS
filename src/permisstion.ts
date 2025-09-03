@@ -24,6 +24,12 @@ router.beforeEach(async (to: any, from: any, next: any) => {
   document.title = `${setting.title} - ${to.meta.title}`;
   // 开启进度条
   nprogress.start();
+
+  // 如果错误跳转对应页面
+  if (to.path === '/500' || to.path === '/404') {
+    next();
+  }
+
   // 获取token
   const token = userStore.token;
   if (token) {
