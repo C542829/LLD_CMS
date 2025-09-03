@@ -22,6 +22,18 @@ export const constantRoute = [
       icon: 'DocumentDelete',
     },
   },
+
+  // 500
+  {
+    path: '/500',
+    component: () => import('@/views/500/index.vue'),
+    name: '500',
+    meta: {
+      title: '500',
+      hidden: true,
+      icon: 'DocumentDelete',
+    },
+  },
 ];
 
 // 异步路由
