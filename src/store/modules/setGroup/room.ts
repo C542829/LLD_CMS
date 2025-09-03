@@ -40,6 +40,15 @@ export const useRoomStore = defineStore('Room', () => {
   };
 
   /**
+   * 所有床位列表
+   */
+  const getAllBedList = async () => {
+    const res = await reqBedListAll();
+    const data = parseResList(res);
+    return data.filter((item: any) => item.status !== 2).sort((a: any, b: any) => a.roomInfoId - b.roomInfoId);
+  };
+
+  /**
    * 房间列表
    */
   const roomList: any = ref([]);
@@ -139,5 +148,6 @@ export const useRoomStore = defineStore('Room', () => {
     updateBedStatus,
     allBedList,
     setAllBedList,
+    getAllBedList,
   };
 });
