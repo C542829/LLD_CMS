@@ -72,6 +72,7 @@ const errorHandler = (error: any) => {
         break;
       case 500:
         message = '服务器出现问题';
+        window.location.href = '/#/500';
         break;
       default:
         message = '网络出现问题';
