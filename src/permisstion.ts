@@ -12,11 +12,13 @@ import useUserStore from './store/modules/acl/user';
 import pinia from './store';
 const userStore = useUserStore(pinia);
 
-// 初始化注册路由
-const routes = router.getRoutes();
-if (userStore.token && routes.length === 4) {
-  await userStore.userInfo();
-}
+// 初始化注册路由，避免白屏
+(async () => {
+  const routes = router.getRoutes();
+  if (userStore.token && routes.length === 4) {
+    await userStore.userInfo();
+  }
+})();
 
 // 全局前置守卫
 router.beforeEach(async (to: any, from: any, next: any) => {
@@ -25,10 +27,13 @@ router.beforeEach(async (to: any, from: any, next: any) => {
   // 开启进度条
   nprogress.start();
 
-  // 如果错误跳转对应页面
-  if (to.path === '/500' || to.path === '/404') {
-    next();
-    return; // 添加return语句，防止后续代码继续执行
+  // 白屏处理
+  if (!from.name && to.path === '/404' && to.redirectedFrom) {
+    if (userStore.userId) {
+      await userStore.userInfo();
+      next({ path: to.redirectedFrom.path });
+      return;
+    }
   }
 
   // 获取token
@@ -46,6 +51,13 @@ router.beforeEach(async (to: any, from: any, next: any) => {
     } else {
       next({ path: '/login', query: { redirect: to.path } });
     }
+  }
+
+  // 错误处理
+  if (to.path === '/500' || to.path === '/404') {
+    // 如果错误跳转对应页面
+    next();
+    return; // 添加return语句，防止后续代码继续执行
   }
 });
 
