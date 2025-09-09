@@ -11,7 +11,7 @@
       <p class="error-desc">抱歉，您访问的页面不存在或已被删除</p>
       <el-button @click="goHome" type="primary" size="large" class="return-btn">
         <el-icon><House /></el-icon>
-        返回首页
+        返回上一页
       </el-button>
     </div>
   </div>
@@ -28,7 +28,7 @@ if (!userStore.token) {
   router.push('/login');
 }
 const goHome = () => {
-  router.push('/');
+  router.go(-1);
 };
 </script>
 
