@@ -48,5 +48,8 @@ export default defineConfig(({ command, mode }) => {
         },
       },
     },
+    build: {
+      target: ['es2022', 'edge89', 'firefox97', 'chrome97', 'safari15'],
+    },
   };
 });
