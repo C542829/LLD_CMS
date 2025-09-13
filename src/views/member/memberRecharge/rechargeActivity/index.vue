@@ -18,8 +18,9 @@
         <!-- 搜索框 -->
         <div class="search-item">
           <el-input
-            v-model="store.search.keyWord"
+            v-model="store.search.activeName"
             @keydown.enter="search"
+            @clear="search"
             :prefix-icon="Search"
             placeholder="充值活动名称"
             clearable
@@ -43,16 +44,16 @@
         :showPagination="false"
       >
         <el-table-column type="index" label="序号" width="60" />
-        <el-table-column prop="productName" label="活动名称" :center="true" min-width="100" />
-        <el-table-column prop="createTime" label="活动开始" :formatter="dateFormatter" min-width="40" />
-        <el-table-column prop="createTime" label="活动结束" :formatter="dateFormatter" min-width="40" />
+        <el-table-column prop="activeName" label="活动名称" :center="true" min-width="100" />
+        <el-table-column prop="activeBeginTime" label="活动开始" :formatter="dateFormatter" min-width="40" />
+        <el-table-column prop="activeFinalTime" label="活动结束" :formatter="dateFormatter" min-width="40" />
         <el-table-column prop="createTime" label="创建时间" :formatter="dateFormatter" min-width="40" />
         <el-table-column label="操作" min-width="40">
           <template #default="{ row }">
-            <el-button link type="info" @click="showDrawer(2, row)">详情</el-button>
-            <el-button link type="warning" v-if="row.activeStatus" @click="store.updateStatus(row)">启用</el-button>
-            <el-button link type="warning" v-else @click="showConfirm(row)">禁用</el-button>
-            <el-button link type="primary" :disabled="!!row.activeStatus" @click="showDrawer(1, row)">统计</el-button>
+            <el-button @click="showDrawer(2, row)" link type="info">详情</el-button>
+            <el-button v-if="row.activeStatus" @click="store.updateStatus(row)" link type="success">启用</el-button>
+            <el-button v-else @click="showConfirm(row)" link type="warning">禁用</el-button>
+            <el-button @click="showDialog(row)" link type="primary">统计</el-button>
           </template>
         </el-table-column>
       </PaginationTable>
@@ -68,6 +69,11 @@
       <el-button @click="drawer.visible = false">取消</el-button>
     </div>
   </Drawer>
+
+  <!-- 统计详情 -->
+  <Dialog v-model="dialog.visible" :title="dialog.title">
+    <ShowDetail :id="dialog.id" />
+  </Dialog>
 </template>
 
 <script setup lang="ts">
@@ -75,6 +81,7 @@ import { Search } from '@element-plus/icons-vue';
 import { onMounted, inject, reactive } from 'vue';
 import { dateFormatter } from '@/utils/formatter';
 import ActivityForm from './form.vue';
+import ShowDetail from './ShowDetail.vue';
 
 // 导入枚举数据
 import { statusOptions } from '@/enums/index';
@@ -131,9 +138,20 @@ const handleDrawerClose = () => {
   store.resetFormData();
 };
 
+const dialog = reactive({
+  title: '活动统计',
+  visible: false,
+  id: 0,
+});
+
+const showDialog = (row: any) => {
+  dialog.visible = true;
+  dialog.id = row.id;
+};
+
 // 设置行样式
-const getRowClassName = ({ row }: { row: { activityStatus: number } }) => {
-  return row.activityStatus ? 'disabled-row' : '';
+const getRowClassName = ({ row }: { row: { activeStatus: number } }) => {
+  return row.activeStatus ? 'disabled-row' : '';
 };
 </script>
 
