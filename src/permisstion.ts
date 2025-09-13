@@ -36,6 +36,13 @@ router.beforeEach(async (to: any, from: any, next: any) => {
     }
   }
 
+  // 错误处理
+  if (to.path === '/500' || to.path === '/404') {
+    // 如果错误跳转对应页面
+    next();
+    return; // 添加return语句，防止后续代码继续执行
+  }
+
   // 获取token
   const token = userStore.token;
   if (token) {
@@ -51,13 +58,6 @@ router.beforeEach(async (to: any, from: any, next: any) => {
     } else {
       next({ path: '/login', query: { redirect: to.path } });
     }
-  }
-
-  // 错误处理
-  if (to.path === '/500' || to.path === '/404') {
-    // 如果错误跳转对应页面
-    next();
-    return; // 添加return语句，防止后续代码继续执行
   }
 });
 
