@@ -42,7 +42,7 @@ export const asyncRoute = [
   {
     path: '/',
     component: () => import('@/layout/index.vue'),
-    name: 'layout',
+    name: 'HomeLayout',
     meta: {
       title: '首页',
       icon: 'HomeFilled',
@@ -63,9 +63,9 @@ export const asyncRoute = [
 
   // 房态
   {
-    path: '/bedStatus',
+    path: '/bed',
     component: () => import('@/layout/index.vue'),
-    name: 'BedStatus',
+    name: 'BedLayout',
     meta: {
       title: '房态',
       icon: 'Grid',
@@ -86,9 +86,9 @@ export const asyncRoute = [
 
   // 收银
   {
-    path: '/saleMain',
+    path: '/sale',
     component: () => import('@/layout/index.vue'),
-    name: 'SaleMain',
+    name: 'SaleLayout',
     meta: {
       title: '收银',
       icon: 'Coin',
@@ -109,9 +109,9 @@ export const asyncRoute = [
 
   // 人事
   {
-    path: '/staffMain',
+    path: '/staff',
     component: () => import('@/layout/index.vue'),
-    name: 'StaffMain',
+    name: 'StaffLayout',
     meta: {
       title: '人事',
       icon: 'UserFilled',
@@ -134,7 +134,7 @@ export const asyncRoute = [
   {
     path: '/org',
     component: () => import('@/layout/index.vue'),
-    name: 'Org',
+    name: 'OrgLayout',
     meta: {
       title: '门店',
       icon: 'Shop',
