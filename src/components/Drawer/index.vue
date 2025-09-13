@@ -8,7 +8,7 @@
 
 <script lang="ts" setup>
 import { ElDrawer, type DrawerProps } from 'element-plus';
-import { h, getCurrentInstance, withDefaults } from 'vue';
+import { h, getCurrentInstance } from 'vue';
 
 // 获取当前组件实例，用于暴露实例方法
 const vm: any = getCurrentInstance();
