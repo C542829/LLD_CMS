@@ -15,7 +15,7 @@ import { useSettingStore } from '@/store/modules/acl/setting';
 // 创建axios实例
 const request = axios.create({
   baseURL: import.meta.env.VITE_APP_BASE_API, // 基础路径
-  timeout: 5000, // 超时时间
+  timeout: 1000 * 10, // 超时时间
 });
 
 // 添加请求拦截器
