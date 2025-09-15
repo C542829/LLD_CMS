@@ -13,6 +13,10 @@
         <el-icon><House /></el-icon>
         返回上一页
       </el-button>
+      <el-button @click="goLogin" type="primary" size="large" class="return-btn">
+        <el-icon><House /></el-icon>
+        返回登录页
+      </el-button>
     </div>
   </div>
 </template>
@@ -29,6 +33,9 @@ if (!userStore.token) {
 }
 const goHome = () => {
   router.go(-1);
+};
+const goLogin = () => {
+  router.push({ path: '/login' });
 };
 </script>
 

@@ -13,6 +13,10 @@
         <el-icon><House /></el-icon>
         返回上一页
       </el-button>
+      <el-button @click="goLogin" type="primary" size="large" class="return-btn">
+        <el-icon><House /></el-icon>
+        返回登录页
+      </el-button>
     </div>
   </div>
 </template>
@@ -22,6 +26,9 @@ export default {
   methods: {
     go() {
       this.$router.go(-1);
+    },
+    goLogin() {
+      this.$router.push({ path: '/login' });
     },
   },
 };
