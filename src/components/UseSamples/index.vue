@@ -3,6 +3,7 @@
     <header>
       <router-link to="/samples/all">全部</router-link>
       <router-link to="/samples/messageBox">MessageBox</router-link>
+      <router-link to="/samples/multipleSelect">MultipleSelect</router-link>
     </header>
     <hr />
     <div>
