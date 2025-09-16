@@ -34,10 +34,7 @@ request.interceptors.response.use(
   (response) => {
     const res = response.data;
     if (response.config.url !== '/auth/login' && res.code === ResponseCode.UNAUTHORIZED) {
-      $Message.error('登录失效，请重新登录！');
-      const userStore = useUserStore();
-      userStore.clearUserInfo();
-      window.location.reload();
+      logout();
     }
     return res;
   },
@@ -46,6 +43,17 @@ request.interceptors.response.use(
     return Promise.reject(error);
   },
 );
+
+/**
+ * 登出操作
+ */
+const logout = () => {
+  $Message.error('登录失效，请重新登录！');
+  const userStore = useUserStore();
+  userStore.clearUserInfo();
+  // window.location.reload();
+  window.location.href = '/#/login';
+};
 
 /**
  * 错误处理函数
@@ -60,9 +68,11 @@ const errorHandler = (error: any) => {
   try {
     let message = '';
     const status = error.response?.status || 0;
+    console.log('响应错误 = ', error);
+
     switch (status) {
       case 401:
-        message = 'TOKEN过期';
+        logout();
         break;
       case 403:
         message = '无权访问';
@@ -72,7 +82,11 @@ const errorHandler = (error: any) => {
         break;
       case 500:
         message = '服务器出现问题';
-        window.location.href = '/#/500';
+        if (error.response.data.code === ResponseCode.UNAUTHORIZED) {
+          logout();
+        } else {
+          window.location.href = '/#/500';
+        }
         break;
       default:
         message = '网络出现问题';
