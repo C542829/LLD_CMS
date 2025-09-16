@@ -7,8 +7,13 @@
         <div class="search-item">
           <label>
             <span>优惠券状态：</span>
-            <el-select v-model="store.searchParams.ticketStatus" @change="search" style="width: 120px">
-              <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
+            <el-select v-model="store.recordParams.status" @change="search" style="width: 120px">
+              <el-option
+                v-for="item in couponRecordStatusOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
             </el-select>
           </label>
         </div>
@@ -17,29 +22,34 @@
         <div class="search-item">
           <label>
             <span>活动：</span>
-            <el-select v-model="store.searchParams.ticketStatus" @change="search" style="width: 120px">
-              <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
+            <el-select v-model="store.recordParams.activeId" @change="search" style="width: 120px">
+              <el-option
+                v-for="item in couponRecordStatusOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
             </el-select>
           </label>
         </div>
 
         <!-- 发放员 -->
-        <div class="search-item">
+        <!-- <div class="search-item">
           <label>
             <span>发放员：</span>
-            <el-select v-model="store.searchParams.ticketStatus" @change="search" style="width: 120px">
+            <el-select v-model="store.recordParams.ticketStatus" @change="search" style="width: 120px">
               <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </label>
-        </div>
+        </div> -->
         <div class="search-item">
           <el-input
-            v-model="store.searchParams.ticketName"
+            v-model="store.recordParams.vipInfoFiled"
             @keydown.enter="search"
             @clear="search"
             :prefix-icon="Search"
             clearable
-            placeholder="优惠券名称"
+            placeholder="会员信息关键字"
           >
             <template #append>
               <el-button type="primary" @click="search">搜索</el-button>
@@ -54,31 +64,31 @@
       <PaginationTable
         v-loading="settingStore.loading"
         :element-loading-text="settingStore.loadingMsg"
-        :data="store.couponRecord"
-        :total="store.page.total"
-        v-model:currentPage="store.page.currentPage"
-        v-model:pageSize="store.page.pageSize"
+        :data="store.couponRecords"
+        :total="store.recordParams.total"
+        v-model:currentPage="store.recordParams.pageNum"
+        v-model:pageSize="store.recordParams.pageSize"
         @size-change="handleSizeChange"
         @pagination-current-change="handleCurrentChange"
       >
-        <el-table-column prop="couponName" label="代金券名称" min-width="80" />
-        <el-table-column label="领取人" min-width="60">
+        <el-table-column prop="ticketName" label="代金券名称" min-width="100" />
+        <el-table-column label="领取人" min-width="80">
           <template #default="{ row }">
-            <p>会员姓名：{{ row.memName }}</p>
-            <p>会员卡号：{{ row.memCode }}</p>
-            <p>电话号码：{{ row.memPhone }}</p>
+            <p>会员姓名：{{ row.vipName }}</p>
+            <p>会员卡号：{{ row.vipCardNumber }}</p>
+            <p>电话号码：{{ row.vipPhoneNumber }}</p>
           </template>
         </el-table-column>
-        <el-table-column prop="isEntityTicket" label="使用状态" width="90" />
-        <el-table-column label="时间" width="200">
+        <el-table-column prop="status" label="使用状态" min-width="60" />
+        <el-table-column label="时间" min-width="60">
           <template #default="{ row }">
-            <p>领取时间：{{ formatDate(new Date(row.updateTime)) }}</p>
-            <p>到期时间：{{ formatDate(new Date(row.limitTime)) }}</p>
+            <p>领取时间：{{ row.claimTime }}</p>
+            <p>到期时间：{{ row.expiryDate || '长期有效' }}</p>
           </template>
         </el-table-column>
-        <el-table-column prop="fromType" label="领取来源类型" min-width="60" />
-        <el-table-column prop="expandStaffName" label="销售员" min-width="50" />
-        <el-table-column label="操作" width="120">
+        <!-- <el-table-column prop="fromType" label="领取来源类型" min-width="60" />
+        <el-table-column prop="expandStaffName" label="销售员" min-width="50" /> -->
+        <el-table-column label="操作" min-width="50">
           <template #default="{ row }">
             <el-button link type="info" @click="">延期</el-button>
           </template>
@@ -94,7 +104,7 @@ import { onMounted } from 'vue';
 import { formatDate } from '@/utils/time';
 
 // 导入枚举数据
-import { statusOptions } from '@/enums/index';
+import { couponRecordStatusOptions } from '@/enums/index';
 
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
@@ -103,23 +113,23 @@ const settingStore = useSettingStore();
 const store = useCouponStore();
 
 onMounted(() => {
-  store.setCouponRecord();
+  store.setCouponRecords();
 });
 
 // 搜索
 const search = () => {
-  store.setCouponRecord();
+  store.setCouponRecords();
 };
 
 // 处理分页变化
 const handleSizeChange = (val: number) => {
-  store.page.pageSize = val;
-  store.setCouponRecord();
+  store.recordParams.pageSize = val;
+  store.setCouponRecords();
 };
 
 const handleCurrentChange = (val: number) => {
-  store.page.currentPage = val;
-  store.setCouponRecord();
+  store.recordParams.pageNum = val;
+  store.setCouponRecords();
 };
 </script>
 

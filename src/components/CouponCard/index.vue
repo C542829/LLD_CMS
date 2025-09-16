@@ -2,7 +2,7 @@
   <div :class="couponCardClass">
     <div class="coupon-card-box">
       <div class="card-title">
-        <div class="card-title-vertical">{{ props.coupon.couponTypeName }}</div>
+        <div class="card-title-vertical">{{ title }}</div>
       </div>
       <div class="card-content">
         <div class="card-top-content">
@@ -22,29 +22,40 @@
               <!-- 弹框内容 -->
               <template #default>
                 <div class="popover-content">
-                  <div>名称：{{ props.coupon.couponName }}</div>
-                  <div>描述：{{ props.coupon.content }}</div>
-                  <div>
-                    使用条件：满{{ props.coupon.useLimitRule.limitBuy }}元，优惠{{ props.coupon.useLimitRule.value }}元
-                  </div>
+                  <div>名称：{{ props.coupon.ticketName }}</div>
+                  <div>描述：{{ props.coupon.ticketDescription }}</div>
+                  <div>使用条件：满{{ props.coupon.ticketFullPayment }}元，优惠{{ props.coupon.ticketValue }}元</div>
                   <div style="text-align: center">
-                    <el-button v-if="props.coupon.isDisabled" @click="handleDisable" type="primary" link size="small">
-                      启用
+                    <el-button
+                      v-if="!props.coupon.ticketStatus"
+                      @click="handleDisable"
+                      type="warning"
+                      link
+                      size="small"
+                    >
+                      禁用
                     </el-button>
-                    <el-button v-else @click="handleDisable" type="primary" link size="small">禁用</el-button>
-                    <el-button :disabled="props.coupon.isDisabled" @click="handleMore" type="primary" link size="small">
-                      更多
+                    <el-button v-else @click="handleDisable" type="success" link size="small">启用</el-button>
+                    <el-button
+                      :disabled="props.coupon.ticketStatus"
+                      @click="handleEdit"
+                      type="primary"
+                      link
+                      size="small"
+                    >
+                      修改
                     </el-button>
+                    <el-button @click="handleMore" type="info" link size="small">更多</el-button>
                   </div>
                 </div>
               </template>
             </el-popover>
           </div>
           <div class="content">
-            <span>{{ props.coupon.couponName }}</span>
+            <span>{{ props.coupon.ticketName }}</span>
           </div>
         </div>
-        <div class="card-bottom-content">{{ props.coupon.couponTypeName }}</div>
+        <div class="card-bottom-content">{{ props.coupon.ticketType ? '体验券' : '代金券' }}</div>
       </div>
     </div>
   </div>
@@ -63,11 +74,16 @@ interface CouponCard {
 const props = withDefaults(defineProps<CouponCard>(), { title: '代金券', btnText: '详情' });
 
 // 定义事件
-const emit = defineEmits(['disable', 'more']);
+const emit = defineEmits(['disable', 'more', 'edit']);
 
 // 禁用按钮事件
 const handleDisable = () => {
   emit('disable', props.coupon);
+};
+
+// 修改按钮事件
+const handleEdit = () => {
+  emit('edit', props.coupon);
 };
 
 // 更多按钮事件
@@ -77,7 +93,7 @@ const handleMore = () => {
 
 const couponCardClass = computed(() => {
   let classList = 'coupon-card ';
-  classList += props.coupon.isDisabled ? 'coupon-card-disable' : 'coupon-card-entity';
+  classList += !props.coupon.ticketStatus ? 'coupon-card-entity' : 'coupon-card-disable';
   return classList;
 });
 </script>

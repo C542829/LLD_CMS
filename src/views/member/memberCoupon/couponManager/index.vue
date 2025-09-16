@@ -6,20 +6,16 @@
         <el-button type="primary" @click="showDrawer(0)" class="add-button">添加优惠券</el-button>
       </div>
       <div class="search-container">
-        <!-- 选择门店 -->
-        <div class="search-item" v-if="false">
-          <label for="staffStatus" class="search-label">选择门店：</label>
-          <el-select v-model="store.searchParams.storeId" id="staffStatus" style="width: 120px">
-            <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
-        </div>
-
         <!-- 状态 -->
         <div class="search-item">
-          <label for="staffStatus" class="search-label">优惠券状态：</label>
-          <el-select v-model="store.searchParams.ticketStatus" id="staffStatus" style="width: 120px">
-            <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
+          <label>
+            <span>优惠券状态：</span>
+            <el-select v-model="store.searchParams.ticketStatus" @change="search" style="width: 120px">
+              <el-option key="all" label="全部" value="" />
+              <el-option key="enable" label="启用" :value="0" />
+              <el-option key="disable" label="禁用" :value="1" />
+            </el-select>
+          </label>
         </div>
 
         <!-- 搜索框 -->
@@ -46,6 +42,7 @@
         v-for="item in store.tableData"
         :coupon="item"
         @disable="handleDisable"
+        @edit="handleEdit"
         @more="handleMore"
       ></CouponCard>
     </Card>
@@ -90,14 +87,18 @@ const search = () => {
 
 // 禁用
 const handleDisable = async (coupon: any) => {
-  const handleStr = coupon.isValid ? '禁用' : '启用';
+  const handleStr = coupon.ticketStatus ? '启用' : '禁用';
   const result = await $MessageBox.confirm({
     title: '确认操作',
-    message: `你确定要${handleStr}优惠券【${coupon.couponName}】吗？`,
+    message: `你确定要${handleStr}优惠券【${coupon.ticketName}】吗？`,
     type: 'warning',
   });
-  coupon.isValid = coupon.isValid ? 0 : 1;
-  result && store.update(coupon);
+  result && store.updateStatus(coupon);
+};
+
+// 更多
+const handleEdit = (coupon: any) => {
+  showDrawer(2, coupon);
 };
 
 // 更多
