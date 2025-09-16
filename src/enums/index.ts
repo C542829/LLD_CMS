@@ -82,20 +82,29 @@ export const employedOptions = [
 export const searchEmployedOptions = [{ value: '', label: '全部状态' }, ...employedOptions];
 
 /**
+ * 活动类型枚举
+ */
+export enum ActivityType {
+  PresentValue = 0,
+  PresentCoupon = 1,
+  PresentValueAndCoupon = 2,
+}
+
+/**
  * 活动类型
  */
 export const activityTypeOptions = [
-  { value: '赠送储值金', label: '赠送储值金' },
-  { value: '赠送优惠券', label: '赠送优惠券' },
-  { value: '赠送优惠券和储值金', label: '赠送优惠券和储值金' },
+  { value: ActivityType.PresentValue, label: '赠送储值金' },
+  { value: ActivityType.PresentCoupon, label: '赠送优惠券' },
+  { value: ActivityType.PresentValueAndCoupon, label: '赠送优惠券和储值金' },
 ];
 
 /**
  * 折扣类型
  */
 export const discountTypeOptions = [
-  { value: '标准价', label: '标准价' },
-  { value: '会员价', label: '会员价' },
+  { value: 0, label: '标准价' },
+  { value: 1, label: '会员价' },
 ];
 
 /**
@@ -123,4 +132,13 @@ export const rechargeStatusOptions = [
   { value: '全部状态', label: '全部状态' },
   { value: '充值成功', label: '充值成功' },
   { value: '已冲正', label: '已冲正' },
+];
+
+/**
+ * 优惠券记录查询状态
+ */
+export const couponRecordStatusOptions = [
+  { value: '', label: '全部状态' },
+  { value: '未使用', label: '未使用' },
+  { value: '已使用', label: '已使用' },
 ];
