@@ -15,7 +15,7 @@ export const useRechargeActivityStore = defineStore('RechargeActivity', () => {
    * @param params - 搜索参数
    * @returns 充值活动列表
    */
-  const getActivityList = async (params = { activeName: '', activeStatus: 0 }) => {
+  const getActivities = async (params = { activeName: '', activeStatus: 0 }) => {
     const res = await reqActiveList(params);
     let data = parseResList(res);
     return data;
@@ -128,7 +128,7 @@ export const useRechargeActivityStore = defineStore('RechargeActivity', () => {
     search,
     tableData,
     getActiveList,
-    getActivityList,
+    getActivities,
     setTableData,
     update,
     updateStatus,
