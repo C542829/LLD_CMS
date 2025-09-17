@@ -2,7 +2,7 @@
   <div :class="couponCardClass">
     <div class="coupon-card-box">
       <div class="card-title">
-        <div class="card-title-vertical">{{ title }}</div>
+        <div class="card-title-vertical">{{ props.coupon.ticketType ? '体验券' : '代金券' }}</div>
       </div>
       <div class="card-content">
         <div class="card-top-content">
