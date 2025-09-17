@@ -12,6 +12,15 @@ import {
   reqDelEnumItem,
 } from '@/api/enums/index';
 
+import { reqTicketList } from '@/api/member/coupon/index';
+import { reqActiveList } from '@/api/member/rechargeActivity/index';
+import { reqUserList } from '@/api/staffMain/staff/index';
+import { reqProductList } from '@/api/setGroup/product/index';
+import { reqServiceItemList } from '@/api/setGroup/serviceItem/index';
+import { reqPackageList } from '@/api/setGroup/package/index';
+import { reqBedListAll } from '@/api/setGroup/room/index';
+import { reqTreatmentCouponList } from '@/api/setGroup/treatmentCoupon/index';
+
 import { parseResList, parseResMsg } from '@/utils/parseResponse';
 
 export enum Enums {
