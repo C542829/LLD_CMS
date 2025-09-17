@@ -20,8 +20,7 @@
     <!-- 优惠券类型 -->
     <el-form-item label="优惠券类型" prop="ticketType">
       <el-select v-model="store.formData.ticketType" placeholder="请选择优惠券类型" clearable>
-        <el-option label="体验券" :value="1" />
-        <el-option label="代金券" :value="0" />
+        <el-option v-for="item in couponTypeOptions" :key="item.value" :label="item.label" :value="item.value" />
       </el-select>
     </el-form-item>
 
@@ -33,64 +32,71 @@
         style="width: 120px; margin-right: 8px"
         clearable
       />
-      <span>天内有效（-1代表无限期）</span>
+      <el-text>（-1代表无限期）</el-text>
     </el-form-item>
 
-    <!-- 限制满额 -->
-    <el-form-item label="限制满额" prop="ticketFullPayment">
-      <el-input
-        v-model.number="store.formData.ticketFullPayment"
-        placeholder="请输入限制满额"
-        style="width: 120px; margin-right: 8px"
-        clearable
-      />
-      <span>元可用</span>
-      <el-tooltip effect="light" content="限制满额为0表示无限制，可任意使用" placement="top">
-        <i class="el-icon-question" style="margin-left: 4px"></i>
-      </el-tooltip>
-    </el-form-item>
+    <!-- 代金券 -->
+    <template v-if="store.formData.ticketType === CouponType.voucher">
+      <!-- 限制满额 -->
+      <el-form-item label="限制满额" prop="ticketFullPayment">
+        <el-input
+          v-model.number="store.formData.ticketFullPayment"
+          placeholder="请输入限制满额"
+          style="width: 120px; margin-right: 8px"
+          clearable
+        />
+        <el-text>元可用</el-text>
+        <el-alert title="限制满额为0表示无限制，可任意使用" type="error" style="margin-top: 8px" />
+      </el-form-item>
 
-    <!-- 代金券面值 -->
-    <el-form-item label="代金券面值" prop="ticketValue">
-      <el-input
-        v-model.number="store.formData.ticketValue"
-        placeholder="请输入代金券面值"
-        style="width: 120px; margin-right: 8px"
-        clearable
-      />
-      <span>元</span>
-    </el-form-item>
-    <!-- <el-alter>
-      <div class="rule-tip">
-        <span>规则结果：满{{ store.formData.ticketFullPayment }}元，</span>
-        <span>可使用优惠券抵扣{{ store.formData.ticketValue }}元</span>
-      </div>
-    </el-alter> -->
+      <!-- 代金券面值 -->
+      <el-form-item label="代金券面值" prop="ticketValue">
+        <el-input
+          v-model.number="store.formData.ticketValue"
+          placeholder="请输入代金券面值"
+          style="width: 120px; margin-right: 8px"
+          clearable
+        />
+        <el-text>元</el-text>
+        <el-alert title="规则结果：满0元，可使用优惠券抵扣元" type="warning" style="margin-top: 8px" />
+      </el-form-item>
+    </template>
 
-    <!-- 需支付金额 -->
-    <!-- <el-form-item label="需支付金额" prop="shouldPay">
-      <el-input
-        v-model.number="store.formData.shouldPay"
-        placeholder="请输入需支付金额"
-        style="width: 120px; margin-right: 8px"
-        clearable
-      />
-      <span>元</span>
-    </el-form-item> -->
+    <!-- 体验券 -->
+    <template v-if="store.formData.ticketType === CouponType.experience">
+      <!-- 可体验项目 -->
+      <el-form-item label="可体验项目" prop="serverItemIds">
+        <el-select v-model="store.formData.serverItemIds" placeholder="请选择可体验项目" clearable multiple>
+          <el-option v-for="item in serviceItemOptions" :key="item.id" :label="item.itemName" :value="item.id" />
+        </el-select>
+      </el-form-item>
+    </template>
   </Form>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
+import { CouponType, couponTypeOptions } from '@/enums/index';
 
 import { useCouponStore } from '@/store/modules/member/memberCoupon';
+import { useServiceItemStore } from '@/store/modules/setGroup/serviceItem';
+const serviceItemStore = useServiceItemStore();
 const store = useCouponStore();
 
 const $emit = defineEmits(['close-drawer']);
 
-defineProps(['disabled']);
+const props = defineProps(['disabled']);
 
-onMounted(() => {});
+onMounted(() => {
+  getServiceItemOptions();
+});
+
+// 项目列表
+const serviceItemOptions = ref<any[]>([]);
+const getServiceItemOptions = async () => {
+  const data = await serviceItemStore.getServiceItems();
+  serviceItemOptions.value = data;
+};
 
 // 表单提交
 const handleFormSubmit = async (model: any) => {

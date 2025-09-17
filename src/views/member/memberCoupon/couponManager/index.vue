@@ -11,9 +11,7 @@
           <label>
             <span>优惠券状态：</span>
             <el-select v-model="store.searchParams.ticketStatus" @change="search" style="width: 120px">
-              <el-option key="all" label="全部" value="" />
-              <el-option key="enable" label="启用" :value="0" />
-              <el-option key="disable" label="禁用" :value="1" />
+              <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </label>
         </div>
@@ -23,9 +21,10 @@
           <el-input
             v-model="store.searchParams.ticketName"
             @keydown.enter="search"
+            @clear="search"
             :prefix-icon="Search"
-            placeholder="优惠券名称"
             clearable
+            placeholder="优惠券名称"
             class="search-input"
           >
             <template #append>
@@ -45,6 +44,11 @@
         @edit="handleEdit"
         @more="handleMore"
       ></CouponCard>
+      <template v-if="store.tableData.length === 0">
+        <div class="el-full el-center">
+          <el-empty></el-empty>
+        </div>
+      </template>
     </Card>
   </div>
   <!-- 抽屉表单 -->

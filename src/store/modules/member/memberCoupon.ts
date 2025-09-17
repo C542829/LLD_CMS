@@ -8,28 +8,51 @@ import {
   reqCountTicket,
 } from '@/api/member/coupon/index';
 import { parseResList, parseResMsg, parseResObj } from '@/utils/parseResponse';
+
 import { formatDate } from '@/utils/time';
 
 import { useSettingStore } from '@/store/modules/acl/setting';
 
 export const useCouponStore = defineStore('CouponStore', () => {
   const settingStore = useSettingStore();
+
+  // #region 优惠券管理
+
   // 搜索参数
   const searchParams = ref<any>({
     ticketName: '',
     ticketStatus: 0,
-    dateRange: [new Date(), new Date()],
   });
 
-  const page = reactive({
-    total: 0,
-    currentPage: 1,
-    pageSize: 50,
-  });
-
-  const getCouponList = async (params = { ticketName: '', ticketStatus: 1 }) => {
+  /**
+   * 获取优惠券列表
+   * @param params 查询参数
+   * @returns
+   */
+  const getCoupons = async (params = { ticketName: '', ticketStatus: 0 }) => {
     const res = await reqTicketList(params);
     let data = parseResList(res);
+    for (const coupon of data) {
+      if (coupon.serverItems && coupon.serverItems.length > 0) {
+        coupon.serverItemIds = coupon.serverItems.map((item: any) => item.id);
+      }
+    }
+    return data;
+  };
+
+  /**
+   * 获取优惠券列表
+   * @param params 查询参数
+   * @returns
+   */
+  const getCouponList = async (params = { ticketName: '', ticketStatus: 0 }) => {
+    const res = await reqTicketList(params);
+    let data = parseResList(res);
+    for (const coupon of data) {
+      if (coupon.serverItems && coupon.serverItems.length > 0) {
+        coupon.serverItemIds = coupon.serverItems.map((item: any) => item.id);
+      }
+    }
     return data;
   };
 
@@ -93,9 +116,11 @@ export const useCouponStore = defineStore('CouponStore', () => {
       serverItemIds: [],
     };
   };
+  //#endregion
 
+  // #region 优惠券统计
   // 优惠券发放记录
-  const recordParams = reactive({
+  const recordParams = reactive<any>({
     activeId: null,
     vipTicketId: null,
     status: null,
@@ -120,17 +145,22 @@ export const useCouponStore = defineStore('CouponStore', () => {
     settingStore.loading = false;
   };
 
-  // 优惠券统计
-  const couponTotal: any = ref([]);
-  const setCouponTotal = async () => {
-    settingStore.loading = true;
+  // #endregion
 
+  // #region 优惠券汇总
+  const summaryParams = reactive({ dateRange: [new Date(), new Date()] });
+
+  const couponSummary: any = ref([]);
+  const setCouponSummary = async () => {
+    settingStore.loading = true;
+    const start = formatDate(summaryParams.dateRange[0]);
+    const end = formatDate(summaryParams.dateRange[1]);
     // const res = await reqTicketList(searchParams.value);
     // let data = parseReqList(res);
 
     // 处理数据
     // tableData.value = data;
-    couponTotal.value = [
+    couponSummary.value = [
       {
         couponStatType: 1,
         numOfSend: 0,
@@ -185,22 +215,26 @@ export const useCouponStore = defineStore('CouponStore', () => {
     settingStore.loading = false;
   };
 
+  // #endregion
+
   return {
     searchParams,
-    page,
     tableData,
+    formData,
+    getCoupons,
     getCouponList,
     setTableData,
     update,
-    formData,
+    updateStatus,
     resetFormData,
 
     recordParams,
     couponRecords,
     getCouponRecords,
     setCouponRecords,
-    couponTotal,
-    setCouponTotal,
-    updateStatus,
+
+    couponSummary,
+    summaryParams,
+    setCouponSummary,
   };
 });

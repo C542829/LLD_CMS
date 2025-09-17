@@ -7,7 +7,7 @@
         <div class="search-item">
           <label>
             <span>查询时段：</span>
-            <DatePicker v-model="store.searchParams.dateRange" @change="search"></DatePicker>
+            <DatePicker v-model="store.summaryParams.dateRange" @change="search"></DatePicker>
           </label>
         </div>
 
@@ -20,7 +20,11 @@
 
     <!-- 数据列表 -->
     <Card class="table-card">
-      <Table v-loading="settingStore.loading" :element-loading-text="settingStore.loadingMsg" :data="store.couponTotal">
+      <Table
+        v-loading="settingStore.loading"
+        :element-loading-text="settingStore.loadingMsg"
+        :data="store.couponSummary"
+      >
         <el-table-column prop="couponStatType" label="优惠券统计类型" :formatter="couponTypeMap" />
         <el-table-column label="赠送数量/金额">
           <template #default="{ row }">
@@ -58,12 +62,12 @@ const settingStore = useSettingStore();
 const store = useCouponStore();
 
 onMounted(() => {
-  store.setCouponTotal();
+  store.setCouponSummary();
 });
 
 // 搜索
 const search = () => {
-  store.setCouponTotal();
+  store.setCouponSummary();
 };
 </script>
 
