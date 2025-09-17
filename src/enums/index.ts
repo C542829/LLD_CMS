@@ -108,11 +108,18 @@ export const discountTypeOptions = [
 ];
 
 /**
+ * 优惠券类型枚举
+ */
+export enum CouponType {
+  voucher = 0, // 代金券
+  experience = 1, // 体验券
+}
+/**
  * 优惠券类型
  */
 export const couponTypeOptions = [
-  { value: '体验券', label: '体验券' },
-  { value: '代金券', label: '代金券' },
+  { value: CouponType.voucher, label: '代金券' },
+  { value: CouponType.experience, label: '体验券' },
 ];
 
 /**
