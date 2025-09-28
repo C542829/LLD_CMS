@@ -88,7 +88,7 @@
         <el-form class="recharge-form">
           <!-- 充值金额输入框 -->
           <div class="recharge-input">
-            <el-input-number v-model="store.rechargeFormData.amount" size="large" :controls="false">
+            <el-input-number v-model="store.rechargeFormData.rechargeValue" size="large" :controls="false">
               <template #prefix><b>￥</b></template>
               <template #suffix><b>元</b></template>
             </el-input-number>
@@ -102,10 +102,10 @@
                 v-for="item in activityList"
                 :key="item.id"
                 :id="item.id"
-                :title="item.title"
-                :subtitle="item.subtitle"
+                :title="item.activeName"
+                :subtitle="item.remark"
                 :status="item.status"
-                :end-date="item['end-date']"
+                :end-date="item.activeFinalTime"
                 @click="handleCardClick"
               />
               <div v-if="activityList.length === 0" class="activity-empty">
@@ -134,17 +134,30 @@ import RechargeForm from './form.vue';
 import ActivityCard from './ActivityCard.vue';
 
 import { useSettingStore } from '@/store/modules/acl/setting';
-import { useRechargeActivityStore } from '@/store/modules/member/rechargeActivity';
+import { useDynamicDataStore } from '@/store/modules/enums/dynamicData';
 import { useMemberStore } from '@/store/modules/member/member';
 import { useRechargeStore } from '@/store/modules/member/recharge';
 const settingStore = useSettingStore();
-const activityStore = useRechargeActivityStore();
+const dynamicDataStore = useDynamicDataStore();
 const memberStore = useMemberStore();
 const store = useRechargeStore();
 
 onMounted(async () => {
   await getActivityList();
 });
+
+// 活动列表
+const activityList = ref<any>([]);
+const getActivityList = async () => {
+  settingStore.loading = true;
+  const res = await dynamicDataStore.getActiveList();
+  activityList.value =
+    res.data.map((item: any) => {
+      item.status = 'active';
+      return item;
+    }) || [];
+  settingStore.loading = false;
+};
 
 // 搜索会员
 const inputValue = ref('');
@@ -167,26 +180,11 @@ const handleSelect = (item: Record<string, any>) => {
   store.member = { ...item };
 };
 
-// 活动列表
-const activityList = ref<any>([]);
-const getActivityList = async () => {
-  settingStore.loading = true;
-  // activityList.value = await rechargeActivityStore.getActiveList({});
-  activityList.value = new Array(10).fill(0).map((_, i) => {
-    return {
-      id: i + 1,
-      title: `1380两个月半价${i + 1}`,
-      subtitle: '标准价6.9折',
-      status: 'active',
-      'end-date': '2026-06-16',
-    };
-  });
-
-  settingStore.loading = false;
-};
-
 const handleCardClick = (data: any) => {
   store.rechargeActivity = selectActivity(data);
+  console.log(data.activeCapital);
+
+  store.rechargeFormData.rechargeValue = store.rechargeActivity.activeCapital;
 };
 
 // 选择活动

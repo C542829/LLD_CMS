@@ -10,7 +10,11 @@ enum API {
   ACTIVE_INFO_URL = '/vip/recharge-active/active-info',
 }
 
-// 接口方法
+/**
+ * 查询充值记录列表
+ * @param params 充值记录查询参数
+ * @returns 充值记录列表
+ */
 export const reqRechargeHistoryList = (params = {}) => get(API.LIST_URL, params);
 
 // export const reqAddRechargeHistory = (data = {}) => post(API.ADD_URL, data);

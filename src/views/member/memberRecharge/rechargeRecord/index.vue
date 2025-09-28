@@ -7,7 +7,13 @@
         <div class="search-item">
           <label>
             充值时段：
-            <DatePicker v-model="store.recordSearch.date" @change="search" style="width: 260px" />
+            <DatePicker
+              v-model="store.recordSearch.date"
+              @change="search"
+              @clear="search"
+              clearable
+              style="width: 260px"
+            />
           </label>
         </div>
       </div>
@@ -17,7 +23,13 @@
         <div class="search-item">
           <label for="rechargeStatus">
             <span>充值状态：</span>
-            <el-select v-model="store.recordSearch.rechargeStatus" style="width: 120px">
+            <el-select
+              v-model="store.recordSearch.rechargeStatus"
+              @change="search"
+              @clear="search"
+              clearable
+              style="width: 120px"
+            >
               <el-option
                 v-for="item in rechargeStatusOptions"
                 :key="item.value"
@@ -30,7 +42,13 @@
         <div class="search-item">
           <label>
             <span>支付类型：</span>
-            <el-select v-model="store.recordSearch.payType" style="width: 120px">
+            <el-select
+              v-model="store.recordSearch.paymentType"
+              @change="search"
+              @clear="search"
+              clearable
+              style="width: 120px"
+            >
               <el-option v-for="item in paymentTypeOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </label>
@@ -38,14 +56,15 @@
         <div class="search-item">
           <label>
             <span>销售人员：</span>
-            <el-select v-model="store.recordSearch.memberId" style="width: 120px">
+            <el-select
+              v-model="store.recordSearch.userId"
+              @change="search"
+              @clear="search"
+              clearable
+              style="width: 120px"
+            >
               <el-option key="未指定" label="未指定" :value="''" />
-              <!-- <el-option
-                v-for="item in [{ value: '', label: '' }]"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              /> -->
+              <el-option v-for="item in staffList" :key="item.id" :label="item.userName" :value="item.id" />
             </el-select>
           </label>
         </div>
@@ -53,7 +72,12 @@
           <label>
             <span>会员信息：</span>
             <div>
-              <el-input v-model="store.recordSearch.inputValue" placeholder="姓名 | 卡号 | 手机号" clearable />
+              <el-input
+                v-model="store.recordSearch.vipInfoFiled"
+                clearable
+                @clear="search"
+                placeholder="姓名 | 卡号 | 手机号"
+              />
             </div>
           </label>
         </div>
@@ -71,48 +95,63 @@
       <PaginationTable
         v-loading="settingStore.loading"
         :element-loading-text="settingStore.loadingMsg"
-        :data="[{}, {}]"
+        :data="store.rechargeRecord.list"
         :total="store.rechargeRecord.total"
+        :row-class-name="getRowClassName"
         v-model:currentPage="store.recordSearch.pageNum"
         v-model:pageSize="store.recordSearch.pageSize"
         @size-change="handleSizeChange"
         @pagination-current-change="handleCurrentChange"
       >
         <el-table-column type="index" label="序号" width="60" />
-        <el-table-column prop="infoGender" label="充值时间" width="170" />
-        <el-table-column prop="infoCardNumber" label="相关人员">
-          <template #default="scope">
-            <p>销售员：{{ scope.row.a }}</p>
-            <p>操作员：{{ scope.row.a }}</p>
+        <el-table-column prop="rechargeTime" label="充值时间" width="155" :formatter="datetimeFormatter" />
+        <el-table-column prop="infoCardNumber" label="相关人员" min-width="80">
+          <template #default="{ row }">
+            <div>
+              <div>
+                <span>销售员：</span>
+                <span>{{ row.userKpiList.map((e: any) => e.userName).join('、') }}</span>
+              </div>
+              <div>操作员：{{ row.userName }}</div>
+            </div>
           </template>
         </el-table-column>
-        <el-table-column prop="infoPhoneNumber" label="充值会员">
+        <el-table-column prop="infoPhoneNumber" label="充值会员" width="180">
           <template #default="scope">
-            <p>姓名：{{ scope.row.a }}</p>
-            <p>卡号：{{ scope.row.a }}</p>
-            <p>电话：{{ scope.row.a }}</p>
+            <p>姓名：{{ scope.row.vipName }}</p>
+            <p>卡号：{{ scope.row.vipCardNumber }}</p>
+            <p>电话：{{ scope.row.vipPhoneNumber }}</p>
           </template>
         </el-table-column>
-        <el-table-column prop="infoLastConsumptionTime" label="充值金额及资产编号">
-          <template #default="scope">
-            <p>充值：{{ scope.row.a }}</p>
-            <p>赠券：{{ scope.row.a }}</p>
-            <p>活动：{{ scope.row.a }}</p>
+        <el-table-column prop="infoLastConsumptionTime" label="充值金额及资产编号" min-width="100">
+          <template #default="{ row }">
+            <p>充值：￥{{ row.rechargeValue }}({{ row.assetCode }})</p>
+            <template v-if="row.ticketInfo">
+              <p>赠券：{{ row.ticketInfo }}</p>
+            </template>
+            <template v-if="row.activeName">
+              <p>活动：{{ row.activeName }}</p>
+            </template>
           </template>
         </el-table-column>
-        <el-table-column prop="infoLastRechargeTime" label="充值">
-          <template #default="scope">
-            <p>类型：{{ scope.row.a }}</p>
-            <p>微信支付：{{ scope.row.a }}</p>
+        <el-table-column prop="infoLastRechargeTime" label="充值" min-width="60">
+          <template #default="{ row }">
+            <div>
+              <div>类型：{{ row.rechargeType }}</div>
+              <div v-for="(item, key) in row.paymentInfoList" :key="key">
+                <span>{{ item.paymentName }}</span>
+                <span>：￥{{ item.paymentAmount }}</span>
+              </div>
+            </div>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="120">
-          <template #default="scope">
-            <el-button link type="primary" @click="">冲正</el-button>
+          <template #default="{ row }">
+            <el-button link type="primary" @click="billReversal(row)">冲正</el-button>
             <br />
-            <el-button link type="primary" @click="">修改充值单据</el-button>
+            <el-button link type="primary" @click="showDialog(row)">修改充值单据</el-button>
             <br />
-            <el-button link type="primary" @click="">重打小票</el-button>
+            <el-button link type="primary" @click="reprint(row)">重打小票</el-button>
           </template>
         </el-table-column>
       </PaginationTable>
@@ -123,19 +162,33 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
+import { datetimeFormatter } from '@/utils/formatter';
 
 import { rechargeStatusOptions, paymentTypeOptions } from '@/enums/index';
 
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useRechargeStore } from '@/store/modules/member/recharge';
+import { useDynamicDataStore } from '@/store/modules/enums/dynamicData';
 const settingStore = useSettingStore();
 const store = useRechargeStore();
+const dynamicDataStore = useDynamicDataStore();
 
 // 初始化
-onMounted(() => {});
+onMounted(() => {
+  search();
+  getStaffList();
+});
 
+// 销售员列表
+const staffList = ref<any>([]);
+const getStaffList = async () => {
+  const res = await dynamicDataStore.getUserList();
+  if (res && res.data && res.data.rows) {
+    staffList.value = res.data.rows || [];
+  }
+};
 // 搜索
 const search = () => {
   store.setRechargeRecord();
@@ -152,6 +205,14 @@ const handleCurrentChange = (val: number) => {
   store.setRechargeRecord();
 };
 
+const billReversal = (row: any) => {
+  // store.billReversal(row);
+};
+
+const reprint = (row: any) => {
+  // store.billReversal(row);
+};
+
 // 模态框
 const dialog = reactive({
   title: '优惠券列表',
@@ -166,6 +227,10 @@ const showDialog = (row: any) => {
 
   // 表单数据回显
   // store.formData = row;
+};
+// 设置行样式
+const getRowClassName = ({ row }: { row: { rechargeStatus: number } }) => {
+  return row.rechargeStatus ? 'disabled-row' : '';
 };
 </script>
 
