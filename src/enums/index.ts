@@ -126,19 +126,20 @@ export const couponTypeOptions = [
  * 支付类型
  */
 export const paymentTypeOptions = [
-  { value: '微信', label: '微信' },
-  { value: '支付宝', label: '支付宝' },
-  { value: '银行卡', label: '银行卡' },
-  { value: '现金', label: '现金' },
+  { value: 0, label: '微信' },
+  { value: 1, label: '支付宝' },
+  { value: 2, label: '现金' },
+  { value: 3, label: '会员卡' },
+  { value: 4, label: '银行卡' },
 ];
 
 /**
  * 充值状态
  */
 export const rechargeStatusOptions = [
-  { value: '全部状态', label: '全部状态' },
-  { value: '充值成功', label: '充值成功' },
-  { value: '已冲正', label: '已冲正' },
+  { value: '', label: '全部状态' },
+  { value: 0, label: '充值成功' },
+  { value: 1, label: '已冲正' },
 ];
 
 /**
@@ -148,4 +149,12 @@ export const couponRecordStatusOptions = [
   { value: '', label: '全部状态' },
   { value: '未使用', label: '未使用' },
   { value: '已使用', label: '已使用' },
+];
+
+/**
+ * 是否允许跨店
+ */
+export const isCrossStoreOptions = [
+  { value: 0, label: '不允许' },
+  { value: 1, label: '允许' },
 ];

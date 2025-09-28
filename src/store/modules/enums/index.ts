@@ -35,6 +35,8 @@ import { useSettingStore } from '@/store/modules/acl/setting';
 export const useEnumStore = defineStore('Enum', () => {
   const settingStore = useSettingStore();
 
+  //#region  枚举字典
+
   // 搜索参数
   const search = reactive({
     dictName: '',
@@ -135,6 +137,8 @@ export const useEnumStore = defineStore('Enum', () => {
   const getDeptList = async () => {
     return await getEnumItemList(Enums.DEPARTMENT);
   };
+
+  // #endregion 枚举字典
 
   return {
     getDeptList,
