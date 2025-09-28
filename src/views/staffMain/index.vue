@@ -10,7 +10,13 @@
         <div class="search-item">
           <label>
             <span>在职状态：</span>
-            <el-select v-model="store.search.userStatus" @change="search" style="width: 120px">
+            <el-select
+              v-model="store.search.userStatus"
+              @change="search"
+              @clear="search"
+              clearable
+              style="width: 120px"
+            >
               <el-option
                 v-for="item in searchEmployedOptions"
                 :key="item.value"
@@ -24,7 +30,7 @@
         <div class="search-item">
           <label>
             <span>角色：</span>
-            <el-select v-model="store.search.roleId" @change="search" style="width: 120px">
+            <el-select v-model="store.search.roleId" @change="search" @clear="search" clearable style="width: 120px">
               <el-option v-for="item in roleList" :label="item.roleName" :value="item.id" :key="item.id" />
             </el-select>
           </label>
