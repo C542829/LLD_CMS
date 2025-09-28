@@ -33,7 +33,7 @@ const apiConfigs = {
   activeList: {
     api: reqActiveList,
     key: 'activeList',
-    defaultParams: { type: 'recharge', page: 1, size: 10 } as const,
+    defaultParams: { activeName: '', activeStatus: 0 } as const,
   },
   userList: {
     api: reqUserList,
