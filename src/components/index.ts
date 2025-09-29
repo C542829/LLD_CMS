@@ -11,6 +11,7 @@ import BtnForm from './BtnForm/index.vue';
 import DynamicInput from './DynamicInput/index.vue';
 import DatePicker from './DatePicker/index.vue';
 import MultipleSelect from './MultipleSelect/index.vue';
+import EllipsisText from './EllipsisText/index.vue';
 import Message from './Message';
 import MessageBox from './MessageBox';
 import Notification from './Notification';
@@ -32,6 +33,7 @@ const allGlobalComponent: any = {
   DynamicInput,
   DatePicker,
   MultipleSelect,
+  EllipsisText,
 };
 
 // 对外暴露插件对象
