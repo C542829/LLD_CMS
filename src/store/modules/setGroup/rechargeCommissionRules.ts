@@ -19,6 +19,17 @@ export const useRechargeCommissionRulesStore = defineStore('RechargeCommissionRu
     status: 0,
   });
 
+  const getRCRule = async (params = { rechargeRoleName: '', status: 0 }) => {
+    const res = await reqRechargeCommissionRulesList(params);
+    const data = parseResList(res);
+    return data;
+  };
+
+  const getDefaultRCRule = async () => {
+    const data = await getRCRule();
+    return data[0];
+  };
+
   // 数据列表
   const dataList: any = ref([]);
   const setDataList = async () => {
@@ -75,5 +86,7 @@ export const useRechargeCommissionRulesStore = defineStore('RechargeCommissionRu
     updateDataStatus,
     formData,
     resetFormData,
+    getRCRule,
+    getDefaultRCRule,
   };
 });
