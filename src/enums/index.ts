@@ -134,6 +134,11 @@ export const paymentTypeOptions = [
 ];
 
 /**
+ * 支付类型映射
+ */
+export const paymentTypeMap = ['微信', '支付宝', '现金', '会员卡', '银行卡'];
+
+/**
  * 充值状态
  */
 export const rechargeStatusOptions = [
