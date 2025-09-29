@@ -1,5 +1,5 @@
 <template>
-  <div class="recharge-container">
+  <div class="recharge-container" v-loading="settingStore.loading">
     <!-- 会员基本信息 -->
     <div class="left-content">
       <!-- 会员卡 -->
@@ -137,13 +137,16 @@ import { useSettingStore } from '@/store/modules/acl/setting';
 import { useDynamicDataStore } from '@/store/modules/enums/dynamicData';
 import { useMemberStore } from '@/store/modules/member/member';
 import { useRechargeStore } from '@/store/modules/member/recharge';
+import { useRechargeCommissionRulesStore } from '@/store/modules/setGroup/rechargeCommissionRules';
 const settingStore = useSettingStore();
 const dynamicDataStore = useDynamicDataStore();
 const memberStore = useMemberStore();
+const rcRulesStore = useRechargeCommissionRulesStore();
 const store = useRechargeStore();
 
 onMounted(async () => {
   await getActivityList();
+  store.rcRule = await rcRulesStore.getDefaultRCRule();
 });
 
 // 活动列表

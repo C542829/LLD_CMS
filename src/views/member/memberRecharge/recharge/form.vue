@@ -24,9 +24,8 @@
 
       <!-- 销售员 (单人模式) -->
       <el-form-item v-if="!isMultiPerformanceMode" label="销售员:">
-        <el-select v-model="store.rechargeFormData.userKpi.userId" placeholder="请选择" style="width: 300px">
-          <el-option label="请选择" :value="''" />
-          <el-option v-for="item in staffList" :key="item.id" :label="item.userName" :value="item.id" />
+        <el-select v-model="store.rechargeFormData.userKpi" value-key="id" placeholder="请选择" style="width: 300px">
+          <el-option v-for="item in staffList" :key="item.id" :label="item.userName" :value="item" />
         </el-select>
       </el-form-item>
 
@@ -37,9 +36,13 @@
             <div v-for="(technician, index) in store.rechargeFormData.userKpiList" :key="index" class="technician-row">
               <el-button :icon="Plus" circle size="small" @click="addTechnician" v-if="index === 0" />
               <el-button :icon="Minus" circle size="small" @click="removeTechnician(index)" v-if="index > 0" />
-              <el-select v-model="technician.userId" placeholder="请选择" style="width: 120px; margin-left: 10px">
-                <el-option label="请选择" :value="''" />
-                <el-option v-for="item in staffList" :key="item.id" :label="item.userName" :value="item.id" />
+              <el-select
+                v-model="technician.user"
+                placeholder="请选择"
+                value-key="id"
+                style="width: 120px; margin-left: 10px"
+              >
+                <el-option v-for="item in staffList" :key="item.id" :label="item.userName" :value="item" />
               </el-select>
               <el-input-number
                 v-model="technician.kpi"

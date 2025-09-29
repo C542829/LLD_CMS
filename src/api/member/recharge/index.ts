@@ -1,10 +1,11 @@
 import { get, post, put, del } from '@/utils/request';
+import { getToken } from '@/utils/localStorageTools';
 
 // 接口地址
 enum API {
+  RECHARGE_URL = '/vip/recharge',
   LIST_URL = '/vip/recharge-history/query-list',
   UPDATE_URL = '/vip/recharge-history/update-status',
-
   ACTIVE_LIST_URL = '/vip/recharge-active/active-list',
   ADD_ACTIVE_URL = '/vip/recharge-active/add-active',
   ACTIVE_INFO_URL = '/vip/recharge-active/active-info',
@@ -28,3 +29,13 @@ export const reqAddActive = (data = {}) => post(API.ADD_ACTIVE_URL, data);
 export const reqActiveInfo = (params = {}) => get(API.ACTIVE_INFO_URL, params);
 
 // export const reqUpdateActive = (data = {}) => put(API.UPDATE_ACTIVE_URL, data);
+
+/**
+ * 会员充值
+ * @param data 充值参数
+ * @returns 充值记录
+ */
+export const reqRecharge = (data = {}) =>
+  post(API.RECHARGE_URL, data, {
+    params: { token: getToken()?.split(' ')[1] || '' },
+  });

@@ -2,11 +2,15 @@
   <div>
     <div :class="cardClass" @click="handleClick">
       <div class="activity-card__content">
-        <div class="activity-card__title">{{ title }}</div>
-        <div class="activity-card__subtitle" v-if="subtitle">{{ subtitle }}</div>
+        <div class="activity-card__title">
+          <EllipsisText :content="title" />
+        </div>
+        <div class="activity-card__subtitle" v-if="subtitle">
+          <EllipsisText :content="subtitle" />
+        </div>
       </div>
       <div :class="statusBarClass">
-        {{ statusText }}
+        <EllipsisText :content="statusText" />
       </div>
     </div>
   </div>
