@@ -150,7 +150,7 @@
     <!-- 文本溢出省略组件 -->
     <section class="component-section">
       <h3>文本溢出省略组件</h3>
-      
+
       <div class="ellipsis-examples">
         <div class="example-group">
           <h4>基础用法 - 自动检测溢出</h4>
@@ -161,7 +161,9 @@
             </div>
             <div class="ellipsis-box">
               <p class="label">会溢出的长文本:</p>
-              <EllipsisText content="这是一个非常长的文本内容，当容器宽度不够时会自动显示省略号，并且鼠标悬停时会通过tooltip显示完整内容" />
+              <EllipsisText
+                content="这是一个非常长的文本内容，当容器宽度不够时会自动显示省略号，并且鼠标悬停时会通过tooltip显示完整内容"
+              />
             </div>
           </div>
         </div>
@@ -211,7 +213,10 @@
           <div class="ellipsis-container">
             <div class="ellipsis-box">
               <p class="label">即使未溢出也显示提示:</p>
-              <EllipsisText content="这是一个不会自然溢出的短文本，但通过forceEllipsis属性强制使用tooltip" force-ellipsis />
+              <EllipsisText
+                content="这是一个不会自然溢出的短文本，但通过forceEllipsis属性强制使用tooltip"
+                force-ellipsis
+              />
             </div>
           </div>
         </div>
@@ -398,59 +403,59 @@ const handleFormReset = () => {
 }
 
 .card-footer {
-      text-align: right;
-      color: #909399;
-      font-size: 13px;
-    }
+  text-align: right;
+  color: #909399;
+  font-size: 13px;
+}
 
-    /* 文本溢出省略组件示例样式 */
-    .ellipsis-examples {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
+/* 文本溢出省略组件示例样式 */
+.ellipsis-examples {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
 
-    .example-group {
-      margin-bottom: 15px;
-    }
+.example-group {
+  margin-bottom: 15px;
+}
 
-    .example-group h4 {
-      margin-bottom: 10px;
-      font-size: 16px;
-      font-weight: 500;
-      color: #303133;
-    }
+.example-group h4 {
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #303133;
+}
 
-    .ellipsis-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-    }
+.ellipsis-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
 
-    .ellipsis-box {
-      border: 1px solid #ebeef5;
-      border-radius: 4px;
-      padding: 15px;
-      min-width: 250px;
-      flex: 1;
-      background-color: #fafafa;
-    }
+.ellipsis-box {
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
+  padding: 15px;
+  min-width: 250px;
+  flex: 1;
+  background-color: #fafafa;
+}
 
-    .ellipsis-box.narrow {
-      max-width: 150px;
-    }
+.ellipsis-box.narrow {
+  max-width: 150px;
+}
 
-    .ellipsis-box.medium {
-      max-width: 250px;
-    }
+.ellipsis-box.medium {
+  max-width: 250px;
+}
 
-    .ellipsis-box.wide {
-      max-width: 400px;
-    }
+.ellipsis-box.wide {
+  max-width: 400px;
+}
 
-    .ellipsis-box .label {
-      margin: 0 0 8px 0;
-      font-size: 13px;
-      color: #909399;
-    }
+.ellipsis-box .label {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  color: #909399;
+}
 </style>
