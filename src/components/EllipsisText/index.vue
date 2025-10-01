@@ -1,122 +1,82 @@
 <template>
-  <el-tooltip
-    :disabled="!isOverflow"
-    :content="content"
-    :placement="placement"
-    :effect="effect"
-    popper-class="text-overflow-tooltip"
-  >
-    <div ref="textRef" :class="['text-overflow-wrapper', customClass]" :style="textStyle">
+  <div class="ellipsis-container" :style="textStyle">
+    <el-tooltip v-if="isOverflow && tooltip" :content="content" :effect="effect" :placement="placement">
+      <span ref="textRef" class="ellipsis-text" :style="textStyle">
+        {{ content }}
+      </span>
+    </el-tooltip>
+    <span v-else ref="textRef" class="ellipsis-text" :style="textStyle">
       {{ content }}
-    </div>
-  </el-tooltip>
+    </span>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUpdated, nextTick, watch } from 'vue';
+import type { ElTooltipProps } from 'element-plus';
+import { computed } from 'vue';
+import { useTextEllipsis } from './useTextEllipsis';
 
-interface Props {
-  content: string; // 文本内容
-  placement?: 'top' | 'bottom' | 'left' | 'right'; // tooltip位置
-  effect?: 'dark' | 'light'; // tooltip主题
-  maxLines?: number; // 最大显示行数,默认1行
-  customClass?: string; // 自定义类名
-  width?: string; // 容器宽度
+interface Props extends Partial<ElTooltipProps> {
+  tooltip?: boolean;
+  width?: string | number;
+  maxWidth?: string | number;
+  lineClamp?: number;
+  content: string;
+  placement:
+    | 'top'
+    | 'top-start'
+    | 'top-end'
+    | 'bottom'
+    | 'bottom-start'
+    | 'bottom-end'
+    | 'left'
+    | 'left-start'
+    | 'left-end'
+    | 'right'
+    | 'right-start'
+    | 'right-end';
+  effect: 'light' | 'dark';
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  tooltip: true,
   placement: 'top',
-  effect: 'dark',
-  maxLines: 1,
-  customClass: '',
-  width: '100%',
+  effect: 'light',
+  maxWidth: '100%',
+  lineClamp: 1,
+  content: '',
 });
 
-const textRef = ref<HTMLElement>();
-const isOverflow = ref(false);
+const { textRef, isOverflow, checkOverflow } = useTextEllipsis();
 
-// 计算文本样式
 const textStyle = computed(() => ({
-  width: props.width,
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  display: '-webkit-box',
-  WebkitLineClamp: props.maxLines,
-  WebkitBoxOrient: 'vertical',
-  wordBreak: 'break-all',
+  width: typeof props.width === 'number' ? `${props.width}px` : props.width,
+  maxWidth: typeof props.maxWidth === 'number' ? `${props.maxWidth}px` : props.maxWidth,
+  WebkitLineClamp: props.lineClamp > 1 ? props.lineClamp : undefined,
 }));
 
-// 检查文本是否溢出
-const checkOverflow = () => {
-  nextTick(() => {
-    if (!textRef.value) return;
-
-    const element = textRef.value;
-
-    // 多行文本溢出检测
-    if (props.maxLines > 1) {
-      isOverflow.value = element.scrollHeight > element.clientHeight;
-    } else {
-      // 单行文本溢出检测
-      isOverflow.value = element.scrollWidth > element.clientWidth;
-    }
-  });
-};
-
-// 监听内容变化
-watch(
-  () => props.content,
-  () => {
-    checkOverflow();
-  },
-  { immediate: true },
-);
-
-// 监听最大行数变化
-watch(
-  () => props.maxLines,
-  () => {
-    checkOverflow();
-  },
-);
-
-onMounted(() => {
-  checkOverflow();
-
-  // 监听窗口大小变化
-  window.addEventListener('resize', checkOverflow);
-});
-
-onUpdated(() => {
-  checkOverflow();
-});
-
-// 清理事件监听
-const cleanup = () => {
-  window.removeEventListener('resize', checkOverflow);
-};
-
-// 组件卸载时清理
 defineExpose({
   checkOverflow,
-  cleanup,
 });
 </script>
 
-<style lang="scss" scoped>
-.text-overflow-wrapper {
-  cursor: pointer;
-
-  &:hover {
-    color: var(--el-color-primary);
-  }
+<style scoped lang="scss">
+.ellipsis-container {
+  display: inline-block;
 }
-</style>
 
-<style lang="scss">
-// 全局样式,用于tooltip
-.text-overflow-tooltip {
-  max-width: 400px;
-  word-break: break-all;
+.ellipsis-text {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+
+  // 多行省略支持
+  &:global(.multiline) {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    white-space: normal;
+  }
 }
 </style>
