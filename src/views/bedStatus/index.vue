@@ -2,7 +2,7 @@
   <div class="bed-status-container">
     <h1>床位状态</h1>
     <div v-loading="settingStore.loading" :element-loading-text="settingStore.loadingMsg" class="bed-status-content">
-      <div v-for="item in roomStore.allBedList" :key="item.id" class="bed-card-box">
+      <div v-for="item in bedList" :key="item.id" class="bed-card-box">
         <div class="bed-card">
           <!-- 卡片头部 -->
           <div class="card-header">
@@ -54,9 +54,9 @@
       </div>
     </div>
 
-    <el-dialog v-model="dialog.visible" :title="dialog.title" center fullscreen>
-      <CreateOrder></CreateOrder>
-    </el-dialog>
+    <Drawer v-model="dialog.visible" :title="dialog.title" size="550px" style="max-width: 600px">
+      <CreateOrder @close="dialog.visible = false" @refresh="getBedList"></CreateOrder>
+    </Drawer>
   </div>
 </template>
 
@@ -67,18 +67,26 @@ import { useRouter } from 'vue-router';
 import BillSummary from './OrderSummary.vue';
 import ModifyBed from './ModifyBed.vue';
 import CreateOrder from './CreateOrder.vue';
-
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
-import { useRoomStore } from '@/store/modules/setGroup/room';
+import { useDataEnumStore } from '@/store/modules/enums/index';
+import { useOrderStore } from '@/store/modules/order/index';
 const settingStore = useSettingStore();
-const roomStore = useRoomStore();
+const dataEnumStore = useDataEnumStore();
+const orderStore = useOrderStore();
 
 const router = useRouter();
 
 onMounted(async () => {
-  await roomStore.setAllBedList();
+  getBedList();
 });
+
+const bedList: any = ref([]);
+const getBedList = async () => {
+  settingStore.loading = true;
+  bedList.value = await dataEnumStore.getAllBedList();
+  settingStore.loading = false;
+};
 
 /**
  * 去结账
@@ -94,7 +102,8 @@ const checkout = (data: any) => {
 };
 
 const createOrder = (item: any) => {
-  console.log('开单');
+  orderStore.orderForm.bedId = item.id;
+  orderStore.orderForm.bedName = item.bedName;
 };
 const previewOrder = (item: any) => {
   console.log('预览');
