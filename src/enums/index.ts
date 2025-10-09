@@ -2,6 +2,7 @@ import { ResponseCode, ResponseCodeMeaning } from '@/enums/response';
 
 export { ResponseCode, ResponseCodeMeaning };
 
+// #region 状态选项
 /**
  * 搜索状态
  */
@@ -10,7 +11,9 @@ export const statusOptions = [
   { value: 0, label: '启用' },
   { value: 1, label: '禁用' },
 ];
+// #endregion 状态选项
 
+// #region 提成类型
 /**
  * 提成类型
  */
@@ -18,7 +21,9 @@ export const commissionOptions = [
   { value: 0, label: '标准价提成' },
   { value: 1, label: '实收价提成' },
 ];
+// #endregion 提成类型
 
+// #region 会员等级
 /**
  * 会员等级
  */
@@ -29,7 +34,9 @@ export const vipLevelOptions = [
   { value: '铂金会员', label: '铂金会员' },
   { value: '钻石会员', label: '钻石会员' },
 ];
+// #endregion 会员等级
 
+// #region 性别
 /**
  * 性别
  */
@@ -38,7 +45,9 @@ export const sexOptions = [
   { value: 0, label: '男' },
   { value: 1, label: '女' },
 ];
+// #endregion 性别
 
+// #region 婚姻状态
 /**
  * 婚姻状态
  */
@@ -49,7 +58,9 @@ export const maritalStatusOptions = [
   { label: '离异', value: '离异' },
   { label: '丧偶', value: '丧偶' },
 ];
+// #endregion 婚姻状态
 
+// #region 学历
 /**
  * 学历
  */
@@ -65,7 +76,9 @@ export const educationOptions = [
   { label: '博士', value: '博士' },
   { label: '技校', value: '技校' },
 ];
+// #endregion 学历
 
+// #region 在职状态
 /**
  * 在职状态
  */
@@ -80,7 +93,9 @@ export const employedOptions = [
  * 过滤框的在职状态
  */
 export const searchEmployedOptions = [{ value: '', label: '全部状态' }, ...employedOptions];
+// #endregion 在职状态
 
+// #region 活动类型
 /**
  * 活动类型枚举
  */
@@ -98,7 +113,9 @@ export const activityTypeOptions = [
   { value: ActivityType.PresentCoupon, label: '赠送优惠券' },
   { value: ActivityType.PresentValueAndCoupon, label: '赠送优惠券和储值金' },
 ];
+// #endregion 活动类型
 
+// #region 折扣类型
 /**
  * 折扣类型
  */
@@ -106,7 +123,9 @@ export const discountTypeOptions = [
   { value: 0, label: '标准价' },
   { value: 1, label: '会员价' },
 ];
+// #endregion 折扣类型
 
+// #region 优惠券类型
 /**
  * 优惠券类型枚举
  */
@@ -115,29 +134,55 @@ export enum CouponType {
   experience = 1, // 体验券
 }
 /**
+ * 优惠券类型映射
+ */
+export const couponTypeMap = {
+  [CouponType.voucher]: '代金券',
+  [CouponType.experience]: '体验券',
+};
+/**
  * 优惠券类型
  */
 export const couponTypeOptions = [
   { value: CouponType.voucher, label: '代金券' },
   { value: CouponType.experience, label: '体验券' },
 ];
+// #endregion 优惠券类型
 
+// #region 支付类型
+/**
+ * 支付类型枚举
+ */
+export enum PaymentType {
+  WeChat = 0,
+  Alipay = 1,
+  Cash = 2,
+  MemberCard = 3,
+  BankCard = 4,
+}
 /**
  * 支付类型
  */
 export const paymentTypeOptions = [
-  { value: 0, label: '微信' },
-  { value: 1, label: '支付宝' },
-  { value: 2, label: '现金' },
-  { value: 3, label: '会员卡' },
-  { value: 4, label: '银行卡' },
+  { value: PaymentType.WeChat, label: '微信' },
+  { value: PaymentType.Alipay, label: '支付宝' },
+  { value: PaymentType.Cash, label: '现金' },
+  { value: PaymentType.MemberCard, label: '会员卡' },
+  { value: PaymentType.BankCard, label: '银行卡' },
 ];
-
 /**
  * 支付类型映射
  */
-export const paymentTypeMap = ['微信', '支付宝', '现金', '会员卡', '银行卡'];
+export const paymentTypeMap = {
+  [PaymentType.WeChat]: '微信',
+  [PaymentType.Alipay]: '支付宝',
+  [PaymentType.Cash]: '现金',
+  [PaymentType.MemberCard]: '会员卡',
+  [PaymentType.BankCard]: '银行卡',
+};
+// #endregion 支付类型
 
+// #region 充值状态
 /**
  * 充值状态
  */
@@ -146,7 +191,9 @@ export const rechargeStatusOptions = [
   { value: 0, label: '充值成功' },
   { value: 1, label: '已冲正' },
 ];
+// #endregion 充值状态
 
+// #region 优惠券记录查询状态
 /**
  * 优惠券记录查询状态
  */
@@ -155,7 +202,9 @@ export const couponRecordStatusOptions = [
   { value: '未使用', label: '未使用' },
   { value: '已使用', label: '已使用' },
 ];
+// #endregion 优惠券记录查询状态
 
+// #region 跨店设置
 /**
  * 是否允许跨店
  */
@@ -163,3 +212,79 @@ export const isCrossStoreOptions = [
   { value: 0, label: '不允许' },
   { value: 1, label: '允许' },
 ];
+// #endregion 跨店设置
+
+// #region 订单明细类型
+/**
+ * 订单明细类型（0 产品，1 服务，2 疗程券）
+ */
+export enum OrderDetailType {
+  Product = 0,
+  Service = 1,
+  TreatmentCoupon = 2,
+  Package = 3,
+}
+export const OrderDetailTypeMap = {
+  [OrderDetailType.Product]: '产品',
+  [OrderDetailType.Service]: '项目',
+  [OrderDetailType.TreatmentCoupon]: '疗程',
+  [OrderDetailType.Package]: '套餐',
+};
+/**
+ * 订单明细类型
+ */
+export const OrderDetailTypeOptions = [
+  { value: OrderDetailType.Service, label: '项目' },
+  { value: OrderDetailType.Product, label: '产品' },
+  { value: OrderDetailType.TreatmentCoupon, label: '疗程' },
+  // { value: OrderDetailType.Package, label: '套餐' },
+];
+// #endregion 订单明细类型
+
+// #region 客户类型
+/**
+ * 客户类型（0 会员，1 散客）
+ */
+export enum CustomerType {
+  Member = 0,
+  Guest = 1,
+}
+export const CustomerTypeMap = {
+  [CustomerType.Member]: '会员',
+  [CustomerType.Guest]: '散客',
+};
+/**
+ * 客户类型
+ */
+export const CustomerTypeOptions = [
+  { value: CustomerType.Member, label: '会员' },
+  { value: CustomerType.Guest, label: '散客' },
+];
+// #endregion 客户类型
+
+// #region 服务类型
+/**
+ * 服务类型 （0 点钟，1 加钟，2 轮牌）
+ */
+export enum ServiceType {
+  Point = 0,
+  Add = 1,
+  Round = 2,
+}
+/**
+ * 服务类型映射
+ */
+export const ServiceTypeMap = {
+  [ServiceType.Point]: '点钟',
+  [ServiceType.Add]: '加钟',
+  [ServiceType.Round]: '轮牌',
+};
+/**
+ * 服务类型
+ */
+export const ServiceTypeOptions = [
+  { value: ServiceType.Point, label: '点钟' },
+  { value: ServiceType.Add, label: '加钟' },
+  { value: ServiceType.Round, label: '轮牌' },
+];
+// #endregion 服务类型

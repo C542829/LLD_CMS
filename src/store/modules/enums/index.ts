@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref, reactive } from 'vue';
+import { ref, reactive, computed } from 'vue';
 
 import {
   reqEnumList,
@@ -21,7 +21,7 @@ import { reqPackageList } from '@/api/setGroup/package/index';
 import { reqBedListAll } from '@/api/setGroup/room/index';
 import { reqTreatmentCouponList } from '@/api/setGroup/treatmentCoupon/index';
 
-import { parseResList, parseResMsg } from '@/utils/parseResponse';
+import { parseResList, parseResMsg, parseResObj } from '@/utils/parseResponse';
 
 export enum Enums {
   BED_STATUS = 'bed_status',
@@ -35,8 +35,6 @@ import { useSettingStore } from '@/store/modules/acl/setting';
 export const useEnumStore = defineStore('Enum', () => {
   const settingStore = useSettingStore();
 
-  //#region  枚举字典
-
   // 搜索参数
   const search = reactive({
     dictName: '',
@@ -47,7 +45,7 @@ export const useEnumStore = defineStore('Enum', () => {
   const setTableData = async () => {
     settingStore.loading = true;
     const res = await reqEnumList(search);
-    let data = parseResList(res);
+    const data = parseResList(res);
     tableData.value = data;
     settingStore.loading = false;
   };
@@ -138,8 +136,6 @@ export const useEnumStore = defineStore('Enum', () => {
     return await getEnumItemList(Enums.DEPARTMENT);
   };
 
-  // #endregion 枚举字典
-
   return {
     getDeptList,
     getUnits,
@@ -157,6 +153,212 @@ export const useEnumStore = defineStore('Enum', () => {
     updateDictItem,
     delDict,
     delDictItem,
+  };
+});
+
+export const useDataEnumStore = defineStore('DataEnum', () => {
+  // 员工列表
+  const staffList: any = ref([]);
+  /**
+   * 获取员工列表
+   * @param refresh 是否刷新
+   * @param params 请求参数
+   * @returns 枚举项列表
+   */
+  const getStaffList = async (refresh = false, params = { userStatus: '在职', pageNum: 1, pageSize: 100 }) => {
+    if (!staffList.value.length || refresh) {
+      await setStaffList(params);
+      return staffList.value;
+    } else {
+      return staffList.value;
+    }
+  };
+  const setStaffList = async (params: any) => {
+    const res = await reqUserList(params);
+    const data = parseResObj(res);
+    staffList.value = data.rows;
+  };
+
+  // 优惠券列表
+  const ticketList: any = ref([]);
+  /**
+   * 获取优惠券列表
+   * @param refresh 是否刷新
+   * @param params 请求参数
+   * @returns 优惠券列表
+   */
+  const getTicketList = async (refresh = false, params = { pageNum: 1, pageSize: 100 }) => {
+    if (!ticketList.value.length || refresh) {
+      await setTicketList(params);
+      return ticketList.value;
+    } else {
+      return ticketList.value;
+    }
+  };
+  const setTicketList = async (params: any) => {
+    const res = await reqTicketList(params);
+    const data = parseResObj(res);
+    ticketList.value = data.rows;
+  };
+
+  // 充值活动列表
+  const activeList: any = ref([]);
+  /**
+   * 获取充值活动列表
+   * @param refresh 是否刷新
+   * @param params 请求参数
+   * @returns 充值活动列表
+   */
+  const getActiveList = async (refresh = false, params = { pageNum: 1, pageSize: 100 }) => {
+    if (!activeList.value.length || refresh) {
+      await setActiveList(params);
+      return activeList.value;
+    } else {
+      return activeList.value;
+    }
+  };
+  const setActiveList = async (params: any) => {
+    const res = await reqActiveList(params);
+    const data = parseResObj(res);
+    activeList.value = data.rows;
+  };
+
+  // 产品列表
+  const productList: any = ref([]);
+  /**
+   * 获取产品列表
+   * @param refresh 是否刷新
+   * @param params 请求参数
+   * @returns 产品列表
+   */
+  const getProductList = async (refresh = false, params = { pageNum: 1, pageSize: 100 }) => {
+    if ((Array.isArray(productList.value) && !productList.value.length) || refresh) {
+      await setProductList(params);
+      return productList.value;
+    } else {
+      return productList.value;
+    }
+  };
+  const setProductList = async (params: any) => {
+    const res = await reqProductList(params);
+    const data = parseResList(res);
+    productList.value = data;
+  };
+
+  // 服务项目列表
+  const serviceItemList: any = ref([]);
+  /**
+   * 获取服务项目列表
+   * @param refresh 是否刷新
+   * @param params 请求参数
+   * @returns 服务项目列表
+   */
+  const getServiceItemList = async (refresh = false, params = { pageNum: 1, pageSize: 100 }) => {
+    if (!serviceItemList.value.length || refresh) {
+      await setServiceItemList(params);
+      return serviceItemList.value;
+    } else {
+      return serviceItemList.value;
+    }
+  };
+  const setServiceItemList = async (params: any) => {
+    const res = await reqServiceItemList(params);
+    const data = parseResList(res);
+    serviceItemList.value = data;
+  };
+
+  // 套餐列表
+  const packageList: any = ref([]);
+  /**
+   * 获取套餐列表
+   * @param refresh 是否刷新
+   * @param params 请求参数
+   * @returns 套餐列表
+   */
+  const getPackageList = async (refresh = false, params = { pageNum: 1, pageSize: 100 }) => {
+    if (!packageList.value.length || refresh) {
+      await setPackageList(params);
+      return packageList.value;
+    } else {
+      return packageList.value;
+    }
+  };
+  const setPackageList = async (params: any) => {
+    const res = await reqPackageList(params);
+    const data = parseResList(res);
+    packageList.value = data;
+  };
+
+  // 床位列表
+  /**
+   * 所有床位列表
+   */
+  const getAllBedList = async () => {
+    const res = await reqBedListAll();
+    const data = parseResList(res);
+    return data.filter((item: any) => item.status !== 2).sort((a: any, b: any) => a.roomInfoId - b.roomInfoId);
+  };
+
+  // 治疗券列表
+  const treatmentCouponList: any = ref([]);
+  /**
+   * 获取治疗券列表
+   * @param refresh 是否刷新
+   * @param params 请求参数
+   * @returns 治疗券列表
+   */
+  const getTreatmentCouponList = async (refresh = false, params = { pageNum: 1, pageSize: 100 }) => {
+    if (!treatmentCouponList.value.length || refresh) {
+      await setTreatmentCouponList(params);
+      return treatmentCouponList.value;
+    } else {
+      return treatmentCouponList.value;
+    }
+  };
+  const setTreatmentCouponList = async (params: any) => {
+    const res = await reqTreatmentCouponList(params);
+    const data = parseResList(res);
+    treatmentCouponList.value = data;
+  };
+
+  return {
+    // 员工相关
+    staffList,
+    setStaffList,
+    getStaffList,
+
+    // 优惠券相关
+    ticketList,
+    setTicketList,
+    getTicketList,
+
+    // 充值活动相关
+    activeList,
+    setActiveList,
+    getActiveList,
+
+    // 产品相关
+    productList,
+    setProductList,
+    getProductList,
+
+    // 服务项目相关
+    serviceItemList,
+    setServiceItemList,
+    getServiceItemList,
+
+    // 套餐相关
+    packageList,
+    setPackageList,
+    getPackageList,
+
+    // 床位相关
+    getAllBedList,
+
+    // 治疗券相关
+    treatmentCouponList,
+    setTreatmentCouponList,
+    getTreatmentCouponList,
   };
 });
 
