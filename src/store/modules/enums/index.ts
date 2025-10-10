@@ -231,7 +231,7 @@ export const useDataEnumStore = defineStore('DataEnum', () => {
    * @param params 请求参数
    * @returns 产品列表
    */
-  const getProductList = async (refresh = false, params = { pageNum: 1, pageSize: 100 }) => {
+  const getProductList = async (refresh = false, params = { productStatus: 0 }) => {
     if ((Array.isArray(productList.value) && !productList.value.length) || refresh) {
       await setProductList(params);
       return productList.value;
@@ -253,7 +253,7 @@ export const useDataEnumStore = defineStore('DataEnum', () => {
    * @param params 请求参数
    * @returns 服务项目列表
    */
-  const getServiceItemList = async (refresh = false, params = { pageNum: 1, pageSize: 100 }) => {
+  const getServiceItemList = async (refresh = false, params = { itemStatus: 0 }) => {
     if (!serviceItemList.value.length || refresh) {
       await setServiceItemList(params);
       return serviceItemList.value;
@@ -275,7 +275,7 @@ export const useDataEnumStore = defineStore('DataEnum', () => {
    * @param params 请求参数
    * @returns 套餐列表
    */
-  const getPackageList = async (refresh = false, params = { pageNum: 1, pageSize: 100 }) => {
+  const getPackageList = async (refresh = false, params = {}) => {
     if (!packageList.value.length || refresh) {
       await setPackageList(params);
       return packageList.value;
@@ -307,7 +307,7 @@ export const useDataEnumStore = defineStore('DataEnum', () => {
    * @param params 请求参数
    * @returns 治疗券列表
    */
-  const getTreatmentCouponList = async (refresh = false, params = { pageNum: 1, pageSize: 100 }) => {
+  const getTreatmentCouponList = async (refresh = false, params = { status: 0 }) => {
     if (!treatmentCouponList.value.length || refresh) {
       await setTreatmentCouponList(params);
       return treatmentCouponList.value;
