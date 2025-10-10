@@ -24,7 +24,7 @@ export const useOrderStore = defineStore('Order', () => {
   /**
    * 订单表单数据
    */
-  const orderForm = ref({
+  const orderForm: any = ref({
     vipId: '', // 会员ID
     vipName: '', // 会员姓名
     vipCardNumber: '', // 会员卡号
@@ -40,7 +40,7 @@ export const useOrderStore = defineStore('Order', () => {
   /**
    * 订单明细表单数据
    */
-  const detailForm = ref({
+  const detailForm: any = ref({
     bid: '', // 订单业务ID（产品ID、服务ID或疗程券ID）
     userId: '', // 用户ID
     userName: '', // 用户姓名
@@ -102,7 +102,7 @@ export const useOrderStore = defineStore('Order', () => {
     }
 
     // 移除索引
-    for (const item of orderForm.value.orderDetails as any) {
+    for (const item of orderForm.value.orderDetails) {
       delete item.index;
     }
 

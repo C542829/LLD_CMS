@@ -59,7 +59,7 @@
       </PaginationTable>
     </Card>
     <footer style="text-align: center; margin: 20px 0">
-      <el-button type="default" @click="emit('close-drawer')">关闭</el-button>
+      <el-button type="default" @click="emit('close')">关闭</el-button>
       <el-button type="primary" @click="createOrder">开单</el-button>
     </footer>
   </div>
@@ -72,8 +72,8 @@ import { CustomerType, CustomerTypeOptions, ServiceType, ServiceTypeMap } from '
 import SearchMember from '@/components/Input/SearchMember.vue';
 import Message from '@/components/Message';
 import DetailForm from './DetailForm.vue';
-import { useOrderStore } from '@/store/modules/order/index';
 import { cloneDeep } from 'lodash';
+import { useOrderStore } from '@/store/modules/order/index';
 const orderStore = useOrderStore();
 
 const emit = defineEmits(['close', 'refresh']);
