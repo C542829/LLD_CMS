@@ -2,41 +2,10 @@
   <div class="top-content">
     <div class="top-item"></div>
     <div class="top-item search">
-      <el-autocomplete
-        v-model="inputValue"
-        @select="handleSelect"
-        :fetch-suggestions="querySearchAsync"
-        :prefix-icon="Search"
-        placeholder="姓名 | 手机号 | 会员卡号"
-        size="large"
-        value-key="name"
-        clearable
-      >
-        <template #default="{ item }">
-          <div class="mem-info-card">
-            <p>
-              <span>姓名：</span>
-              <span>{{ item.name }}</span>
-            </p>
-            <p>
-              <span>电话：</span>
-              <span>{{ item.phoneNumber }}</span>
-            </p>
-            <p>
-              <span>卡号：</span>
-              <span>{{ item.cardNumber }}</span>
-            </p>
-          </div>
-        </template>
-        <template #append>
-          <el-button type="primary" size="large">搜索</el-button>
-        </template>
-      </el-autocomplete>
+      <SearchMember v-model="inputValue" size="default" :showSearchButton="false" @selected="handleSelect" />
     </div>
     <div class="top-item"></div>
-    <!-- <div class="top-item"></div> -->
     <div class="top-item bed">
-      <!-- <el-alert title="Warning alert" type="info" /> -->
       <div class="bed-info" v-show="bed.id">
         <div>
           <span>床位：</span>
@@ -67,15 +36,49 @@
     </div>
     <div class="top-item"></div>
   </div>
+  <div class="main-content">
+    <div class="main-item">
+      <div class="left-tab">
+        <el-radio-group v-model="tabSwitch">
+          <el-radio-button :value="0" :border="true" size="large">添加产品、疗程</el-radio-button>
+          <el-radio-button :value="1" :border="true" size="large">会员卡详情</el-radio-button>
+        </el-radio-group>
+      </div>
+      <div class="left-tab-content">
+        <el-tabs
+          v-show="tabSwitch === 0"
+          tab-position="left"
+          type="border-card"
+          style="height: 100%"
+          class="scale-tabs"
+        >
+          <el-tab-pane label="产品">
+            <ProductList />
+          </el-tab-pane>
+          <el-tab-pane label="疗程">
+            <TreatmentCouponList />
+          </el-tab-pane>
+        </el-tabs>
+        <VipCard v-show="tabSwitch === 1" />
+      </div>
+    </div>
+    <div class="main-item"></div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { Search } from '@element-plus/icons-vue';
+import SearchMember from '@/components/Input/SearchMember.vue';
+import ProductList from './components/ProductList.vue';
+import TreatmentCouponList from './components/TreatmentCouponList.vue';
+import VipCard from './components/VipCard.vue';
+
 import { ref, watch, onMounted } from 'vue';
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useMemberStore } from '@/store/modules/member/member';
 import { useRechargeStore } from '@/store/modules/member/recharge';
 import { useRoomStore } from '@/store/modules/setGroup/room';
+import { useOrderStore } from '@/store/modules/order/index';
+const orderStore = useOrderStore();
 const roomStore = useRoomStore();
 const settingStore = useSettingStore();
 const memberStore = useMemberStore();
@@ -96,24 +99,17 @@ onMounted(async () => {
 
 // 搜索会员
 const inputValue = ref('');
-// 搜索联想会员列表
-const querySearchAsync = async (queryString: string, cb: (arg: any) => void) => {
-  if (!queryString) {
-    cb([]);
-    return;
-  }
-  const results = await memberStore.getAssociateList(queryString, 50);
-  // if (results.length === 1) {
-  //   store.member = { ...results[0] };
-  // }
-  cb(results);
-};
 
 // 选中会员
 const handleSelect = (item: Record<string, any>) => {
-  inputValue.value = '';
-  store.member = { ...item };
+  console.log('会员', item);
+  orderStore.orderForm.vipId = item.id;
+  orderStore.orderForm.vipName = item.name;
+  orderStore.orderForm.vipPhoneNumber = item.phoneNumber;
+  orderStore.orderForm.vipCardNumber = item.cardNumber;
 };
+
+const tabSwitch = ref(0);
 </script>
 
 <style scoped lang="scss">
@@ -161,13 +157,38 @@ const handleSelect = (item: Record<string, any>) => {
   }
 }
 
-// 搜索提示会员信息
-.mem-info-card {
-  line-height: 20px;
-  margin: 10px;
-  padding: 10px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+.main-content {
+  height: calc(100% - 70px);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: 1fr;
+  .main-item {
+    height: 100%;
+    padding: 10px;
+    overflow: hidden;
+
+    .left-tab {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+    .left-tab-content {
+      height: calc(100% - 50px);
+      .scale-tabs {
+        height: 100%;
+        > :deep(.el-tabs__content) {
+          height: 100%;
+          > div {
+            height: 100%;
+          }
+        }
+      }
+    }
+  }
+  .main-item:last-child {
+    border-left: 1px solid var(--el-border-color);
+  }
 }
 
 :deep(.el-input-group__append .el-button--primary) {
