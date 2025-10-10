@@ -22,7 +22,7 @@ interface Props extends Partial<ElTooltipProps> {
   maxWidth?: string | number;
   lineClamp?: number;
   content: string;
-  placement:
+  placement?:
     | 'top'
     | 'top-start'
     | 'top-end'
@@ -35,7 +35,7 @@ interface Props extends Partial<ElTooltipProps> {
     | 'right'
     | 'right-start'
     | 'right-end';
-  effect: 'light' | 'dark';
+  effect?: 'light' | 'dark';
 }
 
 const props = withDefaults(defineProps<Props>(), {
