@@ -60,9 +60,9 @@ const handleTabClick = (tab: any) => {
 
 // // 获取当前组件实例，用于暴露对话框方法
 const vm: any = getCurrentInstance();
-function changeRef(dialogInstance: any) {
-  // 将对话框实例挂载到组件实例上，便于父组件调用
-  vm.exposeProxy = vm.exposed = dialogInstance || {};
+function changeRef(instance: any) {
+  // 将组件实例挂载到组件实例上，便于父组件调用
+  vm.exposeProxy = vm.exposed = instance || {};
 }
 </script>
 <script lang="ts">
