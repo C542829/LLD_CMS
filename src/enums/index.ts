@@ -27,13 +27,27 @@ export const commissionOptions = [
 /**
  * 会员等级
  */
+export enum VipLevel {
+  Normal = 0,
+  Silver = 1,
+  Gold = 2,
+  Platinum = 3,
+  Diamond = 4,
+}
+/**
+ * 会员等级
+ */
 export const vipLevelOptions = [
-  { value: '普通会员', label: '普通会员' },
-  { value: '白银会员', label: '白银会员' },
-  { value: '黄金会员', label: '黄金会员' },
-  { value: '铂金会员', label: '铂金会员' },
-  { value: '钻石会员', label: '钻石会员' },
+  { value: VipLevel.Normal, label: '普通会员' },
+  { value: VipLevel.Silver, label: '白银会员' },
+  { value: VipLevel.Gold, label: '黄金会员' },
+  { value: VipLevel.Platinum, label: '铂金会员' },
+  { value: VipLevel.Diamond, label: '钻石会员' },
 ];
+/**
+ * 会员等级映射
+ */
+export const vipLevelMap = new Map(vipLevelOptions.map((item) => [item.value, item.label]));
 // #endregion 会员等级
 
 // #region 性别
@@ -117,12 +131,26 @@ export const activityTypeOptions = [
 
 // #region 折扣类型
 /**
+ * 折扣类型枚举
+ */
+export enum DiscountType {
+  Standard = 0, // 标准价
+  Member = 1, // 会员价
+}
+/**
  * 折扣类型
  */
 export const discountTypeOptions = [
-  { value: 0, label: '标准价' },
-  { value: 1, label: '会员价' },
+  { value: DiscountType.Standard, label: '标准价' },
+  { value: DiscountType.Member, label: '会员价' },
 ];
+/**
+ * 折扣类型映射
+ */
+export const discountTypeMap = {
+  [DiscountType.Standard]: '标准价',
+  [DiscountType.Member]: '会员价',
+};
 // #endregion 折扣类型
 
 // #region 优惠券类型

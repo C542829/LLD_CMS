@@ -20,6 +20,7 @@ import { reqServiceItemList } from '@/api/setGroup/serviceItem/index';
 import { reqPackageList } from '@/api/setGroup/package/index';
 import { reqBedListAll } from '@/api/setGroup/room/index';
 import { reqTreatmentCouponList } from '@/api/setGroup/treatmentCoupon/index';
+import { reqList as reqOrgList } from '@/api/acl/org/index';
 
 import { parseResList, parseResMsg, parseResObj } from '@/utils/parseResponse';
 
@@ -321,6 +322,28 @@ export const useDataEnumStore = defineStore('DataEnum', () => {
     treatmentCouponList.value = data;
   };
 
+  // 门店列表
+  const orgList: any = ref([]);
+  /**
+   * 获取门店列表
+   * @param refresh 是否刷新
+   * @param params 请求参数
+   * @returns 门店列表
+   */
+  const getOrgList = async (refresh = false, params = {}) => {
+    if (!orgList.value.length || refresh) {
+      await setOrgList(params);
+      return orgList.value;
+    } else {
+      return orgList.value;
+    }
+  };
+  const setOrgList = async (params: any) => {
+    const res = await reqOrgList(params);
+    const data = parseResList(res);
+    orgList.value = data;
+  };
+
   return {
     // 员工相关
     staffList,
@@ -359,6 +382,11 @@ export const useDataEnumStore = defineStore('DataEnum', () => {
     treatmentCouponList,
     setTreatmentCouponList,
     getTreatmentCouponList,
+
+    // 门店相关
+    orgList,
+    setOrgList,
+    getOrgList,
   };
 });
 
