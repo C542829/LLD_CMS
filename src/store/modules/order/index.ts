@@ -1,6 +1,6 @@
 import { cloneDeep } from 'lodash';
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import {
   reqOrderInfo,
   reqAddOrder,
@@ -20,7 +20,15 @@ import { useSettingStore } from '@/store/modules/acl/setting';
 export const useOrderStore = defineStore('Order', () => {
   // #region 状态管理
   const settingStore = useSettingStore();
-
+  const member: any = ref({});
+  // 应付金额
+  const payAmount: any = computed(() => {
+    let amount = 0;
+    orderForm.value.orderDetails.forEach((item: any) => {
+      amount += item.truePrice * item.quantity;
+    });
+    return amount;
+  });
   /**
    * 订单表单数据
    */
@@ -198,6 +206,16 @@ export const useOrderStore = defineStore('Order', () => {
   };
   // #endregion
 
+  /**
+   * 重置订单状态
+   */
+  const reset = () => {
+    resetOrderForm();
+    resetDetailForm();
+    member.value = {};
+    payAmount.value = 0;
+  };
+
   // #region 导出状态和方法
   return {
     // 订单表单状态
@@ -210,6 +228,12 @@ export const useOrderStore = defineStore('Order', () => {
     resetDetailForm,
     addOrderDetail,
     updateOrderDetail,
+
+    // 会员状态
+    member,
+    // 应付金额
+    payAmount,
+    reset,
   };
   // #endregion
 });

@@ -59,7 +59,7 @@
             <TreatmentCouponList />
           </el-tab-pane>
         </el-tabs>
-        <VipCard v-show="tabSwitch === 1" />
+        <MemberInfo v-show="tabSwitch === 1" />
       </div>
     </div>
     <div class="main-item"></div>
@@ -70,9 +70,9 @@
 import SearchMember from '@/components/Input/SearchMember.vue';
 import ProductList from './components/ProductList.vue';
 import TreatmentCouponList from './components/TreatmentCouponList.vue';
-import VipCard from './components/VipCard.vue';
+import MemberInfo from './components/MemberInfo.vue';
 
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, onUnmounted } from 'vue';
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useMemberStore } from '@/store/modules/member/member';
 import { useRechargeStore } from '@/store/modules/member/recharge';
@@ -107,9 +107,15 @@ const handleSelect = (item: Record<string, any>) => {
   orderStore.orderForm.vipName = item.name;
   orderStore.orderForm.vipPhoneNumber = item.phoneNumber;
   orderStore.orderForm.vipCardNumber = item.cardNumber;
+  orderStore.member = item;
+  tabSwitch.value = 1;
 };
 
 const tabSwitch = ref(0);
+
+onUnmounted(() => {
+  orderStore.reset();
+});
 </script>
 
 <style scoped lang="scss">
