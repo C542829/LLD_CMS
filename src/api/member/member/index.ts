@@ -6,6 +6,7 @@ enum API {
   INFO_URL = '/vip/query-info',
   ADD_URL = '/vip/add-vip',
   UPDATE_URL = '/vip/update-vip',
+  ASSET_URL = '/vip/count/query-asset/{vipId}',
 }
 
 /**
@@ -35,3 +36,10 @@ export const reqAddVip = (data = {}) => post(API.ADD_URL, data);
  * @returns 更新结果
  */
 export const reqUpdateVip = (data = {}) => put(API.UPDATE_URL, data);
+
+/**
+ * 获取会员资产
+ * @param vipId 会员id
+ * @returns 会员资产
+ */
+export const reqVipAsset = (vipId: number) => get(API.ASSET_URL.replace('{vipId}', vipId.toString()));
