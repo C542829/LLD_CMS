@@ -10,7 +10,13 @@
         <div class="search-item">
           <label>
             提成规则状态：
-            <el-select v-model="store.searchParams.status" @change="search" style="width: 120px">
+            <el-select
+              v-model="store.searchParams.status"
+              @change="search"
+              @clear="search"
+              clearable
+              style="width: 120px"
+            >
               <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </label>
@@ -48,7 +54,7 @@
         <el-table-column prop="rechargePrice" label="充值金额" :formatter="amountFormatter" min-width="50" />
         <el-table-column label="提成类型" min-width="60">
           <template #default="{ row }">
-            {{ row.commissionType === 1 ? '固定金额' : '比例提成' }}
+            {{ commissionTypeMap[row.commissionType as CommissionType] }}
           </template>
         </el-table-column>
         <el-table-column label="提成值" min-width="50">
@@ -85,7 +91,7 @@ import RechargeCommissionRulesForm from './form.vue';
 import { amountFormatter, dateFormatter } from '@/utils/formatter';
 
 // 导入枚举数据
-import { statusOptions } from '@/enums/index';
+import { statusOptions, commissionTypeMap, CommissionType } from '@/enums/index';
 
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
