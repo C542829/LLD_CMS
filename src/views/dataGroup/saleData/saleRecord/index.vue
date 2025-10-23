@@ -4,7 +4,7 @@
     <Card class="operation-card">
       <!-- 第一行 -->
       <div class="search-container">
-        <div class="search-item" v-if="false">
+        <!-- <div class="search-item" v-if="false">
           <label for="staffStatus">选择店铺：</label>
           <el-select v-model="store.searchParams.storeId" id="staffStatus" style="width: 120px" placeholder="选择店铺">
             <el-option
@@ -14,7 +14,7 @@
               :value="item.value"
             />
           </el-select>
-        </div>
+        </div> -->
         <div class="search-item">
           <label>
             开单时段：
