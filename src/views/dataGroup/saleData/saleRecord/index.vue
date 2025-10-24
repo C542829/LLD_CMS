@@ -30,13 +30,8 @@
             placeholder="选择收银员"
             style="width: 120px"
           >
-            <el-option label="未指定" value = null />
-            <el-option
-              v-for="item in staffList"
-              :key="item.id"
-              :label="item.userName"
-              :value="item.id"
-            />
+            <el-option label="未指定" value="null" />
+            <el-option v-for="item in staffList" :key="item.id" :label="item.userName" :value="item.id" />
           </el-select>
         </div>
         <div class="search-item">
@@ -62,12 +57,7 @@
             placeholder="选择支付类型"
             style="width: 130px"
           >
-            <el-option
-              v-for="item in paymentTypeOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
+            <el-option v-for="item in paymentTypeOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </div>
         <div class="search-item">
@@ -127,7 +117,7 @@
         <el-table-column label="优惠金额" min-width="60">
           <template #default="scope">￥{{ scope.row.discountAmount }}</template>
         </el-table-column>
-        <el-table-column label="付款方式" min-width="100" >
+        <el-table-column label="付款方式" min-width="100">
           <template #default="scope">
             <p v-for="item in scope.row.payments" :key="item.paymentType">
               {{ item.paymentName }}：￥{{ item.totalAmount }}
