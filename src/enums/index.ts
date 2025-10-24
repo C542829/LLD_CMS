@@ -316,3 +316,36 @@ export const ServiceTypeOptions = [
   { value: ServiceType.Round, label: '轮牌' },
 ];
 // #endregion 服务类型
+
+// #region 订单状态
+/**
+ * 订单状态枚举
+ */
+export enum OrderStatus {
+  UNSETTLED = 1, // 未结算
+  SETTLED = 2, // 已结算
+  CANCELLED = 3, // 已取消
+  ROLLBACK = 4, // 已冲正
+}
+
+/**
+ * 订单状态映射
+ */
+export const OrderStatusMap = {
+  [OrderStatus.UNSETTLED]: '未结算',
+  [OrderStatus.SETTLED]: '已结算',
+  [OrderStatus.CANCELLED]: '已取消',
+  [OrderStatus.ROLLBACK]: '已冲正',
+};
+
+/**
+ * 订单状态选项
+ */
+export const orderStatusOptions = [
+  { value: '', label: '全部状态' },
+  { value: OrderStatus.UNSETTLED, label: '未结算' },
+  { value: OrderStatus.SETTLED, label: '已结算' },
+  { value: OrderStatus.CANCELLED, label: '已取消' },
+  { value: OrderStatus.ROLLBACK, label: '已冲正' },
+];
+// #endregion 订单状态

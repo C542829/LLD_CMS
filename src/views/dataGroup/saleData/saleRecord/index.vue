@@ -49,11 +49,13 @@
       <div class="search-container">
         <div class="search-item">
           <label for="orderStatus">订单状态：</label>
-          <el-select v-model="store.searchParams.orderStatus" clearable id="orderStatus" style="width: 120px">
-            <el-option key="所有" label="所有" :value="2" />
-            <el-option key="已结账" label="已结账" :value="0" />
-            <el-option key="已取消" label="已取消" :value="1" />
-            <el-option key="已冲正" label="已冲正" :value="2" />
+          <el-select v-model="store.searchParams.status" clearable id="orderStatus" style="width: 120px">
+            <el-option
+              v-for="item in orderStatusOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
           </el-select>
         </div>
         <div class="search-item">
@@ -109,20 +111,20 @@
         @pagination-current-change="handleCurrentChange"
       >
         <el-table-column type="index" label="序号" width="60" />
-        <el-table-column prop="tradeTime" label="开单日期" width="105" :formatter="dateFormatter" />
-        <el-table-column prop="createTime" label="开单时间" width="85" :formatter="timeFormatter" />
-        <el-table-column prop="updateTime" label="结算时间" width="85" :formatter="timeFormatter" />
-        <el-table-column prop="salesNo" label="销售单号" min-width="100" />
+        <el-table-column prop="orderTime" label="开单日期" width="105" :formatter="dateFormatter" />
+        <el-table-column prop="orderTime" label="开单时间" width="85" :formatter="timeFormatter" />
+        <el-table-column prop="settleTime" label="结算时间" width="85" :formatter="timeFormatter" />
+        <el-table-column prop="orderCode" label="销售单号" min-width="100" />
         <el-table-column label="顾客信息" width="160">
           <template #default="scope">
-            <p>姓名：{{ scope.row.memName }}</p>
-            <p>卡号：{{ scope.row.memCode }}</p>
-            <p>电话：{{ scope.row.cellPhoneNo }}</p>
+            <p>姓名：{{ scope.row.customerName }}</p>
+            <p>卡号：{{ scope.row.vipCardNumber }}</p>
+            <p>电话：{{ scope.row.vipPhoneNumber }}</p>
             <p>余额：{{ scope.row.afterBalance }}元</p>
           </template>
         </el-table-column>
         <el-table-column label="应收金额" min-width="60">
-          <template #default="scope">￥{{ scope.row.shouldAmount }}</template>
+          <template #default="scope">￥{{ scope.row.totalAmount }}</template>
         </el-table-column>
         <el-table-column label="实收金额" min-width="80">
           <template #default="scope">实收：￥{{ scope.row.actualAmount }}</template>
@@ -135,8 +137,8 @@
         </el-table-column>
         <el-table-column label="状态" min-width="80">
           <template #default="scope">
-            <p>状态：{{ scope.row.orderStatus }}</p>
-            <p>收银：{{ scope.row.settleUserName }}</p>
+            <p>状态：{{ getOrderStatusText(scope.row.orderStatus) }}</p>
+            <p>收银：{{ scope.row.userName }}</p>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="115">
@@ -164,6 +166,7 @@
 <script setup lang="ts">
 import { reactive, inject, onMounted } from 'vue';
 import { dateFormatter, timeFormatter } from '@/utils/formatter';
+import { OrderStatusMap, orderStatusOptions } from '@/enums';
 import OrderDetail from './OrderDetail.vue';
 import OrderModify from './OrderModify.vue';
 
@@ -175,6 +178,11 @@ const store = useSaleStore();
 
 // 引入消息弹框
 const MessageBox: any = inject('$MessageBox');
+
+// 订单状态转换函数
+const getOrderStatusText = (status: number) => {
+  return OrderStatusMap[status] || '未知状态';
+};
 
 // 初始化
 onMounted(() => {
