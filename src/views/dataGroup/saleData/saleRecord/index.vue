@@ -8,7 +8,7 @@
           <label for="staffStatus">选择店铺：</label>
           <el-select v-model="store.searchParams.storeId" id="staffStatus" style="width: 120px" placeholder="选择店铺">
             <el-option
-              v-for="item in [{ value: 1, label: '' }]"
+              v-for="item in paymentTypeOptions"
               :key="item.value"
               :label="item.label"
               :value="item.value"
@@ -24,18 +24,18 @@
         <div class="search-item">
           <label for="saleStaff">收银员：</label>
           <el-select
-            v-model="store.searchParams.saleStaff"
+            v-model="store.searchParams.userId"
             clearable
             id="saleStaff"
             placeholder="选择收银员"
             style="width: 120px"
           >
-            <el-option label="未指定" value="0" />
+            <el-option label="未指定" value = null />
             <el-option
-              v-for="item in [{ value: 1, label: '' }]"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+              v-for="item in staffList"
+              :key="item.id"
+              :label="item.userName"
+              :value="item.id"
             />
           </el-select>
         </div>
@@ -50,25 +50,20 @@
         <div class="search-item">
           <label for="orderStatus">订单状态：</label>
           <el-select v-model="store.searchParams.status" clearable id="orderStatus" style="width: 120px">
-            <el-option
-              v-for="item in orderStatusOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
+            <el-option v-for="item in orderStatusOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </div>
         <div class="search-item">
           <label for="payType">支付类型：</label>
           <el-select
-            v-model="store.searchParams.storeId"
+            v-model="store.searchParams.paymentType"
             clearable
             id="payType"
             placeholder="选择支付类型"
             style="width: 130px"
           >
             <el-option
-              v-for="item in [{ value: 1, label: '' }]"
+              v-for="item in paymentTypeOptions"
               :key="item.value"
               :label="item.label"
               :value="item.value"
@@ -79,7 +74,7 @@
           <label for="memberInfo">会员信息：</label>
           <div>
             <el-input
-              v-model="store.searchParams.inputValue"
+              v-model="store.searchParams.vipInfoFiled"
               id="memberInfo"
               placeholder="会员卡号 | 手机号"
               clearable
@@ -89,7 +84,7 @@
         <div class="search-item">
           <label for="orderID">订单号：</label>
           <div>
-            <el-input v-model="store.searchParams.orderID" id="orderID" placeholder="请输入销售单号" clearable />
+            <el-input v-model="store.searchParams.orderCode" id="orderID" placeholder="请输入销售单号" clearable />
           </div>
         </div>
         <div class="search-item">
@@ -132,8 +127,12 @@
         <el-table-column label="优惠金额" min-width="60">
           <template #default="scope">￥{{ scope.row.discountAmount }}</template>
         </el-table-column>
-        <el-table-column label="付款方式" min-width="100">
-          <template #default="scope">会员卡：￥{{ scope.row.memberCardPay }}</template>
+        <el-table-column label="付款方式" min-width="100" >
+          <template #default="scope">
+            <p v-for="item in scope.row.payments" :key="item.paymentType">
+              {{ item.paymentName }}：￥{{ item.totalAmount }}
+            </p>
+          </template>
         </el-table-column>
         <el-table-column label="状态" min-width="80">
           <template #default="scope">
@@ -164,17 +163,22 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, inject, onMounted } from 'vue';
+import { reactive, inject, onMounted, ref } from 'vue';
 import { dateFormatter, timeFormatter } from '@/utils/formatter';
-import { OrderStatusMap, orderStatusOptions } from '@/enums';
+import { OrderStatusMap, orderStatusOptions, paymentTypeOptions } from '@/enums';
 import OrderDetail from './OrderDetail.vue';
 import OrderModify from './OrderModify.vue';
 
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useSaleStore } from '@/store/modules/dataGroup/saleData';
+import { useDataEnumStore } from '@/store/modules/enums';
 const settingStore = useSettingStore();
 const store = useSaleStore();
+const dataEnumStore = useDataEnumStore();
+
+// 收银员列表
+const staffList = ref([]);
 
 // 引入消息弹框
 const MessageBox: any = inject('$MessageBox');
@@ -185,7 +189,9 @@ const getOrderStatusText = (status: number) => {
 };
 
 // 初始化
-onMounted(() => {
+onMounted(async () => {
+  // 获取收银员列表
+  staffList.value = await dataEnumStore.getStaffList();
   store.setSaleRecord();
 });
 

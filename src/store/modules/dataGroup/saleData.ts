@@ -22,7 +22,7 @@ export const useSaleStore = defineStore('SaleData', () => {
 
     const params = { ...searchParams.value };
     const res = await reqSaleRecord(params);
-    let data: any = parseResObj(res, '获取销售记录失败') || [];
+    let data: any = parseResObj(res, '获取销售记录成功') || [];
     console.log(data);
 
     saleRecord.total = data.total;
