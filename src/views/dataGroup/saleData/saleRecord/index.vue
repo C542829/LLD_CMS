@@ -145,7 +145,7 @@
   </div>
 
   <Drawer v-model="drawer.visible" :title="drawer.title">
-    <OrderDetail />
+    <OrderDetail :orderData="drawer.orderData" />
   </Drawer>
   <el-dialog v-model="dialog.visible" :title="dialog.title" width="60%">
     <OrderModify />
@@ -218,14 +218,15 @@ const printReceipt = (row: any) => {
 const drawer: any = reactive({
   title: '销售明细',
   visible: false,
+  orderData: null, // 存储当前选中的订单数据
 });
 
 const showDrawer = (row: any) => {
   // 显示模态框
   drawer.visible = true;
-
-  // 表单数据回显
-  // store = row;
+  
+  // 传递订单数据
+  drawer.orderData = row;
 };
 
 // 模态框
