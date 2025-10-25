@@ -48,7 +48,7 @@
         <span>消费资产明细：</span>
         <div class="asset-tag">
           <el-tag v-for="(item, index) in order.payments" :key="index">
-            <span>{{ item.assetCode }}: ￥{{ item.totalAmount }} </span>
+            <span>{{ item.assetCode }}: ￥{{ item.totalAmount }}</span>
           </el-tag>
         </div>
       </div>
@@ -74,9 +74,12 @@
       </el-table-column>
       <el-table-column prop="userName" label="技师/销售" min-width="120">
         <template #default="scope">
-          <div>{{ scope.row.userName }}
-          <span v-if="scope.row.detailType === 1" class="tag" :style="{ color: scope.row.tagColor }">[{{ ServiceTypeMap[scope.row.serverType] || scope.row.serverType }}]</span>
-        </div>
+          <div>
+            {{ scope.row.userName }}
+            <span v-if="scope.row.detailType === 1" class="tag" :style="{ color: scope.row.tagColor }">
+              [{{ ServiceTypeMap[scope.row.serverType] || scope.row.serverType }}]
+            </span>
+          </div>
         </template>
       </el-table-column>
     </el-table>
@@ -211,7 +214,7 @@ watch(
       getOrgDetail(newOrgId);
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 // 组件挂载时获取门店详情

@@ -30,9 +30,28 @@ export const useSaleStore = defineStore('SaleData', () => {
     settingStore.loading = false;
   };
 
+  const saleSummary = reactive({
+    total: 0,
+    data: [],
+  });
+  const setSaleSummary = async () => {
+    settingStore.loading = true;
+
+    const params = { ...searchParams.value };
+    const res = await reqSaleSummary(params);
+    let data: any = parseResList(res, '获取销售汇总成功') || [];
+    console.log(data);
+
+    saleSummary.data = data;
+    settingStore.loading = false;
+  };
+  
+
   return {
     searchParams,
     saleRecord,
+    saleSummary,
     setSaleRecord,
+    setSaleSummary,
   };
 });
