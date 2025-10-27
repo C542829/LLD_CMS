@@ -45,7 +45,23 @@ export const useSaleStore = defineStore('SaleData', () => {
     saleSummary.data = data;
     settingStore.loading = false;
   };
-  
+
+  const saleDetail = reactive({
+    total: 0,
+    data: [],
+  });
+  const setSaleDetail = async () => {
+    settingStore.loading = true;
+
+    const params = { ...searchParams.value };
+    const res = await reqSaleDetail(params);
+    let data: any = parseResObj(res, '获取销售详情成功') || {};
+    console.log(data);
+
+    saleDetail.total = data.total;
+    saleDetail.data = data.rows;
+    settingStore.loading = false;
+  };
 
   return {
     searchParams,
@@ -53,5 +69,7 @@ export const useSaleStore = defineStore('SaleData', () => {
     saleSummary,
     setSaleRecord,
     setSaleSummary,
+    saleDetail,
+    setSaleDetail,
   };
 });

@@ -30,7 +30,7 @@
             placeholder="选择收银员"
             style="width: 120px"
           >
-            <el-option label="未指定" value="null" />
+            <el-option label="未指定" value= null />
             <el-option v-for="item in staffList" :key="item.id" :label="item.userName" :value="item.id" />
           </el-select>
         </div>
@@ -90,7 +90,7 @@
         :element-loading-text="settingStore.loadingMsg"
         :data="store.saleRecord.data"
         :total="store.saleRecord.total"
-        v-model:currentPage="store.searchParams.currentPage"
+        v-model:pageNum="store.searchParams.pageNum"
         v-model:pageSize="store.searchParams.pageSize"
         @size-change="handleSizeChange"
         @pagination-current-change="handleCurrentChange"
@@ -197,7 +197,7 @@ const handleSizeChange = (val: number) => {
 };
 
 const handleCurrentChange = (val: number) => {
-  store.searchParams.currentPage = val;
+  store.searchParams.pageNum = val;
   store.setSaleRecord();
 };
 

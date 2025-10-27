@@ -72,33 +72,34 @@
       <PaginationTable
         v-loading="settingStore.loading"
         :element-loading-text="settingStore.loadingMsg"
-        :data="store.saleRecord.data"
-        :total="store.saleRecord.total"
-        v-model:currentPage="store.searchParams.currentPage"
+        :data="store.saleDetail.data"
+        :total="store.saleDetail.total"
+        v-model:currentPage="store.searchParams.pageNum"
         v-model:pageSize="store.searchParams.pageSize"
         @size-change="handleSizeChange"
         @pagination-current-change="handleCurrentChange"
       >
         <el-table-column type="index" label="序号" width="60" />
-        <el-table-column prop="salesNo" label="订单编号" />
+        <el-table-column prop="orderCode" label="订单编号" />
+        <el-table-column prop="detailCode" label="明细编号" />
         <el-table-column label="名称/标准价">
           <template #default="scope">
-            <p>{{ scope.row.memName }}</p>
-            <p>标准价：{{ scope.row.memCode }}</p>
+            <p>{{ scope.row.businessName }}</p>
+            <p>标准价：{{ scope.row.stdPrice }}</p>
           </template>
         </el-table-column>
 
         <el-table-column label="实收单价/销售数量">
           <template #default="scope">
-            <p>实收单价：{{ scope.row.memName }}</p>
-            <p>销售数量：{{ scope.row.memCode }}</p>
+            <p>实收单价：{{ scope.row.truePrice }}</p>
+            <p>销售数量：{{ scope.row.quantity }}</p>
           </template>
         </el-table-column>
 
         <el-table-column label="技师/销售">
           <template #default="scope">
-            技师：{{ scope.row.memName }}({{ scope.row.memName }})
-            <el-text type="primary" style="font-weight: bold">[{{ scope.row.memName }}]</el-text>
+            技师：{{ scope.row.userId }}({{ scope.row.userName }})
+            <el-text type="primary" style="font-weight: bold">[{{ scope.row.serverType }}]</el-text>
           </template>
         </el-table-column>
         <el-table-column prop="tradeTime" label="结算时间" :formatter="datetimeFormatter" />
@@ -129,23 +130,23 @@ const store = useSaleStore();
 
 // 初始化
 onMounted(() => {
-  store.setSaleRecord();
+  store.setSaleDetail();
 });
 
 // 搜索
 const search = () => {
-  store.setSaleRecord();
+  store.setSaleDetail();
 };
 
 // 处理分页变化
 const handleSizeChange = (val: number) => {
   store.searchParams.pageSize = val;
-  store.setSaleRecord();
+  store.setSaleDetail();
 };
 
 const handleCurrentChange = (val: number) => {
-  store.searchParams.currentPage = val;
-  store.setSaleRecord();
+  store.searchParams.pageNum = val;
+  store.setSaleDetail();
 };
 
 // 模态框

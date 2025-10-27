@@ -2,7 +2,7 @@ import { get, post, put, del } from '@/utils/request';
 
 enum API {
   SALE_RECORD = '/order/page',
-  SALE_DETAIL = '',
+  SALE_DETAIL = '/order/detail/page',
   SALE_SUMMARY = '/order/summary',
 }
 
