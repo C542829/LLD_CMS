@@ -30,7 +30,7 @@
             placeholder="选择收银员"
             style="width: 120px"
           >
-            <el-option label="未指定" value= null />
+            <el-option label="未指定" value="null" />
             <el-option v-for="item in staffList" :key="item.id" :label="item.userName" :value="item.id" />
           </el-select>
         </div>

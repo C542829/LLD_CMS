@@ -29,6 +29,8 @@ export enum Enums {
   UNIT = 'unit',
   POSITION = 'position',
   DEPARTMENT = 'department',
+  PERF_TYPE = 'item_type',
+  SERVICE_TYPE = 'service_type',
 }
 
 import { useSettingStore } from '@/store/modules/acl/setting';
@@ -137,10 +139,28 @@ export const useEnumStore = defineStore('Enum', () => {
     return await getEnumItemList(Enums.DEPARTMENT);
   };
 
+  /**
+   * 获取上钟类型列表
+   * @returns 上钟类型列表
+   */
+  const getPerfTypeList = async () => {
+    return await getEnumItemList(Enums.PERF_TYPE);
+  };
+
+  /**
+   * 获取服务类型列表
+   * @returns 服务类型列表
+   */
+  const getServiceTypeList = async () => {
+    return await getEnumItemList(Enums.SERVICE_TYPE);
+  };
+
   return {
     getDeptList,
     getUnits,
     getPositionList,
+    getPerfTypeList,
+    getServiceTypeList,
     getEnumItemList,
 
     search,

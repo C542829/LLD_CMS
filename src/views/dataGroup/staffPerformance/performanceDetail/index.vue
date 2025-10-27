@@ -63,7 +63,7 @@
         <div class="search-item">
           <label>
             提成技师：
-            <el-select v-model="store.searchParams.saleStaff" clearable placeholder="选择技师" style="width: 120px">
+            <el-select v-model="store.searchParams.userId" clearable placeholder="选择技师" style="width: 120px">
               <el-option label="全部" value="0" />
               <el-option
                 v-for="item in [{ value: 1, label: '' }]"
@@ -87,26 +87,34 @@
         :element-loading-text="settingStore.loadingMsg"
         :data="store.performanceRecord.data"
         :total="store.performanceRecord.total"
-        v-model:currentPage="store.searchParams.currentPage"
+        v-model:currentPage="store.searchParams.pageNum"
         v-model:pageSize="store.searchParams.pageSize"
         @size-change="handleSizeChange"
         @pagination-current-change="handleCurrentChange"
         show-summary
       >
         <el-table-column type="index" label="序号" width="60" />
-        <el-table-column prop="recDate" label="业绩日期" :formatter="dateFormatter" />
-        <el-table-column label="订单编号" width="150">
+        <el-table-column prop="createTime" label="业绩日期" :formatter="dateFormatter" />
+        <el-table-column label="订单编号" width="200">
           <template #default="scope">
-            {{ scope.row.busNo }}
+            {{ scope.row.serviceCode }}
           </template>
         </el-table-column>
-        <el-table-column prop="itemName" label="项目/产品/疗程名称" width="155" />
-        <el-table-column prop="serviceType" label="类型" />
-        <el-table-column prop="perfType" label="上钟类型" />
-        <el-table-column prop="itemNum" label="数量" />
-        <el-table-column prop="staffId" label="提成技师" />
-        <el-table-column prop="perfAmount" label="业绩金额" />
-        <el-table-column prop="amount" label="提成金额" />
+        <el-table-column prop="serviceName" label="项目/产品/疗程名称" width="155" />
+        <el-table-column label="类型">
+          <template #default="scope">
+            {{ formatServiceType(scope.row.serviceType) }}
+          </template>
+        </el-table-column> 
+        <el-table-column label="上钟类型">
+          <template #default="scope">
+            {{ formatPerfType(scope.row.itemType) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="quantity" label="数量" />
+        <el-table-column prop="userName" label="提成技师" />
+        <el-table-column prop="performance" label="业绩金额" />
+        <el-table-column prop="commission" label="提成金额" />
         <el-table-column label="操作" width="100">
           <template #default="scope">
             <el-button @click="showDialog(scope.row)" link type="primary">查看原单</el-button>
@@ -122,18 +130,76 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, computed } from 'vue';
 import { dateFormatter } from '@/utils/time';
 import Receipt from './Receipt.vue';
 
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useStaffPerformanceStore } from '@/store/modules/dataGroup/staffPerformance';
+import { useEnumStore } from '@/store/modules/enums/index';
+
 const settingStore = useSettingStore();
 const store = useStaffPerformanceStore();
+const enumStore = useEnumStore();
+
+// 上钟类型字典数据
+const perfTypeList = ref<any[]>([]);
+// 服务类型字典数据
+const serviceTypeList = ref<any[]>([]);
+
+// 获取上钟类型字典数据
+const loadPerfTypeList = async () => {
+  try {
+    perfTypeList.value = await enumStore.getPerfTypeList();
+  } catch (error) {
+    console.error('获取上钟类型字典失败:', error);
+    perfTypeList.value = [];
+  }
+};
+
+// 获取服务类型字典数据
+const loadServiceTypeList = async () => {
+  try {
+    serviceTypeList.value = await enumStore.getServiceTypeList();
+  } catch (error) {
+    console.error('获取服务类型字典失败:', error);
+    serviceTypeList.value = [];
+  }
+};
+
+// 上钟类型映射计算属性
+const perfTypeMap = computed(() => {
+  const map = new Map();
+  perfTypeList.value.forEach((item: any) => {
+    map.set(item.itemValue, item.itemLabel);
+  });
+  return map;
+});
+
+// 服务类型映射计算属性
+const serviceTypeMap = computed(() => {
+  const map = new Map();
+  serviceTypeList.value.forEach((item: any) => {
+    map.set(item.itemValue, item.itemLabel);
+  });
+  return map;
+});
+
+// 格式化上钟类型显示
+const formatPerfType = (perfType: any) => {
+  return perfTypeMap.value.get(String(perfType)) || perfType || '';
+};
+
+// 格式化服务类型显示
+const formatServiceType = (serviceType: any) => {
+  return serviceTypeMap.value.get(String(serviceType)) || serviceType || '';
+};
 
 // 初始化
 onMounted(() => {
+  loadPerfTypeList();
+  loadServiceTypeList();
   store.setPerformanceRecord();
 });
 
@@ -149,7 +215,7 @@ const handleSizeChange = (val: number) => {
 };
 
 const handleCurrentChange = (val: number) => {
-  store.searchParams.currentPage = val;
+  store.searchParams.pageNum = val;
   store.setPerformanceRecord();
 };
 

@@ -1,7 +1,7 @@
 import { get, post, put, del } from '@/utils/request';
 
 enum API {
-  PERFORMANCE_RECORD = '',
+  PERFORMANCE_RECORD = '/kpi/list',
   PERFORMANCE_SUMMARY = '',
 }
 
