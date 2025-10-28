@@ -7,6 +7,7 @@ enum API {
   Settle_URL = '/order/settle-order/{orderId}',
   DELETE_DETAIL_URL = '/order/delete-detail/{detailId}',
   CANCEL_ORDER_URL = '/order/cancel-order/{orderId}',
+  QUERY_ORDER_URL = '/order/query-by-order-code/{orderCode}',
 }
 
 export const reqOrderInfo = (orderId: number) => get(API.INFO_URL, { orderId });
@@ -18,3 +19,4 @@ export const reqSettleOrder = (orderId: number, data = {}) =>
 export const reqDeleteOrderDetail = (detailId: number) =>
   del(API.DELETE_DETAIL_URL.replace('{detailId}', detailId.toString()));
 export const reqCancelOrder = (orderId: number) => put(API.CANCEL_ORDER_URL.replace('{orderId}', orderId.toString()));
+export const reqQueryOrder = (orderCode: string) => get(API.QUERY_ORDER_URL.replace('{orderCode}', orderCode));

@@ -27,7 +27,7 @@
 
       <!-- 第二行 -->
       <div class="search-container">
-        <div class="search-item">
+        <!-- <div class="search-item">
           <label>
             选择部门：
             <el-select v-model="store.searchParams.saleStaff" clearable placeholder="选择部门" style="width: 120px">
@@ -40,12 +40,12 @@
               />
             </el-select>
           </label>
-        </div>
+        </div> -->
         <div class="search-item">
           <label>
             产品/项目：
             <el-select
-              v-model="store.searchParams.saleStaff"
+              v-model="store.searchParams.orderCode"
               clearable
               placeholder="选择产品/项目"
               style="width: 140px"
@@ -63,13 +63,18 @@
         <div class="search-item">
           <label>
             提成技师：
-            <el-select v-model="store.searchParams.userId" clearable placeholder="选择技师" style="width: 120px">
-              <el-option label="全部" value="0" />
+            <el-select
+              v-model="store.searchParams.username"
+              placeholder="请选择技师"
+              clearable
+              filterable
+              style="width: 200px"
+            >
               <el-option
-                v-for="item in [{ value: 1, label: '' }]"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+                v-for="item in staffList"
+                :key="item.userId"
+                :label="item.userName"
+                :value="item.userName"
               />
             </el-select>
           </label>
@@ -97,7 +102,7 @@
         <el-table-column prop="createTime" label="业绩日期" :formatter="dateFormatter" />
         <el-table-column label="订单编号" width="200">
           <template #default="scope">
-            {{ scope.row.serviceCode }}
+            {{ scope.row.orderCode }}
           </template>
         </el-table-column>
         <el-table-column prop="serviceName" label="项目/产品/疗程名称" width="155" />
@@ -105,7 +110,7 @@
           <template #default="scope">
             {{ formatServiceType(scope.row.serviceType) }}
           </template>
-        </el-table-column> 
+        </el-table-column>
         <el-table-column label="上钟类型">
           <template #default="scope">
             {{ formatPerfType(scope.row.itemType) }}
@@ -124,24 +129,25 @@
     </Card>
   </div>
 
-  <el-dialog v-model="dialog.visible" title="收银单据">
-    <Receipt :receipt="receiptInfo" />
+  <el-dialog v-model="dialog.visible" title="收银单据" width="800px">
+    <Receipt :receiptInfo="receiptInfo" />
   </el-dialog>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue';
+import { ElMessage } from 'element-plus';
 import { dateFormatter } from '@/utils/time';
 import Receipt from './Receipt.vue';
 
-// 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useStaffPerformanceStore } from '@/store/modules/dataGroup/staffPerformance';
-import { useEnumStore } from '@/store/modules/enums/index';
+import { useEnumStore, useDataEnumStore } from '@/store/modules/enums/index';
 
 const settingStore = useSettingStore();
 const store = useStaffPerformanceStore();
 const enumStore = useEnumStore();
+const dataEnumStore = useDataEnumStore();
 
 // 上钟类型字典数据
 const perfTypeList = ref<any[]>([]);
@@ -165,6 +171,16 @@ const loadServiceTypeList = async () => {
   } catch (error) {
     console.error('获取服务类型字典失败:', error);
     serviceTypeList.value = [];
+  }
+};
+
+// 技师列表
+const staffList: any = ref([]);
+const loadStaffList = async () => {
+  try {
+    staffList.value = await dataEnumStore.getStaffList();
+  } catch (error) {
+    console.error('加载技师列表失败:', error);
   }
 };
 
@@ -200,6 +216,7 @@ const formatServiceType = (serviceType: any) => {
 onMounted(() => {
   loadPerfTypeList();
   loadServiceTypeList();
+  loadStaffList();
   store.setPerformanceRecord();
 });
 
@@ -227,9 +244,25 @@ const dialog: any = reactive({
 
 const receiptInfo: any = ref({});
 
-const showDialog = (row: any) => {
-  receiptInfo.value = row;
-  dialog.visible = true;
+const showDialog = async (row: any) => {
+  if (row.serviceType === 3 ){
+    ElMessage.info('充值订单暂不能查看原单');
+    return;
+  }
+
+  try {
+    // 使用store中的方法查询订单详情
+    const orderDetail = await store.queryOrderDetail(row.orderCode);
+    console.log(orderDetail);
+    
+    if (orderDetail) {
+      receiptInfo.value = orderDetail;
+      dialog.visible = true;
+    }
+  } catch (error) {
+    console.error('查看原单失败:', error);
+    // 错误处理已在store中统一处理，这里只需要记录日志
+  }
 };
 </script>
 

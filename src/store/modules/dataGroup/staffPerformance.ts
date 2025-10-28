@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, reactive } from 'vue';
 import { reqPerformanceRecord, reqPerformanceSummary } from '@/api/dataGroup/staffPerformance';
+import { reqQueryOrder } from '@/api/order';
 import { parseResMsg, parseResList, parseResObj } from '@/utils/parseResponse';
 
 import { useSettingStore } from '@/store/modules/acl/setting';
@@ -572,11 +573,29 @@ export const useStaffPerformanceStore = defineStore('StaffPerformance', () => {
     settingStore.loading = false;
   };
 
+  // 查询订单详情
+  const queryOrderDetail = async (orderCode: string) => {
+    try {
+      settingStore.loading = true;
+      
+      const res = await reqQueryOrder(orderCode);
+      const data = parseResObj(res, '查询订单详情成功');
+      
+      return data;
+    } catch (error) {
+      console.error('查询订单详情失败:', error);
+      throw error;
+    } finally {
+      settingStore.loading = false;
+    }
+  };
+
   return {
     searchParams,
     performanceRecord,
     setPerformanceRecord,
     performanceSummary,
     setPerformanceSummary,
+    queryOrderDetail,
   };
 });

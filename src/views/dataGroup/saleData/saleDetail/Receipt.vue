@@ -1,13 +1,21 @@
 <template>
   <div class="dialog-container">
-    <article class="consumption-detail">
+    <article class="consumption-detail" v-if="orderData">
       <div>
-        <span>单据编号: 125070314590016</span>
-        <span>单据日期: 2025-07-03</span>
+        <span>单据编号: {{ orderData.orderCode }}</span>
+        <span>单据日期: {{ orderData.orderTime?.split(' ')[0] }}</span>
       </div>
       <div>
-        <span>会员卡号: N145900813</span>
-        <span>会员姓名: 刘涵</span>
+        <span>会员卡号: {{ orderData.vipCardNumber || '无' }}</span>
+        <span>会员姓名: {{ orderData.vipName || orderData.customerName }}</span>
+      </div>
+      <div>
+        <span>床位: {{ orderData.bedName }}</span>
+        <span>销售员: {{ orderData.userName }}</span>
+      </div>
+      <div>
+        <span>总金额: ¥{{ orderData.totalAmount }}</span>
+        <span>实收金额: ¥{{ orderData.actualAmount }}</span>
       </div>
     </article>
 
@@ -17,13 +25,37 @@
           <template #label>
             <span>项目/产品消费</span>
           </template>
-          <el-table :data="consumptions" :border="true" height="100%" stripe class="table-container">
-            <el-table-column prop="tradeTime" label="项目/产品消费" />
-            <el-table-column prop="actualAmount" label="标准价" />
-            <el-table-column prop="salesNo" label="数量" />
-            <el-table-column prop="orgName" label="金额" />
-            <el-table-column prop="orgName" label="上钟类型" />
-            <el-table-column prop="orgName" label="技师/销售" />
+          <el-table 
+            :data="orderData?.orderDetails || []" 
+            :border="true" 
+            height="100%" 
+            stripe 
+            class="table-container"
+          >
+            <el-table-column prop="businessName" label="项目/产品名称" />
+            <el-table-column prop="stdPrice" label="标准价" :formatter="priceFormatter" />
+            <el-table-column prop="quantity" label="数量" />
+            <el-table-column prop="truePrice" label="实收金额" :formatter="priceFormatter" />
+            <el-table-column label="类型">
+              <template #default="scope">
+                <el-tag :type="getDetailTypeTagType(scope.row.detailType)">
+                  {{ OrderDetailTypeMap[scope.row.detailType] || '未知' }}
+                </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column label="技师/销售">
+              <template #default="scope">
+                {{ scope.row.userName }}
+                <el-text 
+                  v-if="scope.row.detailType === 1 && scope.row.serverType !== null" 
+                  type="primary" 
+                  style="font-weight: bold; margin-left: 8px;"
+                >
+                  [{{ ServiceTypeMap[scope.row.serverType] || scope.row.serverType }}]
+                </el-text>
+              </template>
+            </el-table-column>
+            <el-table-column prop="remark" label="备注" />
           </el-table>
         </el-tab-pane>
         <el-tab-pane>
@@ -31,13 +63,13 @@
             <span>支付明细</span>
           </template>
           <article class="pay-detail">
-            <div>
-              <span>会员卡支付</span>
-              <span>118</span>
+            <div v-for="payment in orderData?.payments || []" :key="payment.id" class="payment-item">
+              <span>{{ payment.paymentName }}</span>
+              <span>¥{{ payment.totalAmount }}</span>
             </div>
-            <div>
-              <span>消费资产明细</span>
-              <el-tag>0005:118元</el-tag>
+            <div v-if="orderData?.vipId" class="balance-info">
+              <span>消费前余额: ¥{{ orderData.beforeBalance }}</span>
+              <span>消费后余额: ¥{{ orderData.afterBalance }}</span>
             </div>
           </article>
         </el-tab-pane>
@@ -47,118 +79,29 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { OrderDetailTypeMap, ServiceTypeMap } from '@/enums';
 
-const consumptions = ref([
-  {
-    id: 23003453,
-    orgId: 1459,
-    salesNo: '125070414590006',
-    tradeTime: '2025-07-04 18:47:09',
-    memberId: 866407,
-    beforeBalance: 583.8,
-    afterBalance: 499.43,
-    beforeUnionBalance: 583.8,
-    afterUnionBalance: 499.43,
-    shouldAmount: 143,
-    actualAmount: 84.37,
-    discountAmount: 58.63,
-    optDiscount: 0,
-    optDisId: 0,
-    totalCost: 0,
-    commissionAmount: 41,
-    cashPay: 0,
-    memberCardPay: 84.37,
-    bankCardPay: 0,
-    wechatPay: 0,
-    aliPay: 0,
-    couponsPay: 0,
-    entityCouponPay: 0,
-    meiTuanPay: 0,
-    kouBeiPay: 0,
-    douYinPay: 0,
-    lianLianPay: 0,
-    otherPay: 0,
-    createrUserId: 46713,
-    settleUserId: 46713,
-    orderStatus: 39,
-    transSettleAmount: 0,
-    transBrandId: 0,
-    signBillStaffId: 0,
-    timesCardInfo: '',
-    createTime: '2025-07-04 18:10:14',
-    updateTime: '2025-07-04 18:47:09',
-    updateUserId: 46713,
-    batchFlag: '',
-    batchNum: 1,
-    shortDate: 250704,
-    onlinePay: 0,
-    onlinePayAmount: 0,
-    payState: 0,
-    receiptCoupon: 0,
-    orgName: '郑州棉纺路店',
-    memName: '杨丹',
-    memCode: '145900499',
-    levelCode: 'N',
-    cellPhoneNo: '15039056751',
-    createUserName: '刘',
-    settleUserName: '刘',
-  },
-  {
-    id: 22846567,
-    orgId: 1459,
-    salesNo: '125062214590011',
-    tradeTime: '2025-06-22 18:13:22',
-    memberId: 866407,
-    beforeBalance: 616.25,
-    afterBalance: 583.8,
-    beforeUnionBalance: 616.25,
-    afterUnionBalance: 583.8,
-    shouldAmount: 55,
-    actualAmount: 32.45,
-    discountAmount: 22.55,
-    optDiscount: 0,
-    optDisId: 0,
-    totalCost: 0,
-    commissionAmount: 17,
-    cashPay: 0,
-    memberCardPay: 32.45,
-    bankCardPay: 0,
-    wechatPay: 0,
-    aliPay: 0,
-    couponsPay: 0,
-    entityCouponPay: 0,
-    meiTuanPay: 0,
-    kouBeiPay: 0,
-    douYinPay: 0,
-    lianLianPay: 0,
-    otherPay: 0,
-    createrUserId: 46713,
-    settleUserId: 46713,
-    orderStatus: 39,
-    transSettleAmount: 0,
-    transBrandId: 0,
-    signBillStaffId: 0,
-    timesCardInfo: '',
-    createTime: '2025-06-22 18:12:33',
-    updateTime: '2025-06-22 18:13:22',
-    updateUserId: 46713,
-    batchFlag: '',
-    batchNum: 1,
-    shortDate: 250622,
-    onlinePay: 0,
-    onlinePayAmount: 0,
-    payState: 0,
-    receiptCoupon: 0,
-    orgName: '郑州棉纺路店',
-    memName: '杨丹',
-    memCode: '145900499',
-    levelCode: 'N',
-    cellPhoneNo: '15039056751',
-    createUserName: '刘',
-    settleUserName: '刘',
-  },
-]);
+// 定义props接收订单数据
+const props = defineProps<{
+  orderData: any;
+}>();
+
+// 价格格式化
+const priceFormatter = (row: any, column: any, cellValue: any) => {
+  return cellValue ? `¥${cellValue}` : '¥0';
+};
+
+// 获取明细类型标签颜色
+const getDetailTypeTagType = (detailType: number) => {
+  switch (detailType) {
+    case 0: return 'success'; // 产品
+    case 1: return 'primary'; // 项目
+    case 2: return 'warning'; // 疗程
+    case 3: return 'info';    // 套餐
+    default: return '';
+  }
+};
 </script>
 
 <style lang="scss" scoped>
@@ -169,32 +112,58 @@ const consumptions = ref([
   padding: 0 $main-padding;
 
   .consumption-detail {
-    width: 60%;
+    width: 100%;
     line-height: 30px;
-    height: 70px;
+    margin-bottom: 20px;
 
     > div {
       display: flex;
+      margin-bottom: 8px;
       > span {
         flex: 1;
+        font-weight: 500;
       }
     }
   }
 
   .tab-container {
     flex: 1;
-    height: calc(60vh - 70px);
+    height: calc(60vh - 120px);
   }
 
   .pay-detail {
     padding: 20px;
     line-height: 30px;
 
-    > div {
+    .payment-item {
       display: flex;
-      align-items: flex-end;
+      align-items: center;
+      margin-bottom: 10px;
+      padding: 8px;
+      background-color: #f5f7fa;
+      border-radius: 4px;
+      
       > span:first-child {
         width: 120px;
+        font-weight: 500;
+      }
+      
+      > span:last-child {
+        color: #e6a23c;
+        font-weight: bold;
+      }
+    }
+
+    .balance-info {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #ebeef5;
+      display: flex;
+      justify-content: space-between;
+      
+      > span {
+        color: #606266;
+        font-size: 14px;
       }
     }
   }

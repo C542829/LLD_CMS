@@ -27,7 +27,7 @@
 
       <!-- 第二行 -->
       <div class="search-container">
-        <div class="search-item">
+        <!-- <div class="search-item">
           <label>
             选择部门：
             <el-select v-model="store.searchParams.saleStaff" clearable placeholder="选择部门" style="width: 120px">
@@ -40,7 +40,7 @@
               />
             </el-select>
           </label>
-        </div>
+        </div> -->
         <div class="search-item">
           <label>
             选择技师：

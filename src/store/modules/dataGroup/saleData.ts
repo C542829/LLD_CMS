@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, reactive } from 'vue';
-import { reqSaleRecord, reqSaleDetail, reqSaleSummary } from '@/api/dataGroup/saleData';
+import { reqSaleRecord, reqSaleDetail, reqSaleSummary, reqOrderInfo } from '@/api/dataGroup/saleData';
 import { parseResMsg, parseResList, parseResObj } from '@/utils/parseResponse';
 
 import { useSettingStore } from '@/store/modules/acl/setting';
@@ -63,6 +63,23 @@ export const useSaleStore = defineStore('SaleData', () => {
     settingStore.loading = false;
   };
 
+  // 订单详情数据
+  const orderInfo = ref(null);
+  const getOrderInfo = async (orderCode: string) => {
+    try {
+      settingStore.loading = true;
+      const res = await reqOrderInfo(orderCode);
+      const data = parseResObj(res, '获取订单详情成功');
+      orderInfo.value = data;
+      return data;
+    } catch (error) {
+      console.error('获取订单详情失败:', error);
+      throw error;
+    } finally {
+      settingStore.loading = false;
+    }
+  };
+
   return {
     searchParams,
     saleRecord,
@@ -71,5 +88,7 @@ export const useSaleStore = defineStore('SaleData', () => {
     setSaleSummary,
     saleDetail,
     setSaleDetail,
+    orderInfo,
+    getOrderInfo,
   };
 });
