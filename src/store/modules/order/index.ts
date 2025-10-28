@@ -12,7 +12,8 @@ import {
 import { parseResObj } from '@/utils/parseResponse';
 import Message from '@/components/Message';
 import { useSettingStore } from '@/store/modules/acl/setting';
-
+import { CustomerType, OrderDetailType } from '@/enums';
+import { useDataEnumStore } from '@/store/modules/enums/index';
 /**
  * 订单管理模块 - Pinia Store
  * 负责处理订单的创建、修改、重置等操作
@@ -20,8 +21,15 @@ import { useSettingStore } from '@/store/modules/acl/setting';
 export const useOrderStore = defineStore('Order', () => {
   // #region 状态管理
   const settingStore = useSettingStore();
+  const enumStore = useDataEnumStore();
   const member: any = ref({});
-  // 应付金额
+  const checkedAssetInfo = ref<any>({
+    assetIds: [], // 资产ID
+    assetTitle: '', // 资产类型
+    assetAmount: 0, // 资产金额
+    assetDiscountRate: 0, // 资产折扣率
+  });
+  // 应付金额 16608179703
   const payAmount: any = computed(() => {
     let amount = 0;
     orderForm.value.orderDetails.forEach((item: any) => {
@@ -29,6 +37,10 @@ export const useOrderStore = defineStore('Order', () => {
     });
     return amount;
   });
+  const orderCount: any = computed(() => {
+    return orderForm.value.orderDetails.length || 0;
+  });
+
   /**
    * 订单表单数据
    */
@@ -77,6 +89,14 @@ export const useOrderStore = defineStore('Order', () => {
     if (params.orderDetails.length === 0) {
       Message.error('请添加订单明细');
       return false;
+    } else {
+      // 校验订单明细
+      for (const item of params.orderDetails) {
+        if (validSubmitOrderDetail(item)) {
+          Message.error('请填写完整订单明细信息');
+          return false;
+        }
+      }
     }
     return true;
   };
@@ -87,11 +107,14 @@ export const useOrderStore = defineStore('Order', () => {
    * @returns 验证结果（true表示验证失败，false表示验证成功）
    */
   const validOrderDetail = (params: any) => {
+    return !params.bid || !params.stdPrice || !params.truePrice || !params.businessName;
+  };
+  const validSubmitOrderDetail = (params: any) => {
     return (
       !params.bid ||
       !params.userId ||
       !params.userName ||
-      !params.quantity ||
+      !params.detailType ||
       !params.stdPrice ||
       !params.truePrice ||
       !params.businessName
@@ -155,19 +178,86 @@ export const useOrderStore = defineStore('Order', () => {
   // #endregion
 
   // #region 订单明细操作
+  const parseServiceData = (serviceItem: any) => {
+    return {
+      name: serviceItem?.name || serviceItem?.productName || serviceItem?.itemName || '',
+      stdPrice: serviceItem?.productPrice || serviceItem?.itemPrice || serviceItem?.price || 0,
+      vipPrice:
+        serviceItem?.vipProductPrice || serviceItem?.vipItemPrice || serviceItem?.vipPrice || serviceItem.price || 0,
+    };
+  };
+
+  /**
+   * 处理订单明细参数
+   * @param params 订单明细参数
+   * @returns 处理后的订单明细参数
+   */
+  const handleDetailParam = (params: any) => {
+    const result: any = {};
+    // 查找用户和服务项
+    const user = enumStore.staffList.find((item: any) => item.id === params.userId);
+    if (user) {
+      result.userId = user.id;
+      result.userName = user.userName;
+    }
+    // 定义服务类型映射
+    const serviceMap: any = {
+      [OrderDetailType.Product]: enumStore.productList,
+      [OrderDetailType.Service]: enumStore.serviceItemList,
+      [OrderDetailType.TreatmentCoupon]: enumStore.treatmentCouponList,
+    };
+    // console.log();
+
+    const serviceItem = serviceMap[params.detailType].find((item: any) => item.id === params.id);
+    if (!serviceItem) {
+      Message.warning('服务项不存在');
+      return;
+    }
+    const serviceData = parseServiceData(serviceItem);
+
+    result.bid = params.id || ''; // 订单业务ID（产品ID、服务ID或疗程券ID）
+    result.detailType = params.detailType; // 明细类型
+    result.businessName = serviceData.name; // 业务名称
+    result.stdPrice = serviceData.stdPrice; // 标准价格
+    result.truePrice = serviceData.stdPrice; // 实际价格
+    result.quantity = params.quantity || 1; // 数量
+    if (params.serverType !== undefined || params.serverType !== null) {
+      result.serverType = params.serverType || 0; // 服务类型
+    }
+    // 设置价格
+    if (orderForm.value.customerType === CustomerType.Member) {
+      result.stdPrice = serviceData.stdPrice;
+      result.truePrice = serviceData.vipPrice;
+    }
+    console.log('添加项:', params);
+    console.log('添加订单:', result);
+
+    return result;
+  };
+
   /**
    * 添加订单明细
    * @param detail 订单明细数据
    * @returns 操作结果
    */
   const addOrderDetail = (detail: any) => {
-    // 校验明细是否完整
-    if (validOrderDetail(detail)) {
-      Message.error('请填写完整订单明细');
+    if (!orderForm.value.vipId) {
+      Message.error('请先选择会员');
       return false;
     }
 
-    detail = { index: orderForm.value.orderDetails.length, ...cloneDeep(detail) };
+    // 处理订单明细参数
+    const data = handleDetailParam(detail);
+
+    // 校验明细是否完整
+    if (validOrderDetail(data)) {
+      Message.error('请填写完整订单明细');
+      return false;
+    }
+    // 生成订单明细索引
+    const index = orderForm.value.orderDetails.length;
+    // 添加订单明细
+    detail = { index, ...data };
     orderForm.value.orderDetails.push(detail);
     return true;
   };
@@ -233,7 +323,10 @@ export const useOrderStore = defineStore('Order', () => {
     member,
     // 应付金额
     payAmount,
+    // 订单总金额
+    orderCount,
     reset,
+    checkedAssetInfo,
   };
   // #endregion
 });

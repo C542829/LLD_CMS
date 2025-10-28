@@ -19,15 +19,21 @@
 import ItemCard from './ItemCard.vue';
 
 import { ref, watch, onMounted } from 'vue';
+import { OrderDetailType } from '@/enums/index';
+import Message from '@/components/Message';
+import { type FormInstance } from 'element-plus';
 import { useDataEnumStore } from '@/store/modules/enums/index';
+import { useOrderStore } from '@/store/modules/order/index';
 const enumStore = useDataEnumStore();
+const orderStore = useOrderStore();
 
 onMounted(async () => {
   await enumStore.getTreatmentCouponList();
 });
 
 const handleAddItem = (item: any) => {
-  console.log(item);
+  item.detailType = OrderDetailType.TreatmentCoupon;
+  orderStore.addOrderDetail(item);
 };
 
 const customConfig = ref({

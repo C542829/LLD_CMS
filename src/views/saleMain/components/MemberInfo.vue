@@ -2,17 +2,17 @@
   <!-- <div v-if="store.orderForm.vipId" class="member-info"> -->
   <div v-if="true" class="member-info">
     <div class="member-card-container">
-      <MemberCard :member="store.member" :show-reset-btn="false" />
+      <MemberCard :member="store.member.vipInfoVO || {}" :show-reset-btn="false" />
     </div>
     <div class="tag-container"></div>
     <!-- 资产信息 -->
     <el-scrollbar class="property-container">
-      <el-checkbox-group v-model="checkList" @change="handleChange">
+      <el-checkbox-group v-model="checkedList" @change="handleChange">
         <PropertyCard
           v-for="(item, index) in assetList"
           :key="item.id"
           :data="item"
-          :index="index"
+          :index="index + 1"
           :amount="store.payAmount"
         />
       </el-checkbox-group>
@@ -24,10 +24,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
 import MemberCard from '@/components/Card/MemberCard.vue';
 import PropertyCard from './PropertyCard.vue';
+
+import { ref, watch, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { DiscountType, discountTypeMap } from '@/enums/index';
 
 import { useOrderStore } from '@/store/modules/order/index';
 import { useMemberStore } from '@/store/modules/member/member';
@@ -41,24 +43,32 @@ onMounted(() => {
   enumsStore.getOrgList();
 });
 
-const assetList: any = ref([]);
+const assetList: any = computed(() => store.member.vipAssetVOList || []);
+
+const checkedList = ref<any>([]);
+
 watch(
-  () => store.orderForm.vipId,
-  async (newVal, oldVal) => {
-    if (newVal) {
-      const asset = await memberStore.getMemberAsset(newVal);
-      if (asset && asset?.vipAssetVOList) {
-        assetList.value = asset.vipAssetVOList.map((item: any, index: number) => ({
-          ...item,
-          disabled: false,
-          discountValue: `${index}-${item?.assetType}-${item?.assetDiscountBase}-${item?.assetDiscountRate}`,
-        }));
+  () => checkedList.value,
+  (newVal) => {
+    const assetIds = newVal.map((e: string) => parseInt(e.split('-')[0]));
+    store.checkedAssetInfo.assetIds = assetIds;
+    console.log('checkedList = ', newVal);
+    console.log('assetIds = ', assetIds);
+
+    let assetTitle = '';
+    let assetAmount = 0;
+    for (const id of assetIds) {
+      const asset = assetList.value.find((e: any) => e.id === id);
+      if (asset) {
+        assetTitle = getDiscountLabel(asset);
+        assetAmount += asset.assetBalance;
       }
     }
+    store.checkedAssetInfo.assetTitle = assetTitle;
+    store.checkedAssetInfo.assetAmount = assetAmount;
   },
 );
 
-const checkList = ref<any>([]);
 const handleChange = (val: any) => {
   if (val.length === 0) {
     assetList.value.forEach((item: any) => {
@@ -66,13 +76,29 @@ const handleChange = (val: any) => {
     });
     return;
   }
+  console.log('val = ', val);
+
   // 当值变化时，禁用值不同的复选款
   assetList.value.forEach((item: any) => {
     item.disabled = getDiscountValue(item.discountValue) !== getDiscountValue(val[0]);
+    if (item.disabled) {
+      // item.assetDiscountRate = 0;
+    }
   });
 };
 const getDiscountValue = (params: string) => {
   return params.substring(params.indexOf('-') + 1);
+};
+
+/**
+ * 获取折扣相关标签（整合折扣类型、折扣力度、是否赠送等逻辑）
+ */
+const getDiscountLabel = (data: any) => {
+  if (data && data.assetDiscountRate && data?.assetDiscountRate < 100) {
+    return `${discountTypeMap[data.assetDiscountBase as DiscountType] || '标准价'}(${data.assetDiscountRate / 10}折)`;
+  } else {
+    return discountTypeMap[data.assetDiscountBase as DiscountType] || '标准价';
+  }
 };
 </script>
 

@@ -28,20 +28,15 @@
         <div class="search-item">
           <label>
             销售员：
-            <el-select 
-              v-model="store.searchParams.userId" 
-              clearable 
+            <el-select
+              v-model="store.searchParams.userId"
+              clearable
               filterable
-              placeholder="选择销售员" 
+              placeholder="选择销售员"
               style="width: 140px"
             >
               <el-option label="未指定" value="" />
-              <el-option
-                v-for="item in staffList"
-                :key="item.id"
-                :label="item.userName"
-                :value="item.id"
-              />
+              <el-option v-for="item in staffList" :key="item.id" :label="item.userName" :value="item.id" />
             </el-select>
           </label>
         </div>
@@ -113,13 +108,20 @@
         <el-table-column label="技师/销售">
           <template #default="scope">
             技师：{{ scope.row.userId }}({{ scope.row.userName }})
-            <el-text v-if="scope.row.detailType === 1" type="primary" style="font-weight: bold">[{{ ServiceTypeMap[scope.row.serverType] || scope.row.serverType }}]</el-text>
+            <el-text v-if="scope.row.detailType === 1" type="primary" style="font-weight: bold">
+              [{{ ServiceTypeMap[scope.row.serverType] || scope.row.serverType }}]
+            </el-text>
           </template>
         </el-table-column>
         <el-table-column prop="settledTime" label="结算时间" :formatter="datetimeFormatter" />
         <el-table-column label="操作" width="100">
           <template #default="scope">
-            <el-button @click="showDialog(scope.row)" link type="primary" :loading="loadingOrderCode === scope.row.orderCode">
+            <el-button
+              @click="showDialog(scope.row)"
+              link
+              type="primary"
+              :loading="loadingOrderCode === scope.row.orderCode"
+            >
               查看原单
             </el-button>
           </template>
@@ -192,21 +194,26 @@ const loadingOrderCode = ref('');
 // 获取明细类型标签颜色
 const getDetailTypeTagType = (detailType: number) => {
   switch (detailType) {
-    case 0: return 'success'; // 产品
-    case 1: return 'primary'; // 项目
-    case 2: return 'warning'; // 疗程
-    case 3: return 'info';    // 套餐
-    default: return '';
+    case 0:
+      return 'success'; // 产品
+    case 1:
+      return 'primary'; // 项目
+    case 2:
+      return 'warning'; // 疗程
+    case 3:
+      return 'info'; // 套餐
+    default:
+      return '';
   }
 };
 
 const showDialog = async (row: any) => {
   try {
     loadingOrderCode.value = row.orderCode;
-    
+
     // 获取订单详情
     const orderData = await store.getOrderInfo(row.orderCode);
-    
+
     if (orderData) {
       currentOrderData.value = orderData;
       dialog.visible = true;

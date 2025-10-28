@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { reactive, ref } from 'vue';
-import { reqVipList, reqVipInfo, reqAddVip, reqUpdateVip, reqVipAsset } from '@/api/member/member';
+import { reqVipList, reqVipInfo, reqAddVip, reqUpdateVip, reqVipAsset, reqVipAssetList } from '@/api/member/member';
 import { parseResObj, parseResMsg } from '@/utils/parseResponse';
 import { SearchParams } from '@/api/member/member/type';
 
@@ -123,6 +123,17 @@ export const useMemberStore = defineStore('Member', () => {
     return data;
   };
 
+  /**
+   * 获取会员资产列表
+   * @param vipId 会员id
+   * @returns 会员资产列表
+   */
+  const getMemberAssetList = async (vipId: number) => {
+    const res = await reqVipAssetList(vipId);
+    const data = parseResObj(res);
+    return data;
+  };
+
   return {
     getMemberInfo,
     getMemberList,
@@ -136,5 +147,6 @@ export const useMemberStore = defineStore('Member', () => {
     resetFormData,
     updatePwd,
     getMemberAsset,
+    getMemberAssetList,
   };
 });
