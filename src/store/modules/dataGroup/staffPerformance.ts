@@ -577,10 +577,10 @@ export const useStaffPerformanceStore = defineStore('StaffPerformance', () => {
   const queryOrderDetail = async (orderCode: string) => {
     try {
       settingStore.loading = true;
-      
+
       const res = await reqQueryOrder(orderCode);
       const data = parseResObj(res, '查询订单详情成功');
-      
+
       return data;
     } catch (error) {
       console.error('查询订单详情失败:', error);
