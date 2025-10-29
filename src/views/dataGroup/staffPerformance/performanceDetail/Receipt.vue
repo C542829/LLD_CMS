@@ -69,12 +69,11 @@ const formatServiceType = (detailType: number) => {
   const typeMap: Record<number, string> = {
     0: '产品',
     1: '服务项目',
-    2: '疗程券'
+    2: '疗程券',
   };
   return typeMap[detailType] || '未知';
 };
 </script>
-
 
 <style scoped lang="scss">
 .dialog-container {

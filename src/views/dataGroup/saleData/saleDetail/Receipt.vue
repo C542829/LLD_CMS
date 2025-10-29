@@ -25,13 +25,7 @@
           <template #label>
             <span>项目/产品消费</span>
           </template>
-          <el-table 
-            :data="orderData?.orderDetails || []" 
-            :border="true" 
-            height="100%" 
-            stripe 
-            class="table-container"
-          >
+          <el-table :data="orderData?.orderDetails || []" :border="true" height="100%" stripe class="table-container">
             <el-table-column prop="businessName" label="项目/产品名称" />
             <el-table-column prop="stdPrice" label="标准价" :formatter="priceFormatter" />
             <el-table-column prop="quantity" label="数量" />
@@ -46,10 +40,10 @@
             <el-table-column label="技师/销售">
               <template #default="scope">
                 {{ scope.row.userName }}
-                <el-text 
-                  v-if="scope.row.detailType === 1 && scope.row.serverType !== null" 
-                  type="primary" 
-                  style="font-weight: bold; margin-left: 8px;"
+                <el-text
+                  v-if="scope.row.detailType === 1 && scope.row.serverType !== null"
+                  type="primary"
+                  style="font-weight: bold; margin-left: 8px"
                 >
                   [{{ ServiceTypeMap[scope.row.serverType] || scope.row.serverType }}]
                 </el-text>
@@ -95,11 +89,16 @@ const priceFormatter = (row: any, column: any, cellValue: any) => {
 // 获取明细类型标签颜色
 const getDetailTypeTagType = (detailType: number) => {
   switch (detailType) {
-    case 0: return 'success'; // 产品
-    case 1: return 'primary'; // 项目
-    case 2: return 'warning'; // 疗程
-    case 3: return 'info';    // 套餐
-    default: return '';
+    case 0:
+      return 'success'; // 产品
+    case 1:
+      return 'primary'; // 项目
+    case 2:
+      return 'warning'; // 疗程
+    case 3:
+      return 'info'; // 套餐
+    default:
+      return '';
   }
 };
 </script>
@@ -142,12 +141,12 @@ const getDetailTypeTagType = (detailType: number) => {
       padding: 8px;
       background-color: #f5f7fa;
       border-radius: 4px;
-      
+
       > span:first-child {
         width: 120px;
         font-weight: 500;
       }
-      
+
       > span:last-child {
         color: #e6a23c;
         font-weight: bold;
@@ -160,7 +159,7 @@ const getDetailTypeTagType = (detailType: number) => {
       border-top: 1px solid #ebeef5;
       display: flex;
       justify-content: space-between;
-      
+
       > span {
         color: #606266;
         font-size: 14px;

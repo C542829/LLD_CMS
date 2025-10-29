@@ -44,13 +44,19 @@
         <div class="search-item">
           <label>
             选择技师：
-            <el-select v-model="store.searchParams.saleStaff" clearable placeholder="选择技师" style="width: 120px">
-              <el-option label="全部" value="0" />
+            <el-select 
+              v-model="store.searchParams.userId" 
+              clearable 
+              placeholder="选择技师" 
+              filterable
+              style="width: 120px"
+            >
+              <el-option label="全部" :value= null />
               <el-option
-                v-for="item in [{ value: 1, label: '' }]"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+                v-for="item in staffList"
+                :key="item.id"
+                :label="item.userName"
+                :value="item.id"
               />
             </el-select>
           </label>
@@ -72,40 +78,51 @@
         show-summary
       >
         <el-table-column type="index" label="序号" width="60" fixed />
-        <el-table-column prop="memName" label="技师" width="100" fixed />
-        <el-table-column prop="shouldAmount" label="总业绩" width="85" fixed />
-        <el-table-column prop="shouldAmount" label="总提成" width="85" fixed />
-        <el-table-column prop="shouldAmount" label="总项目次" width="85" />
-        <el-table-column prop="shouldAmount" label="点钟次数" width="85" />
-        <el-table-column prop="shouldAmount" label="轮牌次数" width="85" />
-        <el-table-column prop="shouldAmount" label="加钟次数" width="85" />
-        <el-table-column prop="shouldAmount" label="项目业绩" width="85" />
-        <el-table-column prop="shouldAmount" label="项目提成" width="85" />
-        <el-table-column prop="shouldAmount" label="产品业绩" width="85" />
-        <el-table-column prop="shouldAmount" label="产品提成" width="85" />
-        <el-table-column prop="shouldAmount" label="疗程销售业绩" width="110" />
-        <el-table-column prop="shouldAmount" label="疗程销售提成" width="110" />
-        <el-table-column prop="shouldAmount" label="卡金业绩" width="85" />
-        <el-table-column prop="shouldAmount" label="卡金提成" width="85" />
-        <el-table-column prop="shouldAmount" label="劳动业绩" width="85" />
-        <el-table-column prop="shouldAmount" label="拓客业绩" width="85" />
-        <el-table-column prop="shouldAmount" label="拓客提成" width="85" />
+        <el-table-column prop="userName" label="技师" width="100" fixed />
+        <el-table-column prop="totalPerformance" label="总业绩" width="85" fixed />
+        <el-table-column prop="totalCommission" label="总提成" width="85" fixed />
+        <el-table-column prop="totalProjectCount" label="总项目次" width="85" />
+        <el-table-column prop="appointmentCount" label="点钟次数" width="85" />
+        <el-table-column prop="rotationCount" label="轮牌次数" width="85" />
+        <el-table-column prop="extendCount" label="加钟次数" width="85" />
+        <el-table-column prop="projectPerformance" label="项目业绩" width="85" />
+        <el-table-column prop="projectCommission" label="项目提成" width="85" />
+        <el-table-column prop="productPerformance" label="产品业绩" width="85" />
+        <el-table-column prop="productCommission" label="产品提成" width="85" />
+        <el-table-column prop="cureTicketPerformance" label="疗程销售业绩" width="110" />
+        <el-table-column prop="cureTicketCommission" label="疗程销售提成" width="110" />
+        <el-table-column prop="rechargePerformance" label="卡金业绩" width="85" />
+        <el-table-column prop="rechargeCommission" label="卡金提成" width="85" />
       </PaginationTable>
     </Card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useStaffPerformanceStore } from '@/store/modules/dataGroup/staffPerformance';
+import { useDataEnumStore } from '@/store/modules/enums/index';
+
 const settingStore = useSettingStore();
 const store = useStaffPerformanceStore();
+const dataEnumStore = useDataEnumStore();
+
+// 技师列表
+const staffList: any = ref([]);
+const loadStaffList = async () => {
+  try {
+    staffList.value = await dataEnumStore.getStaffList();
+  } catch (error) {
+    console.error('加载技师列表失败:', error);
+  }
+};
 
 // 初始化
 onMounted(() => {
+  loadStaffList();
   store.setPerformanceSummary();
 });
 

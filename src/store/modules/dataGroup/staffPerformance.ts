@@ -12,6 +12,8 @@ export const useStaffPerformanceStore = defineStore('StaffPerformance', () => {
   const searchParams: any = ref({
     pageNum: 1,
     pageSize: 50,
+    userId: null, // 技师ID
+    date: [], // 日期范围
   });
 
   // 员工绩效记录
@@ -563,13 +565,14 @@ export const useStaffPerformanceStore = defineStore('StaffPerformance', () => {
   const setPerformanceSummary = async () => {
     settingStore.loading = true;
 
-    const params = { ...searchParams.value };
-    // const res = await reqPerformanceSummary(params);
-    // let data: any = parseResList(res, '获取员工绩效汇总失败');
+    const params = { 
+      userId: searchParams.value.userId,
+      date: searchParams.value.date
+    };
+    const res = await reqPerformanceSummary(params);
+    let data: any = parseResList(res, '获取员工绩效汇总成功');
 
-    let data: any = [];
-
-    performanceSummary.value = data;
+    performanceSummary.value = data || [];
     settingStore.loading = false;
   };
 
@@ -577,10 +580,10 @@ export const useStaffPerformanceStore = defineStore('StaffPerformance', () => {
   const queryOrderDetail = async (orderCode: string) => {
     try {
       settingStore.loading = true;
-      
+
       const res = await reqQueryOrder(orderCode);
       const data = parseResObj(res, '查询订单详情成功');
-      
+
       return data;
     } catch (error) {
       console.error('查询订单详情失败:', error);

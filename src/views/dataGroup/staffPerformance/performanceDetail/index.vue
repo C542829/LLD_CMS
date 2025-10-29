@@ -70,12 +70,7 @@
               filterable
               style="width: 200px"
             >
-              <el-option
-                v-for="item in staffList"
-                :key="item.userId"
-                :label="item.userName"
-                :value="item.userName"
-              />
+              <el-option v-for="item in staffList" :key="item.userId" :label="item.userName" :value="item.userName" />
             </el-select>
           </label>
         </div>
@@ -245,7 +240,7 @@ const dialog: any = reactive({
 const receiptInfo: any = ref({});
 
 const showDialog = async (row: any) => {
-  if (row.serviceType === 3 ){
+  if (row.serviceType === 3) {
     ElMessage.info('充值订单暂不能查看原单');
     return;
   }
@@ -254,7 +249,7 @@ const showDialog = async (row: any) => {
     // 使用store中的方法查询订单详情
     const orderDetail = await store.queryOrderDetail(row.orderCode);
     console.log(orderDetail);
-    
+
     if (orderDetail) {
       receiptInfo.value = orderDetail;
       dialog.visible = true;
