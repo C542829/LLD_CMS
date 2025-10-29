@@ -93,12 +93,21 @@ const getDiscountValue = (params: string) => {
 /**
  * 获取折扣相关标签（整合折扣类型、折扣力度、是否赠送等逻辑）
  */
-const getDiscountLabel = (data: any) => {
-  if (data && data.assetDiscountRate && data?.assetDiscountRate < 100) {
-    return `${discountTypeMap[data.assetDiscountBase as DiscountType] || '标准价'}(${data.assetDiscountRate / 10}折)`;
-  } else {
-    return discountTypeMap[data.assetDiscountBase as DiscountType] || '标准价';
+const getDiscountLabel = (data: any): string => {
+  // 处理数据为空的情况
+  if (!data) return '标准价';
+
+  // 提取基础折扣类型的显示文本（默认标准价）
+  const baseLabel = discountTypeMap[data.assetDiscountBase as DiscountType] || '标准价';
+
+  // 处理折扣率（需存在且有效才显示折扣信息）
+  const { assetDiscountRate } = data;
+  if (assetDiscountRate !== undefined && assetDiscountRate < 100 && assetDiscountRate > 0) {
+    return `${baseLabel}(${assetDiscountRate / 10}折)`;
   }
+
+  // 无有效折扣率时直接返回基础标签
+  return baseLabel;
 };
 </script>
 

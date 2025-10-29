@@ -5,7 +5,11 @@
       <div class="order-count">账单明细({{ orderStore.orderCount }})</div>
       <div class="operation-btns">
         <el-button type="primary" link size="large" @click="handleCleanOrder">清空</el-button>
-        <el-button type="success" plain round size="small" @click="handleDiscount">打折优惠</el-button>
+        <EditDiscountPrice @confirm="handleDiscountConfirm">
+          <template #reference>
+            <el-button type="success" plain round size="small">打折优惠</el-button>
+          </template>
+        </EditDiscountPrice>
       </div>
     </header>
 
@@ -55,8 +59,11 @@
 <script setup lang="ts">
 import DetailCard from './DetailCard.vue';
 import CouponCard from './CouponCard.vue';
+import EditDiscountPrice from './EditDiscountPrice.vue';
 import MessageBox from '@/components/MessageBox';
+
 import { ref, onMounted, computed } from 'vue';
+import { CouponType } from '@/enums/index';
 import { useOrderStore } from '@/store/modules/order/index';
 const orderStore = useOrderStore();
 
@@ -67,8 +74,9 @@ const handleCleanOrder = async () => {
   }
 };
 
-const handleDiscount = () => {
-  // orderStore.discount();
+const handleDiscountConfirm = (discountAmount: number) => {
+  console.log('discountAmount = ', discountAmount);
+  orderStore.orderForm.discountAmount = discountAmount;
 };
 /**
  * 处理删除订单明细项事件
@@ -81,8 +89,13 @@ const handleDeleteItem = (item: any) => {
 
 const tabSwitch = ref(0);
 const coupons = computed(() => {
-  if (tabSwitch.value === 0) {
+  if (!orderStore.member.vipTicketVOList || orderStore.member.vipTicketVOList.length === 0) {
     return [];
+  }
+  if (tabSwitch.value === 0) {
+    return orderStore.member.vipTicketVOList.filter((item: any) => {
+      return item.ticketInfo.ticketType === CouponType.voucher;
+    });
   } else {
     return orderStore.member.vipTicketVOList;
   }

@@ -21,7 +21,6 @@
 
 <script setup lang="ts">
 import { CouponType } from '@/enums/index';
-import { getRemainingDays } from '@/utils/time';
 
 interface Props {
   coupon: {
@@ -72,7 +71,7 @@ const getServerItems = (serverItems: any) => {
   font-size: 13px;
   font-weight: 700;
   box-shadow: var(--el-color-primary-light-7) 0px 0px 5px;
-  cursor: pointer;
+  // cursor: pointer;
   text-align: center;
   background-color: rgb(255, 255, 255);
   flex-shrink: 0;
