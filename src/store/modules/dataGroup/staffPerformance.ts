@@ -565,9 +565,9 @@ export const useStaffPerformanceStore = defineStore('StaffPerformance', () => {
   const setPerformanceSummary = async () => {
     settingStore.loading = true;
 
-    const params = { 
+    const params = {
       userId: searchParams.value.userId,
-      date: searchParams.value.date
+      date: searchParams.value.date,
     };
     const res = await reqPerformanceSummary(params);
     let data: any = parseResList(res, '获取员工绩效汇总成功');

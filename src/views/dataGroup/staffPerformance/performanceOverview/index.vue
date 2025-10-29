@@ -44,20 +44,15 @@
         <div class="search-item">
           <label>
             选择技师：
-            <el-select 
-              v-model="store.searchParams.userId" 
-              clearable 
-              placeholder="选择技师" 
+            <el-select
+              v-model="store.searchParams.userId"
+              clearable
+              placeholder="选择技师"
               filterable
               style="width: 120px"
             >
-              <el-option label="全部" :value= null />
-              <el-option
-                v-for="item in staffList"
-                :key="item.id"
-                :label="item.userName"
-                :value="item.id"
-              />
+              <el-option label="全部" :value="null" />
+              <el-option v-for="item in staffList" :key="item.id" :label="item.userName" :value="item.id" />
             </el-select>
           </label>
         </div>
