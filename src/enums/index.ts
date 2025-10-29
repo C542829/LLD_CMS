@@ -23,6 +23,26 @@ export const commissionOptions = [
 ];
 // #endregion 提成类型
 
+// #region 提成类型
+/**
+ * 提成类型
+ */
+export enum CommissionType {
+  FixedAmount = 0,
+  Proportion = 1,
+}
+
+export const commissionTypeMap = {
+  [CommissionType.FixedAmount]: '固定金额',
+  [CommissionType.Proportion]: '比例提成',
+};
+
+export const commissionTypeOptions = [
+  { value: CommissionType.FixedAmount, label: '固定金额' },
+  { value: CommissionType.Proportion, label: '比例提成' },
+];
+// #endregion 提成类型
+
 // #region 会员等级
 /**
  * 会员等级

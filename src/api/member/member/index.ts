@@ -7,7 +7,10 @@ enum API {
   ADD_URL = '/vip/add-vip',
   UPDATE_URL = '/vip/update-vip',
   ASSET_URL = '/vip/count/query-asset/{vipId}',
+  ASSET_LIST_URL = '/vip/query-asset-list/{vipId}',
 }
+
+const IdStr = '{vipId}';
 
 /**
  * 获取会员列表
@@ -42,4 +45,11 @@ export const reqUpdateVip = (data = {}) => put(API.UPDATE_URL, data);
  * @param vipId 会员id
  * @returns 会员资产
  */
-export const reqVipAsset = (vipId: number) => get(API.ASSET_URL.replace('{vipId}', vipId.toString()));
+export const reqVipAsset = (vipId: number) => get(API.ASSET_URL.replace(IdStr, vipId.toString()));
+
+/**
+ * 获取会员资产列表
+ * @param vipId 会员id
+ * @returns 会员资产列表
+ */
+export const reqVipAssetList = (vipId: number) => get(API.ASSET_LIST_URL.replace(IdStr, vipId.toString()));

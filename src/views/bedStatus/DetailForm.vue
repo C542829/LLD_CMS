@@ -172,33 +172,6 @@ const handleSubmit = () => {
   formRef.value &&
     formRef.value.validate((valid) => {
       if (valid) {
-        // 定义服务类型映射
-        const serviceMap: any = {
-          [OrderDetailType.Product]: enumStore.productList,
-          [OrderDetailType.Service]: enumStore.serviceItemList,
-          [OrderDetailType.TreatmentCoupon]: enumStore.treatmentCouponList,
-        };
-        // 查找用户和服务项
-        const user = enumStore.staffList.find((item: any) => item.id === orderStore.detailForm.userId);
-        const serviceItem = serviceMap[orderStore.detailForm.detailType].find(
-          (item: any) => item.id === orderStore.detailForm.bid,
-        );
-        const serviceData = parseServiceData(serviceItem);
-        if (!serviceItem) {
-          Message.error('服务项不存在');
-          return;
-        }
-        // 设置用户和业务名称
-        orderStore.detailForm.userName = user?.userName || '';
-        orderStore.detailForm.businessName = serviceData.name;
-        // 设置价格
-        if (orderStore.orderForm.customerType === CustomerType.Member) {
-          orderStore.detailForm.stdPrice = serviceData.vipPrice;
-          orderStore.detailForm.truePrice = serviceData.vipPrice;
-        } else {
-          orderStore.detailForm.stdPrice = serviceData.stdPrice;
-          orderStore.detailForm.truePrice = serviceData.stdPrice;
-        }
         console.log('提交开单明细:', orderStore.detailForm);
         // 调用添加开单明细方法
         const result =
@@ -209,14 +182,6 @@ const handleSubmit = () => {
         result && closeDialog();
       }
     });
-};
-
-const parseServiceData = (serviceItem: any) => {
-  return {
-    name: serviceItem?.name || serviceItem?.productName || serviceItem?.itemName || '',
-    stdPrice: serviceItem?.productPrice || serviceItem?.itemPrice || serviceItem?.price || 0,
-    vipPrice: serviceItem?.vipProductPrice || serviceItem?.vipItemPrice || serviceItem?.vipPrice || 0,
-  };
 };
 
 const closeDialog = () => {

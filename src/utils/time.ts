@@ -17,6 +17,36 @@ export const getTime = () => {
 };
 
 /**
+ * 计算有效期剩余天数
+ * @param {string} createTime - 创建时间字符串，格式如 "2025-08-19 22:24:53"
+ * @param {number} validDays - 有效天数（正整数）
+ * @returns {number} 剩余天数（可能为负数，表示已过期）
+ */
+export function getRemainingDays(createTime: string, validDays: number) {
+  if (validDays === -1) {
+    return '长期有效';
+  }
+  // 1. 解析创建时间为Date对象
+  const createDate = new Date(createTime);
+  if (isNaN(createDate.getTime())) {
+    throw new Error("创建时间格式错误，请使用 'YYYY-MM-DD HH:mm:ss' 格式");
+  }
+
+  // 2. 计算有效期截止时间（创建时间 + 有效天数）
+  const deadline: Date = new Date(createDate);
+  deadline.setDate(deadline.getDate() + validDays); // 加N天
+
+  // 3. 计算当前时间与截止时间的差值（毫秒）
+  const now: Date = new Date();
+  const diffMs: number = deadline.getTime() - now.getTime();
+
+  // 4. 转换为天数（向上取整，不足1天按1天算）
+  const remainingDays: number = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+  return remainingDays;
+}
+
+/**
  * 格式化时间字符串
  * @param {Date} date 需要格式化的时间
  * @param {String} format 时间格式

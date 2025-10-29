@@ -62,7 +62,9 @@
         <MemberInfo v-show="tabSwitch === 1" />
       </div>
     </div>
-    <div class="main-item"></div>
+    <div class="main-item">
+      <OrderList />
+    </div>
   </div>
 </template>
 
@@ -71,6 +73,7 @@ import SearchMember from '@/components/Input/SearchMember.vue';
 import ProductList from './components/ProductList.vue';
 import TreatmentCouponList from './components/TreatmentCouponList.vue';
 import MemberInfo from './components/MemberInfo.vue';
+import OrderList from './components/OrderList.vue';
 
 import { ref, watch, onMounted, onUnmounted } from 'vue';
 import { useSettingStore } from '@/store/modules/acl/setting';
@@ -78,11 +81,13 @@ import { useMemberStore } from '@/store/modules/member/member';
 import { useRechargeStore } from '@/store/modules/member/recharge';
 import { useRoomStore } from '@/store/modules/setGroup/room';
 import { useOrderStore } from '@/store/modules/order/index';
+import { useDataEnumStore } from '@/store/modules/enums/index';
 const orderStore = useOrderStore();
 const roomStore = useRoomStore();
 const settingStore = useSettingStore();
 const memberStore = useMemberStore();
 const store = useRechargeStore();
+const dataEnumStore = useDataEnumStore();
 
 const bedList: any = ref([]);
 const bed: any = ref({});
@@ -95,10 +100,11 @@ const selectBed = (e: any) => {
 };
 onMounted(async () => {
   bedList.value = await roomStore.getAllBedList();
+  await dataEnumStore.getStaffList();
 });
 
 // 搜索会员
-const inputValue = ref('');
+const inputValue = ref('秀英');
 
 // 选中会员
 const handleSelect = (item: Record<string, any>) => {
@@ -107,8 +113,24 @@ const handleSelect = (item: Record<string, any>) => {
   orderStore.orderForm.vipName = item.name;
   orderStore.orderForm.vipPhoneNumber = item.phoneNumber;
   orderStore.orderForm.vipCardNumber = item.cardNumber;
-  orderStore.member = item;
+  // orderStore.member = item;
+  getMemberAsset(item.id);
   tabSwitch.value = 1;
+};
+
+// 获取会员资产
+const getMemberAsset = async (id: number) => {
+  const asset = await memberStore.getMemberAssetList(id);
+  if (asset && asset?.vipAssetVOList) {
+    asset.vipAssetVOList = asset.vipAssetVOList.map((item: any, index: number) => ({
+      ...item,
+      disabled: false,
+      discountValue: `${item.id}-${item?.assetType}-${item?.assetDiscountBase}-${item?.assetDiscountRate}`,
+    }));
+  }
+  console.log('会员资产', asset);
+
+  orderStore.member = { ...asset.vipInfoVO, ...asset };
 };
 
 const tabSwitch = ref(0);
@@ -192,7 +214,9 @@ onUnmounted(() => {
       }
     }
   }
+
   .main-item:last-child {
+    padding: 0;
     border-left: 1px solid var(--el-border-color);
   }
 }
