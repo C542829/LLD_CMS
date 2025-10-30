@@ -93,7 +93,8 @@ const orderStore = useOrderStore();
 const handleCleanOrder = async () => {
   const result = await MessageBox.warning('确定清空订单吗？');
   if (result) {
-    orderStore.reset();
+    // orderStore.reset();
+    orderStore.order.details = [];
   }
 };
 
@@ -105,8 +106,8 @@ const handleDiscountConfirm = (discountAmount: number) => {
  * @param index 订单明细项索引
  */
 const handleDeleteItem = (item: any) => {
-  const index = orderStore.order.orderDetails.findIndex((detail: any) => detail.index === item.index);
-  orderStore.order.orderDetails.splice(index, 1);
+  const index = orderStore.order.details.findIndex((detail: any) => detail.index === item.index);
+  orderStore.order.details.splice(index, 1);
 };
 
 const tabSwitch = ref(0);
