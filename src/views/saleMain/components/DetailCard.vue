@@ -4,17 +4,10 @@
       <!-- 商品信息 -->
       <span>
         <span>{{ index }}、{{ data?.businessName || '产品名称' }}</span>
-        <!-- <span class="item-code">{{ data?.bid || '' }}</span> -->
-        <!-- <span v-if="data?.detailType === 1" class="item-discount">不参与折扣卡打折</span> -->
       </span>
       <!-- 优惠券 -->
       <span class="item-coupon-info">
-        <el-popover placement="left" title="请选择优惠券" :width="200" trigger="click">
-          <template #reference>
-            <el-button type="primary" link size="large" icon="Ticket" style="transform: scale(1.3)" />
-          </template>
-          <div>优惠券</div>
-        </el-popover>
+        <CouponSelect @change="selectCoupon"></CouponSelect>
       </span>
       <!-- 平台券 -->
       <!-- <span class="item-coupon-platform">
@@ -44,31 +37,20 @@
       </span> -->
       <!-- 自定义价格 -->
       <span class="item-price">
-        <el-input-number v-model="data.truePrice" :min="1" controls-position="right" style="width: 120px" />
-        <!-- <span title="" class="">￥{{ data?.truePrice || 0 }}</span> -->
-        <!-- <el-popover placement="left" title="自定义价格" :width="200" trigger="click">
-          <template #reference>
-            <el-button type="primary" link size="large" icon="Ticket" style="transform: scale(1.3)" />
-          </template>
-          <div>优惠券</div>
-        </el-popover> -->
+        <el-input-number v-model="data.truePrice" :min="0" controls-position="right" style="width: 120px" />
       </span>
       <!-- 删除按钮 -->
       <span class="item-del">
         <el-icon @click="handleDelete"><Delete /></el-icon>
       </span>
     </div>
+
     <div class="item-bottom">
       <div class="bottom-left">
         <label>
           <span>销售：</span>
-          <el-select v-model="user" value-key="id" @change="handleChangeUser" clearable placeholder="请选择">
-            <el-option
-              v-for="item in dataEnumStore.staffList"
-              :key="item.userId"
-              :label="item.userName"
-              :value="item"
-            />
+          <el-select v-model="data.userId" value-key="id" @change="handleChangeUser" clearable placeholder="请选择销售">
+            <el-option v-for="item in dataEnumStore.staffList" :key="item.id" :label="item.userName" :value="item.id" />
           </el-select>
         </label>
         <label class="m-l-10" style="width: 160px">
@@ -84,7 +66,11 @@
         </label>
       </div>
       <div class="bottom-right">
-        <el-tag type="primary" closable @close="handleCloseTag">代金券***631, 抵扣88元</el-tag>
+        <template v-if="data?.coupon">
+          <el-tag type="primary" closable @close="handleCloseTag">
+            <span>{{ data?.coupon?.ticketName || '无' }}</span>
+          </el-tag>
+        </template>
       </div>
     </div>
 
@@ -94,10 +80,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import CouponSelect from '@/views/saleMain/components/CouponSelect.vue';
+import { computed, ref, watch } from 'vue';
 import { OrderDetailType } from '@/enums/index';
 import { useDataEnumStore } from '@/store/modules/enums/index';
+import { useOrderStore } from '@/store/modules/order/index';
 const dataEnumStore = useDataEnumStore();
+const orderStore = useOrderStore();
 /**
  * 订单明细项接口
  */
@@ -111,6 +100,7 @@ interface OrderDetailItem {
   truePrice: number; // 实际价格
   quantity: number; // 数量
   serverType: number; // 服务类型
+  coupon?: any; // 优惠券
 }
 
 interface Props {
@@ -140,26 +130,46 @@ const isPT = computed(() => {
   return result;
 });
 
-const user = ref<any>({});
-const handleChangeUser = (item: any) => {
-  // user.value = item;
-  props.data.userId = item.id;
-  props.data.userName = item.userName;
+const handleChangeUser = (id: number) => {
+  const user = dataEnumStore.staffList.find((user: any) => user.id === id);
+  if (user) {
+    props.data.userId = id;
+    props.data.userName = user.userName;
+  }
 };
 
 const handleCloseTag = () => {
-  // 处理关闭事件
-  console.log('关闭标签');
-  emit('cancel-coupon', props.data);
+  const index = orderStore.order.ticketUseList.findIndex((item: any) => item.ticketId === props.data.coupon.id);
+  if (index !== -1) {
+    orderStore.order.ticketUseList.splice(index, 1);
+  }
+  props.data.coupon = null;
 };
 
 const handleDelete = () => {
   // 处理删除事件
-  console.log('删除明细项');
   emit('delete', props.data);
 };
 
-const handleCouponPriceChange = () => {};
+const selectCoupon = (coupon: any) => {
+  if (props.data.coupon) {
+    handleCloseTag();
+  }
+  props.data.coupon = coupon;
+  orderStore.order.ticketUseList.push({
+    ticketId: coupon.id,
+    ticketType: coupon.ticketInfo.ticketType,
+  });
+};
+
+watch(
+  () => orderStore.order.ticketUseList,
+  (newVal) => {
+    if (newVal.length === 0) {
+      handleCloseTag();
+    }
+  },
+);
 </script>
 
 <style lang="scss" scoped>

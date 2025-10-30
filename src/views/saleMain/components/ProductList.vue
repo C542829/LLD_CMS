@@ -31,7 +31,7 @@ const handleAddItem = (item: any) => {
   item.detailType = OrderDetailType.Product;
   item.quantity = 1;
   item.serverType = ServiceType.Point;
-  orderStore.addOrderDetail(item);
+  orderStore.addOrderItem(item);
 };
 
 const customConfig = ref({

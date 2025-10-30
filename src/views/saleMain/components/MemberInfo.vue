@@ -1,5 +1,5 @@
 <template>
-  <!-- <div v-if="store.orderForm.vipId" class="member-info"> -->
+  <!-- <div v-if="store.order.vipId" class="member-info"> -->
   <div v-if="true" class="member-info">
     <div class="member-card-container">
       <MemberCard :member="store.member.vipInfoVO || {}" :show-reset-btn="false" />

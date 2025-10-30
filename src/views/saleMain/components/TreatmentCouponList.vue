@@ -33,7 +33,7 @@ onMounted(async () => {
 
 const handleAddItem = (item: any) => {
   item.detailType = OrderDetailType.TreatmentCoupon;
-  orderStore.addOrderDetail(item);
+  orderStore.addOrderItem(item);
 };
 
 const customConfig = ref({

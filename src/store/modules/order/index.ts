@@ -22,24 +22,6 @@ export const useOrderStore = defineStore('Order', () => {
   // #region 状态管理
   const settingStore = useSettingStore();
   const enumStore = useDataEnumStore();
-  const member: any = ref({});
-  const checkedAssetInfo = ref<any>({
-    assetIds: [], // 资产ID
-    assetTitle: '', // 资产类型
-    assetAmount: 0, // 资产金额
-    assetDiscountRate: 0, // 资产折扣率
-  });
-  // 应付金额 16608179703
-  const payAmount: any = computed(() => {
-    let amount = 0;
-    orderForm.value.orderDetails.forEach((item: any) => {
-      amount += item.truePrice * item.quantity;
-    });
-    return amount;
-  });
-  const orderCount: any = computed(() => {
-    return orderForm.value.orderDetails.length || 0;
-  });
 
   /**
    * 订单表单数据
@@ -71,6 +53,45 @@ export const useOrderStore = defineStore('Order', () => {
     quantity: 1, // 数量
     serverType: 0, // 服务类型
   });
+
+  // 会员信息
+  const member: any = ref({});
+  // 选中资产信息
+  const checkedAssetInfo = ref<any>({
+    assetIds: [], // 资产ID
+    assetTitle: '', // 资产类型
+    assetAmount: 0, // 资产金额
+    assetDiscountRate: 0, // 资产折扣率
+  });
+  // 应付金额 16608179703
+  const payAmount: any = computed(() => {
+    let amount = order.value.discountAmount;
+    order.value.details.forEach((item: any) => {
+      amount += item.truePrice * item.quantity;
+    });
+    return amount;
+  });
+  const discountAmount: any = computed(() => {
+    let amount = order.value.discountAmount;
+    if (order.value.ticketUseList && order.value.ticketUseList.length > 0) {
+      for (const item of order.value.ticketUseList) {
+        const ticket = member.value.vipTicketVOList.find((ticket: any) => ticket.id === item.ticketId);
+        if (ticket) {
+          amount += ticket.ticketInfo.ticketValue;
+        }
+      }
+    }
+    return amount;
+  });
+  // 订单明细数量
+  const orderCount: any = computed(() => {
+    return order.value.details.length || 0;
+  });
+  const truePayAmount: any = computed(() => {
+    let result = payAmount.value - discountAmount.value;
+    return result < 0 ? 0 : result.toFixed(2);
+  });
+
   // #endregion
 
   // #region 订单表单验证
@@ -122,7 +143,7 @@ export const useOrderStore = defineStore('Order', () => {
   };
   // #endregion
 
-  // #region 订单操作
+  // #region 开单操作
   /**
    * 创建订单
    * @param cb 回调函数
@@ -296,14 +317,81 @@ export const useOrderStore = defineStore('Order', () => {
   };
   // #endregion
 
+  // #region 结算操作
+
+  // 订单结算信息
+  const order: any = ref({
+    orderId: null,
+    vipId: 0,
+    bedId: 0,
+    bedName: '',
+    customerType: 0,
+    customerName: '',
+    remark: '',
+    totalAmount: 0,
+    actualAmount: 0,
+    discountAmount: 0,
+    orderTime: null,
+    details: [],
+    ticketUseList: [],
+    assetIds: [],
+    paymentInfoList: [],
+  });
+  /**
+   * 添加订单明细
+   * @param detail 订单明细数据
+   * @returns 操作结果
+   */
+  const addOrderItem = (detail: any) => {
+    if (!order.value.vipId) {
+      Message.error('请先选择会员');
+      return false;
+    }
+
+    // 处理订单明细参数
+    const data = handleDetailParam(detail);
+
+    // 校验明细是否完整
+    if (validOrderDetail(data)) {
+      Message.error('请填写完整订单明细');
+      return false;
+    }
+    // 生成订单明细索引
+    const index = order.value.details.length;
+    // 添加订单明细
+    detail = { index, ...data };
+    order.value.details.push(detail);
+    return true;
+  };
+  const resetOrder = () => {
+    order.value = {
+      orderId: null,
+      vipId: 0,
+      bedId: 0,
+      bedName: '',
+      customerType: 0,
+      customerName: '',
+      remark: '',
+      totalAmount: 0,
+      actualAmount: 0,
+      discountAmount: 0,
+      orderTime: null,
+      details: [],
+      ticketUseList: [],
+      assetIds: [],
+      paymentInfoList: [],
+    };
+  };
+  // @endregion
+
   /**
    * 重置订单状态
    */
   const reset = () => {
+    resetOrder();
     resetOrderForm();
     resetDetailForm();
     member.value = {};
-    payAmount.value = 0;
   };
 
   // #region 导出状态和方法
@@ -323,10 +411,16 @@ export const useOrderStore = defineStore('Order', () => {
     member,
     // 应付金额
     payAmount,
+    discountAmount,
+    truePayAmount,
     // 订单总金额
     orderCount,
     reset,
     checkedAssetInfo,
+
+    order,
+    addOrderItem,
+    resetOrder,
   };
   // #endregion
 });

@@ -109,10 +109,7 @@ const inputValue = ref('秀英');
 // 选中会员
 const handleSelect = (item: Record<string, any>) => {
   console.log('会员', item);
-  orderStore.orderForm.vipId = item.id;
-  orderStore.orderForm.vipName = item.name;
-  orderStore.orderForm.vipPhoneNumber = item.phoneNumber;
-  orderStore.orderForm.vipCardNumber = item.cardNumber;
+  orderStore.order.vipId = item.id;
   // orderStore.member = item;
   getMemberAsset(item.id);
   tabSwitch.value = 1;
@@ -125,7 +122,7 @@ const getMemberAsset = async (id: number) => {
     asset.vipAssetVOList = asset.vipAssetVOList.map((item: any, index: number) => ({
       ...item,
       disabled: false,
-      discountValue: `${item.id}-${item?.assetType}-${item?.assetDiscountBase}-${item?.assetDiscountRate}`,
+      discountValue: `${item.id}-${item?.assetDiscountBase}-${item?.assetDiscountRate}`,
     }));
   }
   console.log('会员资产', asset);

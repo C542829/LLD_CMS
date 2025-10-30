@@ -1,5 +1,5 @@
 <template>
-  <div class="coupon-info coupon-can-not-select">
+  <div class="coupon-info" :class="{ active: active }">
     <template v-if="coupon.ticketInfo.ticketType === CouponType.voucher">
       <span class="title text-overflow" :title="`抵扣金额：${coupon.ticketInfo.ticketValue} 元`">
         抵扣金额：{{ coupon.ticketInfo.ticketValue }} 元
@@ -23,6 +23,7 @@
 import { CouponType } from '@/enums/index';
 
 interface Props {
+  active: boolean;
   coupon: {
     expiryDate: string;
     ticketInfo: {
@@ -42,7 +43,9 @@ interface Props {
 }
 
 // 生成props
-const props = withDefaults(defineProps<Props>(), {});
+const props = withDefaults(defineProps<Props>(), {
+  active: true,
+});
 
 const getExpiryDate = (expiryDate: string) => {
   let result = '到期时间：';
@@ -64,6 +67,16 @@ const getServerItems = (serverItems: any) => {
 </script>
 
 <style lang="scss" scoped>
+.coupon-info.active {
+  background-color: var(--el-color-primary);
+  .title {
+    color: #fff;
+  }
+  .coupon-tip {
+    color: var(--el-fill-color-light);
+    opacity: 0.9;
+  }
+}
 .coupon-info {
   display: inline-block;
   width: 150px;
@@ -71,7 +84,6 @@ const getServerItems = (serverItems: any) => {
   font-size: 13px;
   font-weight: 700;
   box-shadow: var(--el-color-primary-light-7) 0px 0px 5px;
-  // cursor: pointer;
   text-align: center;
   background-color: rgb(255, 255, 255);
   flex-shrink: 0;
@@ -83,9 +95,11 @@ const getServerItems = (serverItems: any) => {
     color: var(--el-color-primary);
     width: 100%;
     display: inline-block;
+    cursor: default;
   }
 
   .coupon-tip {
+    cursor: default;
     width: 100%;
     display: inline-block;
     font-size: 11px;

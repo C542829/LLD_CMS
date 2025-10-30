@@ -25,9 +25,8 @@
     <!-- 订单明细 -->
     <div class="order-content">
       <el-scrollbar>
-        <!-- <p v-for="item in 100" :key="item" class="scrollbar-demo-item">{{ item }}</p> -->
         <DetailCard
-          v-for="(item, index) in orderStore.orderForm.orderDetails"
+          v-for="(item, index) in orderStore.order.details"
           :key="item.id"
           :index="index + 1"
           :data="item"
@@ -35,8 +34,6 @@
         />
         <div style="height: 110px"></div>
       </el-scrollbar>
-      <!-- :config="customConfig"
-        @add="handleAddItem" -->
     </div>
     <div class="coupon-list-container">
       <el-divider>
@@ -47,12 +44,38 @@
       </el-divider>
       <el-scrollbar class="coupon-content">
         <template v-if="coupons && coupons.length > 0">
-          <CouponCard v-for="(item, index) in coupons" :key="item.id" :coupon="item" />
+          <CouponCard v-for="(item, index) in coupons" :key="item.id" :coupon="item" :active="couponActive(item)" />
         </template>
         <Empty v-else description="暂无优惠券" />
       </el-scrollbar>
     </div>
-    <footer class="order-list-footer"></footer>
+    <footer class="order-list-footer">
+      <div class="left-footer">
+        <div class="pay-info">
+          <span class="pay-amount">
+            待付款:
+            <b>￥{{ orderStore.truePayAmount }}</b>
+          </span>
+          <template v-if="orderStore.discountAmount > 0">
+            <span class="original-amount">应付：￥{{ orderStore.payAmount }}</span>
+          </template>
+        </div>
+        <div class="discount-info">
+          <span class="coupon-amount" v-for="item in orderStore.order.ticketUseList" :key="item">
+            已抵扣：{{ getCouponInfo(item.ticketId) }}元
+          </span>
+          <template v-if="orderStore.order.discountAmount > 0">
+            <span class="discount-amount">打折优惠：{{ orderStore.order.discountAmount || 0 }}元</span>
+          </template>
+        </div>
+      </div>
+      <div class="right-footer">
+        <template v-if="orderStore.order && orderStore.order.ticketUseList.length > 0">
+          <el-button type="primary" link @click="handleCancelCoupon">取消所选优惠券</el-button>
+        </template>
+        <el-button type="primary" @click="handleSettle">结 算</el-button>
+      </div>
+    </footer>
   </div>
 </template>
 
@@ -75,16 +98,15 @@ const handleCleanOrder = async () => {
 };
 
 const handleDiscountConfirm = (discountAmount: number) => {
-  console.log('discountAmount = ', discountAmount);
-  orderStore.orderForm.discountAmount = discountAmount;
+  orderStore.order.discountAmount = discountAmount;
 };
 /**
  * 处理删除订单明细项事件
  * @param index 订单明细项索引
  */
 const handleDeleteItem = (item: any) => {
-  const index = orderStore.orderForm.orderDetails.findIndex((detail: any) => detail.index === item.index);
-  orderStore.orderForm.orderDetails.splice(index, 1);
+  const index = orderStore.order.orderDetails.findIndex((detail: any) => detail.index === item.index);
+  orderStore.order.orderDetails.splice(index, 1);
 };
 
 const tabSwitch = ref(0);
@@ -100,6 +122,28 @@ const coupons = computed(() => {
     return orderStore.member.vipTicketVOList;
   }
 });
+
+const handleSettle = () => {
+  console.log('结算订单 = ', orderStore.order);
+};
+
+const handleCancelCoupon = () => {
+  orderStore.order.ticketUseList = [];
+};
+
+// 获取优惠券金额
+const getCouponInfo = (id: number) => {
+  const coupon = orderStore.member.vipTicketVOList.find((item: any) => item.id === id);
+  if (coupon) {
+    return coupon.ticketInfo.ticketValue;
+  }
+  return 0;
+};
+
+// 判断优惠券是否已选中
+const couponActive = (item: any) => {
+  return orderStore.order.ticketUseList.some((useItem: any) => useItem.ticketId === item.id);
+};
 </script>
 
 <style lang="scss" scoped>
@@ -147,11 +191,9 @@ const coupons = computed(() => {
     background-color: var(--el-bg-color);
     z-index: 1000;
     :deep(.el-divider) {
-      // margin: 10px 0;
       margin-top: 0;
       > .el-divider__text {
         background: none;
-        // border-radius: 4px;
       }
     }
     .coupon-content {
@@ -170,10 +212,58 @@ const coupons = computed(() => {
   .order-list-footer {
     border-top: 1px solid var(--el-border-color);
     height: $order-footer-height;
+    display: flex;
+    > div {
+      height: 100%;
+      // border: 1px red solid;
+    }
+    .left-footer {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 10px;
+      padding-left: 20px;
+
+      .pay-info {
+        .pay-amount {
+          font-size: 20px;
+          color: var(--el-text-color-regular);
+          > b {
+            font-weight: 600;
+            color: red;
+          }
+        }
+        .original-amount {
+          margin-left: 5px;
+          font-size: 14px;
+          font-weight: 500;
+          color: red;
+          text-decoration: line-through;
+        }
+      }
+      .discount-info {
+        width: 100%;
+        > span {
+          font-size: 14px;
+          color: var(--el-color-success);
+          margin-right: 5px;
+          padding: 0 5px;
+          border-radius: 4px;
+          border: 1px solid var(--el-color-success);
+        }
+      }
+    }
+    .right-footer {
+      width: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 20px;
+    }
   }
   .order-content {
     height: calc(100% - #{$order-header-height} - #{$order-footer-height} - #{$selected-property-count-height});
-    // padding-bottom: 110px;
     > :deep(.el-scrollbar) {
       padding: 10px;
     }
