@@ -369,3 +369,31 @@ export const orderStatusOptions = [
   { value: OrderStatus.ROLLBACK, label: '已冲正' },
 ];
 // #endregion 订单状态
+
+// #region 床位状态
+/**
+ * 床位状态枚举
+ */
+export enum BedStatus {
+  Available = 0, // 空闲
+  Occupied = 1, // 占用
+  Suspended = 2, // 暂停使用
+}
+/**
+ * 床位状态映射
+ */
+export const BedStatusMap = {
+  [BedStatus.Available]: '空闲',
+  [BedStatus.Occupied]: '占用',
+  [BedStatus.Suspended]: '暂停使用',
+};
+/**
+ * 床位状态选项
+ */
+export const bedStatusOptions = [
+  { value: '', label: '全部状态' },
+  { value: BedStatus.Available, label: '空闲' },
+  { value: BedStatus.Occupied, label: '占用' },
+  { value: BedStatus.Suspended, label: '暂停使用' },
+];
+// #endregion 床位状态

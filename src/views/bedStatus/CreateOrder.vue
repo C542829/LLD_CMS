@@ -60,7 +60,8 @@
     </Card>
     <footer style="text-align: center; margin: 20px 0">
       <el-button type="default" @click="emit('close')">关闭</el-button>
-      <el-button type="primary" @click="createOrder">开单</el-button>
+      <el-button v-if="type === 'add'" type="primary" @click="createOrder">开单</el-button>
+      <el-button v-if="type === 'view'" type="primary" @click="goCheckout">去结账</el-button>
     </footer>
   </div>
   <DetailForm v-model="dialogVisible" :handleType="handleType"></DetailForm>
@@ -76,7 +77,13 @@ import { cloneDeep } from 'lodash';
 import { useOrderStore } from '@/store/modules/order/index';
 const orderStore = useOrderStore();
 
-const emit = defineEmits(['close', 'refresh']);
+const emit = defineEmits(['close', 'refresh', 'checkout']);
+const props = defineProps({
+  type: {
+    type: String,
+    default: 'add',
+  },
+});
 
 onMounted(async () => {});
 
@@ -85,6 +92,10 @@ const createOrder = () => {
     emit('refresh');
     emit('close');
   });
+};
+
+const goCheckout = () => {
+  emit('checkout', { id: orderStore.orderForm.bedId });
 };
 
 const handleMemberSelected = (item: any) => {

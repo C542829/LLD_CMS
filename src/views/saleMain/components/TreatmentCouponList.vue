@@ -33,6 +33,7 @@ onMounted(async () => {
 
 const handleAddItem = (item: any) => {
   item.detailType = OrderDetailType.TreatmentCoupon;
+  item.bid = item.id;
   orderStore.addOrderItem(item);
 };
 

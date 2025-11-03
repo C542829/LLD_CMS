@@ -31,6 +31,7 @@ const handleAddItem = (item: any) => {
   item.detailType = OrderDetailType.Product;
   item.quantity = 1;
   item.serverType = ServiceType.Point;
+  item.bid = item.id;
   orderStore.addOrderItem(item);
 };
 

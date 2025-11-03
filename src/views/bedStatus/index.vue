@@ -55,7 +55,12 @@
     </div>
 
     <Drawer v-model="dialog.visible" :title="dialog.title" size="550px" style="max-width: 600px">
-      <CreateOrder @close="dialog.visible = false" @refresh="getBedList"></CreateOrder>
+      <CreateOrder
+        :type="dialog.type"
+        @close="dialog.visible = false"
+        @refresh="getBedList"
+        @checkout="checkout"
+      ></CreateOrder>
     </Drawer>
   </div>
 </template>
@@ -63,10 +68,12 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { BedStatus, BedStatusMap } from '@/enums/index';
 
 import BillSummary from './OrderSummary.vue';
 import ModifyBed from './ModifyBed.vue';
 import CreateOrder from './CreateOrder.vue';
+
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useDataEnumStore } from '@/store/modules/enums/index';
@@ -96,7 +103,7 @@ const checkout = (data: any) => {
   router.push({
     path: '/saleMain',
     query: {
-      id: 0,
+      bedId: data.id,
     },
   });
 };
@@ -105,25 +112,32 @@ const createOrder = (item: any) => {
   orderStore.orderForm.bedId = item.id;
   orderStore.orderForm.bedName = item.bedName;
 };
-const previewOrder = (item: any) => {
-  console.log('预览');
+const previewOrder = async (item: any) => {
+  const order = await orderStore.getOrder(item.id);
+  console.log('预览订单:', order);
+  if (order) {
+    orderStore.orderForm = order;
+  }
 };
 
 // 模态框
 const dialog: any = reactive({
   title: '开单',
+  type: 'add',
   visible: false,
 });
 
 const showDialog = (item: any) => {
-  dialog.visible = true;
-  if (item.status === 0) {
+  if (item.status === BedStatus.Available) {
     dialog.title = '开单';
+    dialog.type = 'add';
     createOrder(item);
-  } else {
+  } else if (item.status === BedStatus.Occupied) {
     dialog.title = '账单';
+    dialog.type = 'view';
     previewOrder(item);
   }
+  dialog.visible = true;
 };
 
 /**

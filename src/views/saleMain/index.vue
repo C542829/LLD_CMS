@@ -6,11 +6,11 @@
     </div>
     <div class="top-item"></div>
     <div class="top-item bed">
-      <div class="bed-info" v-show="bed.id">
+      <div class="bed-info" v-show="orderStore.order.bedId">
         <div>
           <span>床位：</span>
-          <span>{{ bed.bedName }}</span>
-          <span>&nbsp;{{ bed.status === 0 ? '空闲' : '占用' }}</span>
+          <span>{{ orderStore.order.bedName }}</span>
+          <span>&nbsp;{{ getBedStatus }}</span>
         </div>
         <div @click="clearBed" class="hover-pointer">
           <el-icon :size="24"><Close /></el-icon>
@@ -74,8 +74,11 @@ import ProductList from './components/ProductList.vue';
 import TreatmentCouponList from './components/TreatmentCouponList.vue';
 import MemberInfo from './components/MemberInfo.vue';
 import OrderList from './components/OrderList.vue';
+import MessageBox from '@/components/MessageBox';
 
-import { ref, watch, onMounted, onUnmounted } from 'vue';
+import { ref, watch, computed, onMounted, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { CustomerType, BedStatus, BedStatusMap } from '@/enums/index';
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useMemberStore } from '@/store/modules/member/member';
 import { useRechargeStore } from '@/store/modules/member/recharge';
@@ -88,17 +91,49 @@ const settingStore = useSettingStore();
 const memberStore = useMemberStore();
 const store = useRechargeStore();
 const dataEnumStore = useDataEnumStore();
+const router = useRouter();
+
+const initByBedId = () => {
+  // 从路由参数中获取床位ID
+  const bedId = Number(router.currentRoute.value.query.bedId || 0);
+  console.log(' 床位ID:', bedId);
+  if (bedId) {
+    orderStore.setOrderByBed(bedId);
+  }
+};
+
+const getBedStatus = computed(() => {
+  const bed = bedList.value.find((item: any) => item.id === orderStore.order.bedId);
+  console.log('床位', bed);
+
+  if (!bed) {
+    return '';
+  }
+  return BedStatusMap[bed.status as BedStatus];
+});
 
 const bedList: any = ref([]);
-const bed: any = ref({});
-const clearBed = () => {
-  bed.value = {};
+const selectBed = (params: any) => {
+  console.log('选择床位', params);
+  MessageBox.warning('切换床位，将清除床位对应的所有明细，你确定切换床位吗？', '提示').then(() => {
+    orderStore.reset();
+    if (params.status === BedStatus.Occupied) {
+      orderStore.setOrderByBed(params.id);
+    } else if (params.status === BedStatus.Available) {
+      orderStore.order.bedId = params.id;
+      orderStore.order.bedName = params.bedName;
+    }
+  });
 };
 
-const selectBed = (e: any) => {
-  bed.value = e;
+const clearBed = () => {
+  MessageBox.warning('清空床位信息将清空订单信息，是否继续？', '提示').then(() => {
+    orderStore.reset();
+  });
 };
+
 onMounted(async () => {
+  initByBedId();
   bedList.value = await roomStore.getAllBedList();
   await dataEnumStore.getStaffList();
 });
@@ -108,10 +143,11 @@ const inputValue = ref('秀英');
 
 // 选中会员
 const handleSelect = (item: Record<string, any>) => {
+  orderStore.resetCheckedAssetInfo();
   console.log('会员', item);
   orderStore.order.vipId = item.id;
-  // orderStore.member = item;
-  getMemberAsset(item.id);
+  orderStore.order.customerType = CustomerType.Member;
+  orderStore.getMemberAsset(item.id);
   tabSwitch.value = 1;
 };
 
@@ -126,7 +162,6 @@ const getMemberAsset = async (id: number) => {
     }));
   }
   console.log('会员资产', asset);
-
   orderStore.member = { ...asset.vipInfoVO, ...asset };
 };
 

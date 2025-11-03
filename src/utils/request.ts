@@ -71,6 +71,9 @@ const errorHandler = (error: any) => {
     console.log('响应错误 = ', error);
 
     switch (status) {
+      case 400:
+        message = '请求参数错误';
+        break;
       case 401:
         logout();
         break;

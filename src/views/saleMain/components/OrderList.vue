@@ -77,16 +77,19 @@
       </div>
     </footer>
   </div>
+  <SettleForm v-model="settleDialogVisible" />
 </template>
 
 <script setup lang="ts">
+import Message from '@/components/Message';
 import DetailCard from './DetailCard.vue';
 import CouponCard from './CouponCard.vue';
 import EditDiscountPrice from './EditDiscountPrice.vue';
+import SettleForm from './SettleForm.vue';
 import MessageBox from '@/components/MessageBox';
 
 import { ref, onMounted, computed } from 'vue';
-import { CouponType } from '@/enums/index';
+import { CouponType, PaymentType, paymentTypeMap, CustomerType } from '@/enums/index';
 import { useOrderStore } from '@/store/modules/order/index';
 const orderStore = useOrderStore();
 
@@ -124,8 +127,68 @@ const coupons = computed(() => {
   }
 });
 
+const settleDialogVisible = ref(false);
+
+// 处理结算事件
 const handleSettle = () => {
-  console.log('结算订单 = ', orderStore.order);
+  // 检查订单是否为空
+  if (!orderStore.order.vipId || orderStore.order.details.length === 0) {
+    Message.warning('订单不能为空');
+    return;
+  }
+  //
+  orderStore.order.paymentInfoList = [];
+
+  if (orderStore.order.customerType === CustomerType.Member) {
+    if (orderStore.checkedAssetInfo.assetIds.length === 0) {
+      Message.warning('会员存在不同类型的资产记录，请您选择至少一个条资产记录，进行结算');
+      return;
+    }
+    let truePayAmount = orderStore.truePayAmount;
+    for (const assetId of orderStore.checkedAssetInfo.assetIds) {
+      const asset = orderStore.member.vipAssetVOList.find((assetItem: any) => assetItem.id === assetId);
+      if (asset.assetBalance <= 0) {
+        continue;
+      }
+      if (asset) {
+        const paymentInfo = {
+          paymentType: PaymentType.MemberCard,
+          paymentName: paymentTypeMap[PaymentType.MemberCard],
+          paymentAmount: truePayAmount,
+          assetCode: asset.assetNum,
+        };
+        if (asset.assetBalance < truePayAmount) {
+          paymentInfo.paymentAmount = asset.assetBalance;
+          truePayAmount -= asset.assetBalance;
+        }
+        orderStore.order.paymentInfoList.push(paymentInfo);
+      } else {
+        Message.warning('未找到相关资产记录，请重新选择');
+        return;
+      }
+    }
+    const totalTruePayment = orderStore.order.paymentInfoList.reduce(
+      (total: number, item: any) => (total += item.paymentAmount),
+      0,
+    );
+    if (totalTruePayment < orderStore.truePayAmount) {
+      orderStore.order.paymentInfoList.push({
+        paymentType: PaymentType.WeChat,
+        paymentName: paymentTypeMap[PaymentType.WeChat],
+        paymentAmount: orderStore.truePayAmount - totalTruePayment,
+        assetCode: '',
+      });
+    }
+    settleDialogVisible.value = true;
+  } else {
+    orderStore.order.paymentInfoList.push({
+      paymentType: PaymentType.WeChat,
+      paymentName: paymentTypeMap[PaymentType.WeChat],
+      paymentAmount: orderStore.truePayAmount,
+      assetCode: '',
+    });
+    settleDialogVisible.value = true;
+  }
 };
 
 const handleCancelCoupon = () => {
