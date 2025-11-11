@@ -2,7 +2,17 @@
   <!-- <div v-if="store.order.vipId" class="member-info"> -->
   <div v-if="true" class="member-info">
     <div class="member-card-container">
-      <MemberCard :member="store.member.vipInfoVO || {}" :show-reset-btn="false" />
+      <template v-if="store.order.customerType === CustomerType.Member">
+        <MemberCard :member="store.member.vipInfoVO || {}" :show-reset-btn="false" />
+      </template>
+      <template v-if="store.order.customerType === CustomerType.Guest">
+        <el-descriptions :column="1">
+          <el-descriptions-item label="顾客姓名:">{{ store.order.customerName }}</el-descriptions-item>
+          <el-descriptions-item label="应付总额:">
+            <span class="price-text">{{ store.truePayAmount }} 元</span>
+          </el-descriptions-item>
+        </el-descriptions>
+      </template>
     </div>
     <div class="tag-container"></div>
     <!-- 资产信息 -->
@@ -29,7 +39,7 @@ import PropertyCard from './PropertyCard.vue';
 
 import { ref, watch, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { DiscountType, discountTypeMap } from '@/enums/index';
+import { CustomerType, DiscountType, discountTypeMap } from '@/enums/index';
 
 import { useOrderStore } from '@/store/modules/order/index';
 import { useMemberStore } from '@/store/modules/member/member';

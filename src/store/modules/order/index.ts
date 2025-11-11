@@ -14,7 +14,7 @@ import { parseResObj } from '@/utils/parseResponse';
 import { orderResToOrder } from '@/store/modules/order/utils';
 import Message from '@/components/Message';
 import { useSettingStore } from '@/store/modules/acl/setting';
-import { CustomerType, OrderDetailType } from '@/enums';
+import { CustomerType, OrderDetailType, ResponseCode } from '@/enums';
 import { useDataEnumStore } from '@/store/modules/enums/index';
 import { useMemberStore } from '@/store/modules/member/member';
 /**
@@ -98,7 +98,7 @@ export const useOrderStore = defineStore('Order', () => {
   });
   // 应付金额 = 订单金额 - 订单折扣金额
   const truePayAmount: any = computed(() => {
-    let result = payAmount.value - discountAmount.value;
+    const result = payAmount.value - discountAmount.value;
     return result < 0 ? 0 : result;
   });
   // 订单明细数量
@@ -116,10 +116,20 @@ export const useOrderStore = defineStore('Order', () => {
    */
   const validateOrderForm = (params: any) => {
     // 校验会员信息
-    if (!params.vipId || !params.vipName || !params.vipCardNumber || !params.vipPhoneNumber) {
-      Message.error('请填写完整会员信息');
-      return false;
+    // if (!params.vipId || !params.vipName || !params.vipCardNumber || !params.vipPhoneNumber) {
+    //   Message.error('请填写完整会员信息');
+    //   return false;
+    // }
+    console.log('准备校验会员信息：', params);
+
+    if (params.customerType === CustomerType.Member && !params.vipId) {
+      Message.warning('请选择会员');
+      return;
+    } else if (params.customerType === CustomerType.Guest && !params.customerName) {
+      Message.warning('请输入散客姓名');
+      return;
     }
+
     // 校验订单明细
     if (params.orderDetails.length === 0) {
       Message.error('请添加订单明细');
@@ -142,16 +152,15 @@ export const useOrderStore = defineStore('Order', () => {
    * @returns 验证结果（true表示验证失败，false表示验证成功）
    */
   const validOrderDetail = (params: any) => {
-    return !params.bid || !params.stdPrice || !params.truePrice || !params.businessName;
+    return !params.bid || params.stdPrice < 0 || params.truePrice < 0 || !params.businessName;
   };
   const validSubmitOrderDetail = (params: any) => {
     return (
       !params.bid ||
       !params.userId ||
       !params.userName ||
-      !params.detailType ||
-      !params.stdPrice ||
-      !params.truePrice ||
+      params.stdPrice < 0 ||
+      params.truePrice < 0 ||
       !params.businessName
     );
   };
@@ -280,10 +289,10 @@ export const useOrderStore = defineStore('Order', () => {
    * @returns 操作结果
    */
   const addOrderDetail = (detail: any) => {
-    if (!orderForm.value.vipId) {
-      Message.error('请先选择会员');
-      return false;
-    }
+    // if (!orderForm.value.vipId || orderForm.value.customerName == '') {
+    //   Message.error('请先选择会员或者输入散客姓名');
+    //   return false;
+    // }
 
     // 处理订单明细参数
     const data = handleDetailParam(detail);
@@ -395,17 +404,31 @@ export const useOrderStore = defineStore('Order', () => {
     order.value.discountAmount = discountAmount.value;
     console.log('结算订单:', order.value);
     try {
-      const res = await reqSettleOrder(order.value);
-      console.log('结算订单成功:', res);
-      resetOrderStatus();
-      return true;
+      const res: any = await reqSettleOrder(order.value);
+      // parseResObj()
+      console.log('结算订单结果：', res);
+
+      if (res.code === ResponseCode.SUCCESS) {
+        console.log('结算订单成功:', res);
+        Message.success('订单结算成功');
+        resetOrderStatus();
+        return true;
+      } else {
+        console.log('结算订单失败:', res);
+        Message.error(`订单结算失败：${res.message}`);
+        return false;
+      }
     } catch (error) {
+      console.error('结算订单报错', error);
       return false;
     }
   };
 
   const setOrderByBed = async (bedId: number) => {
     const orderRes = await getOrder(bedId);
+    if (Object.keys(orderRes).length <= 0) {
+      return;
+    }
     order.value = orderResToOrder(orderRes);
     if (order.value.vipId) {
       getMemberAsset(order.value.vipId);
@@ -443,15 +466,26 @@ export const useOrderStore = defineStore('Order', () => {
         discountValue: `${item.id}-${item?.assetDiscountBase}-${item?.assetDiscountRate}`,
       }));
     }
+    if (asset && asset?.vipTicketVOList) {
+      asset.vipTicketVOList = asset.vipTicketVOList.filter((item: any) => {
+        return item.status != '已使用';
+      });
+    }
     console.log('会员资产', asset);
     member.value = { ...asset.vipInfoVO, ...asset };
   };
 
   const getOrder = async (bedId: number) => {
+    if (!bedId) {
+      console.error('床位ID无效');
+      return {};
+    }
     try {
       const { code, data }: any = await reqQueryOrderByBedId(bedId);
       console.log('查询订单:', data);
-      return data;
+      if (data) {
+        return data;
+      }
     } catch (error) {
       Message.error('查询订单失败');
     }

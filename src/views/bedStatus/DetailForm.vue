@@ -32,7 +32,13 @@
         </el-form-item>
         <el-form-item label="服务类型：" prop="serverType">
           <el-radio-group v-model="orderStore.detailForm.serverType">
-            <el-radio v-for="item in ServiceTypeOptions" :value="item.value" :border="true">{{ item.label }}</el-radio>
+            <el-radio
+              v-for="item in ServiceTypeOptions"
+              :value="item.value"
+              :label="item.label"
+              :key="item.value"
+              :border="true"
+            />
           </el-radio-group>
         </el-form-item>
       </div>

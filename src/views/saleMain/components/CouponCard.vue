@@ -42,7 +42,6 @@ interface Props {
   };
 }
 
-// 生成props
 const props = withDefaults(defineProps<Props>(), {
   active: true,
 });

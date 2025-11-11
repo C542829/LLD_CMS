@@ -35,7 +35,7 @@
         <div style="height: 110px"></div>
       </el-scrollbar>
     </div>
-    <div class="coupon-list-container">
+    <div v-show="coupons && coupons.length > 0" class="coupon-list-container">
       <el-divider>
         <el-radio-group v-model="tabSwitch">
           <el-radio-button :value="0" :border="false" size="small">本单可选优惠券</el-radio-button>
@@ -131,12 +131,20 @@ const settleDialogVisible = ref(false);
 
 // 处理结算事件
 const handleSettle = () => {
+  if (orderStore.order.customerType === CustomerType.Member && !orderStore.order.vipId) {
+    Message.warning('请选择会员进行结算');
+    return;
+  }
+  if (orderStore.order.customerType === CustomerType.Guest && orderStore.order.customerName === '') {
+    Message.warning('请输入散客姓名后进行结算');
+    return;
+  }
   // 检查订单是否为空
-  if (!orderStore.order.vipId || orderStore.order.details.length === 0) {
+  if (orderStore.order.details.length === 0) {
     Message.warning('订单不能为空');
     return;
   }
-  //
+
   orderStore.order.paymentInfoList = [];
 
   if (orderStore.order.customerType === CustomerType.Member) {

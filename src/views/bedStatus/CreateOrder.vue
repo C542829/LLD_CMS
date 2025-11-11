@@ -9,8 +9,9 @@
             :value="item.value"
             :label="item.label"
             :key="item.value"
-            border
+            :border="true"
           />
+          <!-- :disabled="item.value == CustomerType.Guest" -->
         </el-radio-group>
       </el-descriptions-item>
       <el-descriptions-item v-show="orderStore.orderForm.customerType == CustomerType.Member" label="开单会员：">
@@ -32,7 +33,7 @@
     </el-descriptions>
     <Card padding="0px">
       <div style="margin: 10px 0 0 10px">
-        <el-button type="primary" @click="showDialog(false)">新增明细</el-button>
+        <el-button type="primary" :disabled="type == 'view'" @click="showDialog(false)">新增明细</el-button>
       </div>
       <PaginationTable :data="orderStore.orderForm.orderDetails" :showPagination="false">
         <el-table-column prop="businessName" label="名称" />
@@ -116,11 +117,11 @@ const dialogVisible = ref(false);
 const handleType = ref('add');
 const showDialog = (type: boolean, row: any = {}) => {
   if (orderStore.orderForm.customerType === CustomerType.Member && !orderStore.orderForm.vipId) {
-    Message.error('请选择会员');
+    Message.warning('请选择会员');
     return;
   }
   if (orderStore.orderForm.customerType === CustomerType.Guest && !orderStore.orderForm.customerName) {
-    Message.error('请输入散客姓名');
+    Message.warning('请输入散客姓名');
     return;
   }
   dialogVisible.value = true;

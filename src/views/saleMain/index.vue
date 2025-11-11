@@ -139,7 +139,7 @@ onMounted(async () => {
 });
 
 // 搜索会员
-const inputValue = ref('秀英');
+const inputValue = ref('');
 
 // 选中会员
 const handleSelect = (item: Record<string, any>) => {

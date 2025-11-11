@@ -10,7 +10,7 @@
               <span>{{ item.bedName }}</span>
             </div>
             <div v-if="item.status === 1" class="card-header-right">
-              <ModifyBed :bill="{}" />
+              <!-- <ModifyBed :bill="{}" /> -->
             </div>
           </div>
 
@@ -29,7 +29,7 @@
           <!-- 服务状态 -->
           <el-tooltip v-if="item.status === 1" placement="bottom" effect="light">
             <template #content>
-              <BillSummary />
+              <!-- <BillSummary /> -->
             </template>
             <div class="card-bottom bed-status-svr">
               <div class="card-info">
@@ -161,7 +161,7 @@ const calcPercentage = (total: number, current: number) => {
   return (current / total) * 100;
 };
 
-const percentage2 = ref(calcPercentage(140, 120));
+const percentage2 = ref(calcPercentage(140, 0));
 
 const colors = [
   { color: '#e74c3c', percentage: 100 },

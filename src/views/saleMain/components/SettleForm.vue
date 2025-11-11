@@ -69,10 +69,7 @@ const handleSubmit = async () => {
   loading.value = true;
   const isSuccess = await orderStore.settleOrder();
   if (isSuccess) {
-    Message.success('结算订单成功');
     closeDialog();
-  } else {
-    Message.error('结算订单失败');
   }
   loading.value = false;
 };

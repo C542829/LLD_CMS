@@ -8,7 +8,7 @@ export const orderResToOrder = (params: any) => {
   const details = orderInfo.orderDetails || [];
   const payments = orderInfo.payments || [];
 
-  return {
+  const result = {
     ...orderInfo,
     // 订单ID
     orderId: orderInfo.id,
@@ -61,4 +61,9 @@ export const orderResToOrder = (params: any) => {
     //   paymentType: payment.paymentType,
     // })),
   };
+
+  if (result.orderDetails) {
+    delete result.orderDetails;
+  }
+  return result;
 };
