@@ -53,13 +53,13 @@
       <!-- 提成类型 -->
       <el-form-item label="提成类型" prop="commissionType">
         <el-radio-group v-model="store.formData.commissionType">
-          <el-radio :value="1" :border="true">固定金额</el-radio>
-          <el-radio :value="0" :border="true">比例提成</el-radio>
+          <el-radio :value="CommissionType.FixedAmount" :border="true">固定金额</el-radio>
+          <el-radio :value="CommissionType.Proportion" :border="true">比例提成</el-radio>
         </el-radio-group>
       </el-form-item>
 
       <!-- 固定金额 -->
-      <template v-if="store.formData.commissionType === 1">
+      <template v-if="store.formData.commissionType === CommissionType.FixedAmount">
         <el-form-item label="提成值" prop="commissionValue">
           <el-input-number size="small" v-model="store.formData.commissionValue" :controls="false" />
           &nbsp;元
@@ -67,7 +67,7 @@
       </template>
 
       <!-- 比例提成 -->
-      <template v-if="store.formData.commissionType === 0">
+      <template v-if="store.formData.commissionType === CommissionType.Proportion">
         <el-form-item label="提成比例" prop="commissionValue" style="margin-bottom: 15px">
           <el-input-number size="small" v-model="store.formData.commissionValue" :controls="false" />
           &nbsp;%
@@ -101,7 +101,7 @@ import { ref, reactive, onMounted } from 'vue';
 import EnumHandler from '@/components/EnumHandler/index.vue';
 
 // 导入枚举数据
-import { commissionOptions } from '@/enums/index';
+import { commissionOptions, CommissionType } from '@/enums/index';
 
 // 引入数据仓库
 import { useProductStore } from '@/store/modules/setGroup/product';

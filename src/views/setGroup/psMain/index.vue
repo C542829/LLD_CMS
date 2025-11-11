@@ -15,7 +15,7 @@ import useUserStore from '@/store/modules/acl/user';
 const originalNavList = ref([
   { label: '产品管理', icon: '', component: markRaw(ProductManager) },
   { label: '项目管理', icon: '', component: markRaw(ServiceItemManager) },
-  { label: '疗程券管理', icon: '', component: markRaw(TreatmentCouponManager) },
+  // { label: '疗程券管理', icon: '', component: markRaw(TreatmentCouponManager) },
   { label: '套餐管理', icon: '', component: markRaw(PackageManager) },
   {
     label: '充值提成规则',
