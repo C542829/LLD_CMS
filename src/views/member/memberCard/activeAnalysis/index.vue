@@ -64,7 +64,7 @@
         <el-table-column prop="lastRechargeTime" label="末次充值日期" min-width="80" />
         <el-table-column label="操作" min-width="80">
           <template #default="{ row }">
-            <el-button link type="primary" @click="showDialog(row)">资产详情</el-button>
+            <el-button link type="primary" :disabled="true" @click="showDialog(row)">资产详情</el-button>
           </template>
         </el-table-column>
       </PaginationTable>

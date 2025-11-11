@@ -53,7 +53,7 @@
             <el-button @click="showDrawer(2, row)" link type="info">详情</el-button>
             <el-button v-if="row.activeStatus" @click="store.updateStatus(row)" link type="success">启用</el-button>
             <el-button v-else @click="showConfirm(row)" link type="warning">禁用</el-button>
-            <el-button @click="showDialog(row)" link type="primary">统计</el-button>
+            <el-button :disabled="true" @click="showDialog(row)" link type="primary">统计</el-button>
           </template>
         </el-table-column>
       </PaginationTable>

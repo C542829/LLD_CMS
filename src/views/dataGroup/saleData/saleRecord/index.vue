@@ -137,7 +137,7 @@
             <br />
             <el-button @click="showDialog(scope.row)" link type="warning">修改销售单据</el-button>
             <br />
-            <el-button @click="printReceipt(scope.row)" link type="primary">重打小票</el-button>
+            <el-button :disabled="true" @click="printReceipt(scope.row)" link type="primary">重打小票</el-button>
           </template>
         </el-table-column>
       </PaginationTable>

@@ -147,11 +147,11 @@
         </el-table-column>
         <el-table-column label="操作" width="120">
           <template #default="{ row }">
-            <el-button link type="primary" @click="billReversal(row)">冲正</el-button>
+            <el-button link type="primary" :disabled="true" @click="billReversal(row)">冲正</el-button>
             <br />
-            <el-button link type="primary" @click="showDialog(row)">修改充值单据</el-button>
+            <el-button link type="primary" :disabled="true" @click="showDialog(row)">修改充值单据</el-button>
             <br />
-            <el-button link type="primary" @click="reprint(row)">重打小票</el-button>
+            <el-button link type="primary" :disabled="true" @click="reprint(row)">重打小票</el-button>
           </template>
         </el-table-column>
       </PaginationTable>
