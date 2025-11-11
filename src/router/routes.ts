@@ -34,6 +34,16 @@ export const constantRoute = [
       icon: 'DocumentDelete',
     },
   },
+  {
+    path: '/samples',
+    component: () => import('@/components/UseSamples/index.vue'),
+    name: 'samples',
+    meta: {
+      title: 'samples',
+      hidden: true,
+      icon: 'DocumentDelete',
+    },
+  },
 ];
 
 // 异步路由

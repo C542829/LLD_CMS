@@ -584,6 +584,44 @@ export const asyncRoute = [
             ],
           },
           {
+            path: '/setGroup/psMain/treatmentCouponManager',
+            name: 'TreatmentCouponManager',
+            meta: {
+              id: 56,
+              parentId: 47,
+              title: '疗程券管理',
+            },
+            children: [
+              {
+                path: '/setGroup/psMain/treatmentCouponManager/add',
+                name: 'TreatmentCouponAdd',
+                meta: {
+                  id: 57,
+                  parentId: 56,
+                  title: '添加疗程券',
+                },
+              },
+              {
+                path: '/setGroup/psMain/treatmentCouponManager/update',
+                name: 'TreatmentCouponUpdate',
+                meta: {
+                  id: 58,
+                  parentId: 56,
+                  title: '修改疗程券',
+                },
+              },
+              {
+                path: '/setGroup/psMain/treatmentCouponManager/disabled',
+                name: 'TreatmentCouponDisabled',
+                meta: {
+                  id: 59,
+                  parentId: 56,
+                  title: '禁用疗程券',
+                },
+              },
+            ],
+          },
+          {
             path: '/setGroup/psMain/rechargeCommission',
             name: 'RechargeCommission',
             meta: {
