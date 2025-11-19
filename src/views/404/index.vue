@@ -9,9 +9,13 @@
         页面未找到
       </h1>
       <p class="error-desc">抱歉，您访问的页面不存在或已被删除</p>
-      <el-button @click="goHome" type="primary" size="large" class="return-btn">
+      <el-button @click="goBack" type="primary" size="large" class="return-btn">
         <el-icon><House /></el-icon>
         返回上一页
+      </el-button>
+      <el-button @click="goHome" type="primary" size="large" class="return-btn">
+        <el-icon><House /></el-icon>
+        返回首页
       </el-button>
       <el-button @click="goLogin" type="primary" size="large" class="return-btn">
         <el-icon><House /></el-icon>
@@ -21,6 +25,19 @@
   </div>
 </template>
 
+<script lang="ts">
+export default {
+  created() {
+    try {
+      if (this.$route.redirectedFrom?.path) {
+        this.$router.push(this.$route.redirectedFrom.path);
+      }
+    } catch (error) {
+      console.error('重定向路由报错：', error);
+    }
+  },
+};
+</script>
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import useUserStore from '@/store/modules/acl/user';
@@ -31,8 +48,11 @@ const userStore = useUserStore();
 if (!userStore.token) {
   router.push('/login');
 }
-const goHome = () => {
+const goBack = () => {
   router.go(-1);
+};
+const goHome = () => {
+  router.push({ path: '/dataView' });
 };
 const goLogin = () => {
   router.push({ path: '/login' });
