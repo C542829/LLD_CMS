@@ -108,7 +108,7 @@
 </template>
 
 <script setup lang="ts">
-import { LodopPrinter, OrderData } from '@/utils/lodop';
+import { LodopPrinter, type OrderData } from '@/utils/lodop';
 import { ref, onMounted } from 'vue';
 
 const printer = new LodopPrinter();
@@ -142,11 +142,11 @@ const orderData: OrderData = {
 };
 
 const handlePrint = () => {
-  printer.printReceipt(orderData, false);
+  printer.printByHTML(orderData, false);
 };
 
 const handlePreview = () => {
-  printer.printReceipt(orderData, true);
+  printer.printByHTML(orderData, true);
 };
 </script>
 

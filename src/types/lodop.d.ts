@@ -23,6 +23,8 @@ declare global {
     GET_PRINTER_NAME: (index: number) => string;
     // 设置打印机（通过索引）
     SET_PRINTER_INDEX: (index: number) => void;
+    // 打印HTML模板
+    ADD_PRINT_HTML: (x: number, y: number, width: number, height: number, html: string) => void;
   }
 }
 
