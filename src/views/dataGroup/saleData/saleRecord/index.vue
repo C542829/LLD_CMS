@@ -131,13 +131,20 @@
           </template>
         </el-table-column>
         <el-table-column label="操作" width="115">
-          <template #default="scope">
-            <el-button @click="showDrawer(scope.row)" link type="info">明细</el-button>
-            <el-button @click="reversal(scope.row)" link type="danger">冲正</el-button>
+          <template #default="{ row }">
+            <el-button @click="showDrawer(row)" link type="info">明细</el-button>
+            <el-button @click="reversal(row)" link type="danger">冲正</el-button>
             <br />
-            <el-button @click="showDialog(scope.row)" link type="warning">修改销售单据</el-button>
+            <el-button @click="showDialog(row)" link type="warning">修改销售单据</el-button>
             <br />
-            <el-button :disabled="true" @click="printReceipt(scope.row)" link type="primary">重打小票</el-button>
+            <el-button
+              :disabled="row.orderStatus !== OrderStatus.SETTLED"
+              @click="printReceipt(row)"
+              link
+              type="primary"
+            >
+              重打小票
+            </el-button>
           </template>
         </el-table-column>
       </PaginationTable>
@@ -153,16 +160,20 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, inject, onMounted, ref } from 'vue';
-import { dateFormatter, timeFormatter } from '@/utils/formatter';
-import { OrderStatusMap, orderStatusOptions, paymentTypeOptions } from '@/enums';
 import OrderDetail from './OrderDetail.vue';
 import OrderModify from './OrderModify.vue';
+import Notification from '@/components/Notification';
+import { reactive, inject, onMounted, ref } from 'vue';
+import { dateFormatter, timeFormatter } from '@/utils/formatter';
+import { OrderStatus, OrderStatusMap, orderStatusOptions, paymentTypeOptions } from '@/enums';
+import { LodopPrinter, type OrderData } from '@/utils/lodop';
 
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useSaleStore } from '@/store/modules/dataGroup/saleData';
 import { useDataEnumStore } from '@/store/modules/enums';
+import { useOrgStore } from '@/store/modules/acl/org';
+const orgStore = useOrgStore();
 const settingStore = useSettingStore();
 const store = useSaleStore();
 const dataEnumStore = useDataEnumStore();
@@ -174,7 +185,7 @@ const staffList = ref([]);
 const MessageBox: any = inject('$MessageBox');
 
 // 订单状态转换函数
-const getOrderStatusText = (status: number) => {
+const getOrderStatusText = (status: OrderStatus) => {
   return OrderStatusMap[status] || '未知状态';
 };
 
@@ -210,8 +221,17 @@ const reversal = async (row: any) => {
   console.log(isReversal);
 };
 
-const printReceipt = (row: any) => {
+const printer = new LodopPrinter();
+
+const printReceipt = async (row: any) => {
   // 打印小票
+  if (row.orderStatus !== OrderStatus.SETTLED) {
+    Notification.warning('订单未结算，无法打印小票！');
+    return;
+  }
+  const org = await orgStore.getOrg();
+  const data = { ...row, ...org };
+  printer.printByHTML(data, false);
 };
 
 // 抽屉

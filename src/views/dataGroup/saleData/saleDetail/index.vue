@@ -71,7 +71,7 @@
     <!-- 数据列表 -->
     <Card padding="0">
       <PaginationTable
-        v-loading="settingStore.loading"
+        v-loading="settingStore.loading && !dialog.visible"
         :element-loading-text="settingStore.loadingMsg"
         :data="store.saleDetail.data"
         :total="store.saleDetail.total"

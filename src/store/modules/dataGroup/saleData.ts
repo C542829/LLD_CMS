@@ -19,12 +19,9 @@ export const useSaleStore = defineStore('SaleData', () => {
   });
   const setSaleRecord = async () => {
     settingStore.loading = true;
-
     const params = { ...searchParams.value };
     const res = await reqSaleRecord(params);
-    let data: any = parseResObj(res, '获取销售记录成功') || [];
-    console.log(data);
-
+    const data: any = parseResObj(res) || [];
     saleRecord.total = data.total;
     saleRecord.data = data.rows;
     settingStore.loading = false;
@@ -39,8 +36,7 @@ export const useSaleStore = defineStore('SaleData', () => {
 
     const params = { ...searchParams.value };
     const res = await reqSaleSummary(params);
-    let data: any = parseResList(res, '获取销售汇总成功') || [];
-    console.log(data);
+    const data: any = parseResList(res) || [];
 
     saleSummary.data = data;
     settingStore.loading = false;
@@ -55,8 +51,7 @@ export const useSaleStore = defineStore('SaleData', () => {
 
     const params = { ...searchParams.value };
     const res = await reqSaleDetail(params);
-    let data: any = parseResObj(res, '获取销售详情成功') || {};
-    console.log(data);
+    const data: any = parseResObj(res) || {};
 
     saleDetail.total = data.total;
     saleDetail.data = data.rows;
@@ -67,16 +62,16 @@ export const useSaleStore = defineStore('SaleData', () => {
   const orderInfo = ref(null);
   const getOrderInfo = async (orderCode: string) => {
     try {
-      settingStore.loading = true;
+      // settingStore.loading = true;
       const res = await reqOrderInfo(orderCode);
-      const data = parseResObj(res, '获取订单详情成功');
+      const data = parseResObj(res);
       orderInfo.value = data;
       return data;
     } catch (error) {
       console.error('获取订单详情失败:', error);
       throw error;
     } finally {
-      settingStore.loading = false;
+      // settingStore.loading = false;
     }
   };
 
