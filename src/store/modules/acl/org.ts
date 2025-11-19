@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia';
-import { reactive, ref } from 'vue';
+import { reactive, ref, computed } from 'vue';
 import { reqList, reqListOne, reqAdd, reqUpdate, reqUpdateStatus } from '@/api/acl/org';
 import { Org } from '@/api/acl/org/type';
 import { parseResList, parseResMsg, parseResObj } from '@/utils/parseResponse';
+import { getUserInfo } from '@/utils/localStorageTools';
 
 import { useSettingStore } from '@/store/modules/acl/setting';
 const settingStore = useSettingStore();
@@ -29,6 +30,26 @@ export const useOrgStore = defineStore('Org', () => {
     return orgInfo;
   };
 
+  // 存储当前登录用户的门店信息
+  const _org = ref<Org | null>(null);
+  const getOrg = async () => {
+    try {
+      const user = getUserInfo();
+      if (!user) {
+        return {};
+      }
+      if (_org.value && _org.value.id === user.orgId) {
+        return _org.value;
+      } else {
+        _org.value = await getOrgInfo(user.orgId);
+        return _org.value;
+      }
+    } catch (error) {
+      console.log('获取门店信息报错：', error);
+      return {};
+    }
+  };
+
   /**
    * 表格数据
    */
@@ -40,7 +61,7 @@ export const useOrgStore = defineStore('Org', () => {
   const setTableData = async () => {
     settingStore.loading = true;
     const res = await reqList(search);
-    let data: Org[] = parseResList(res);
+    const data: Org[] = parseResList(res);
     for (const item of data) {
       item.orgArea && (item.orgArea = JSON.parse(item.orgArea as string));
     }
@@ -131,5 +152,7 @@ export const useOrgStore = defineStore('Org', () => {
     resetFormData,
     updateStatus,
     getOrgInfo,
+
+    getOrg,
   };
 });
