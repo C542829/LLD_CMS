@@ -31,12 +31,20 @@ import PayMethod from './PayMethod.vue';
 import Message from '@/components/Message';
 
 import { ref, watch, onMounted } from 'vue';
-import { CustomerType } from '@/enums/index';
+import { CustomerType, ResponseCode } from '@/enums/index';
 import { type FormInstance } from 'element-plus';
+import { LodopPrinter, type OrderData } from '@/utils/lodop';
+import { reqQueryOrder } from '@/api/order/index';
+
 import { useOrderStore } from '@/store/modules/order/index';
 import { useDataEnumStore } from '@/store/modules/enums/index';
+import { useOrgStore } from '@/store/modules/acl/org';
+import { isEmpty } from 'lodash';
+import Notification from '@/components/Notification';
+const orgStore = useOrgStore();
 const orderStore = useOrderStore();
 const enumStore = useDataEnumStore();
+const printer = new LodopPrinter();
 
 interface Props {
   modelValue: boolean;
@@ -67,11 +75,39 @@ const handleSubmit = async () => {
     return;
   }
   loading.value = true;
-  const isSuccess = await orderStore.settleOrder();
-  if (isSuccess) {
+  const order = await orderStore.settleOrder();
+  if (!isEmpty(order)) {
     closeDialog();
+    printReceipt(order.orderCode);
   }
   loading.value = false;
+};
+
+const printReceipt = async (orderCode: string) => {
+  if (!orderCode) {
+    console.log('打印参数缺失：缺少订单编码');
+  }
+
+  const org = await orgStore.getOrg();
+  const order = await getOrder(orderCode);
+  const data = { ...order, ...org };
+  printer.printByHTML(data, true);
+};
+
+const getOrder = async (orderCode: string) => {
+  try {
+    const res = await reqQueryOrder(orderCode);
+    if (res.code === ResponseCode.SUCCESS) {
+      return res.data;
+    } else {
+      Message.error('请求订单信息错误');
+      return {};
+    }
+  } catch (error) {
+    console.error(error);
+    Message.error('请求订单信息错误');
+    return {};
+  }
 };
 
 const closeDialog = () => {

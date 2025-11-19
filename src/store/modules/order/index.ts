@@ -8,6 +8,7 @@ import {
   reqSettleOrder,
   reqDeleteOrderDetail,
   reqCancelOrder,
+  reqQueryOrder,
   reqQueryOrderByBedId,
 } from '@/api/order/index';
 import { parseResObj } from '@/utils/parseResponse';
@@ -412,15 +413,15 @@ export const useOrderStore = defineStore('Order', () => {
         console.log('结算订单成功:', res);
         Message.success('订单结算成功');
         resetOrderStatus();
-        return true;
+        return res.data;
       } else {
         console.log('结算订单失败:', res);
         Message.error(`订单结算失败：${res.message}`);
-        return false;
+        return {};
       }
     } catch (error) {
       console.error('结算订单报错', error);
-      return false;
+      return {};
     }
   };
 
