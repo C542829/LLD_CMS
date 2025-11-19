@@ -7,7 +7,7 @@
           <div>
             统计日期：
             <DatePicker v-model="dateRange" @change="handleDateChange" style="width: 260px; margin-right: 10px" />
-            <el-button @click="" plain>打印数据</el-button>
+            <el-button disabled @click="" plain>打印数据</el-button>
           </div>
         </div>
         <div class="chart-container">
@@ -53,7 +53,7 @@
           </div>
         </div>
       </div>
-      <div class="content-bottom">
+      <!-- <div class="content-bottom">
         <div class="bottom-item">
           <span></span>
           <span>会员公众号</span>
@@ -70,7 +70,7 @@
           <span></span>
           <span>管理小程序</span>
         </div>
-      </div>
+      </div> -->
     </div>
 
     <div class="right-content" v-loading="settingStore.loading" :element-loading-text="settingStore.loadingMsg">
