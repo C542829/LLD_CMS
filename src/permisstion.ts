@@ -36,21 +36,23 @@ router.beforeEach(async (to: any, from: any, next: any) => {
     }
   }
 
-  // 错误处理
-  if (to.path === '/500' || to.path === '/404') {
-    // 如果错误跳转对应页面
-    next();
-    return; // 添加return语句，防止后续代码继续执行
-  }
-
   // 获取token
   const token = userStore.token;
-  if (token) {
+  if (token || userStore.menuRoutes.length === 0) {
+    console.log('没有路由');
+
     // 获取用户信息
     if (userStore.userId || userStore.menuRoutes.length === 0) {
       await userStore.userInfo();
+      next();
+      return;
     }
-    next();
+    // 错误处理
+    if (to.path === '/500' || to.path === '/404') {
+      // 如果错误跳转对应页面
+      next();
+      return; // 添加return语句，防止后续代码继续执行
+    }
   } else {
     // 用户未登录判断
     if (to.path === '/login') {

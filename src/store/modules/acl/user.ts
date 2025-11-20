@@ -68,34 +68,37 @@ const useUserStore = defineStore('User', {
     // 获取用户信息
     async userInfo() {
       const permStore = usePermissionStore();
+      try {
+        const user = getUserInfo();
+        this.userId = user.userId;
+        this.nickname = user.userName;
+        this.username = user.userCode;
 
-      const user = getUserInfo();
-      this.userId = user.userId;
-      this.nickname = user.userName;
-      this.username = user.userCode;
-
-      // this.buttons = result.data.buttons;
-      if (this.menuRoutes.length === 0) {
-        const perms = await permStore.getPermTreeByUserId(this.userId);
-        const routes = perms.treeMap((item) => item.component);
-        this.buttons = perms
-          .treeMap((item) => item.permCode)
-          .filter((item: string) => {
-            const btnCode = ['add', 'update', 'disabled'];
-            for (const code of btnCode) {
-              if (item.includes(code)) {
-                return true;
+        // this.buttons = result.data.buttons;
+        if (this.menuRoutes.length === 0) {
+          const perms = await permStore.getPermTreeByUserId(this.userId);
+          const routes = perms.treeMap((item) => item.component);
+          this.buttons = perms
+            .treeMap((item) => item.permCode)
+            .filter((item: string) => {
+              const btnCode = ['add', 'update', 'disabled'];
+              for (const code of btnCode) {
+                if (item.includes(code)) {
+                  return true;
+                }
               }
-            }
-          });
-        this.tabs = perms.treeMap((item) => item.remark && [...item.children.map((child: any) => child.name)]).flat();
-        const userAsyncRoute = filterAsyncRoute(cloneDeep(asyncRoute), routes);
-        this.menuRoutes = [...constantRoute, ...userAsyncRoute, anyRoute];
-      }
+            });
+          this.tabs = perms.treeMap((item) => item.remark && [...item.children.map((child: any) => child.name)]).flat();
+          const userAsyncRoute = filterAsyncRoute(cloneDeep(asyncRoute), routes);
+          this.menuRoutes = [...constantRoute, ...userAsyncRoute, anyRoute];
+        }
 
-      this.menuRoutes.forEach((route: any) => {
-        router.addRoute(route);
-      });
+        this.menuRoutes.forEach((route: any) => {
+          router.addRoute(route);
+        });
+      } catch (error) {
+        console.error(error);
+      }
     },
 
     // 退出登录
@@ -103,9 +106,9 @@ const useUserStore = defineStore('User', {
       const params = { username: this.username };
       const res: any = await reqLogout(params);
       if (res.code === ResponseCode.SUCCESS) {
-        this.clearUserInfo();
-        $Message.success('退出登录成功');
         router.push({ path: '/login' });
+        $Message.success('退出登录成功');
+        this.clearUserInfo();
       } else {
         $Message.error('退出登录失败');
       }
