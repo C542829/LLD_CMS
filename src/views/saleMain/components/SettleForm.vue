@@ -91,7 +91,7 @@ const printReceipt = async (orderCode: string) => {
   const org = await orgStore.getOrg();
   const order = await getOrder(orderCode);
   const data = { ...order, ...org };
-  printer.printByHTML(data, true);
+  printer.printByHTML(data, false);
 };
 
 const getOrder = async (orderCode: string) => {
