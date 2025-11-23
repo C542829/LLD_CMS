@@ -43,6 +43,26 @@ export const commissionTypeOptions = [
 ];
 // #endregion 提成类型
 
+// #region 是否打折
+/**
+ * 是否打折
+ */
+export enum IsDiscount {
+  discount = 0,
+  noDiscount = 1,
+}
+
+export const IsDiscountMap = {
+  [IsDiscount.discount]: '打折',
+  [IsDiscount.noDiscount]: '不打折',
+};
+
+export const IsDiscountOptions = [
+  { value: IsDiscount.discount, label: '打折' },
+  { value: IsDiscount.noDiscount, label: '不打折' },
+];
+// #endregion 是否打折
+
 // #region 会员等级
 /**
  * 会员等级
