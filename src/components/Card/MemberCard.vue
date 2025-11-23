@@ -1,5 +1,5 @@
 <template>
-  <!-- 会员卡 -->
+  <!-- 会员卡 容器高度计算规则：padding (30 + 30 * 行数) px -->
   <div class="member-card">
     <div v-if="member?.id" class="member-card-main">
       <div class="item-info">
@@ -22,6 +22,9 @@
         <span>门店余额：{{ member.balance }} 元&nbsp;&nbsp;</span>
         <el-button v-if="showGoRechargeBtn" @click="goRecharge" type="primary" icon="Promotion" link>去充值</el-button>
       </div>
+      <div v-if="showRemark" class="item-info">
+        <EllipsisText :content="`备注：${member.remark || '-'}`" />
+      </div>
     </div>
     <div v-else class="member-card-empty">未选择会员</div>
   </div>
@@ -42,17 +45,20 @@ interface Member {
   cardNumber?: string;
   identity?: string;
   balance: number;
+  remark: string;
 }
 
 interface Props {
   member: Member;
   showResetBtn?: boolean;
   showGoRechargeBtn?: boolean;
+  showRemark?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   showResetBtn: true,
   showGoRechargeBtn: true,
+  showRemark: false,
 });
 
 const emit = defineEmits<{
@@ -86,7 +92,7 @@ const goRecharge = () => {
   --height: 160px;
   --line-height: 30px;
 
-  height: var(--height);
+  min-height: var(--height);
   width: var(--width);
   border-radius: 8px;
   color: #eee;
@@ -102,7 +108,7 @@ const goRecharge = () => {
     flex-wrap: nowrap;
     justify-content: space-between;
     flex-direction: column;
-    gap: 3px;
+    // gap: 3px;
 
     .item-info {
       height: var(--line-height);
