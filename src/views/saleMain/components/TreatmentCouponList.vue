@@ -42,7 +42,7 @@ const customConfig = ref({
   codeKey: 'remark',
   retailPriceKey: 'price',
   memberPriceKey: 'vipProductPrice',
-  isDiscountKey: 'isDiscount',
+  // isDiscountKey: 'isDiscount',
 });
 </script>
 

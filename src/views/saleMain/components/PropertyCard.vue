@@ -7,13 +7,16 @@
       </div>
       <div class="row-item">
         <el-checkbox :label="discountLabel" :value="data?.discountValue" :disabled="data?.disabled" />
-        <span class="fin-row-balance">余额：{{ data?.assetBalance }} 元</span>
+        <span class="fin-row-balance">余额：{{ data?.assetBalance || '' }} 元</span>
       </div>
       <div class="row-item fin-row-org">
         <div class="fin-row-org-name">
           <EllipsisText :content="orgName" placement="left" />
         </div>
-        <div class="fin-row-org-time">{{ data?.createTime }}</div>
+        <div class="fin-row-org-time text-overflow" :title="data.createTime || ''">{{ data?.createTime || '' }}</div>
+      </div>
+      <div class="row-item fin-row-remark">
+        <EllipsisText :content="`备注：${data.remark || '-'}`" placement="left" />
       </div>
     </div>
     <div v-if="isGiving" class="is-giving">赠 送</div>
@@ -91,25 +94,28 @@ const orgName = computed(() => {
 .fin-row {
   --fin-width: 280px;
   --fin-line-height: 24px;
+  --fin-min-row-height: 116px;
 
   width: var(--fin-width);
+  min-height: var(--fin-min-row-height);
+  height: auto;
+  margin: 10px auto;
+  padding: 10px 20px !important;
+  color: var(--el-text-color-secondary);
   border-radius: 6px;
   box-shadow: 0 0 15px #c2bccc;
-  margin: 10px auto;
-  color: #666;
-  padding: 10px 20px !important;
   position: relative;
   overflow: hidden;
   > div:first-child {
-    height: 100%;
+    height: auto;
   }
 }
 
 .fin-row .is-giving {
   position: absolute;
   background-color: #ff4500;
-  right: -48px;
-  top: -28px;
+  right: -50px;
+  top: -22px;
   height: 21px;
   width: 100px;
   line-height: 21px;
@@ -201,5 +207,8 @@ const orgName = computed(() => {
     width: 120px;
     text-indent: 5px;
   }
+}
+
+.fin-row-remark {
 }
 </style>

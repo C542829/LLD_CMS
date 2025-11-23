@@ -2,8 +2,15 @@
   <div class="item-card">
     <div class="item item-title">
       <div class="title"><EllipsisText :content="getItemValue(data, config.nameKey || 'name')" /></div>
-      <span v-if="getItemValue(data, config.isDiscountKey || 'isDiscount')" class="discount-tag discount">打折</span>
-      <span v-else class="discount-tag not-discount">不打折</span>
+      <template v-if="config.isDiscountKey">
+        <span
+          v-if="getItemValue(data, config.isDiscountKey || 'isDiscount') == IsDiscount.discount"
+          class="discount-tag discount"
+        >
+          {{ IsDiscountMap[IsDiscount.discount] }}
+        </span>
+        <span v-else class="discount-tag not-discount">{{ IsDiscountMap[IsDiscount.noDiscount] }}</span>
+      </template>
     </div>
     <div class="item sub-title"><EllipsisText :content="getItemValue(data, config.codeKey || 'code')" /></div>
     <div
@@ -24,6 +31,8 @@
 </template>
 
 <script setup lang="ts">
+import { IsDiscount, IsDiscountMap } from '@/enums';
+
 /**
  * 自定义配置接口
  */

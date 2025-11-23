@@ -1,3 +1,4 @@
+import Message from '@/components/Message';
 import { cloneDeep } from 'lodash';
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
@@ -12,12 +13,13 @@ import {
   reqQueryOrderByBedId,
 } from '@/api/order/index';
 import { parseResObj } from '@/utils/parseResponse';
+import { mul, div, add } from '@/utils/bigMethods';
+import { CustomerType, DiscountType, IsDiscount, OrderDetailType, ResponseCode } from '@/enums';
 import { orderResToOrder } from '@/store/modules/order/utils';
-import Message from '@/components/Message';
 import { useSettingStore } from '@/store/modules/acl/setting';
-import { CustomerType, OrderDetailType, ResponseCode } from '@/enums';
 import { useDataEnumStore } from '@/store/modules/enums/index';
 import { useMemberStore } from '@/store/modules/member/member';
+
 /**
  * 订单管理模块 - Pinia Store
  * 负责处理订单的创建、修改、重置等操作
@@ -27,6 +29,15 @@ export const useOrderStore = defineStore('Order', () => {
   const settingStore = useSettingStore();
   const enumStore = useDataEnumStore();
   const memberStore = useMemberStore();
+
+  /**
+   * 定义服务类型映射
+   */
+  const serviceMap: any = {
+    [OrderDetailType.Product]: enumStore.productList,
+    [OrderDetailType.Service]: enumStore.serviceItemList,
+    [OrderDetailType.TreatmentCoupon]: enumStore.treatmentCouponList,
+  };
 
   /**
    * 订单表单数据
@@ -76,11 +87,11 @@ export const useOrderStore = defineStore('Order', () => {
       assetDiscountRate: 0,
     };
   };
-  // 应付金额 16608179703
+  // 应付金额
   const payAmount: any = computed(() => {
     let amount = 0;
     order.value.details.forEach((item: any) => {
-      amount += item.truePrice * item.quantity;
+      amount = add(amount, mul(item.truePrice, item.quantity));
     });
     return amount;
   });
@@ -247,12 +258,7 @@ export const useOrderStore = defineStore('Order', () => {
       result.userId = user.id;
       result.userName = user.userName;
     }
-    // 定义服务类型映射
-    const serviceMap: any = {
-      [OrderDetailType.Product]: enumStore.productList,
-      [OrderDetailType.Service]: enumStore.serviceItemList,
-      [OrderDetailType.TreatmentCoupon]: enumStore.treatmentCouponList,
-    };
+
     console.log('服务项映射', serviceMap);
 
     const serviceItem = serviceMap[params.detailType].find((item: any) => item.id === params.bid);
@@ -328,6 +334,61 @@ export const useOrderStore = defineStore('Order', () => {
     return true;
   };
 
+  /** 更新订单明细的折扣价格 */
+  const updateOrderDetailPrice = () => {
+    // 如果未选择会员卡或者订单详情为空则停止
+    if (
+      checkedAssetInfo.value.assetIds.length === 0 ||
+      order.value.details.length === 0 ||
+      (member.value && member.value.vipAssetVOList && member.value.vipAssetVOList.length === 0)
+    ) {
+      console.warn('更新订单明细价格前置条件不满足');
+      return;
+    }
+
+    try {
+      // 查找当前选择的会员卡
+      const assets = member.value.vipAssetVOList;
+      const asset = assets.find((item: { id: number }) => item.id === checkedAssetInfo.value.assetIds[0]);
+      console.log('updateOrderItemPrice - 当前选择会员卡：', asset);
+
+      // 折算基础
+      const discountBase = asset.assetDiscountBase;
+      // 折算率
+      const discountRate = asset.assetDiscountRate / 100;
+
+      // 订单明细
+      const details = order.value.details;
+      console.log('updateOrderItemPrice - 当前订单明细：', details);
+
+      for (const detail of details) {
+        // 获取当前订单项目的原始参数
+        const curServiceList = serviceMap[detail.detailType];
+        const curService = curServiceList.find((item: { id: number }) => item.id === detail.bid);
+
+        // 如果设置为不打折则不进行更新
+        if (curService.isDiscounts === IsDiscount.noDiscount || curService.isDiscount === IsDiscount.noDiscount) {
+          continue;
+        }
+        // 解析参数
+        const parseCurService = parseServiceData(curService);
+        // console.log();
+
+        // 更新明细价格
+        if (curService) {
+          const discountPrice =
+            discountBase === DiscountType.Member
+              ? mul(parseCurService.vipPrice, discountRate)
+              : mul(parseCurService.stdPrice, discountRate);
+          detail.truePrice = discountPrice;
+          console.log('更新订单明细价格：', detail);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   /**
    * 重置订单明细表单
    */
@@ -393,6 +454,7 @@ export const useOrderStore = defineStore('Order', () => {
     // 添加订单明细
     detail = { index, ...data };
     order.value.details.push(detail);
+    updateOrderDetailPrice();
     return true;
   };
 
@@ -432,7 +494,7 @@ export const useOrderStore = defineStore('Order', () => {
     }
     order.value = orderResToOrder(orderRes);
     if (order.value.vipId) {
-      getMemberAsset(order.value.vipId);
+      await getMemberAsset(order.value.vipId);
     }
   };
 
@@ -457,7 +519,9 @@ export const useOrderStore = defineStore('Order', () => {
   };
   // #endregion 结算操作
 
-  // 获取会员资产
+  // #region 远程请求数据
+
+  /** 获取会员资产 */
   const getMemberAsset = async (id: number) => {
     const asset = await memberStore.getMemberAssetList(id);
     if (asset && asset?.vipAssetVOList) {
@@ -476,6 +540,7 @@ export const useOrderStore = defineStore('Order', () => {
     member.value = { ...asset.vipInfoVO, ...asset };
   };
 
+  /** 获取订单信息（请求服务器） */
   const getOrder = async (bedId: number) => {
     if (!bedId) {
       console.error('床位ID无效');
@@ -492,6 +557,10 @@ export const useOrderStore = defineStore('Order', () => {
     }
     return {};
   };
+
+  // #endregion 远程请求数据
+
+  // #region 导出状态和方法
   /**
    * 重置订单状态
    */
@@ -508,7 +577,6 @@ export const useOrderStore = defineStore('Order', () => {
     resetCheckedAssetInfo();
   };
 
-  // #region 导出状态和方法
   return {
     // 订单表单状态
     orderForm,
@@ -520,6 +588,7 @@ export const useOrderStore = defineStore('Order', () => {
     resetDetailForm,
     addOrderDetail,
     updateOrderDetail,
+    updateOrderDetailPrice,
 
     // 会员状态
     member,

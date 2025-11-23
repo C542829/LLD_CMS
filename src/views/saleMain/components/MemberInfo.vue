@@ -1,9 +1,9 @@
 <template>
   <!-- <div v-if="store.order.vipId" class="member-info"> -->
-  <div v-if="true" class="member-info">
+  <div class="member-info">
     <div class="member-card-container">
       <template v-if="store.order.customerType === CustomerType.Member">
-        <MemberCard :member="store.member.vipInfoVO || {}" :show-reset-btn="false" />
+        <MemberCard :member="store.member.vipInfoVO || {}" :show-reset-btn="false" :show-remark="true" />
       </template>
       <template v-if="store.order.customerType === CustomerType.Guest">
         <el-descriptions :column="1">
@@ -28,9 +28,9 @@
       </el-checkbox-group>
     </el-scrollbar>
   </div>
-  <div v-else class="member-info">
+  <!-- <div v-else class="member-info">
     <el-empty description="未选择会员" />
-  </div>
+  </div> -->
 </template>
 
 <script setup lang="ts">
@@ -57,13 +57,14 @@ const assetList: any = computed(() => store.member.vipAssetVOList || []);
 
 const checkedList = ref<any>([]);
 
+// 更新 store 资产列表
 watch(
   () => checkedList.value,
   (newVal) => {
     const assetIds = newVal.map((e: string) => parseInt(e.split('-')[0]));
     store.checkedAssetInfo.assetIds = assetIds;
-    console.log('checkedList = ', newVal);
-    console.log('assetIds = ', assetIds);
+    // console.log('checkedList = ', newVal);
+    // console.log('assetIds = ', assetIds);
 
     let assetTitle = '';
     let assetAmount = 0;
@@ -79,14 +80,22 @@ watch(
   },
 );
 
+// 选择会员卡时触发
 const handleChange = (val: any) => {
+  // 没有选择会员卡时，将所有会员卡状态重置
   if (val.length === 0) {
     assetList.value.forEach((item: any) => {
       item.disabled = false;
     });
     return;
+  } else {
+    // 更新明细价格
+    // const assetId = val[0].split('-')[0];
+    // const asset = store.member.vipAssetVOList.find((item: any) => item.id == assetId);
+    // console.log('当前选择资产：', asset);
+    // updateOrderItemPrice(asset);
+    store.updateOrderDetailPrice();
   }
-  console.log('val = ', val);
 
   // 当值变化时，禁用值不同的复选款
   assetList.value.forEach((item: any) => {
@@ -96,8 +105,32 @@ const handleChange = (val: any) => {
     }
   });
 };
+
+// 获取折扣值
 const getDiscountValue = (params: string) => {
   return params.substring(params.indexOf('-') + 1);
+};
+
+// const products = computed(async () => await enumsStore.getProductList());
+// const serviceItems = computed(async () => await enumsStore.getServiceItemList());
+// const treatmentCoupons = computed(async () => await enumsStore.getTreatmentCouponList());
+
+/** 选择会员卡时更新明细价格 */
+const updateOrderItemPrice = (asset: { assetDiscountBase: number; assetDiscountRate: number }) => {
+  if (asset.assetDiscountRate === 100) {
+    return;
+  }
+  const details = store.order.details;
+  if (details && details.length > 0) {
+    console.log('订单详情：', details);
+    // console.log('products = ', products);
+    // console.log('serviceItems = ', serviceItems);
+    // console.log('treatmentCoupons = ', treatmentCoupons);
+
+    for (const item of details) {
+    }
+  }
+  console.log(store.order);
 };
 
 /**
@@ -143,7 +176,7 @@ const getDiscountLabel = (data: any): string => {
   }
   .property-container {
     width: 100%;
-    height: calc(100% - 230px);
+    height: calc(100% - 250px);
   }
 }
 </style>
