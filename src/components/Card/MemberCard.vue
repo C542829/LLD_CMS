@@ -2,6 +2,7 @@
   <!-- 会员卡 容器高度计算规则：padding (30 + 30 * 行数) px -->
   <div class="member-card">
     <div v-if="member?.id" class="member-card-main">
+      <!-- <div v-if="true" class="member-card-main"> -->
       <div class="item-info">
         <h1>会员：{{ member.name }}</h1>
         <el-button
@@ -20,10 +21,13 @@
       </div>
       <div class="item-info">
         <span>门店余额：{{ member.balance }} 元&nbsp;&nbsp;</span>
-        <el-button v-if="showGoRechargeBtn" @click="goRecharge" type="primary" icon="Promotion" link>去充值</el-button>
+        <el-button v-if="showGoRechargeBtn" @click="goRecharge" color="#000" type="primary" icon="Promotion" link>
+          去充值
+        </el-button>
       </div>
-      <div v-if="showRemark" class="item-info">
-        <EllipsisText :content="`备注：${member.remark || '-'}`" />
+      <div v-if="showRemark" class="item-info remark-row">
+        <span>备注：</span>
+        <DynamicInput :value="member.remark" :params="member || {}" btnColor="#000" @update="updateRemark" />
       </div>
     </div>
     <div v-else class="member-card-empty">未选择会员</div>
@@ -31,10 +35,15 @@
 </template>
 
 <script setup lang="ts">
+import Message from '@/components/Message';
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { VipLevel, vipLevelMap } from '@/enums';
+import { reqUpdateMemberRemark } from '@/api/member/member/index';
+
+// 声明路由
 const router = useRouter();
+
 /**
  * 会员数据接口
  */
@@ -83,6 +92,18 @@ const goRecharge = () => {
     },
   });
 };
+
+/** 更新会员备注 */
+const updateRemark = async (remark: string, member: any) => {
+  try {
+    const res = await reqUpdateMemberRemark(member.id, remark);
+    member.remark = remark;
+    Message.success('更新会员备注成功');
+  } catch (error) {
+    Message.error('更新会员备注失败');
+  } finally {
+  }
+};
 </script>
 
 <style lang="scss" scoped>
@@ -115,6 +136,17 @@ const goRecharge = () => {
       line-height: var(--line-height);
       display: flex;
       align-items: center;
+    }
+    .remark-row {
+      width: 100%;
+      // overflow: hidden;
+      > span:first-child {
+        display: inline-block;
+        width: 50px;
+      }
+      > div {
+        width: calc(100% - 50px);
+      }
     }
 
     > div:first-child {
