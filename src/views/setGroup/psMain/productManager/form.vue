@@ -101,7 +101,7 @@ import { ref, reactive, onMounted } from 'vue';
 import EnumHandler from '@/components/EnumHandler/index.vue';
 
 // 导入枚举数据
-import { commissionOptions, CommissionType } from '@/enums/index';
+import { commissionOptions, CommissionType, IsDiscount } from '@/enums/index';
 
 // 引入数据仓库
 import { useProductStore } from '@/store/modules/setGroup/product';

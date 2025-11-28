@@ -219,6 +219,9 @@ const getRowClassName = ({ row }: { row: { status: number } }) => {
     align-items: center;
     height: $main-padding * 2;
     line-height: $main-padding * 2;
+    > div {
+      flex: 1;
+    }
   }
 
   .bed-list-header {
