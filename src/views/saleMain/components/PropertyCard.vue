@@ -16,7 +16,9 @@
         <div class="fin-row-org-time text-overflow" :title="data.createTime || ''">{{ data?.createTime || '' }}</div>
       </div>
       <div class="row-item fin-row-remark">
-        <EllipsisText :content="`备注：${data.remark || '-'}`" placement="left" />
+        <!-- <EllipsisText :content="`备注：${data.remark || '-'}`" placement="left" /> -->
+        <span>备注：</span>
+        <DynamicInput :value="data.remark" :params="data || {}" size="small" @update="updateRemark" />
       </div>
     </div>
     <div v-if="isGiving" class="is-giving">赠 送</div>
@@ -24,10 +26,24 @@
 </template>
 
 <script setup lang="ts">
+import Message from '@/components/Message';
 import { computed, onMounted } from 'vue';
 import { DiscountType, discountTypeMap } from '@/enums/index';
+import { reqUpdateAssetRemark } from '@/api/member/member/index';
 import { useDataEnumStore } from '@/store/modules/enums';
 const enumsStore = useDataEnumStore();
+
+/** 更新会员备注 */
+const updateRemark = async (remark: string, data: any) => {
+  try {
+    const res = await reqUpdateAssetRemark(data.id, remark);
+    data.remark = remark;
+    Message.success('更新资产备注成功');
+  } catch (error) {
+    Message.error('更新资产备注失败');
+  } finally {
+  }
+};
 
 interface Props {
   data: any;
@@ -210,5 +226,13 @@ const orgName = computed(() => {
 }
 
 .fin-row-remark {
+  color: var(--el-text-color-regular);
+  font-size: 14px;
+  > span:first-child {
+    width: 42px;
+  }
+  > div {
+    width: calc(100% - 42px);
+  }
 }
 </style>

@@ -75,3 +75,50 @@ export interface VipInfoDTO {
   remark?: string;
   [property: string]: any;
 }
+
+/**
+ * org.haut.common.domain.dto.vip.PresentTicketDTO
+ */
+export interface ReqPresentTicket {
+  /**
+   * 赠送数量
+   */
+  number: number;
+  /**
+   * 赠送备注
+   */
+  remark?: string;
+  /**
+   * 优惠券ID
+   */
+  vipTicketId: number;
+  [property: string]: any;
+}
+
+/**
+ * org.haut.common.domain.dto.vip.PresentAssetDTO
+ */
+export interface ReqPresentAsset {
+  /**
+   * 折扣基础（0 标准价，1 会员价）
+   */
+  discountBase: number;
+  /**
+   * 折扣率（0-1之间的小数，如0.8表示8折）
+   * 折扣率
+   */
+  discountRate: number;
+  /**
+   * 是否跨店结算（0 不允许，1 允许）
+   */
+  isCrossStore: number;
+  /**
+   * 赠送金额
+   */
+  presentAmount: number;
+  /**
+   * 备注
+   */
+  remark?: string;
+  [property: string]: any;
+}
