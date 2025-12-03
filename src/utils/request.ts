@@ -36,10 +36,11 @@ request.interceptors.response.use(
     if (response.config.url !== '/auth/login' && res.code === ResponseCode.UNAUTHORIZED) {
       logout();
     }
-    if (res.code === ResponseCode.SUCCESS) {
-      return res;
-    }
-    return Promise.reject(res);
+    // if (res.code === ResponseCode.SUCCESS) {
+    //   return res;
+    // }
+    // return Promise.reject(res);
+    return res;
   },
   (error) => {
     errorHandler(error);
