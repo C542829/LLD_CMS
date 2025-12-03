@@ -4,11 +4,13 @@ enum API {
   INFO_URL = '/order/query-by-id/{orderId}',
   ADD_URL = '/order/add-order',
   ADD_DETAIL_URL = '/order/add-detail/{orderId}',
-  Settle_URL = '/order/settle-order',
+  SETTLE_URL = '/order/settle-order',
   DELETE_DETAIL_URL = '/order/delete-detail/{detailId}',
   CANCEL_ORDER_URL = '/order/cancel-order/{orderId}',
   QUERY_ORDER_URL = '/order/query-by-order-code/{orderCode}',
   QUERY_ORDER_BY_BED_ID_URL = '/order/query-by-bed-id/{bedId}',
+  ORDER_RECONCILE = '/order/reconcile-order',
+  ORDER_ROLL_BACK = '/order/roll-back',
 }
 
 /**
@@ -39,7 +41,7 @@ export const reqAddOrderDetail = (orderId: number, data = {}) =>
  * @param data 订单结算数据
  * @returns 订单ID
  */
-export const reqSettleOrder = (data: any) => post(API.Settle_URL, data);
+export const reqSettleOrder = (data: any) => post(API.SETTLE_URL, data);
 
 /**
  * 删除订单明细
@@ -70,3 +72,23 @@ export const reqQueryOrder = (orderCode: string) => get(API.QUERY_ORDER_URL.repl
  */
 export const reqQueryOrderByBedId = (bedId: number) =>
   get(API.QUERY_ORDER_BY_BED_ID_URL.replace('{bedId}', bedId.toString()));
+
+/**
+ * 订单冲正
+ * @param orderId 订单ID
+ * @param reason 冲正原因
+ * @returns
+ */
+export const reqRollBackOrder = (orderId: string, reason: string) => {
+  return post(API.ORDER_ROLL_BACK, { orderId, reason });
+};
+
+/**
+ * 订单对单
+ * @param orderId 订单ID
+ * @param remark 备注
+ * @returns
+ */
+export const reqReconcileOrder = (orderId: string, remark: string) => {
+  return post(API.ORDER_RECONCILE, { orderId, remark });
+};
