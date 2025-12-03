@@ -3,13 +3,23 @@ import { ResponseCode, ResponseCodeMeaning } from '@/enums/response';
 export { ResponseCode, ResponseCodeMeaning };
 
 // #region 状态选项
+export enum Status {
+  enabled = 0,
+  disabled = 1,
+}
+
+export const StatusMap = {
+  [Status.enabled]: '启用',
+  [Status.disabled]: '禁用',
+};
+
 /**
  * 搜索状态
  */
 export const statusOptions = [
   { value: '', label: '全部状态' },
-  { value: 0, label: '启用' },
-  { value: 1, label: '禁用' },
+  { value: Status.enabled, label: StatusMap[Status.enabled] },
+  { value: Status.disabled, label: StatusMap[Status.disabled] },
 ];
 // #endregion 状态选项
 
@@ -251,13 +261,24 @@ export const paymentTypeMap = {
 // #endregion 支付类型
 
 // #region 充值状态
+
+export enum RechargeStatus {
+  SUCCESS = 0,
+  REVERSAL = 1,
+}
+
+export const RechargeStatusMap = {
+  [RechargeStatus.SUCCESS]: '充值成功',
+  [RechargeStatus.REVERSAL]: '已冲正',
+};
+
 /**
  * 充值状态
  */
 export const rechargeStatusOptions = [
   { value: '', label: '全部状态' },
-  { value: 0, label: '充值成功' },
-  { value: 1, label: '已冲正' },
+  { value: RechargeStatus.SUCCESS, label: RechargeStatusMap[RechargeStatus.SUCCESS] },
+  { value: RechargeStatus.REVERSAL, label: RechargeStatusMap[RechargeStatus.REVERSAL] },
 ];
 // #endregion 充值状态
 
@@ -276,9 +297,16 @@ export const couponRecordStatusOptions = [
 /**
  * 是否允许跨店
  */
+export enum IsCrossStore {
+  NO = 0,
+  YES = 1,
+}
+/**
+ * 是否允许跨店
+ */
 export const isCrossStoreOptions = [
-  { value: 0, label: '不允许' },
-  { value: 1, label: '允许' },
+  { value: IsCrossStore.NO, label: '不允许' },
+  { value: IsCrossStore.YES, label: '允许' },
 ];
 // #endregion 跨店设置
 
@@ -416,4 +444,21 @@ export const bedStatusOptions = [
   { value: BedStatus.Occupied, label: '占用' },
   { value: BedStatus.Suspended, label: '暂停使用' },
 ];
+// #endregion 床位状态
+
+// #region 是否是默认提成规则
+/**
+ * 是否是默认提成规则枚举
+ */
+export enum IsDefaultRCRule {
+  default = 1,
+  noDefault = 0,
+}
+/**
+ * 是否是默认提成规则映射
+ */
+export const IsDefaultRCRuleMap = {
+  [IsDefaultRCRule.default]: '默认',
+  [IsDefaultRCRule.noDefault]: '不是默认',
+};
 // #endregion 床位状态
