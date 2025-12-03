@@ -51,20 +51,38 @@
 
 <script setup lang="ts">
 import { ref, withDefaults } from 'vue';
+import { useRouter } from 'vue-router';
+
 import { useMemberStore } from '@/store/modules/member/member';
 const store = useMemberStore();
+
+// 声明路由
+const router = useRouter();
 
 const emit = defineEmits(['close-drawer']);
 
 // 表单提交
 const handleFormSubmit = async (model: any) => {
   const result = await store.update(model);
-  result && emit('close-drawer');
+  if (result) {
+    emit('close-drawer');
+    // goRecharge(result.id || '');
+    goRecharge(result.id);
+  }
 };
 
 // 表单重置
 const handleFormReset = () => {
   store.resetFormData();
+};
+
+const goRecharge = (id?: number) => {
+  router.push({
+    path: '/member/memberRecharge',
+    query: {
+      vipId: id,
+    },
+  });
 };
 
 // 表单验证规则
