@@ -100,6 +100,71 @@ export const formatDate = (date: Date, format = 'YYYY-MM-DD') => {
 };
 
 /**
+ * 判定类型：精准模式（含时分秒）/ 宽松模式（仅比较日期）
+ */
+type JudgeMode = 'strict' | 'loose';
+
+/**
+ * 判断给定时间到当前时间是否满指定天数
+ * @param targetTime 目标时间（支持 Date 对象、毫秒时间戳、ISO 时间字符串等）
+ * @param days 目标天数（必须是正整数，如 2、7、30）
+ * @param mode 判定模式：strict（精准，含时分秒）/ loose（宽松，仅比日期），默认 strict
+ * @returns 满指定天数返回 true，否则返回 false（输入无效也返回 false）
+ */
+export function isFullDaysSince(targetTime: Date | number | string, days: number, mode: JudgeMode = 'strict'): boolean {
+  // 1. 校验天数合法性（必须是正整数）
+  if (!Number.isInteger(days) || days <= 0) {
+    console.warn('天数必须是正整数（如 1、2、7），当前输入:', days);
+    return false;
+  }
+
+  // 2. 计算目标天数对应的毫秒数（days * 24h * 60min * 60s * 1000ms）
+  const TARGET_DAYS_MS = days * 86400000;
+
+  // 3. 统一转换目标时间为毫秒级时间戳（处理多输入格式）
+  let targetTimestamp: number;
+  if (targetTime instanceof Date) {
+    targetTimestamp = targetTime.getTime();
+  } else if (typeof targetTime === 'number') {
+    // 兼容 10 位秒级时间戳 → 转为 13 位毫秒级
+    targetTimestamp = targetTime.toString().length === 10 ? targetTime * 1000 : targetTime;
+  } else if (typeof targetTime === 'string') {
+    targetTimestamp = new Date(targetTime).getTime();
+  } else {
+    console.warn('不支持的时间格式，当前输入:', targetTime);
+    return false;
+  }
+
+  // 4. 校验时间戳有效性（Invalid Date 的 getTime() 返回 NaN）
+  if (isNaN(targetTimestamp)) {
+    console.warn('无效的时间输入:', targetTime);
+    return false;
+  }
+
+  // 5. 根据模式计算时间差
+  const nowTimestamp = Date.now();
+  let timeDiff: number;
+
+  if (mode === 'loose') {
+    // 宽松模式：忽略时分秒，仅比较日期（如 1 月 1 日 23:59 到 1 月 3 日 00:00 视为满 2 天）
+    const targetDate = new Date(targetTimestamp);
+    const nowDate = new Date(nowTimestamp);
+
+    // 重置时分秒为 0，只保留日期部分
+    targetDate.setHours(0, 0, 0, 0);
+    nowDate.setHours(0, 0, 0, 0);
+
+    timeDiff = nowDate.getTime() - targetDate.getTime();
+  } else {
+    // 精准模式：包含时分秒（如 1 月 1 日 10:00 到 1 月 3 日 10:00 才视为满 2 天）
+    timeDiff = nowTimestamp - targetTimestamp;
+  }
+
+  // 6. 判定：时间差 ≥ 目标天数毫秒数，且目标时间不晚于当前时间
+  return timeDiff >= TARGET_DAYS_MS;
+}
+
+/**
  * 表格时间格式化器
  * @param row
  * @param column
