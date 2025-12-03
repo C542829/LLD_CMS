@@ -9,6 +9,8 @@ enum API {
   ACTIVE_LIST_URL = '/vip/recharge-active/active-list',
   ADD_ACTIVE_URL = '/vip/recharge-active/add-active',
   ACTIVE_INFO_URL = '/vip/recharge-active/active-info',
+  REVERSE_RECHARGE = '/vip/reverse-recharge',
+  _ = ``,
 }
 
 /**
@@ -39,3 +41,13 @@ export const reqRecharge = (data = {}) =>
   post(API.RECHARGE_URL, data, {
     params: { token: getToken()?.split(' ')[1] || '' },
   });
+
+/**
+ * 充值记录冲正
+ * @param historyCode 交易流水号（充值单号）
+ * @param reverseReason 冲正原因
+ * @returns
+ */
+export const reqRollBackRecharge = (historyCode: string, reverseReason: string) => {
+  return post(API.REVERSE_RECHARGE, { historyCode, reverseReason });
+};
