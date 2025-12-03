@@ -59,3 +59,26 @@ export interface Org {
    */
   remark?: string;
 }
+
+/**
+ * OrgDefaultRuleUpdateDTO
+ */
+export interface OrgDefaultRuleUpdateDTO {
+  /**
+   * 折扣基准（0 标准价，1 会员价）
+   */
+  defaultDiscountBase: number;
+  /**
+   * 折扣率（百分比）
+   */
+  defaultDiscountRate: number;
+  /**
+   * 跨店结算（0 不允许，1 允许）
+   */
+  defaultIsCrossStore: number;
+  /**
+   * 默认充值提成规则ID
+   */
+  defaultRechargeRoleId?: number;
+  [property: string]: any;
+}
