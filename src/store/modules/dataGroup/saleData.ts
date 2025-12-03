@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, reactive } from 'vue';
+import { OrderStatus } from '@/enums/index';
 import { reqSaleRecord, reqSaleDetail, reqSaleSummary, reqOrderInfo } from '@/api/dataGroup/saleData';
 import { parseResMsg, parseResList, parseResObj } from '@/utils/parseResponse';
 
@@ -11,6 +12,7 @@ export const useSaleStore = defineStore('SaleData', () => {
   const searchParams: any = ref({
     pageNum: 1,
     pageSize: 50,
+    status: OrderStatus.SETTLED,
   });
 
   const saleRecord = reactive({

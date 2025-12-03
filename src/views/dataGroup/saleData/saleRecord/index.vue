@@ -126,16 +126,19 @@
         </el-table-column>
         <el-table-column label="状态" min-width="80">
           <template #default="scope">
-            <p>状态：{{ getOrderStatusText(scope.row.orderStatus) }}</p>
+            <p>状态：{{ scope.row.orderStatusName }}</p>
             <p>收银：{{ scope.row.userName }}</p>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="115">
           <template #default="{ row }">
             <el-button @click="showDrawer(row)" link type="info">明细</el-button>
-            <el-button @click="reversal(row)" link type="danger">冲正</el-button>
+            <el-button :disabled="row.orderStatus !== OrderStatus.SETTLED" @click="reversal(row)" link type="danger">
+              冲正
+            </el-button>
             <br />
-            <el-button @click="showDialog(row)" link type="warning">修改销售单据</el-button>
+            <!-- <el-button :disabled="row.orderStatus !== OrderStatus.SETTLED" @click="showDialog(row)" link type="warning"> -->
+            <el-button :disabled="true" @click="showDialog(row)" link type="warning">修改销售单据</el-button>
             <br />
             <el-button
               :disabled="row.orderStatus !== OrderStatus.SETTLED"
@@ -154,19 +157,21 @@
   <Drawer v-model="drawer.visible" :title="drawer.title">
     <OrderDetail :orderData="drawer.orderData" />
   </Drawer>
-  <el-dialog v-model="dialog.visible" :title="dialog.title" width="60%">
-    <OrderModify />
-  </el-dialog>
+  <OrderModify v-model:visible="dialog.visible" :data="dialog.data" />
 </template>
 
 <script setup lang="ts">
 import OrderDetail from './OrderDetail.vue';
 import OrderModify from './OrderModify.vue';
-import Notification from '@/components/Notification';
+import Message from '@/components/Message';
 import { reactive, inject, onMounted, ref } from 'vue';
 import { dateFormatter, timeFormatter } from '@/utils/formatter';
 import { OrderStatus, OrderStatusMap, orderStatusOptions, paymentTypeOptions } from '@/enums';
-import { LodopPrinter, type OrderData } from '@/utils/lodop';
+import { LodopPrinter } from '@/utils/lodop';
+import { isFullDaysSince } from '@/utils/time';
+import { reqRollBackOrder } from '@/api/order';
+import { parseResMsg } from '@/utils/parseResponse';
+import { cloneDeep } from 'lodash';
 
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
@@ -183,11 +188,6 @@ const staffList = ref([]);
 
 // 引入消息弹框
 const MessageBox: any = inject('$MessageBox');
-
-// 订单状态转换函数
-const getOrderStatusText = (status: OrderStatus) => {
-  return OrderStatusMap[status] || '未知状态';
-};
 
 // 初始化
 onMounted(async () => {
@@ -213,12 +213,23 @@ const handleCurrentChange = (val: number) => {
 };
 
 const reversal = async (row: any) => {
-  const isReversal = await MessageBox.confirm({
-    title: '销售订单-冲正',
-    message: '冲正后，订单将退还“会员卡支付”的金额, 同时将不计算此单业绩，你确定要对此订单进行冲正吗？',
-    type: 'warning',
-  });
-  console.log(isReversal);
+  if (isFullDaysSince(row.settleTime, 2)) {
+    Message.warning('只能对两天以内的记录进行修改或冲正');
+    return;
+  }
+
+  try {
+    const prompt = await MessageBox.prompt({
+      title: '销售订单-冲正',
+      message: '冲正后，订单将退还“会员卡支付”的金额, 同时将不计算此单业绩，你确定要对此订单进行冲正吗？',
+      inputValue: '',
+      inputPlaceholder: '输入冲正原因',
+      inputType: 'textarea',
+    });
+    const res = await reqRollBackOrder(row.id, prompt.value);
+    parseResMsg(res);
+    search();
+  } catch (error) {}
 };
 
 const printer = new LodopPrinter();
@@ -226,7 +237,7 @@ const printer = new LodopPrinter();
 const printReceipt = async (row: any) => {
   // 打印小票
   if (row.orderStatus !== OrderStatus.SETTLED) {
-    Notification.warning('订单未结算，无法打印小票！');
+    Message.warning('订单未结算，无法打印小票！');
     return;
   }
   const org = await orgStore.getOrg();
@@ -244,21 +255,25 @@ const drawer: any = reactive({
 const showDrawer = (row: any) => {
   // 显示模态框
   drawer.visible = true;
-
   // 传递订单数据
-  drawer.orderData = row;
+  drawer.orderData = cloneDeep(row);
 };
 
 // 模态框
 const dialog: any = reactive({
-  title: '修改单据',
   visible: false,
+  data: {},
 });
 
 const showDialog = (row: any) => {
-  // 显示模态框
-  dialog.visible = true;
+  if (isFullDaysSince(row.settleTime, 2)) {
+    Message.warning('只能对两天以内的记录进行修改或冲正');
+    return;
+  }
 
+  // 显示模态框
+  dialog.data = cloneDeep(row);
+  dialog.visible = true;
   // 表单数据回显
   // store = row;
 };
