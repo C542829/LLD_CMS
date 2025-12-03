@@ -69,11 +69,9 @@ export const useMemberStore = defineStore('Member', () => {
     data = { ...data };
 
     // 发送请求
-    data.infoCardNumber = 'VIP000001';
-    data.infoBirthday = data.infoBirthday + ' 00:00:00';
-
     const res = await (data?.id ? reqUpdateVip(data) : reqAddVip(data));
-    const result = parseResMsg(res, '更新会员信息成功');
+    formData.value.id = res.data.id;
+    const result = parseResObj(res, '更新会员信息成功');
     // 刷新数据
     result && setTableData();
     return result;
