@@ -20,7 +20,7 @@
         <EllipsisText :content="vipCode" />
       </div>
       <div class="item-info">
-        <span>门店余额：{{ member.balance }} 元&nbsp;&nbsp;</span>
+        <span>门店余额：{{ member.balance || 0 }} 元&nbsp;&nbsp;</span>
         <el-button v-if="showGoRechargeBtn" @click="goRecharge" color="#000" type="primary" icon="Promotion" link>
           去充值
         </el-button>
