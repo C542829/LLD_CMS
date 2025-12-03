@@ -100,6 +100,7 @@
         :row-class-name="getRowClassName"
         v-model:currentPage="store.recordSearch.pageNum"
         v-model:pageSize="store.recordSearch.pageSize"
+        :showPagination="false"
         @size-change="handleSizeChange"
         @pagination-current-change="handleCurrentChange"
       >
@@ -147,33 +148,57 @@
         </el-table-column>
         <el-table-column label="操作" width="120">
           <template #default="{ row }">
-            <el-button link type="primary" :disabled="true" @click="billReversal(row)">冲正</el-button>
+            <el-button
+              link
+              type="primary"
+              :disabled="row.rechargeStatus !== RechargeStatus.SUCCESS"
+              @click="billReversal(row)"
+            >
+              冲正
+            </el-button>
             <br />
             <el-button link type="primary" :disabled="true" @click="showDialog(row)">修改充值单据</el-button>
             <br />
-            <el-button link type="primary" :disabled="true" @click="reprint(row)">重打小票</el-button>
+            <el-button
+              link
+              type="primary"
+              :disabled="row.rechargeStatus !== RechargeStatus.SUCCESS"
+              @click="reprint(row)"
+            >
+              重打小票
+            </el-button>
           </template>
         </el-table-column>
       </PaginationTable>
     </Card>
   </div>
 
-  <el-dialog v-model="dialog.visible" :title="dialog.title" width="800px"></el-dialog>
+  <OrderModify v-model:visible="dialog.visible" :data="dialog.data" />
 </template>
 
 <script setup lang="ts">
+import OrderModify from './OrderModify.vue';
+import MessageBox from '@/components/MessageBox/index';
+import Message from '@/components/Message';
+
 import { ref, reactive, onMounted } from 'vue';
 import { datetimeFormatter } from '@/utils/formatter';
-
-import { rechargeStatusOptions, paymentTypeOptions } from '@/enums/index';
+import { isFullDaysSince } from '@/utils/time';
+import { reqRollBackRecharge } from '@/api/member/recharge/index';
+import { RechargeStatus, rechargeStatusOptions, paymentTypeOptions } from '@/enums/index';
+import { LodopPrinter } from '@/utils/lodop';
+import { parseResMsg } from '@/utils/parseResponse';
 
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useRechargeStore } from '@/store/modules/member/recharge';
 import { useDynamicDataStore } from '@/store/modules/enums/dynamicData';
+import { useOrgStore } from '@/store/modules/acl/org';
+
 const settingStore = useSettingStore();
 const store = useRechargeStore();
 const dynamicDataStore = useDynamicDataStore();
+const orgStore = useOrgStore();
 
 // 初始化
 onMounted(() => {
@@ -196,41 +221,80 @@ const search = () => {
 
 // 处理分页变化
 const handleSizeChange = (val: number) => {
-  store.rechargeRecord.pageSize = val;
+  store.recordSearch.pageSize = val;
   store.setRechargeRecord();
 };
 
 const handleCurrentChange = (val: number) => {
-  store.rechargeRecord.pageNum = val;
+  store.recordSearch.pageNum = val;
   store.setRechargeRecord();
 };
 
-const billReversal = (row: any) => {
-  // store.billReversal(row);
+const billReversal = async (row: any) => {
+  if (isFullDaysSince(row.rechargeTime, 2)) {
+    Message.warning('只能对两天以内的记录进行修改或冲正');
+    return;
+  }
+
+  try {
+    const prompt = await MessageBox.prompt({
+      title: '充值记录-冲正',
+      message: `冲正后，将不计算此单业绩，你确定要冲正会员“ ${row.vipName} ”这条充值记录吗？`,
+      inputValue: '',
+      inputPlaceholder: '输入冲正原因',
+      inputType: 'textarea',
+    });
+    const res = await reqRollBackRecharge(row.historyCode, prompt.value);
+    parseResMsg(res);
+    search();
+  } catch (error) {}
 };
 
-const reprint = (row: any) => {
-  // store.billReversal(row);
+const printer = new LodopPrinter();
+const reprint = async (row: any) => {
+  // 打印小票
+  if (row.rechargeStatus !== RechargeStatus.SUCCESS) {
+    Message.warning('充值记录无效，无法打印小票！');
+    return;
+  }
+
+  const org = await orgStore.getOrg();
+  const data = { ...row, ...org };
+  printer.printRechargeByHTML(data, false);
 };
 
 // 模态框
 const dialog = reactive({
   title: '优惠券列表',
   visible: false,
+  data: {},
 });
 
 // 打开模态框
 const showDialog = (row: any) => {
-  // 显示模态框
-  dialog.title = `会员${row.name}在本店的资产详情`;
-  dialog.visible = true;
+  // if (isFullDaysSince(row.rechargeTime, 2)) {
+  //   Message.warning('只能对两天以内的记录进行修改或冲正');
+  //   return;
+  // }
 
+  // 显示模态框
+  dialog.data = row;
+  dialog.title = `修改单据`;
+  dialog.visible = true;
   // 表单数据回显
   // store.formData = row;
 };
+
+// const isUpdate = (row: any) => {
+//   const rechargeTime = new Date(row.rechargeTime);
+//   const nowTime = new Date();
+//   console.log();
+//   return isFullDaysSince
+// };
+
 // 设置行样式
 const getRowClassName = ({ row }: { row: { rechargeStatus: number } }) => {
-  return row.rechargeStatus ? 'disabled-row' : '';
+  return row.rechargeStatus !== RechargeStatus.SUCCESS ? 'disabled-row' : '';
 };
 </script>
 
