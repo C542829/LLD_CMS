@@ -218,8 +218,8 @@ export const useDataEnumStore = defineStore('DataEnum', () => {
   };
   const setTicketList = async (params: any) => {
     const res = await reqTicketList(params);
-    const data = parseResObj(res);
-    ticketList.value = data.rows;
+    const data = parseResList(res);
+    ticketList.value = data;
   };
 
   // 充值活动列表
