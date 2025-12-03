@@ -2,11 +2,13 @@ import { defineStore } from 'pinia';
 import { reactive, ref } from 'vue';
 import Message from '@/components/Message';
 import { reqRecharge, reqRechargeHistoryList, reqUpdateRechargeHistory } from '@/api/member/recharge';
+import { reqDefaultCommissionRule, reqSetOrgDefaultCommissionRule } from '@/api/setGroup/rechargeCommissionRules/index';
 import { parseResList, parseResMsg, parseResObj } from '@/utils/parseResponse';
 import { formatDate } from '@/utils/time';
-import { ResponseCode, paymentTypeMap } from '@/enums/index';
+import { RechargeStatus, ResponseCode, paymentTypeMap } from '@/enums/index';
 
 import { useSettingStore } from '@/store/modules/acl/setting';
+import { cloneDeep } from 'lodash';
 
 export const useRechargeStore = defineStore('Recharge', () => {
   const settingStore = useSettingStore();
@@ -27,11 +29,11 @@ export const useRechargeStore = defineStore('Recharge', () => {
     assetDiscountBase: 0,
     assetIsCrossStore: 0,
     rechargeRoleId: '',
-    userKpi: {
-      userId: '',
-      userName: '',
-      kpi: 0,
-    },
+    // userKpi: {
+    //   userId: '',
+    //   userName: '',
+    //   kpi: 0,
+    // },
     userKpiList: [
       {
         userId: '',
@@ -61,68 +63,69 @@ export const useRechargeStore = defineStore('Recharge', () => {
 
   // 处理充值参数
   const handleRechargeParams = () => {
-    const params: any = { ...rechargeFormData.value };
-    if (!params.rechargeValue) {
-      Message.error('请输入充值金额');
-      return;
-    }
-    if (params.paymentInfoList && params.paymentInfoList.length === 0) {
-      Message.error('请添加支付方式');
-      return;
-    } else if (calcTotal(params) !== params.rechargeValue) {
-      Message.error('支付金额总和与充值金额不一致');
-      return;
-    } else {
-      for (const item of params.paymentInfoList) {
-        item.paymentName = paymentTypeMap[item.paymentType];
+    try {
+      const params: any = cloneDeep(rechargeFormData.value);
+      // 充值金额
+      if (!params.rechargeValue) {
+        Message.error('请输入充值金额');
+        return;
       }
-    }
-    if (member.value && member.value.id) {
-      params.vipId = member.value.id;
-      params.vipName = member.value.name;
-      params.vipPhoneNumber = member.value.phoneNumber;
-      params.vipCardNumber = member.value.cardNumber;
-    } else {
-      Message.error('请先选择会员');
-      return;
-    }
-    if (rechargeActivity.value && rechargeActivity.value.id) {
-      params.activeId = rechargeActivity.value.id;
-      params.activeName = rechargeActivity.value.activeName;
-    }
-    if (params.userKpi && params.userKpi.id) {
-      params.userKpiList = [
-        {
-          userId: params.userKpi?.id,
-          userName: params.userKpi?.userName,
-          kpi: params.rechargeValue || 0,
-        },
-      ];
-      delete params.userKpi;
-    } else {
-      for (let item of params.userKpiList) {
-        // element.kpi = element.kpi || 0;
-        const data = {
-          userId: item.user.id,
-          userName: item.user.userName,
-          kpi: item.kpi || 0,
-        };
-        item.userId = item.user.id;
-        item.userName = item.user.userName;
-        delete item.user;
+
+      // 支付信息
+      if (params.paymentInfoList && params.paymentInfoList.length === 0) {
+        Message.error('请添加支付方式');
+        return;
+      } else if (calcTotal(params) !== params.rechargeValue) {
+        Message.error('支付金额总和与充值金额不一致');
+        return;
+      } else {
+        for (const item of params.paymentInfoList) {
+          item.paymentName = paymentTypeMap[item.paymentType];
+        }
       }
+
+      // 会员信息
+      if (member.value && member.value.id) {
+        params.vipId = member.value.id;
+        params.vipName = member.value.name;
+        params.vipPhoneNumber = member.value.phoneNumber;
+        params.vipCardNumber = member.value.cardNumber;
+      } else {
+        Message.error('请先选择会员');
+        return;
+      }
+
+      // 充值活动
+      if (rechargeActivity.value && rechargeActivity.value.id) {
+        params.activeId = rechargeActivity.value.id;
+        params.activeName = rechargeActivity.value.activeName;
+      }
+
+      // 销售员
+      if (params.userKpiList && params.userKpiList.length) {
+        if (params.userKpiList.length === 1) {
+          params.userKpiList[0].kpi = params.rechargeValue || 0;
+        }
+        for (let item of params.userKpiList) {
+          item.userId = item.user.id;
+          item.userName = item.user.userName;
+          delete item.user;
+        }
+      } else {
+        Message.error('请选择销售员');
+      }
+
+      if (rcRule.value && rcRule.value.id) {
+        params.rechargeRoleId = rcRule.value.id;
+      } else {
+        Message.error('充值提成规则不能为空');
+        return;
+      }
+      return params;
+    } catch (error) {
+      console.error(error);
     }
-    if ((params.userKpiList && params.userKpiList.length === 0) || !params.userKpiList[0].userId) {
-      Message.error('请选择销售员');
-      return;
-    }
-    if (rcRule.value && rcRule.value.id) {
-      params.rechargeRoleId = rcRule.value.id;
-    } else {
-      Message.error('充值提成规则不能为空');
-      return;
-    }
-    return params || {};
+    return {};
   };
 
   // 充值
@@ -133,6 +136,8 @@ export const useRechargeStore = defineStore('Recharge', () => {
       return;
     }
     settingStore.loading = true;
+    console.log('会员充值：', params);
+
     const res: any = await reqRecharge(params);
     const data = parseResMsg(res);
     data && reset();
@@ -184,7 +189,7 @@ export const useRechargeStore = defineStore('Recharge', () => {
     date: [],
     paymentType: '',
     vipInfoFiled: '',
-    rechargeStatus: '',
+    rechargeStatus: RechargeStatus.SUCCESS,
     userId: '',
     pageNum: 1,
     pageSize: 50,
@@ -193,7 +198,7 @@ export const useRechargeStore = defineStore('Recharge', () => {
   const resetRecordSearchParams = () => {
     recordSearch.vipInfoFiled = '';
     recordSearch.paymentType = '';
-    recordSearch.rechargeStatus = '';
+    recordSearch.rechargeStatus = RechargeStatus.SUCCESS;
     recordSearch.userId = '';
     recordSearch.date = [];
     setRechargeRecord();

@@ -3,35 +3,13 @@
     <!-- 会员基本信息 -->
     <div class="left-content">
       <!-- 会员卡 -->
-      <div class="member-card">
-        <div v-if="!!store.member.id" class="member-card-main">
-          <div>
-            <h1>会员：{{ store.member.name }}</h1>
-            <el-button
-              @click="store.reset"
-              size="small"
-              plain
-              style="background-color: transparent; color: var(--el-color-primary-light-5)"
-            >
-              重选会员
-            </el-button>
-          </div>
-          <p>电话：{{ store.member.phoneNumber }}</p>
-          <el-tooltip
-            :content="store.member.cardNumber ? `卡号：${store.member.cardNumber}(${store.member.identity})` : '无卡号'"
-            placement="bottom"
-            effect="light"
-          >
-            <p class="text-overflow">卡号：{{ store.member.cardNumber }}({{ store.member.identity }})</p>
-          </el-tooltip>
-          <p>门店余额：{{ store.member.balance }} 元</p>
-        </div>
-        <div v-else class="member-card-empty">未选择会员</div>
-      </div>
+      <MemberCard :member="store.member || {}" :showGoRechargeBtn="false" :show-remark="true" @reset="store.reset" />
 
       <!-- 设置按钮 -->
       <div class="left-item">
-        <el-button type="default" plain style="width: 100%">设置门店默认充值价格和折扣率</el-button>
+        <el-button type="default" plain @click="openRCDialog" style="width: 100%">
+          设置门店默认充值价格和折扣率
+        </el-button>
       </div>
 
       <!-- 充值表单 -->
@@ -92,6 +70,9 @@
               <template #prefix><b>￥</b></template>
               <template #suffix><b>元</b></template>
             </el-input-number>
+            <div v-show="store.rechargeFormData.rechargeValue < store.rechargeActivity.activeCapital" class="rech-tips">
+              温馨提醒：充值值金额不满足所选 "活动" 条件
+            </div>
           </div>
 
           <!-- 充值活动列表 -->
@@ -124,30 +105,56 @@
       </div>
     </div>
   </div>
+  <RCModify v-model:visible="RCDialog.visible" :data="RCDialog.data"></RCModify>
 </template>
 
 <script setup lang="ts">
-import { Search } from '@element-plus/icons-vue';
-import { ref, watch, onMounted } from 'vue';
-
+import MemberCard from '@/components/Card/MemberCard.vue';
 import RechargeForm from './form.vue';
+import RCModify from './RCModify.vue';
 import ActivityCard from './ActivityCard.vue';
+import { Search } from '@element-plus/icons-vue';
+import { ref, watch, onMounted, reactive } from 'vue';
+import { reqDefaultCommissionRule } from '@/api/setGroup/rechargeCommissionRules/index';
 
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useDynamicDataStore } from '@/store/modules/enums/dynamicData';
 import { useMemberStore } from '@/store/modules/member/member';
 import { useRechargeStore } from '@/store/modules/member/recharge';
-import { useRechargeCommissionRulesStore } from '@/store/modules/setGroup/rechargeCommissionRules';
+import { useOrgStore } from '@/store/modules/acl/org';
+
 const settingStore = useSettingStore();
 const dynamicDataStore = useDynamicDataStore();
 const memberStore = useMemberStore();
-const rcRulesStore = useRechargeCommissionRulesStore();
+const orgStore = useOrgStore();
 const store = useRechargeStore();
 
 onMounted(async () => {
-  await getActivityList();
-  store.rcRule = await rcRulesStore.getDefaultRCRule();
+  getActivityList();
+  getDefaultRCRule();
+  getDefaultDiscount();
 });
+
+/** 获取默认折扣规则 */
+const getDefaultDiscount = async () => {
+  try {
+    const org: any = await orgStore.getOrg();
+    store.rcRule.defaultDiscountRate = org.defaultDiscountRate;
+    store.rcRule.defaultDiscountBase = org.defaultDiscountBase;
+    store.rcRule.defaultIsCrossStore = org.defaultIsCrossStore;
+    store.rcRule.defaultRechargeRoleId = org.defaultRechargeRoleId;
+  } catch (error) {}
+};
+
+/** 获取默认充值佣金规则 */
+const getDefaultRCRule = async () => {
+  try {
+    const res = await reqDefaultCommissionRule();
+    store.rcRule = res.data;
+  } catch (error) {
+    console.error('获取默认充值佣金规则', error);
+  }
+};
 
 // 活动列表
 const activityList = ref<any>([]);
@@ -185,8 +192,6 @@ const handleSelect = (item: Record<string, any>) => {
 
 const handleCardClick = (data: any) => {
   store.rechargeActivity = selectActivity(data);
-  console.log(data.activeCapital);
-
   store.rechargeFormData.rechargeValue = store.rechargeActivity.activeCapital;
 };
 
@@ -210,6 +215,21 @@ const selectActivity = (data: any) => {
   }
   return result;
 };
+
+// #region 设置门店默认充值价格和折扣率
+const RCDialog = reactive({
+  visible: false,
+  data: {},
+});
+const openRCDialog = () => {
+  RCDialog.visible = true;
+  RCDialog.data = {
+    defaultDiscountBase: store.rcRule.defaultDiscountBase,
+    defaultDiscountRate: store.rcRule.defaultDiscountRate,
+    defaultIsCrossStore: store.rcRule.defaultIsCrossStore,
+  };
+};
+// #endregion
 </script>
 
 <style lang="scss" scoped>
@@ -228,11 +248,12 @@ const selectActivity = (data: any) => {
   .left-content {
     width: 350px;
     padding: 15px;
+
     .left-item {
       margin-top: 15px;
     }
     .left-item:last-child {
-      height: calc(100% - 222px);
+      height: calc(100% - 242px);
     }
   }
 
@@ -289,6 +310,8 @@ const selectActivity = (data: any) => {
           padding: 15px;
           display: flex;
           justify-content: center;
+          align-items: center;
+          flex-direction: column;
           .el-input-number {
             width: 350px;
             height: 50px;
@@ -297,11 +320,18 @@ const selectActivity = (data: any) => {
               font-weight: bold;
             }
           }
+
+          .rech-tips {
+            margin-top: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #dd98b5;
+          }
         }
 
         // 充值活动列表
         .activity-list {
-          height: calc(100% - 120px);
+          height: calc(100% - 140px);
           padding-bottom: 15px;
           > h1 {
             height: 40px;
@@ -339,49 +369,6 @@ const selectActivity = (data: any) => {
         }
       }
     }
-  }
-}
-
-// 会员卡
-.member-card {
-  height: 160px;
-  width: 320px;
-  border-radius: 8px;
-  color: #eee;
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  box-shadow: 0 0 10px #d4b2eb;
-  background: linear-gradient(to right top, rgb(144, 108, 156), rgb(138, 140, 247));
-
-  .member-card-main {
-    display: flex;
-    flex-wrap: nowrap;
-    justify-content: space-between;
-    flex-direction: column;
-    gap: 3px;
-
-    > div:first-child {
-      height: 30px;
-      line-height: 30px;
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
-      > h1 {
-        flex: 1;
-      }
-    }
-
-    > p {
-      height: 30px;
-      line-height: 30px;
-    }
-  }
-
-  .member-card-empty {
-    font-size: 18px;
   }
 }
 

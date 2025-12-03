@@ -3,28 +3,49 @@
     <el-form :model="store.rechargeFormData" :disabled="!store.member.id" label-width="72px" size="default">
       <!-- 折扣率 -->
       <el-form-item label="折扣率:">
-        <el-input-number v-model="store.rechargeFormData.assetDiscountRate" :min="0" :max="100" style="width: 300px">
+        <el-input-number
+          v-model="store.rechargeFormData.assetDiscountRate"
+          :min="0"
+          :max="100"
+          :disabled="activityDisabled"
+          style="width: 300px"
+        >
           <template #suffix>%</template>
         </el-input-number>
       </el-form-item>
 
       <!-- 折扣基础 -->
       <el-form-item label="折扣基础:">
-        <el-select v-model="store.rechargeFormData.assetDiscountBase" placeholder="请选择" style="width: 300px">
+        <el-select
+          v-model="store.rechargeFormData.assetDiscountBase"
+          :disabled="activityDisabled"
+          placeholder="请选择"
+          style="width: 300px"
+        >
           <el-option v-for="item in discountTypeOptions" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
       </el-form-item>
 
       <!-- 跨店结算 -->
       <el-form-item label="跨店结算:">
-        <el-select v-model="store.rechargeFormData.assetIsCrossStore" placeholder="请选择" style="width: 300px">
+        <el-select
+          v-model="store.rechargeFormData.assetIsCrossStore"
+          :disabled="activityDisabled"
+          placeholder="请选择"
+          style="width: 300px"
+        >
           <el-option v-for="item in isCrossStoreOptions" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
       </el-form-item>
 
       <!-- 销售员 (单人模式) -->
       <el-form-item v-if="!isMultiPerformanceMode" label="销售员:">
-        <el-select v-model="store.rechargeFormData.userKpi" value-key="id" placeholder="请选择" style="width: 300px">
+        <el-select
+          v-model="store.rechargeFormData.userKpiList[0].user"
+          value-key="id"
+          placeholder="请选择"
+          style="width: 300px"
+        >
           <el-option v-for="item in staffList" :key="item.id" :label="item.userName" :value="item" />
         </el-select>
       </el-form-item>
@@ -93,11 +114,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { Plus, Minus } from '@element-plus/icons-vue';
 import { paymentTypeOptions, isCrossStoreOptions, discountTypeOptions } from '@/enums';
 import { useRechargeStore } from '@/store/modules/member/recharge';
 import { useDynamicDataStore } from '@/store/modules/enums/dynamicData';
+import { isEmpty } from 'lodash';
 const dynamicDataStore = useDynamicDataStore();
 const store = useRechargeStore();
 
@@ -124,27 +146,61 @@ const toggleMode = () => {
 
 // 添加业绩技师
 const addTechnician = () => {
-  store.rechargeFormData.userKpiList.push({ userId: '', userName: '', kpi: 0 });
+  try {
+    store.rechargeFormData.userKpiList.push({ userId: '', userName: '', kpi: 0 });
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 // 移除业绩技师
 const removeTechnician = (index: number) => {
-  if (store.rechargeFormData.userKpiList.length > 1) {
-    store.rechargeFormData.userKpiList.splice(index, 1);
+  try {
+    if (store.rechargeFormData.userKpiList.length > 1) {
+      store.rechargeFormData.userKpiList.splice(index, 1);
+    }
+  } catch (error) {
+    console.error(error);
   }
 };
 
 // 添加支付方式
 const addPaymentMethod = () => {
-  store.rechargeFormData.paymentInfoList.push({ paymentType: 0, paymentName: '', paymentAmount: 0 });
+  try {
+    store.rechargeFormData.paymentInfoList.push({ paymentType: 0, paymentName: '', paymentAmount: 0 });
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 // 移除支付方式
 const removePaymentMethod = (index: number) => {
-  if (store.rechargeFormData.paymentInfoList.length > 1) {
-    store.rechargeFormData.paymentInfoList.splice(index, 1);
+  try {
+    if (store.rechargeFormData.paymentInfoList.length > 1) {
+      store.rechargeFormData.paymentInfoList.splice(index, 1);
+    }
+  } catch (error) {
+    console.error(error);
   }
 };
+
+const activityDisabled = ref(false);
+watch(
+  () => store.rechargeActivity,
+  (newVal, oldVal) => {
+    if (!isEmpty(newVal)) {
+      store.rechargeFormData.assetDiscountRate = newVal.activeDiscount;
+      store.rechargeFormData.assetDiscountBase = newVal.activeBase;
+      store.rechargeFormData.assetIsCrossStore = newVal.isCrossStore;
+      activityDisabled.value = true;
+    } else {
+      store.rechargeFormData.assetDiscountRate = store.rcRule.defaultDiscountRate;
+      store.rechargeFormData.assetDiscountBase = store.rcRule.defaultDiscountBase;
+      store.rechargeFormData.assetIsCrossStore = store.rcRule.defaultIsCrossStore;
+      activityDisabled.value = false;
+    }
+  },
+);
 </script>
 
 <style lang="scss" scoped>
