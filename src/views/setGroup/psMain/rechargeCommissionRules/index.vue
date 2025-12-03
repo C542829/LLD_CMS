@@ -59,7 +59,7 @@
         </el-table-column>
         <el-table-column label="提成值" min-width="50">
           <template #default="{ row }">
-            {{ row.rechargeCommissionValue }}{{ row.commissionType === 1 ? ' 元' : '%' }}
+            {{ row.rechargeCommissionValue }}{{ row.commissionType === CommissionType.FixedAmount ? ' 元' : '%' }}
           </template>
         </el-table-column>
         <el-table-column prop="createTime" label="创建时间" :formatter="dateFormatter" min-width="60" />
