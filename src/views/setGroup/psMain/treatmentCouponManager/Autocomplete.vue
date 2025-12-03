@@ -15,7 +15,7 @@
             <el-form-item>
               <label>
                 数量：
-                <el-input v-model.number="item.number" clearable style="width: 100px" />
+                <el-input v-model.number="item.vipTicketNum" clearable style="width: 100px" />
               </label>
             </el-form-item>
             <div style="display: flex; justify-content: flex-end">
@@ -92,7 +92,7 @@ const handleSubmit = () => {
   isAdd.value = false;
   for (const item of selectedList) {
     delete item.value;
-    delete item.number;
+    // delete item.vipTicketNum;
     delete item.isEdit;
   }
   emit('submit', selectedList);
@@ -148,7 +148,7 @@ const createFilter = (queryString: string) => {
  */
 const handleSelect = (item: any) => {
   dataList.splice(dataList.indexOf(item), 1);
-  item = { ...item, number: 1 };
+  item = { ...item, vipTicketNum: 1 };
   selectedList.push(item);
   state.value = '';
   // 选择完成后，失去焦点

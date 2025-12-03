@@ -9,49 +9,54 @@
       @reset="handleFormReset"
     >
       <!-- 疗程券编码 -->
-      <el-form-item label="疗程券编码" prop="cureTicketEncode">
-        <el-input v-model="store.formData.cureTicketEncode" placeholder="请输入疗程券编码" clearable />
+      <el-form-item label="疗程券编码" prop="encode">
+        <el-input v-model="store.formData.encode" placeholder="请输入疗程券编码" clearable />
       </el-form-item>
 
       <!-- 疗程券名称（必填） -->
-      <el-form-item label="疗程券名称" prop="cureTicketName">
-        <el-input v-model="store.formData.cureTicketName" placeholder="请输入疗程券名称" clearable />
+      <el-form-item label="疗程券名称" prop="name">
+        <el-input v-model="store.formData.name" placeholder="请输入疗程券名称" clearable />
       </el-form-item>
 
       <!-- 价格设置 -->
       <el-form-item label="价格设置">
         <Card style="width: 75%" padding="10px 0">
-          <el-form-item label="疗程价：" prop="cureTicketPrice">
-            <el-input-number size="small" v-model="store.formData.cureTicketPrice" :controls="false" />
+          <el-form-item label="疗程价：" prop="price">
+            <el-input-number size="" v-model="store.formData.price" :controls="false" />
             &nbsp;元
           </el-form-item>
         </Card>
       </el-form-item>
 
       <!-- 提成类型 -->
-      <el-form-item label="提成类型" prop="cureTicketType">
-        <el-radio-group v-model="store.formData.cureTicketType">
-          <el-radio :value="1" :border="true">固定金额</el-radio>
-          <el-radio :value="0" :border="true">比例提成</el-radio>
+      <el-form-item label="提成类型" prop="type">
+        <el-radio-group v-model="store.formData.type">
+          <el-radio
+            v-for="item in commissionTypeOptions"
+            :value="item.value"
+            :label="item.label"
+            :key="item.value"
+            :border="true"
+          />
         </el-radio-group>
       </el-form-item>
 
       <!-- 固定金额 -->
-      <template v-if="store.formData.cureTicketType === 1">
-        <el-form-item label="提成值" prop="cureTicketCommissionPrice">
-          <el-input-number size="small" v-model="store.formData.cureTicketCommissionPrice" :controls="false" />
+      <template v-if="store.formData.type === CommissionType.FixedAmount">
+        <el-form-item label="提成值" prop="commissionValue">
+          <el-input-number size="" v-model="store.formData.commissionValue" :controls="false" />
           &nbsp;元
         </el-form-item>
       </template>
 
       <!-- 比例提成 -->
-      <template v-if="store.formData.cureTicketType === 0">
-        <el-form-item label="提成比例" prop="cureTicketCommissionValue" style="margin-bottom: 15px">
-          <el-input-number size="small" v-model="store.formData.cureTicketCommissionValue" :controls="false" />
+      <template v-if="store.formData.type === CommissionType.Proportion">
+        <el-form-item label="提成比例" prop="commissionValue" style="margin-bottom: 15px">
+          <el-input-number size="" v-model="store.formData.commissionValue" :controls="false" />
           &nbsp;%
         </el-form-item>
-        <el-form-item label="价格类型" prop="cureTicketCommissionBy">
-          <el-select v-model="store.formData.cureTicketCommissionBy" style="width: 200px">
+        <el-form-item label="价格类型" prop="commissionBase">
+          <el-select v-model="store.formData.commissionBase" style="width: 200px">
             <el-option v-for="item in commissionOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
@@ -62,8 +67,8 @@
         <el-alert title="点击胶囊按钮, 可修改产品数量哦" type="warning" style="width: 75%; margin-bottom: 10px" />
         <Card style="width: 75%">
           <Autocomplete
-            :dataList="packages"
-            :selectedList="store.formData.cureTicketDetailInfoDTOList"
+            :dataList="tickets"
+            :selectedList="store.formData.vipTicketList"
             @submit="submitSelect"
             @update-number="updateNumber"
           >
@@ -75,9 +80,9 @@
                   <span>名称：</span>
                   <span>{{ item.vipTicketName }}</span>
                 </div>
-                <div class="package-item" style="color: var(--el-text-color-secondary)">
-                  <span>编码：</span>
-                  <span>{{ item.vipTicketNum }}</span>
+                <div class="package-item text-overflow" style="color: var(--el-text-color-secondary)">
+                  <span>描述：</span>
+                  <span :title="item.ticketDescription">{{ item.ticketDescription || '-' }}</span>
                 </div>
               </Card>
             </template>
@@ -94,14 +99,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch } from 'vue';
+import { ref, reactive, onMounted, computed, watch } from 'vue';
 import Autocomplete from './Autocomplete.vue';
 
-import { commissionOptions } from '@/enums/index';
+import { commissionOptions, commissionTypeOptions, CommissionType } from '@/enums/index';
 
 // 引入数据仓库
 import { useTreatmentCouponStore } from '@/store/modules/setGroup/treatmentCoupon';
+import { useDataEnumStore } from '@/store/modules/enums/index';
 const store = useTreatmentCouponStore();
+const dataEnumStore = useDataEnumStore();
 
 // 定义组件触发的事件 - 关闭抽屉
 const $emit = defineEmits(['close-drawer']);
@@ -112,20 +119,20 @@ defineProps(['disabled']);
 // 组件挂载后执行的生命周期钩子
 onMounted(() => {
   // 可在此处添加组件初始化逻辑
+  store.resetFormData();
+  dataEnumStore.getTicketList();
 });
 
-const packages = new Array(10)
-  .fill({
-    vipTicketName: '',
-    vipTicketNum: 1,
-    cureTicketId: 1,
-    vipTicketId: 1,
-  })
-  .map((item, i) => ({
-    ...item,
-    vipTicketName: `一次性工具${i + 1}`,
-    value: `一次性工具${i + 1}`,
-  }));
+const tickets = computed(() =>
+  dataEnumStore.ticketList.map((item: any) => {
+    return {
+      vipTicketId: item.id,
+      vipTicketName: item.ticketName,
+      vipTicketNum: 1,
+      ticketDescription: item.ticketDescription,
+    };
+  }),
+);
 
 /**
  * 选择框选择方法 - 将选择的内容添加到已选择数组
@@ -133,7 +140,7 @@ const packages = new Array(10)
  */
 const submitSelect = (data: any) => {
   console.log('已选择：', data);
-  store.formData.cureTicketDetailInfoDTOList = data;
+  store.formData.vipTicketList = data;
 };
 
 /**
@@ -141,7 +148,7 @@ const submitSelect = (data: any) => {
  * @param item 已选择的内容
  */
 const updateNumber = (item: any) => {
-  item.vipTicketNum = item.number;
+  item.vipTicketNum = item.vipTicketNum;
 };
 
 /**
@@ -166,23 +173,22 @@ const handleFormReset = () => {
 
 // 表单验证规则
 const formRules = {
-  cureTicketEncode: [{ required: true, message: '请输入疗程券编码', trigger: 'blur' }],
-  cureTicketName: [{ required: true, message: '请输入疗程券名称', trigger: 'blur' }],
-  cureTicketPrice: [
+  encode: [{ required: true, message: '请输入疗程券编码', trigger: 'blur' }],
+  name: [{ required: true, message: '请输入疗程券名称', trigger: 'blur' }],
+  price: [
     { required: true, message: '请输入疗程价', trigger: 'blur' },
     { type: 'number', message: '请输入数字', trigger: 'blur' },
   ],
-  cureTicketType: [{ required: true, message: '请输入疗程券名称', trigger: 'blur' }],
-  cureTicketCommissionBy: [{ required: true, message: '请输入疗程券名称', trigger: 'blur' }],
-  cureTicketCommissionValue: [
+  type: [{ required: true, message: '请输入疗程券名称', trigger: 'blur' }],
+  commissionValue: [
     { required: true, message: '请输入提成比例', trigger: 'blur' },
     { type: 'number', message: '请输入数字', trigger: 'blur' },
   ],
-  cureTicketCommissionPrice: [
+  commissionBase: [
     { required: true, message: '请输入提成金额', trigger: 'blur' },
     { type: 'number', message: '请输入数字', trigger: 'blur' },
   ],
-  cureTicketDetailInfoDTOList: [{ required: true, message: '请选择套餐项目信息', trigger: 'blur' }],
+  vipTicketList: [{ required: true, message: '请选择套餐项目信息', trigger: 'blur' }],
 };
 </script>
 

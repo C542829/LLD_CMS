@@ -10,7 +10,7 @@
         <div class="search-item">
           <label>
             疗程券状态：
-            <el-select v-model="store.searchParams.cureTicketStatus" style="width: 120px">
+            <el-select v-model="store.searchParams.status" @change="search" style="width: 120px">
               <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </label>
@@ -45,35 +45,31 @@
       >
         <el-table-column label="疗程券" width="200">
           <template #default="{ row }">
-            <p>名称：{{ row.cureTicketName }}</p>
-            <p>编码：{{ row.cureTicketEncode }}</p>
+            <p>名称：{{ row.name }}</p>
+            <p>编码：{{ row.encode }}</p>
           </template>
         </el-table-column>
         <el-table-column label="疗程券内容">
           <template #default="{ row }">
             <div style="display: flex; gap: 5px; flex-wrap: wrap">
-              <el-tag v-for="item in row.cureTicketDetailInfoDTOList" :key="item" type="primary">
+              <el-tag v-for="item in row.ticketDetails" :key="item" type="primary">
                 {{ item.vipTicketName }} &nbsp; 数量：{{ item.vipTicketNum }}
               </el-tag>
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="cureTicketPrice" label="疗程价(元)" :formatter="amountFormatter" width="110" />
+        <el-table-column prop="price" label="疗程价(元)" :formatter="amountFormatter" width="110" />
         <el-table-column label="提成" width="200">
           <template #default="{ row }">
-            <span v-if="row.cureTicketType === 1">固定金额提成：{{ row.cureTicketCommissionPrice }}元</span>
-            <span v-else>固定比例提成：{{ row.cureTicketCommissionValue }}元</span>
+            <span v-if="row.type === CommissionType.FixedAmount">固定金额提成：{{ row.commissionValue || 0 }}元</span>
+            <span v-else>固定比例提成：{{ row.commissionValue || 0 }}%</span>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="160">
           <template #default="{ row }">
             <el-button link type="info" @click="showDrawer(2, row)">详情</el-button>
-            <el-button link type="primary" :disabled="!!row.cureTicketStatus" @click="showDrawer(1, row)">
-              编辑
-            </el-button>
-            <el-button link type="warning" v-if="row.cureTicketStatus" @click="store.updateDataStatus(row)">
-              启用
-            </el-button>
+            <el-button link type="primary" :disabled="!!row.status" @click="showDrawer(1, row)">编辑</el-button>
+            <el-button link type="success" v-if="row.status" @click="store.updateDataStatus(row)">启用</el-button>
             <el-button link type="warning" v-else @click="showConfirm(row)">禁用</el-button>
           </template>
         </el-table-column>
@@ -102,7 +98,7 @@ import TreatmentCouponForm from './form.vue';
 // 导入表格数据格式化器
 import { amountFormatter } from '@/utils/formatter';
 // 导入枚举数据
-import { statusOptions } from '@/enums/index';
+import { statusOptions, CommissionType } from '@/enums/index';
 
 // 导入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
@@ -127,7 +123,7 @@ const search = () => {
 const showConfirm = async (row: any) => {
   const result = await $MessageBox.confirm({
     title: '确认操作',
-    message: `你确定要禁用疗程券【${row.cureTicketName}】吗？`,
+    message: `你确定要禁用疗程券【${row.name}】吗？`,
     type: 'warning',
   });
   result && store.updateDataStatus(row);
@@ -158,8 +154,8 @@ const handleDrawerClose = () => {
 };
 
 // 设置行样式
-const getRowClassName = ({ row }: { row: { cureTicketStatus: number } }) => {
-  return row.cureTicketStatus ? 'disabled-row' : '';
+const getRowClassName = ({ row }: { row: { status: number } }) => {
+  return row.status ? 'disabled-row' : '';
 };
 </script>
 
