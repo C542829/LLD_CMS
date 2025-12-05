@@ -54,7 +54,7 @@
       </div>
     </div>
 
-    <Drawer v-model="dialog.visible" :title="dialog.title" size="550px" style="max-width: 600px">
+    <Drawer v-model="dialog.visible" :title="dialog.title" @closed="closeDrawer" size="550px" style="max-width: 600px">
       <CreateOrder
         :type="dialog.type"
         @close="dialog.visible = false"
@@ -138,6 +138,10 @@ const showDialog = (item: any) => {
     previewOrder(item);
   }
   dialog.visible = true;
+};
+
+const closeDrawer = () => {
+  orderStore.reset();
 };
 
 /**
