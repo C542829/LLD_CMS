@@ -37,31 +37,35 @@
       </el-popover>
     </div>
 
-    <component
-      :is="h(ElAutocomplete, { ...$attrs, ...props, ref: changeRef }, $slots)"
-      v-if="isAdd"
-      v-model="state"
-      :fetch-suggestions="querySearch"
-      @select="handleSelect"
-      placeholder="输入优惠券关键字"
-      ref="autocompleteRef"
-      clearable
-    >
-      <template #default="{ item }">
-        <slot :item="item"></slot>
-      </template>
-      <template #append>
-        <el-button @click="handleSubmit" type="primary">确定</el-button>
-      </template>
-    </component>
-    <el-button v-if="!isAdd" @click="isAdd = true" type="default">增加明细</el-button>
+    <!-- :is="h(ElAutocomplete, { ...$attrs, ...props, ref: changeRef }, $slots)" -->
+    <div v-show="isAdd">
+      <el-autocomplete
+        v-bind="$attrs"
+        v-model="state"
+        :fetch-suggestions="querySearch"
+        :debounce="150"
+        clearable
+        ref="autocompleteRef"
+        placeholder="输入优惠券关键字"
+        @select="handleSelect"
+      >
+        <template #default="{ item }">
+          <slot :item="item"></slot>
+        </template>
+        <template #append>
+          <el-button @click="handleSubmit" type="primary">确定</el-button>
+        </template>
+      </el-autocomplete>
+    </div>
+    <el-button v-show="!isAdd" @click="isAdd = true" type="default">增加明细</el-button>
   </div>
 </template>
 
 <script setup lang="ts">
 import cloneDeep from 'lodash/cloneDeep';
 import { ElAutocomplete, type AutocompleteProps } from 'element-plus';
-import { ref, reactive, onMounted, h, getCurrentInstance, nextTick } from 'vue';
+import { ref, reactive, onMounted, h, getCurrentInstance, nextTick, watch } from 'vue';
+import { isEmpty } from 'lodash';
 
 // 获取当前组件实例，用于暴露对话框方法
 const vm: any = getCurrentInstance();
@@ -84,6 +88,15 @@ const props = defineProps<_Props>();
 // 定义组件触发的事件 - 关闭提交选择的列表
 const emit = defineEmits(['submit', 'update-number']);
 
+watch(
+  () => props.dataList,
+  (val) => {
+    if (!isEmpty(val)) {
+      dataList.value = val;
+    }
+  },
+);
+
 // 添加
 const isAdd = ref(false);
 
@@ -91,7 +104,7 @@ const isAdd = ref(false);
 const handleSubmit = () => {
   isAdd.value = false;
   for (const item of selectedList) {
-    delete item.value;
+    // delete item.value;
     // delete item.vipTicketNum;
     delete item.isEdit;
   }
@@ -99,7 +112,7 @@ const handleSubmit = () => {
 };
 
 // 数据列表
-const dataList = reactive(props.dataList || []);
+const dataList = ref<any>([]);
 const selectedList: any = reactive(cloneDeep(props.selectedList) || []);
 
 /**
@@ -107,9 +120,9 @@ const selectedList: any = reactive(cloneDeep(props.selectedList) || []);
  */
 const removeRepeatItem = () => {
   for (const selected of selectedList) {
-    for (const item of dataList) {
-      if (item.value === selected.value) {
-        dataList.splice(dataList.indexOf(item), 1);
+    for (const item of dataList.value) {
+      if (item.vipTicketId === selected.vipTicketId) {
+        dataList.value.splice(dataList.value.indexOf(item), 1);
       }
     }
   }
@@ -127,7 +140,7 @@ const autocompleteRef: any = ref(null);
  * @param cb 回调函数
  */
 const querySearch = (queryString: string, cb: Function) => {
-  const results = queryString ? dataList.filter(createFilter(queryString)) : dataList;
+  const results = queryString ? dataList.value.filter(createFilter(queryString)) : dataList.value;
   // 返回过滤过的数据
   cb(results);
 };
@@ -138,7 +151,9 @@ const querySearch = (queryString: string, cb: Function) => {
  */
 const createFilter = (queryString: string) => {
   return (item: any) => {
-    return item.value.toLowerCase().includes(queryString.toLowerCase());
+    // console.log(item);
+
+    return item.vipTicketName.toLowerCase().includes(queryString.toLowerCase());
   };
 };
 
@@ -147,7 +162,7 @@ const createFilter = (queryString: string) => {
  * @param item 选择的内容
  */
 const handleSelect = (item: any) => {
-  dataList.splice(dataList.indexOf(item), 1);
+  dataList.value.splice(dataList.value.indexOf(item), 1);
   item = { ...item, vipTicketNum: 1 };
   selectedList.push(item);
   state.value = '';
@@ -165,7 +180,7 @@ const removeItem = (item: any) => {
   if (!isAdd.value) {
     return;
   }
-  dataList.push(item);
+  dataList.value.push(item);
   selectedList.splice(selectedList.indexOf(item), 1);
 };
 
