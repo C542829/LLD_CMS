@@ -252,7 +252,7 @@ const shortcuts = [
     value: () => {
       const end = new Date();
       const start = new Date();
-      start.setTime(start.getTime() + 3600 * 1000 * 24 * 365);
+      end.setTime(start.getTime() + 3600 * 1000 * 24 * 365);
       return [start, end];
     },
   },
@@ -261,7 +261,7 @@ const shortcuts = [
     value: () => {
       const end = new Date();
       const start = new Date();
-      start.setTime(start.getTime() + 3600 * 1000 * 24 * 365 * 2);
+      end.setTime(start.getTime() + 3600 * 1000 * 24 * 365 * 2);
       return [start, end];
     },
   },
@@ -270,7 +270,7 @@ const shortcuts = [
     value: () => {
       const end = new Date();
       const start = new Date();
-      start.setTime(start.getTime() + 3600 * 1000 * 24 * 365 * 3);
+      end.setTime(start.getTime() + 3600 * 1000 * 24 * 365 * 3);
       return [start, end];
     },
   },
@@ -279,7 +279,7 @@ const shortcuts = [
     value: () => {
       const end = new Date();
       const start = new Date();
-      start.setTime(start.getTime() + 3600 * 1000 * 24 * 365 * 5);
+      end.setTime(start.getTime() + 3600 * 1000 * 24 * 365 * 5);
       return [start, end];
     },
   },
@@ -288,7 +288,7 @@ const shortcuts = [
     value: () => {
       const end = new Date();
       const start = new Date();
-      start.setTime(start.getTime() + 3600 * 1000 * 24 * 365 * 10);
+      end.setTime(start.getTime() + 3600 * 1000 * 24 * 365 * 10);
       return [start, end];
     },
   },
