@@ -26,7 +26,7 @@
 
       <!-- 表单操作按钮 -->
       <el-form-item v-if="props.showButtons" label="&nbsp;">
-        <el-button type="primary" @click="submitForm">{{ props.submitText }}</el-button>
+        <el-button type="primary" :loading="loading" @click="submitForm">{{ props.submitText }}</el-button>
         <el-button @click="resetForm">{{ props.resetText }}</el-button>
         <slot name="buttons"></slot>
       </el-form-item>
@@ -59,6 +59,7 @@ const props = withDefaults(
     disabled?: boolean;
     scrollToError?: boolean;
     showButtons?: boolean;
+    loading?: boolean;
     submitText?: string;
     resetText?: string;
   }>(),
@@ -77,6 +78,7 @@ const props = withDefaults(
     disabled: false,
     scrollToError: false,
     showButtons: true,
+    loading: false,
     submitText: '提交',
     resetText: '重置',
   },
