@@ -11,7 +11,6 @@ import {
   reqUpdateEnumItem,
   reqDelEnumItem,
 } from '@/api/enums/index';
-
 import { reqTicketList } from '@/api/member/coupon/index';
 import { reqActiveList } from '@/api/member/rechargeActivity/index';
 import { reqUserList } from '@/api/staffMain/staff/index';
@@ -23,6 +22,7 @@ import { reqTreatmentCouponList } from '@/api/setGroup/treatmentCoupon/index';
 import { reqList as reqOrgList } from '@/api/acl/org/index';
 
 import { parseResList, parseResMsg, parseResObj } from '@/utils/parseResponse';
+import { CouponType } from '@/enums/index';
 
 export enum Enums {
   BED_STATUS = 'bed_status',
@@ -200,7 +200,7 @@ export const useDataEnumStore = defineStore('DataEnum', () => {
     staffList.value = data.rows;
   };
 
-  // 优惠券列表
+  /** 优惠券列表 */
   const ticketList: any = ref([]);
   /**
    * 获取优惠券列表
@@ -208,7 +208,7 @@ export const useDataEnumStore = defineStore('DataEnum', () => {
    * @param params 请求参数
    * @returns 优惠券列表
    */
-  const getTicketList = async (refresh = false, params = { pageNum: 1, pageSize: 100 }) => {
+  const getTicketList = async (refresh = false, params = { ticketName: '', ticketStatus: 0 }) => {
     if (!ticketList.value.length || refresh) {
       await setTicketList(params);
       return ticketList.value;
@@ -218,11 +218,13 @@ export const useDataEnumStore = defineStore('DataEnum', () => {
   };
   const setTicketList = async (params: any) => {
     const res = await reqTicketList(params);
-    const data = parseResList(res);
+    const data = parseResList(res).filter((item) => {
+      return item.ticketType === CouponType.voucher;
+    });
     ticketList.value = data;
   };
 
-  // 充值活动列表
+  /** 充值活动列表 */
   const activeList: any = ref([]);
   /**
    * 获取充值活动列表
@@ -244,7 +246,7 @@ export const useDataEnumStore = defineStore('DataEnum', () => {
     activeList.value = data.rows;
   };
 
-  // 产品列表
+  /** 产品列表 */
   const productList: any = ref([]);
   /**
    * 获取产品列表
