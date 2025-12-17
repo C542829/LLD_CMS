@@ -260,7 +260,7 @@ const reprint = async (row: any) => {
 
   const org = await orgStore.getOrg();
   const data = { ...row, ...org };
-  printer.printRechargeByHTML(data, false);
+  printer.printRechargeByHTML(data, true);
 };
 
 // 模态框
