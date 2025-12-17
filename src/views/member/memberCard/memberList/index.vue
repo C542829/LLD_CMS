@@ -47,9 +47,9 @@
           <template #default="{ row }">
             <el-button link type="warning" @click="showDrawer(1, row)">修改资料</el-button>
             <el-button link type="primary" @click="showDrawer(2, row)">修改密码</el-button>
-            <el-button link type="success" :disabled="true" @click="showDrawer(3, row)">赠送优惠券</el-button>
+            <el-button link type="success" :disabled="false" @click="showDrawer(3, row)">赠送优惠券</el-button>
             <el-button link type="warning" :disabled="true" @click="showDialog(4, row)">取消优惠券</el-button>
-            <el-button link type="success" :disabled="true" @click="showDrawer(5, row)">赠送卡金</el-button>
+            <el-button link type="success" :disabled="false" @click="showDrawer(5, row)">赠送卡金</el-button>
             <el-button link type="info" :disabled="true" @click="showDialog(6, row)">更多</el-button>
           </template>
         </el-table-column>
