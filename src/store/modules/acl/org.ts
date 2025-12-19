@@ -6,9 +6,10 @@ import { parseResList, parseResMsg, parseResObj } from '@/utils/parseResponse';
 import { getUserInfo } from '@/utils/localStorageTools';
 
 import { useSettingStore } from '@/store/modules/acl/setting';
-const settingStore = useSettingStore();
 
 export const useOrgStore = defineStore('Org', () => {
+  const settingStore = useSettingStore();
+
   /**
    * 搜索参数
    */
@@ -24,10 +25,15 @@ export const useOrgStore = defineStore('Org', () => {
    * @returns 门店详情
    */
   const getOrgInfo = async (id: number) => {
-    const res = await reqListOne(id);
-    const orgInfo = parseResObj(res);
-    orgInfo.orgArea && (orgInfo.orgArea = JSON.parse(orgInfo.orgArea as string));
-    return orgInfo;
+    try {
+      const res = await reqListOne(id);
+      const orgInfo = parseResObj(res);
+      orgInfo.orgArea && (orgInfo.orgArea = JSON.parse(orgInfo.orgArea as string));
+      return orgInfo;
+    } catch (error) {
+      console.error(`获取门店信息报错：${error}`);
+    }
+    return {};
   };
 
   // 存储当前登录用户的门店信息
@@ -35,9 +41,11 @@ export const useOrgStore = defineStore('Org', () => {
   const getOrg = async () => {
     try {
       const user = getUserInfo();
+      // 未登录
       if (!user) {
         return {};
       }
+      // 已登录
       if (_org.value && _org.value.id === user.orgId) {
         return _org.value;
       } else {
