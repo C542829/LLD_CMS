@@ -1,3 +1,8 @@
+export interface Config {
+  width: number;
+  height: number;
+}
+
 // 定义数据类型（匹配后端返回结构）
 export interface OrderDetail {
   businessName: string;
@@ -26,6 +31,7 @@ export interface OrderData {
   payments: Payment[];
   orgName: string; // 门店名称，需补充到data中
   servicePhone: string; // 服务电话，需补充到data中
+  orgNumber: string; // 服务电话，需补充到data中
   orgAddress: string; // 门店地址，需补充到data中
 }
 

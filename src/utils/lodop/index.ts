@@ -1,16 +1,20 @@
 // src/utils/lodop.ts
+// @ts-ignore 忽略js文件检查
 import { getLodop } from './LodopFuncs.js';
-import { OrderData, RechargeData } from './types';
+import { OrderData, RechargeData, Config } from './types';
 import { generateOrderHtmlTemplate, generateRechargeHtmlTemplate } from './GenerateTemplate';
+import { orderTemplate } from './GenerateLodopTemplate';
+import { getOrgInfo } from '@/utils/localStorageTools';
 import ElMessage from '@/components/Message'; // 若使用Element Plus，可用于提示
 
 export class LodopPrinter {
-  private LODOP: LodopObject | null = null;
+  private LODOP: LODOP | null = null;
 
   constructor() {
     this.init();
   }
 
+  /** 初始化Lodop控件 */
   private init(): void {
     this.LODOP = getLodop();
     if (!this.LODOP) {
@@ -23,101 +27,166 @@ export class LodopPrinter {
     }
   }
 
+  /**
+   * 获取打印机列表
+   * @returns 打印机列表
+   */
+  getPrinters(): string[] {
+    if (!this.LODOP) return [];
+    const count = this.LODOP.GET_PRINTER_COUNT();
+    return Array.from({ length: count }, (_, i) => this.LODOP!.GET_PRINTER_NAME(i));
+  }
+
+  /** 设置打印机 */
+  setPrinter(index: number): void {
+    this.LODOP?.SET_PRINTER_INDEX(index);
+  }
+
+  /**
+   * 获取打印配置（单位：毫米）
+   * @param data 数据
+   * @param type 1:订单 2:充值单
+   * @returns 打印配置
+   */
+  getPrintConfig(data: OrderData | RechargeData, type: 1 | 2) {
+    const config: Config = {
+      width: 58,
+      height: 0,
+    };
+
+    // 从门店信息里获取默认打印宽度
+    const org = getOrgInfo();
+    if (org) {
+      config.width = org.printWidth || 58;
+    }
+
+    // 计算打印高度
+    if (type === 1) {
+      config.height = this.calculateOrderPrintHeight(data as OrderData) || 0;
+    } else if (type === 2) {
+      config.height = this.calculateRechargePrintHeight(data as RechargeData) || 0;
+    }
+
+    return config;
+  }
+
+  /**
+   * 打开打印设计窗口
+   */
+  printDesign() {
+    if (!this.LODOP) {
+      ElMessage.error('Lodop控件初始化失败');
+      return;
+    }
+
+    this.LODOP.PRINT_INIT(new Date().getTime().toString());
+    this.LODOP.PRINT_DESIGN();
+  }
+
+  /**
+   * 打印HTML模板
+   * @param data 订单数据
+   * @param preview 是否预览
+   */
+  printOrderByHTML(data: OrderData, preview = false): void {
+    if (!this.LODOP) {
+      ElMessage.error('Lodop控件初始化失败');
+      return;
+    }
+
+    // 开启预览打印
+    // preview = true;
+
+    // 获取打印配置（单位：毫米）
+    const { width, height } = this.getPrintConfig(data, 1);
+    // LODOP的打印页面宽度
+    const printWidth = `${width - 10}mm`;
+    // LODOP的打印页面高度
+    // const printHeight = `${height ? height - 20 : height}mm`;
+    const printHeight = `${height}mm`;
+
+    console.log('打印尺寸：', { printWidth, printHeight });
+
+    // LODOP的打印任务名称
+    const taskName = `${data.orderCode}-${data.orgName}消费单`;
+    // 初始化打印任务
+    this.LODOP.PRINT_INIT(taskName);
+    // 设置打印页面大小
+    this.LODOP.SET_PRINT_PAGESIZE(0, printWidth, printHeight);
+    // 按纸张定位，而非屏幕
+    this.LODOP.SET_PRINT_MODE('POS_BASEON_PAPER', 1);
+    // 关闭自动缩放，强制1:1打印
+    this.LODOP.SET_PRINT_MODE('PRINT_PAGE_PERCENT', 100);
+
+    // 生成HTML模板
+    const html = generateOrderHtmlTemplate(data, printWidth);
+    // 添加HTML模板
+    this.LODOP.ADD_PRINT_HTM(0, 0, printWidth, printHeight, html);
+    // 执行打印或预览
+    preview ? this.LODOP.PREVIEW() : this.LODOP.PRINT();
+  }
+
+  /**
+   * 打印HTML模板
+   * @param data 充值数据
+   * @param preview 是否预览
+   */
+  printRechargeByHTML(data: RechargeData, preview = false): void {
+    if (!this.LODOP) {
+      ElMessage.error('Lodop控件初始化失败');
+      return;
+    }
+
+    // 开启预览打印
+    // preview = true;
+
+    // 获取打印配置（单位：毫米）
+    const { width, height } = this.getPrintConfig(data, 2);
+    // LODOP的打印页面宽度
+    const printWidth = `${width - 10}mm`;
+    // LODOP的打印页面高度
+    // const printHeight = `${height ? height - 10 : height}mm`;
+    const printHeight = `${height}mm`;
+
+    // console.log('打印尺寸：', { printWidth, printHeight });
+
+    // 打印任务名称
+    const taskName = `${data.historyCode}-${data.orgName}充值单`;
+    // 初始化打印任务
+    this.LODOP.PRINT_INIT(taskName);
+    // 设置打印页面大小
+    this.LODOP.SET_PRINT_PAGESIZE(0, printWidth, printHeight);
+    // 按纸张定位，而非屏幕
+    this.LODOP.SET_PRINT_MODE('POS_BASEON_PAPER', 1);
+    // 关闭自动缩放，强制1:1打印
+    this.LODOP.SET_PRINT_MODE('PRINT_PAGE_PERCENT', 100);
+
+    // 生成HTML模板
+    const html = generateRechargeHtmlTemplate(data, printWidth);
+    // 添加HTML模板
+    this.LODOP.ADD_PRINT_HTM(0, 0, printWidth, printHeight, html);
+    // 执行打印或预览
+    preview ? this.LODOP.PREVIEW() : this.LODOP.PRINT();
+  }
+
+  /**
+   * 打印订单（基于Lodop ADD_PRINT_TEXT() 方法）
+   * @param data 订单数据
+   * @param preview 是否预览
+   */
   printReceipt(data: OrderData, preview = false): void {
     if (!this.LODOP) {
       ElMessage.error('Lodop控件初始化失败');
       return;
     }
 
-    // 初始化打印区域（80mm宽）
-    this.LODOP.PRINT_INITA(0, 0, 800, 1200, `${data.orgName}消费单`);
+    // 获取打印配置（单位：毫米）
+    const config = this.getPrintConfig(data, 1);
+    console.log('打印配置:', config);
 
-    // 标题栏
-    let yPos = 30;
-    this.LODOP.ADD_PRINT_TEXT(yPos, 0, 800, 40, `${data.orgName}消费单`);
-    this.LODOP.SET_PRINT_STYLEA(0, 'FontSize', 16);
-    this.LODOP.SET_PRINT_STYLEA(0, 'Align', 2);
-    this.LODOP.SET_PRINT_STYLEA(0, 'Bold', 1);
-    yPos += 50;
-
-    // 时间信息
-    this.LODOP.ADD_PRINT_TEXT(yPos, 50, 300, 25, `账务时间: ${data.orderTime}`);
-    this.LODOP.ADD_PRINT_TEXT(yPos, 450, 300, 25, `买单时间: ${data.settleTime}`);
-    yPos += 30;
-
-    // 表格标题行
-    this.LODOP.ADD_PRINT_TEXT(yPos, 50, 200, 25, '项目/标准价');
-    this.LODOP.ADD_PRINT_TEXT(yPos, 250, 150, 25, '技师');
-    this.LODOP.ADD_PRINT_TEXT(yPos, 400, 100, 25, '数量');
-    this.LODOP.ADD_PRINT_TEXT(yPos, 500, 150, 25, '金额');
-    this.LODOP.SET_PRINT_STYLEA(0, 'Bold', 1);
-    yPos += 30;
-
-    // 项目明细行
-    data.orderDetails.forEach((item) => {
-      const itemType = item.serverType === 0 ? '' : '-加';
-      this.LODOP.ADD_PRINT_TEXT(yPos, 50, 200, 25, `${item.businessName}¥${item.stdPrice}${itemType}`);
-      this.LODOP.ADD_PRINT_TEXT(yPos, 250, 150, 25, item.userName);
-      this.LODOP.ADD_PRINT_TEXT(yPos, 400, 100, 25, item.quantity.toString());
-      this.LODOP.ADD_PRINT_TEXT(yPos, 500, 150, 25, `¥${item.truePrice.toFixed(2)}`);
-      yPos += 30;
-    });
-
-    // 分隔线
-    yPos += 20;
-    this.LODOP.ADD_PRINT_TEXT(yPos, 50, 700, 20, '--------------------------------------------------');
-    yPos += 30;
-
-    // 房间信息
-    this.LODOP.ADD_PRINT_TEXT(yPos, 50, 300, 25, `房间编号: ${data.bedName}`);
-    yPos += 30;
-
-    // 支付明细
-    yPos += 20;
-    this.LODOP.ADD_PRINT_TEXT(yPos, 50, 200, 25, '支付明细');
-    this.LODOP.SET_PRINT_STYLEA(0, 'Bold', 1);
-    yPos += 30;
-    data.payments.forEach((pay) => {
-      this.LODOP.ADD_PRINT_TEXT(yPos, 80, 300, 25, `${pay.paymentName}支付: ¥${pay.totalAmount.toFixed(2)}`);
-      yPos += 30;
-    });
-
-    // 分隔线
-    yPos += 20;
-    this.LODOP.ADD_PRINT_TEXT(yPos, 50, 700, 20, '--------------------------------------------------');
-    yPos += 30;
-
-    // 金额统计
-    this.LODOP.ADD_PRINT_TEXT(yPos, 50, 300, 25, `原价总计: ¥${data.totalAmount.toFixed(2)}`);
-    this.LODOP.ADD_PRINT_TEXT(yPos + 30, 50, 300, 25, `实付总计: ¥${data.actualAmount.toFixed(2)}`);
-    this.LODOP.ADD_PRINT_TEXT(yPos + 60, 50, 300, 25, `节省总计: ¥${data.discountAmount.toFixed(2)}`);
-    yPos += 90;
-
-    // 系统单号与收银员
-    this.LODOP.ADD_PRINT_TEXT(yPos, 50, 300, 25, `系统单号: ${data.orderCode}`);
-    this.LODOP.ADD_PRINT_TEXT(yPos + 30, 50, 300, 25, `收银员: ${data.userName}`);
-    this.LODOP.ADD_PRINT_TEXT(yPos + 60, 50, 300, 25, `开单时间: ${data.orderTime}`);
-    yPos += 90;
-
-    // 顾客签名
-    this.LODOP.ADD_PRINT_TEXT(yPos, 50, 300, 25, '顾客签名: ______________');
-    yPos += 40;
-
-    // 感谢语
-    this.LODOP.ADD_PRINT_TEXT(yPos, 0, 800, 25, '恭侯您下次光临');
-    this.LODOP.SET_PRINT_STYLEA(0, 'Align', 2);
-    yPos += 30;
-
-    // 服务信息
-    this.LODOP.ADD_PRINT_TEXT(yPos, 50, 300, 25, `服务电话: ${data.servicePhone || data.orgNumber || ''}`);
-    this.LODOP.ADD_PRINT_TEXT(yPos + 30, 50, 500, 25, `门店地址: ${data.orgAddress}`);
-    yPos += 60;
-
-    // 加盟信息
-    this.LODOP.ADD_PRINT_TEXT(yPos, 0, 800, 25, '加盟门店 自主经营');
-    this.LODOP.SET_PRINT_STYLEA(0, 'Align', 2);
-
-    // 执行打印
+    // 生成订单打印模板
+    orderTemplate(this.LODOP, data, config);
+    // 执行打印或预览
     preview ? this.LODOP.PREVIEW() : this.LODOP.PRINT();
   }
 
@@ -136,46 +205,40 @@ export class LodopPrinter {
   generateRechargeHtmlTemplate: (data: RechargeData) => string = generateRechargeHtmlTemplate;
 
   /**
-   * 打印HTML模板
+   * 计算订单打印所需的高度（单位：毫米）
    * @param data 订单数据
-   * @param preview 是否预览
+   * @returns 估算的打印高度（毫米）
    */
-  printByHTML(data: OrderData, preview = false): void {
-    if (!this.LODOP) {
-      ElMessage.error('Lodop控件初始化失败');
-      return;
-    }
+  private calculateOrderPrintHeight(data: OrderData): number {
+    let baseHeight = 120; // 基础内容高度（固定部分）
+    const detailRowHeight = 6; // 每行订单明细的高度（毫米）
+    const paymentRowHeight = 6; // 每行支付明细的高度（毫米）
+    const faultTolerance = 0; // 容错空间
 
-    const html = this.generateOrderHtmlTemplate(data);
-    this.LODOP.PRINT_INITA(0, 0, 800, 1200, `${data.orgName}消费单`);
-    this.LODOP.ADD_PRINT_HTML(0, 0, 800, 1200, html);
-    preview ? this.LODOP.PREVIEW() : this.LODOP.PRINT();
+    // 动态部分高度
+    const detailHeight = data.orderDetails.length * detailRowHeight;
+    const paymentHeight = data.payments.length * paymentRowHeight;
+
+    // 总高度 = 基础高度 + 动态部分高度 + 容错空间
+    return baseHeight + detailHeight + paymentHeight + faultTolerance;
   }
 
   /**
-   * 打印HTML模板
-   * @param data 订单数据
-   * @param preview 是否预览
+   * 计算充值单打印所需的高度（单位：毫米）
+   * @param data 充值数据
+   * @returns 估算的打印高度（毫米）
    */
-  printRechargeByHTML(data: RechargeData, preview = false): void {
-    if (!this.LODOP) {
-      ElMessage.error('Lodop控件初始化失败');
-      return;
-    }
+  private calculateRechargePrintHeight(data: RechargeData): number {
+    let baseHeight = 140; // 基础内容高度（固定部分）
+    const paymentRowHeight = 6; // 每行支付明细的高度（毫米）
+    const kpiRowHeight = 6; // 每行业绩归属的高度（毫米）
+    const faultTolerance = 5; // 容错空间
 
-    const html = this.generateRechargeHtmlTemplate(data);
-    this.LODOP.PRINT_INITA(0, 0, 800, 1200, `${data.orgName}消费单`);
-    this.LODOP.ADD_PRINT_HTML(0, 0, 800, 1200, html);
-    preview ? this.LODOP.PREVIEW() : this.LODOP.PRINT();
-  }
+    // 动态部分高度
+    const paymentHeight = data.paymentInfoList.length * paymentRowHeight;
+    const kpiHeight = data.userKpiList.length * kpiRowHeight;
 
-  getPrinters(): string[] {
-    if (!this.LODOP) return [];
-    const count = this.LODOP.GET_PRINTER_COUNT();
-    return Array.from({ length: count }, (_, i) => this.LODOP!.GET_PRINTER_NAME(i));
-  }
-
-  setPrinter(index: number): void {
-    this.LODOP?.SET_PRINTER_INDEX(index);
+    // 总高度 = 基础高度 + 动态部分高度 + 容错空间
+    return baseHeight + paymentHeight + kpiHeight + faultTolerance;
   }
 }

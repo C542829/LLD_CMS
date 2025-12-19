@@ -66,10 +66,10 @@ function checkOrTryHttp() {
         LoadJsState = 'complete';
       };
   JS1.onerror = function (e) {
-    if (window.location.protocol !== 'https:') head.insertBefore(JS2, head.firstChild);
-    else head.insertBefore(JS3, head.firstChild);
+    // if (window.location.protocol !== 'https:') head.insertBefore(JS2, head.firstChild);
+    // else head.insertBefore(JS3, head.firstChild);
   };
-  head.insertBefore(JS1, head.firstChild);
+  // head.insertBefore(JS1, head.firstChild);
 }
 
 //==加载Lodop对象的主过程:==
@@ -82,7 +82,7 @@ function checkOrTryHttp() {
   try {
     let WSK1 = new WebSocket(URL_WS1);
     WSK1.onopen = function (e) {
-      setTimeout('checkOrTryHttp()', 200);
+      setTimeout(checkOrTryHttp, 200);
     };
     WSK1.onmessage = function (e) {
       if (!window.getCLodop) eval(e.data);
@@ -90,7 +90,7 @@ function checkOrTryHttp() {
     WSK1.onerror = function (e) {
       let WSK2 = new WebSocket(URL_WS2);
       WSK2.onopen = function (e) {
-        setTimeout('checkOrTryHttp()', 200);
+        setTimeout(checkOrTryHttp, 200);
       };
       WSK2.onmessage = function (e) {
         if (!window.getCLodop) eval(e.data);
@@ -139,8 +139,8 @@ function getLodop(oOBJECT, oEMBED) {
         LODOP = window.getCLodop();
       } catch (err) {}
       if (!LODOP && LoadJsState !== 'complete') {
-        if (!LoadJsState) alert('未曾加载Lodop主JS文件，请先调用loadCLodop过程.');
-        else alert('网页还没下载完毕，请稍等一下再操作.');
+        if (!LoadJsState) console.error('未曾加载Lodop主JS文件，请先调用loadCLodop过程.');
+        else console.error('网页还没下载完毕，请稍等一下再操作.');
         return;
       }
       let strAlertMessage;
@@ -188,7 +188,8 @@ function getLodop(oOBJECT, oEMBED) {
     //===============================================================================
     return LODOP;
   } catch (err) {
-    alert('getLodop出错:' + err);
+    // alert('getLodop出错:' + err);
+    console.error('getLodop出错:' + err);
   }
 }
 
