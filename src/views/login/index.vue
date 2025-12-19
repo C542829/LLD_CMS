@@ -4,9 +4,9 @@
     <el-form class="login-form" :model="loginForm" :rules="rules" ref="loginForms">
       <h1>Hello</h1>
       <h2>欢迎来到刘丽德健康管理后台</h2>
-      <el-form-item prop="orgCode" class="form-item">
+      <!-- <el-form-item prop="orgCode" class="form-item">
         <el-input :prefix-icon="HomeFilled" v-model="loginForm.orgCode"></el-input>
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item prop="username" class="form-item">
         <el-input :prefix-icon="User" v-model="loginForm.username"></el-input>
       </el-form-item>
@@ -41,7 +41,8 @@ const router = useRouter();
 const route = useRoute();
 
 // 收集账号与密码的数据
-const loginForm = reactive({ orgCode: '1', username: 'N15572555269', password: '123456' });
+// const loginForm = reactive({ orgCode: '1', username: 'N15572555269', password: '123456' });
+const loginForm = reactive({ username: 'N15572555269', password: '123456' });
 
 // 登录按钮回调
 const login = async () => {
@@ -64,7 +65,7 @@ const login = async () => {
 
 // 定义表单校验需要配置对象
 const rules = {
-  orgCode: [{ required: true, message: '请输入门店编码', trigger: 'blur' }],
+  // orgCode: [{ required: true, message: '请输入门店编码', trigger: 'blur' }],
   username: [{ required: true, min: 6, max: 20, message: '账号长度6-20位', trigger: 'blur' }],
   password: [{ required: true, min: 6, max: 20, message: '密码长度6-20位', trigger: 'blur' }],
 };

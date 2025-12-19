@@ -2,7 +2,16 @@ import { defineStore } from 'pinia';
 // 引入接口
 import { reqLogin, reqUserInfo, reqLogout, reqUpdate } from '@/api/user';
 // 引入操作本地存储的工具方法
-import { setUserInfo, getUserInfo, removeUserInfo, setToken, getToken, removeToken } from '@/utils/localStorageTools';
+import {
+  setUserInfo,
+  getUserInfo,
+  removeUserInfo,
+  setToken,
+  getToken,
+  removeToken,
+  setOrgInfo,
+  removeOrgInfo,
+} from '@/utils/localStorageTools';
 // 引入相应枚举
 import { ResponseCode } from '@/enums/response';
 // 引入路由(常量路由)
@@ -18,6 +27,7 @@ import router from '@/router';
 import { parseResObj } from '@/utils/parseResponse';
 
 import { usePermissionStore } from '@/store/modules/acl/permission';
+import { useOrgStore } from '@/store/modules/acl/org';
 
 // 用于过滤当前用户需要展示的异步路由
 function filterAsyncRoute(asyncRoute: any, routes: any) {
@@ -52,27 +62,31 @@ const useUserStore = defineStore('User', {
       const isSuccess = res.code === ResponseCode.SUCCESS;
       if (isSuccess) {
         const result = res.data;
-        this.userId = result.userId;
-        this.nickname = result.userName;
-        this.username = result.userCode;
-        this.token = `Bearer ${result.token}`;
+        this.setUserInfo(result);
         setToken(this.token);
         setUserInfo(result);
-        await this.userInfo();
+        this.userInfo();
+        this.storageOrgInfo();
       } else {
         $Message.error(res.message);
       }
       return isSuccess;
     },
 
+    setUserInfo(user: any) {
+      this.userId = user.userId;
+      this.nickname = user.userName;
+      this.username = user.userCode;
+      this.token = `Bearer ${user.token}`;
+    },
+
     // 获取用户信息
     async userInfo() {
-      const permStore = usePermissionStore();
       try {
+        const permStore = usePermissionStore();
         const user = getUserInfo();
-        this.userId = user.userId;
-        this.nickname = user.userName;
-        this.username = user.userCode;
+
+        this.setUserInfo(user);
 
         // this.buttons = result.data.buttons;
         if (this.menuRoutes.length === 0) {
@@ -97,8 +111,14 @@ const useUserStore = defineStore('User', {
           router.addRoute(route);
         });
       } catch (error) {
-        console.error(error);
+        console.error(`获取用户信息出错：${error}`);
       }
+    },
+
+    async storageOrgInfo() {
+      const orgStore = useOrgStore();
+      const org = await orgStore.getOrg();
+      setOrgInfo(org);
     },
 
     // 退出登录
@@ -107,7 +127,7 @@ const useUserStore = defineStore('User', {
       const res: any = await reqLogout(params);
       if (res.code === ResponseCode.SUCCESS) {
         router.push({ path: '/login' });
-        $Message.success('退出登录成功');
+        // $Message.success('退出登录成功');
         this.clearUserInfo();
       } else {
         $Message.error('退出登录失败');
@@ -123,6 +143,7 @@ const useUserStore = defineStore('User', {
       this.buttons = [];
       removeToken();
       removeUserInfo();
+      removeOrgInfo();
     },
 
     async getUserInfo() {
