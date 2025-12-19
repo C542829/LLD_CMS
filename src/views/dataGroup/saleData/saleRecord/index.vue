@@ -242,8 +242,8 @@ const printReceipt = async (row: any) => {
   }
   const org = await orgStore.getOrg();
   const data = { ...row, ...org };
-  printer.printReceipt(data, true);
-  // printer.printByHTML(data, true);
+  // printer.printReceipt(data, true);
+  printer.printOrderByHTML(data, false);
 };
 
 // 抽屉

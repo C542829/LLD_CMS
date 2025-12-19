@@ -142,11 +142,11 @@ const orderData: OrderData = {
 };
 
 const handlePrint = () => {
-  printer.printByHTML(orderData, false);
+  printer.printOrderByHTML(orderData, false);
 };
 
 const handlePreview = () => {
-  printer.printByHTML(orderData, true);
+  printer.printOrderByHTML(orderData, true);
 };
 </script>
 
