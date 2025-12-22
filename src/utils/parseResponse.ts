@@ -25,7 +25,7 @@ export const parseRes = (res: any) => {
     // 检查状态码是否成功
     if (res?.code !== ResponseCode.SUCCESS) {
       const msg = res.message + (res.data ? `：${res.data}` : '');
-      $Notification.error(msg);
+      $Message.error(msg);
       return false;
     }
     // 返回响应中的数据字段
@@ -75,11 +75,18 @@ export const parseResObj = (res: any, msg?: string) => {
   // 验证是否为对象类型
   const isObj = isObject(data);
   // 非对象类型提示警告
-  !isObj && $Message.warning(`数据格式错误：${data}`);
+  if (!isObj) {
+    // !isObj && $Message.warning(`数据格式错误：${data}`);
+    console.error(`数据格式错误：${data}`);
+    return {};
+  }
   // 空对象提示
-  isObj && Object.keys(data).length === 0 && $Message.success('数据为空');
+  if (isObj) {
+    // isObj && Object.keys(data).length === 0 && $Message.success('数据为空');
+    return {};
+  }
   // 自定义提示
-  msg && $Message.success(msg);
+  msg && $Notification.success(msg);
   // 确保返回对象类型
   return isObj ? data : {};
 };
@@ -101,11 +108,18 @@ export const parseResList = (res: any, msg?: string) => {
   // 验证是否为数组类型
   const isArray = Array.isArray(data);
   // 非数组类型提示警告
-  !isArray && $Message.warning(`数据格式错误：${data}`);
+  if (!isArray) {
+    // !isArray && $Message.warning(`数据格式错误：${data}`);
+    console.error(`数据格式错误：${data}`);
+    return [];
+  }
   // 空数组提示
-  data?.length === 0 && $Message.success('暂无数据');
+  if (data?.length === 0) {
+    // data?.length === 0 && $Message.success('暂无数据');
+    return [];
+  }
   // 自定义提示
-  msg && $Message.success(msg);
+  msg && $Notification.success(msg);
   // 确保返回数组类型
   return isArray ? data : [];
 };

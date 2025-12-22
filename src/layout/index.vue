@@ -37,7 +37,6 @@
 </template>
 
 <script setup lang="ts">
-// @ts-ignore 引入 debounce
 import { debounce } from 'lodash';
 import { ref, onMounted } from 'vue';
 //获取路由对象
@@ -51,16 +50,23 @@ import Main from './main/index.vue';
 //引入顶部tabbar组件
 import Tabbar from './tabbar/index.vue';
 
-//获取用户相关的小仓库
+// 获取pinia仓库
 import useUserStore from '@/store/modules/acl/user';
 import { useSettingStore } from '@/store/modules/acl/setting';
-let userStore = useUserStore();
-//获取layout配置仓库
-
-let settingStore = useSettingStore();
+import { useDataEnumStore } from '@/store/modules/enums/index';
+const userStore = useUserStore();
+const settingStore = useSettingStore();
+const enumStore = useDataEnumStore();
 
 //获取路由对象
 let $route = useRoute();
+
+onMounted(() => {
+  // 监听窗口大小变化
+  window.addEventListener('resize', handleResize);
+  handleResize();
+  init();
+});
 
 // 监听窗口大小变化
 const windowWidth = ref(window.innerWidth);
@@ -74,11 +80,13 @@ const handleResize = debounce(() => {
     settingStore.fold = false;
   }
 }, 300);
-onMounted(() => {
-  // 监听窗口大小变化
-  window.addEventListener('resize', handleResize);
-  handleResize();
-});
+
+const init = async () => {
+  // 初始化常用枚举信息
+  await enumStore.getProductList();
+  await enumStore.getServiceItemList();
+  await enumStore.getTreatmentCouponList();
+};
 </script>
 
 <script lang="ts">
