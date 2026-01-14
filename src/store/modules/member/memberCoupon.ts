@@ -109,7 +109,7 @@ export const useCouponStore = defineStore('CouponStore', () => {
       id: null,
       ticketName: '',
       ticketType: 0,
-      ticketEffectiveTime: null,
+      ticketEffectiveTime: -1,
       ticketFullPayment: null,
       ticketValue: null,
       ticketDescription: '',

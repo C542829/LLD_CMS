@@ -20,12 +20,7 @@
     <!-- 优惠券类型 -->
     <el-form-item label="优惠券类型" prop="ticketType">
       <el-select v-model="store.formData.ticketType" placeholder="请选择优惠券类型" clearable>
-        <el-option
-          v-for="item in couponTypeOptions.slice(0, 1)"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
-        />
+        <el-option v-for="item in couponTypeOptions" :key="item.value" :label="item.label" :value="item.value" />
       </el-select>
     </el-form-item>
 
