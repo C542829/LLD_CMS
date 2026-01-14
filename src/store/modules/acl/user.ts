@@ -28,6 +28,9 @@ import { parseResObj } from '@/utils/parseResponse';
 
 import { usePermissionStore } from '@/store/modules/acl/permission';
 import { useOrgStore } from '@/store/modules/acl/org';
+import { useDataEnumStore } from '@/store/modules/enums/index';
+import { useDynamicDataStore } from '@/store/modules/enums/dynamicData';
+import { isEmpty } from 'lodash';
 
 // 用于过滤当前用户需要展示的异步路由
 function filterAsyncRoute(asyncRoute: any, routes: any) {
@@ -85,7 +88,9 @@ const useUserStore = defineStore('User', {
       try {
         const permStore = usePermissionStore();
         const user = getUserInfo();
-
+        if (isEmpty(user)) {
+          return;
+        }
         this.setUserInfo(user);
 
         // this.buttons = result.data.buttons;
@@ -144,6 +149,8 @@ const useUserStore = defineStore('User', {
       removeToken();
       removeUserInfo();
       removeOrgInfo();
+      useDataEnumStore().$reset();
+      useDynamicDataStore().clearAllData();
     },
 
     async getUserInfo() {
