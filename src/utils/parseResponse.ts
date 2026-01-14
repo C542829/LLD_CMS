@@ -1,6 +1,7 @@
 // 导入消息提示组件
 import $Message from '@/components/Message';
 import $Notification from '@/components/Notification';
+import { isEmpty } from 'lodash';
 
 // 业务状态码
 import { ResponseCode } from '@/enums/response';
@@ -77,12 +78,13 @@ export const parseResObj = (res: any, msg?: string) => {
   // 非对象类型提示警告
   if (!isObj) {
     // !isObj && $Message.warning(`数据格式错误：${data}`);
-    console.error(`数据格式错误：${data}`);
+    console.error(`数据格式错误：${response}`);
     return {};
   }
   // 空对象提示
-  if (isObj) {
+  if (isEmpty(data)) {
     // isObj && Object.keys(data).length === 0 && $Message.success('数据为空');
+    console.error(`数据为空：${response}`);
     return {};
   }
   // 自定义提示
