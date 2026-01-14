@@ -1,5 +1,5 @@
 import Message from '@/components/Message';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isEmpty } from 'lodash';
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import {
@@ -40,6 +40,15 @@ export const useOrderStore = defineStore('Order', () => {
   };
 
   /**
+   * 初始化服务类型映射
+   */
+  const initServiceMap = () => {
+    serviceMap[OrderDetailType.Product] = enumStore.productList;
+    serviceMap[OrderDetailType.Service] = enumStore.serviceItemList;
+    serviceMap[OrderDetailType.TreatmentCoupon] = enumStore.treatmentCouponList;
+  };
+
+  /**
    * 订单表单数据
    */
   const orderForm: any = ref({
@@ -47,8 +56,8 @@ export const useOrderStore = defineStore('Order', () => {
     vipName: '', // 会员姓名
     vipCardNumber: '', // 会员卡号
     vipPhoneNumber: '', // 会员手机号
-    customerType: 0, // 客户类型
-    customerName: '', // 客户姓名
+    customerType: CustomerType.Guest, // 客户类型
+    customerName: '散客', // 客户姓名
     bedId: '', // 床位ID
     bedName: '', // 床位名称
     remark: '', // 备注
@@ -143,18 +152,18 @@ export const useOrderStore = defineStore('Order', () => {
     }
 
     // 校验订单明细
-    if (params.orderDetails.length === 0) {
-      Message.error('请添加订单明细');
-      return false;
-    } else {
-      // 校验订单明细
-      for (const item of params.orderDetails) {
-        if (validSubmitOrderDetail(item)) {
-          Message.error('请填写完整订单明细信息');
-          return false;
-        }
-      }
-    }
+    // if (params.orderDetails.length === 0) {
+    //   Message.error('请添加订单明细');
+    //   return false;
+    // } else {
+    //   // 校验订单明细
+    //   for (const item of params.orderDetails) {
+    //     if (validSubmitOrderDetail(item)) {
+    //       Message.error('请填写完整订单明细信息');
+    //       return false;
+    //     }
+    //   }
+    // }
     return true;
   };
 
@@ -204,7 +213,7 @@ export const useOrderStore = defineStore('Order', () => {
           cb();
           resetOrderForm();
         } else {
-          Message.error(result.message || '订单创建失败');
+          // Message.error(result.message || '订单创建失败');
         }
       })
       .catch((err) => {
@@ -264,7 +273,7 @@ export const useOrderStore = defineStore('Order', () => {
     const serviceItem = serviceMap[params.detailType].find((item: any) => item.id === params.bid);
     console.log('服务项:', serviceItem);
 
-    if (!serviceItem) {
+    if (isEmpty(serviceItem)) {
       Message.warning('服务项不存在');
       return;
     }
@@ -415,8 +424,8 @@ export const useOrderStore = defineStore('Order', () => {
     vipId: 0,
     bedId: 0,
     bedName: '',
-    customerType: 0,
-    customerName: '',
+    customerType: CustomerType.Guest,
+    customerName: '散客',
     remark: '',
     totalAmount: 0,
     actualAmount: 0,
@@ -504,8 +513,8 @@ export const useOrderStore = defineStore('Order', () => {
       vipId: 0,
       bedId: 0,
       bedName: '',
-      customerType: CustomerType.Member,
-      customerName: '',
+      customerType: CustomerType.Guest,
+      customerName: '散客',
       remark: '',
       totalAmount: 0,
       actualAmount: 0,
@@ -601,6 +610,7 @@ export const useOrderStore = defineStore('Order', () => {
     orderCount,
     reset,
     checkedAssetInfo,
+    initServiceMap,
 
     order,
     getOrder,

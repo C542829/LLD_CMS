@@ -7,16 +7,18 @@
       </template>
       <template v-if="store.order.customerType === CustomerType.Guest">
         <el-descriptions :column="1">
-          <el-descriptions-item label="顾客姓名:">{{ store.order.customerName }}</el-descriptions-item>
+          <el-descriptions-item label="顾客姓名:">
+            <el-input v-model="store.order.customerName" placeholder="请输入散客姓名" clearable />
+          </el-descriptions-item>
           <el-descriptions-item label="应付总额:">
             <span class="price-text">{{ store.truePayAmount }} 元</span>
           </el-descriptions-item>
         </el-descriptions>
       </template>
     </div>
-    <div class="tag-container"></div>
+    <div v-if="store.order.customerType === CustomerType.Member" class="tag-container"></div>
     <!-- 资产信息 -->
-    <el-scrollbar class="property-container">
+    <el-scrollbar v-if="store.order.customerType === CustomerType.Member" class="property-container">
       <el-checkbox-group v-model="checkedList" @change="handleChange">
         <PropertyCard
           v-for="(item, index) in assetList"

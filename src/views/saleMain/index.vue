@@ -55,6 +55,9 @@
           <el-tab-pane label="产品">
             <ProductList />
           </el-tab-pane>
+          <el-tab-pane label="项目">
+            <ServiceItemList />
+          </el-tab-pane>
           <el-tab-pane label="疗程">
             <TreatmentCouponList />
           </el-tab-pane>
@@ -71,12 +74,13 @@
 <script setup lang="ts">
 import SearchMember from '@/components/Input/SearchMember.vue';
 import ProductList from './components/ProductList.vue';
+import ServiceItemList from './components/ServiceItemList.vue';
 import TreatmentCouponList from './components/TreatmentCouponList.vue';
 import MemberInfo from './components/MemberInfo.vue';
 import OrderList from './components/OrderList.vue';
 import MessageBox from '@/components/MessageBox';
 
-import { ref, watch, computed, onMounted, onUnmounted } from 'vue';
+import { ref, watch, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import { CustomerType, BedStatus, BedStatusMap } from '@/enums/index';
 import { useSettingStore } from '@/store/modules/acl/setting';
@@ -136,6 +140,9 @@ onMounted(async () => {
   initByBedId();
   bedList.value = await roomStore.getAllBedList();
   await dataEnumStore.getStaffList();
+  setTimeout(() => {
+    orderStore.initServiceMap();
+  }, 500);
 });
 
 // 搜索会员
