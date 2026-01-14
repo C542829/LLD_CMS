@@ -43,13 +43,13 @@
         :row-class-name="getRowClassName"
         :showPagination="false"
       >
-        <el-table-column label="疗程券" width="200">
+        <el-table-column label="疗程券" min-width="60">
           <template #default="{ row }">
             <p>名称：{{ row.name }}</p>
             <p>编码：{{ row.encode }}</p>
           </template>
         </el-table-column>
-        <el-table-column label="疗程券内容">
+        <el-table-column label="疗程券内容" min-width="100">
           <template #default="{ row }">
             <div style="display: flex; gap: 5px; flex-wrap: wrap">
               <el-tag v-for="item in row.ticketDetails" :key="item" type="primary">
@@ -58,14 +58,14 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="price" label="疗程价(元)" :formatter="amountFormatter" width="110" />
+        <el-table-column prop="price" label="疗程价(元)" :formatter="amountFormatter" min-width="50" />
         <el-table-column label="提成" width="200">
           <template #default="{ row }">
             <span v-if="row.type === CommissionType.FixedAmount">固定金额提成：{{ row.commissionValue || 0 }}元</span>
             <span v-else>固定比例提成：{{ row.commissionValue || 0 }}%</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="160">
+        <el-table-column label="操作" min-width="50">
           <template #default="{ row }">
             <el-button link type="info" @click="showDrawer(2, row)">详情</el-button>
             <el-button link type="primary" :disabled="!!row.status" @click="showDrawer(1, row)">编辑</el-button>
@@ -99,6 +99,7 @@ import TreatmentCouponForm from './form.vue';
 import { amountFormatter } from '@/utils/formatter';
 // 导入枚举数据
 import { statusOptions, CommissionType } from '@/enums/index';
+import { cloneDeep } from 'lodash';
 
 // 导入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
@@ -138,9 +139,9 @@ const drawer = reactive({
 });
 
 // 打开抽屉
-const showDrawer = (handleIndex: number, row?: any) => {
+const showDrawer = (handleIndex: number, row: any = {}) => {
   handleIndex === 2 && (drawer.disabled = true);
-  row?.id ? (store.formData = { ...row }) : store.resetFormData();
+  handleIndex !== 0 ? (store.formData = cloneDeep(row)) : store.resetFormData();
   drawer.title = drawerTitles[handleIndex];
   drawer.visible = true;
 };

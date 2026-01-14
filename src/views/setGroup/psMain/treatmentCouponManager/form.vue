@@ -63,7 +63,7 @@
       </template>
 
       <!-- 套餐明细 -->
-      <el-form-item label="套餐明细" prop="cureTicketDetailInfoDTOList">
+      <!-- <el-form-item label="套餐明细" prop="cureTicketDetailInfoDTOList">
         <el-alert title="点击胶囊按钮, 可修改产品数量哦" type="warning" style="width: 75%; margin-bottom: 10px" />
         <Card style="width: 75%">
           <Autocomplete
@@ -73,7 +73,6 @@
             @update-number="updateNumber"
           >
             <template #selected="{ item }">{{ item.vipTicketName }} &nbsp; 数量：{{ item.vipTicketNum }}</template>
-            <!-- 套餐明细 -->
             <template #default="{ item }">
               <Card padding="10px" :gap="5" bgColor="#fff" shadow="always" class="package-card">
                 <div class="package-item">
@@ -88,6 +87,18 @@
             </template>
           </Autocomplete>
         </Card>
+      </el-form-item> -->
+      <!-- 套餐明细 -->
+      <el-form-item label="套餐明细" prop="cureTicketDetailInfoDTOList">
+        <el-alert title="点击胶囊按钮, 可修改产品数量哦" type="warning" style="width: 75%; margin-bottom: 10px" />
+        <Card style="width: 75%">
+          <TicketSelect
+            v-model="store.formData.vipTicketList"
+            :options="tickets"
+            value-key="vipTicketId"
+            labelKey="vipTicketName"
+          ></TicketSelect>
+        </Card>
       </el-form-item>
 
       <!-- 其他描述 -->
@@ -101,6 +112,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed, watch } from 'vue';
 import Autocomplete from './Autocomplete.vue';
+import TicketSelect from './TicketSelect.vue';
 
 import { commissionOptions, commissionTypeOptions, CommissionType } from '@/enums/index';
 
@@ -130,6 +142,7 @@ const tickets = computed(() =>
       vipTicketName: item.ticketName,
       vipTicketNum: 1,
       ticketDescription: item.ticketDescription,
+      isEdit: false,
     };
   }),
 );
