@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, reactive, computed } from 'vue';
+import { isEmpty } from 'lodash';
 
 import {
   reqEnumList,
@@ -187,7 +188,7 @@ export const useDataEnumStore = defineStore('DataEnum', () => {
    * @returns 枚举项列表
    */
   const getStaffList = async (refresh = false, params = { userStatus: '在职', pageNum: 1, pageSize: 100 }) => {
-    if (!staffList.value.length || refresh) {
+    if (isEmpty(staffList.value) || refresh) {
       await setStaffList(params);
       return staffList.value;
     } else {
@@ -209,7 +210,7 @@ export const useDataEnumStore = defineStore('DataEnum', () => {
    * @returns 优惠券列表
    */
   const getTicketList = async (refresh = false, params = { ticketName: '', ticketStatus: 0 }) => {
-    if (!ticketList.value.length || refresh) {
+    if (isEmpty(ticketList.value) || refresh) {
       await setTicketList(params);
       return ticketList.value;
     } else {
@@ -218,9 +219,10 @@ export const useDataEnumStore = defineStore('DataEnum', () => {
   };
   const setTicketList = async (params: any) => {
     const res = await reqTicketList(params);
-    const data = parseResList(res).filter((item) => {
-      return item.ticketType === CouponType.voucher;
-    });
+    const data = parseResList(res);
+    // const data = parseResList(res).filter((item) => {
+    //   return item.ticketType === CouponType.voucher;
+    // });
     ticketList.value = data;
   };
 
@@ -233,7 +235,7 @@ export const useDataEnumStore = defineStore('DataEnum', () => {
    * @returns 充值活动列表
    */
   const getActiveList = async (refresh = false, params = { pageNum: 1, pageSize: 100 }) => {
-    if (!activeList.value.length || refresh) {
+    if (isEmpty(activeList.value) || refresh) {
       await setActiveList(params);
       return activeList.value;
     } else {
@@ -255,7 +257,7 @@ export const useDataEnumStore = defineStore('DataEnum', () => {
    * @returns 产品列表
    */
   const getProductList = async (refresh = false, params = { productStatus: 0 }) => {
-    if ((Array.isArray(productList.value) && !productList.value.length) || refresh) {
+    if (isEmpty(productList.value) || refresh) {
       await setProductList(params);
       return productList.value;
     } else {
@@ -277,7 +279,7 @@ export const useDataEnumStore = defineStore('DataEnum', () => {
    * @returns 服务项目列表
    */
   const getServiceItemList = async (refresh = false, params = { itemStatus: 0 }) => {
-    if (!serviceItemList.value.length || refresh) {
+    if (isEmpty(serviceItemList.value) || refresh) {
       await setServiceItemList(params);
       return serviceItemList.value;
     } else {
@@ -299,7 +301,7 @@ export const useDataEnumStore = defineStore('DataEnum', () => {
    * @returns 套餐列表
    */
   const getPackageList = async (refresh = false, params = {}) => {
-    if (!packageList.value.length || refresh) {
+    if (isEmpty(packageList.value) || refresh) {
       await setPackageList(params);
       return packageList.value;
     } else {
@@ -331,7 +333,7 @@ export const useDataEnumStore = defineStore('DataEnum', () => {
    * @returns 治疗券列表
    */
   const getTreatmentCouponList = async (refresh = false, params = { status: 0 }) => {
-    if (!treatmentCouponList.value.length || refresh) {
+    if (isEmpty(treatmentCouponList.value) || refresh) {
       await setTreatmentCouponList(params);
       return treatmentCouponList.value;
     } else {
@@ -353,7 +355,7 @@ export const useDataEnumStore = defineStore('DataEnum', () => {
    * @returns 门店列表
    */
   const getOrgList = async (refresh = false, params = {}) => {
-    if (!orgList.value.length || refresh) {
+    if (isEmpty(orgList.value) || refresh) {
       await setOrgList(params);
       return orgList.value;
     } else {
@@ -366,7 +368,19 @@ export const useDataEnumStore = defineStore('DataEnum', () => {
     orgList.value = data;
   };
 
+  const $reset = () => {
+    staffList.value = [];
+    ticketList.value = [];
+    activeList.value = [];
+    productList.value = [];
+    serviceItemList.value = [];
+    packageList.value = [];
+    treatmentCouponList.value = [];
+    orgList.value = [];
+  };
+
   return {
+    $reset,
     // 员工相关
     staffList,
     setStaffList,
