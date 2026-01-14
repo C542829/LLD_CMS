@@ -128,6 +128,8 @@ const dialog: any = reactive({
 });
 
 const showDialog = (item: any) => {
+  orderStore.initServiceMap();
+
   if (item.status === BedStatus.Available) {
     dialog.title = '开单';
     dialog.type = 'add';
