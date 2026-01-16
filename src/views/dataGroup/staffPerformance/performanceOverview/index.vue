@@ -4,7 +4,7 @@
     <Card class="operation-card">
       <!-- 第一行 -->
       <div class="search-container">
-        <div class="search-item" v-if="false">
+        <!-- <div class="search-item" v-if="false">
           <label>
             选择门店：
             <el-select v-model="store.searchParams.storeId" style="width: 120px" placeholder="选择门店">
@@ -16,11 +16,11 @@
               />
             </el-select>
           </label>
-        </div>
+        </div> -->
         <div class="search-item">
           <label>
             销售时段：
-            <DatePicker v-model="store.searchParams.date" style="width: 260px" />
+            <DatePicker v-model="store.searchParams.date" @change="search" style="width: 260px" />
           </label>
         </div>
       </div>
@@ -50,15 +50,16 @@
               placeholder="选择技师"
               filterable
               style="width: 120px"
+              @change="search"
             >
-              <el-option label="全部" :value="null" />
+              <el-option label="全部" value="" />
               <el-option v-for="item in staffList" :key="item.id" :label="item.userName" :value="item.id" />
             </el-select>
           </label>
         </div>
         <div class="search-item">
           <el-button type="primary" @click="search">搜索</el-button>
-          <el-button type="success" @click="search">导出表格</el-button>
+          <el-button type="success" :disabled="true" @click="search">导出表格</el-button>
         </div>
       </div>
     </Card>
@@ -71,31 +72,38 @@
         :data="store.performanceSummary"
         :showPagination="false"
         show-summary
+        style="width: 100%"
+        row-key="userName"
       >
-        <el-table-column type="index" label="序号" width="60" fixed />
+        <el-table-column type="expand" width="60" fixed>
+          <template #default="{ row }">
+            <PersonalPerformanceTable :data="row" />
+          </template>
+        </el-table-column>
+        <!-- <el-table-column type="index" label="序号" width="60" fixed /> -->
         <el-table-column prop="userName" label="技师" width="100" fixed />
-        <el-table-column prop="totalPerformance" label="总业绩" width="85" fixed />
-        <el-table-column prop="totalCommission" label="总提成" width="85" fixed />
-        <el-table-column prop="totalProjectCount" label="总项目次" width="85" />
-        <el-table-column prop="appointmentCount" label="点钟次数" width="85" />
-        <el-table-column prop="rotationCount" label="轮牌次数" width="85" />
-        <el-table-column prop="extendCount" label="加钟次数" width="85" />
-        <el-table-column prop="projectPerformance" label="项目业绩" width="85" />
-        <el-table-column prop="projectCommission" label="项目提成" width="85" />
-        <el-table-column prop="productPerformance" label="产品业绩" width="85" />
-        <el-table-column prop="productCommission" label="产品提成" width="85" />
-        <el-table-column prop="cureTicketPerformance" label="疗程销售业绩" width="110" />
-        <el-table-column prop="cureTicketCommission" label="疗程销售提成" width="110" />
-        <el-table-column prop="rechargePerformance" label="卡金业绩" width="85" />
-        <el-table-column prop="rechargeCommission" label="卡金提成" width="85" />
+        <el-table-column prop="totalPerformance" label="总业绩" min-width="85" fixed />
+        <el-table-column prop="totalCommission" label="总提成" min-width="85" fixed />
+        <el-table-column prop="totalProjectCount" label="总项目次" min-width="85" />
+        <el-table-column prop="appointmentCount" label="点钟次数" min-width="85" />
+        <el-table-column prop="rotationCount" label="轮牌次数" min-width="85" />
+        <el-table-column prop="extendCount" label="加钟次数" min-width="85" />
+        <el-table-column prop="projectPerformance" label="项目业绩" min-width="85" />
+        <el-table-column prop="projectCommission" label="项目提成" min-width="85" />
+        <el-table-column prop="productPerformance" label="产品业绩" min-width="85" />
+        <el-table-column prop="productCommission" label="产品提成" min-width="85" />
+        <el-table-column prop="cureTicketPerformance" label="疗程销售业绩" min-width="110" />
+        <el-table-column prop="cureTicketCommission" label="疗程销售提成" min-width="110" />
+        <el-table-column prop="rechargePerformance" label="卡金业绩" min-width="85" />
+        <el-table-column prop="rechargeCommission" label="卡金提成" min-width="85" />
       </PaginationTable>
     </Card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-
+import PersonalPerformanceTable from '../components/PersonalPerformanceTable.vue';
+import { ref, reactive, onMounted } from 'vue';
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useStaffPerformanceStore } from '@/store/modules/dataGroup/staffPerformance';
