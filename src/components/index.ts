@@ -16,6 +16,8 @@ import Empty from './Empty/index.vue';
 import Message from './Message';
 import MessageBox from './MessageBox';
 import Notification from './Notification';
+import ServiceTypeTag from './Tag/ServiceTypeTag.vue';
+import ClockInTypeTag from './Tag/ClockInTypeTag.vue';
 
 // 引入element-plus提供全部图标组件
 import * as ElementPlusIconsVue from '@element-plus/icons-vue';
@@ -36,6 +38,8 @@ const allGlobalComponent: any = {
   MultipleSelect,
   EllipsisText,
   Empty,
+  ServiceTypeTag,
+  ClockInTypeTag,
 };
 
 // 对外暴露插件对象

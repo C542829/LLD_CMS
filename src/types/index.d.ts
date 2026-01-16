@@ -75,4 +75,6 @@ declare global {
   }
 
   type DialogType = 'add' | 'view' | 'edit';
+
+  type ElTagType = 'primary' | 'info' | 'success' | 'warning' | 'danger';
 }
