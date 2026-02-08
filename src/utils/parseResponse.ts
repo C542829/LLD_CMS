@@ -2,9 +2,10 @@
 import $Message from '@/components/Message';
 import $Notification from '@/components/Notification';
 import { isEmpty } from 'lodash';
-
 // 业务状态码
 import { ResponseCode } from '@/enums/response';
+// 引入配置相关的仓库
+import { useSettingStore } from '@/store/modules/acl/setting';
 
 /**
  * 基础响应解析器
@@ -18,7 +19,8 @@ import { ResponseCode } from '@/enums/response';
 export const parseRes = (res: any) => {
   // 处理无响应情况
   if (!res) {
-    $Message.error('服务器无响应');
+    // $Message.error('服务器无响应');
+    useSettingStore().loading = false;
     return false;
   }
 

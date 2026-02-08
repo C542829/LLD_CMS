@@ -1,16 +1,22 @@
 // 进行axios二次封装:
 import axios from 'axios';
-
 // 引入消息提示
-import $Message from '@/components/Message/index';
-
+import Message from '@/components/Message/index';
 // 业务状态码
 import { ResponseCode } from '@/enums/response';
-
 // 引入用户相关的仓库
 import useUserStore from '@/store/modules/acl/user';
 // 引入配置相关的仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
+
+// 扩展config自定义参数
+declare module 'axios' {
+  interface AxiosRequestConfig {
+    form_urlencoded?: boolean; // Content-Type = application/x-www-form-urlencoded
+    noToken?: boolean; // 接口请求是否携带token
+    serviceName?: string; // 接口调用时的服务，不传时默认为VITE_BASE_API（服务名称在public文件夹下config.json中配置，并在global.d.ts中的EnvConfig定义中声明类型）
+  }
+}
 
 // 创建axios实例
 const request = axios.create({
@@ -20,10 +26,27 @@ const request = axios.create({
 
 // 添加请求拦截器
 request.interceptors.request.use((config) => {
+  config.headers['X-Requested-With'] = 'XMLHttpRequest';
+  if (Object.prototype.toString.call(config.data) === '[object FormData]') {
+    config.headers['Content-Type'] = 'multipart/form-data;charset=UTF-8';
+  } else {
+    // if (config.form_urlencoded) {
+    //   config.headers['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
+    //   config.data = qs.stringify(config.data);
+    // } else {
+    //   config.headers['Content-Type'] = 'application/json;charset=UTF-8';
+    //   if (config.method === 'post' || config.method === 'put' || config.method === 'delete') {
+    //     config.data = JSON.stringify(config.data);
+    //   } else {
+    //     config.data = qs.stringify(config.data);
+    //   }
+    // }
+  }
+
   // 如果用户登录成功,则会携带token
   const userStore = useUserStore();
-  if (userStore.token) {
-    config.headers.Authorization = userStore.token;
+  if (userStore.token && !config.noToken) {
+    config.headers['Authorization'] = userStore.token;
   }
   //返回配置对象
   return config;
@@ -32,18 +55,73 @@ request.interceptors.request.use((config) => {
 // 添加响应拦截器
 request.interceptors.response.use(
   (response) => {
-    const res = response.data;
-    if (response.config.url !== '/auth/login' && res.code === ResponseCode.UNAUTHORIZED) {
-      logout();
+    const apiData = response.data;
+    const code = apiData.code;
+
+    // 二进制数据则直接返回
+    const responseType = response.request?.responseType;
+    if (responseType === 'blob' || responseType === 'arraybuffer') return apiData;
+
+    // 如果没有 code, 代表这不是项目后端开发的 api
+    if (code === undefined) {
+      Message.error('服务器开小差！');
+      return Promise.reject(apiData);
     }
-    // if (res.code === ResponseCode.SUCCESS) {
-    //   return res;
-    // }
-    // return Promise.reject(res);
-    return res;
+
+    // 根据 code 进行判断
+    switch (code) {
+      // 业务正常
+      case ResponseCode.SUCCESS:
+        return apiData;
+        break;
+      // 业务失败
+      case ResponseCode.FAIL:
+        Message.error('服务器开小差！');
+        break;
+      // 用户未登录
+      case ResponseCode.UNAUTHORIZED:
+        logout();
+        break;
+      // 没有相关权限
+      case ResponseCode.FORBIDDEN:
+        Message.error('没有相关权限');
+        break;
+      // 服务器错误
+      case ResponseCode.SERVER_ERROR:
+        Message.error('服务器错误');
+        // window.location.href = '/#/500';
+        break;
+      // 上传参数异常
+      case ResponseCode.PARAMS_INVALID:
+        Message.error('上传参数异常');
+        break;
+      // ContentType错误
+      case ResponseCode.CONTENT_TYPE_ERR:
+        Message.error('ContentType错误');
+        break;
+      // 功能尚未实现
+      case ResponseCode.API_UN_IMPL:
+        Message.error('功能尚未实现');
+        break;
+      // 服务器繁忙
+      case ResponseCode.SERVER_BUSY:
+        Message.error('服务器繁忙');
+        break;
+      // 不是正确的 code
+      default:
+        Message.error(apiData.message || 'Error');
+    }
+    return Promise.reject(apiData);
   },
   (error) => {
-    errorHandler(error);
+    // 关闭加载状态
+    const settingStore = useSettingStore();
+    settingStore.loading = false;
+    // errorHandler(error);
+    // return Promise.reject(error);
+    if (error.code === 'ECONNABORTED') {
+      Message.error('请求超时！');
+    }
     return Promise.reject(error);
   },
 );
@@ -52,7 +130,7 @@ request.interceptors.response.use(
  * 登出操作
  */
 const logout = () => {
-  $Message.error('登录失效，请重新登录！');
+  Message.error('登录失效，请重新登录！');
   const userStore = useUserStore();
   userStore.clearUserInfo();
   // window.location.reload();
@@ -100,10 +178,10 @@ const errorHandler = (error: any) => {
         break;
     }
     //提示错误信息
-    $Message.error(message);
+    Message.error(message);
   } catch (error: any) {
     console.error(error);
-    $Message.error('网络出现问题');
+    Message.error('网络出现问题');
   }
 };
 
@@ -114,7 +192,7 @@ const errorHandler = (error: any) => {
  * @param config 请求配置
  * @returns 响应数据
  */
-export const get = (url: string, params = {}, config = {}) => {
+export const get = <T>(url: string, params = {}, config = {}): Promise<T> => {
   return request({
     method: 'GET',
     url,
@@ -130,7 +208,7 @@ export const get = (url: string, params = {}, config = {}) => {
  * @param config 请求配置
  * @returns 响应数据
  */
-export const post = (url: string, data = {}, config = {}) => {
+export const post = <T>(url: string, data = {}, config = {}): Promise<T> => {
   return request({
     method: 'POST',
     url,
@@ -146,7 +224,7 @@ export const post = (url: string, data = {}, config = {}) => {
  * @param config 请求配置
  * @returns 响应数据
  */
-export const put = (url: string, data = {}, config = {}) => {
+export const put = <T>(url: string, data = {}, config = {}): Promise<T> => {
   return request({
     method: 'PUT',
     url,
@@ -162,7 +240,7 @@ export const put = (url: string, data = {}, config = {}) => {
  * @param config 请求配置
  * @returns 响应数据
  */
-export const del = (url: string, params = {}, config = {}) => {
+export const del = <T>(url: string, params = {}, config = {}): Promise<T> => {
   return request({
     method: 'DELETE',
     url,
@@ -178,7 +256,7 @@ export const del = (url: string, params = {}, config = {}) => {
  * @param config 请求配置
  * @returns 响应数据
  */
-export const patch = (url: string, data = {}, config = {}) => {
+export const patch = <T>(url: string, data = {}, config = {}): Promise<T> => {
   return request({
     method: 'PATCH',
     url,
