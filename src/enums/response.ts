@@ -10,14 +10,14 @@ export enum ResponseCode {
   SUCCESS = 10000,
 }
 
-export enum ResponseCodeMeaning {
-  UNAUTHORIZED = '暂未登录或TOKEN已经过期',
-  FORBIDDEN = '没有相关权限',
-  SERVER_ERROR = '服务器错误',
-  PARAMS_INVALID = '上传参数异常',
-  CONTENT_TYPE_ERR = 'ContentType错误',
-  API_UN_IMPL = '功能尚未实现',
-  SERVER_BUSY = '服务器繁忙',
-  FAIL = '操作失败',
-  SUCCESS = '操作成功',
-}
+export const ResponseCodeMeaning = {
+  [ResponseCode.UNAUTHORIZED]: '暂未登录或TOKEN已经过期',
+  [ResponseCode.FORBIDDEN]: '没有相关权限',
+  [ResponseCode.SERVER_ERROR]: '服务器错误',
+  [ResponseCode.PARAMS_INVALID]: '上传参数异常',
+  [ResponseCode.CONTENT_TYPE_ERR]: 'ContentType错误',
+  [ResponseCode.API_UN_IMPL]: '功能尚未实现',
+  [ResponseCode.SERVER_BUSY]: '服务器繁忙',
+  [ResponseCode.FAIL]: '操作失败',
+  [ResponseCode.SUCCESS]: '操作成功',
+};

@@ -301,6 +301,15 @@ export enum IsCrossStore {
   NO = 0,
   YES = 1,
 }
+
+/**
+ * 是否允许跨店映射
+ */
+export const IsCrossStoreMap = {
+  [IsCrossStore.YES]: '允许',
+  [IsCrossStore.NO]: '不允许',
+};
+
 /**
  * 是否允许跨店
  */
