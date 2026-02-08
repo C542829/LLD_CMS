@@ -1,8 +1,13 @@
-import type { ElPagination, TableInstance, FormInstance, ButtonInstance } from 'element-plus';
+import type { ElPagination, TableInstance, FormInstance, ButtonInstance, TagInstance } from 'element-plus';
 declare global {
   type ButtonType = ButtonInstance['type'];
+  type SizeType = ButtonInstance['size'];
+  type ElTagType = TagInstance['type'];
   type ElTableProps = TableInstance['$props'];
   type ElFormInstance = FormInstance;
+
+  // 弹窗类型
+  type DialogType = 'add' | 'view' | 'edit';
 
   /** 所有 api 接口的响应数据都应该准守该格式 */
   interface ApiResponseData<T> {
@@ -10,6 +15,8 @@ declare global {
     data: T;
     message: string;
   }
+  /** api 响应数据格式（函数返回值） */
+  type ApiResponse<T> = Promise<ApiResponseData<T>>;
 
   // element 类型问题，去掉只读属性限制
   interface ElPaginationProps
@@ -57,24 +64,4 @@ declare global {
     rows: List[];
     total: number;
   }
-
-  // 应用中心列表，标准接口返回值
-  interface AppDataItem {
-    icon?: string; // 应用图标
-    name?: string; // 名称
-    url?: string; // 应用链接
-    children?: AppDataItem[];
-  }
-
-  // 应用单个数据，将分类名称、应用数据都转为数组下内容
-  interface AppDataCell {
-    icon?: string; // 应用图标
-    name?: string; // 名称
-    url?: string; // 应用链接
-    type?: string; // 分类，【title 标题】【app 应用实体】
-  }
-
-  type DialogType = 'add' | 'view' | 'edit';
-
-  type ElTagType = 'primary' | 'info' | 'success' | 'warning' | 'danger';
 }
