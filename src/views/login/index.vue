@@ -14,7 +14,7 @@
         <el-input :prefix-icon="Lock" type="password" v-model="loginForm.password" show-password></el-input>
       </el-form-item>
       <el-form-item class="form-item">
-        <el-button :loading="settingStore.loading" @click="login" class="login-btn" type="primary">登录</el-button>
+        <el-button :loading="loading" @click="login" class="login-btn" type="primary">登录</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -44,22 +44,30 @@ const route = useRoute();
 // const loginForm = reactive({ orgCode: '1', username: 'N15572555269', password: '123456' });
 const loginForm = reactive({ username: 'N15572555269', password: '123456' });
 
+// 登录加载状态
+const loading = ref(false);
+
 // 登录按钮回调
 const login = async () => {
-  // 表单验证
-  await loginForms.value.validate();
-  // 启用加载状态
-  settingStore.loading = true;
-  // 登录
-  const isSuccess = await store.login(loginForm);
-  // 禁用加载状态
-  settingStore.loading = false;
-  if (isSuccess) {
-    // 获取路由
-    let redirect: any = route.query.redirect;
-    redirect = redirect === '/404' ? '/' : redirect;
-    // 跳转路由
-    router.push({ path: redirect || '/' });
+  try {
+    // 启用加载状态
+    loading.value = true;
+
+    // 表单验证
+    await loginForms.value.validate();
+    // 登录
+    const isSuccess = await store.login(loginForm);
+    if (isSuccess) {
+      // 获取路由
+      let redirect: any = route.query.redirect;
+      redirect = redirect === '/404' ? '/' : redirect;
+      // 跳转路由
+      router.push({ path: redirect || '/' });
+    }
+  } catch (error) {
+  } finally {
+    // 禁用加载状态
+    loading.value = false;
   }
 };
 

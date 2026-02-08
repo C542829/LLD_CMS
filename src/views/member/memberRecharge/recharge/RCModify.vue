@@ -29,34 +29,13 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
 import { reqSetOrgDefaultCommissionRule } from '@/api/acl/org/index';
+import type { OrgDefaultRuleUpdateDTO } from '@/api/acl/org/types';
 import { DiscountType, IsCrossStore, discountTypeOptions, isCrossStoreOptions } from '@/enums/index';
 import { cloneDeep, isEmpty } from 'lodash';
-import { parseResMsg, parseResObj } from '@/utils/parseResponse';
+import { parseResMsg } from '@/utils/parseResponse';
+import { getOrgInfo } from '@/utils/localStorageTools';
 
 // #region  参数定义
-
-/**
- * OrgDefaultRuleUpdateDTO
- */
-export interface OrgDefaultRuleUpdateDTO {
-  /**
-   * 折扣基准（0 标准价，1 会员价）
-   */
-  defaultDiscountBase: number;
-  /**
-   * 折扣率（百分比）
-   */
-  defaultDiscountRate: number;
-  /**
-   * 跨店结算（0 不允许，1 允许）
-   */
-  defaultIsCrossStore: number;
-  /**
-   * 默认充值提成规则ID
-   */
-  defaultRechargeRoleId?: number;
-  [property: string]: any;
-}
 
 interface Props {
   data: any;
@@ -65,7 +44,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  data: () => {},
+  data: () => ({}),
   visible: false,
 });
 

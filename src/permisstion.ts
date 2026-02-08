@@ -39,8 +39,6 @@ router.beforeEach(async (to: any, from: any, next: any) => {
   // 获取token
   const token = userStore.token;
   if (token || userStore.menuRoutes.length === 0) {
-    console.log('没有路由');
-
     // 获取用户信息
     if (userStore.userId || userStore.menuRoutes.length === 0) {
       await userStore.userInfo();

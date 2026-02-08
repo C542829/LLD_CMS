@@ -33,7 +33,7 @@ import Message from '@/components/Message';
 import { ref, watch, onMounted } from 'vue';
 import { CustomerType, ResponseCode } from '@/enums/index';
 import { type FormInstance } from 'element-plus';
-import { LodopPrinter, type OrderData } from '@/utils/lodop';
+import { printer } from '@/utils/lodop';
 import { reqQueryOrder } from '@/api/order/index';
 
 import { useOrderStore } from '@/store/modules/order/index';
@@ -44,7 +44,6 @@ import Notification from '@/components/Notification';
 const orgStore = useOrgStore();
 const orderStore = useOrderStore();
 const enumStore = useDataEnumStore();
-const printer = new LodopPrinter();
 
 interface Props {
   modelValue: boolean;

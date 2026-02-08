@@ -59,6 +59,24 @@
         </span>
       </li>
       <li>
+        <span>折扣率：</span>
+        <span>{{ org.defaultDiscountRate }}%</span>
+      </li>
+      <li>
+        <span>折扣基础：</span>
+        <span>{{ discountTypeMap[org.defaultDiscountBase as DiscountType] }}</span>
+      </li>
+      <li>
+        <span>跨店结算：</span>
+        <span>{{ IsCrossStoreMap[org.defaultIsCrossStore as IsCrossStore] }}</span>
+      </li>
+      <li>
+        <span>打印宽度：</span>
+        <span>
+          <DynamicInput :value="String(org.printWidth)" :width="200" @update="updatePrintWidth" />
+        </span>
+      </li>
+      <li>
         <span>创建日期：</span>
         <span>{{ org.createTime }}</span>
       </li>
@@ -76,8 +94,11 @@
 </template>
 
 <script setup lang="ts">
+import Message from '@/components/Message';
 import { ref, reactive, onMounted } from 'vue';
 import { getUserInfo } from '@/utils/localStorageTools';
+import { reqSetPrintWidth } from '@/api/acl/org/index';
+import { IsCrossStoreMap, discountTypeMap, IsCrossStore, DiscountType } from '@/enums/index';
 
 import OrgForm from '@/views/acl/orgMgr/form.vue';
 
@@ -94,6 +115,19 @@ const init = async () => {
   const userInfo = getUserInfo();
   org.value = await store.getOrgInfo(userInfo.orgId);
   org.value.orgAreaStr = org.value.orgArea.join('/');
+};
+
+// 更新打印宽度
+const updatePrintWidth = async (printWidth: number) => {
+  try {
+    const params = { id: org.value.id, printWidth: Number(printWidth) };
+    await reqSetPrintWidth(params);
+    org.value.printWidth = printWidth;
+    Message.success('更新打印宽度成功');
+  } catch (error) {
+    Message.error('更新打印宽度失败');
+    console.error(`更新打印宽度失败：${error}`);
+  }
 };
 
 const drawer: any = reactive({

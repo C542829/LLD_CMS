@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { reactive, ref, computed } from 'vue';
 import { reqList, reqListOne, reqAdd, reqUpdate, reqUpdateStatus } from '@/api/acl/org';
-import { Org } from '@/api/acl/org/type';
+import { Org } from '@/api/acl/org/types';
 import { parseResList, parseResMsg, parseResObj } from '@/utils/parseResponse';
 import { getUserInfo } from '@/utils/localStorageTools';
 

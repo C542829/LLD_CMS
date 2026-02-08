@@ -16,7 +16,8 @@
     </span>
     <template #dropdown>
       <el-dropdown-menu>
-        <el-dropdown-item @click="printDesign">打印设计</el-dropdown-item>
+        <!-- <el-dropdown-item @click="printDesign">打印设计</el-dropdown-item> -->
+        <!-- <el-dropdown-item @click="printSetup">打印维护</el-dropdown-item> -->
         <el-dropdown-item @click="visible = true">修改密码</el-dropdown-item>
         <el-dropdown-item @click="logout">退出登录</el-dropdown-item>
       </el-dropdown-menu>
@@ -30,7 +31,7 @@
 <script setup lang="ts">
 import PwdForm from './PwdForm.vue';
 import { ref } from 'vue';
-import { LodopPrinter } from '@/utils/lodop';
+import { printer } from '@/utils/lodop';
 import { useRouter, useRoute } from 'vue-router';
 // 获取用户相关的小仓库
 import useUserStore from '@/store/modules/acl/user';
@@ -68,10 +69,13 @@ const logout = async () => {
   $router.push({ path: '/login', query: { redirect: $route.path } });
 };
 
-const printer = new LodopPrinter();
 /** 打开打印设计窗口 */
 const printDesign = () => {
   printer.printDesign();
+};
+/** 打开打印维护窗口 */
+const printSetup = () => {
+  printer.printSetup();
 };
 </script>
 

@@ -186,7 +186,7 @@ import { datetimeFormatter } from '@/utils/formatter';
 import { isFullDaysSince } from '@/utils/time';
 import { reqRollBackRecharge } from '@/api/member/recharge/index';
 import { RechargeStatus, rechargeStatusOptions, paymentTypeOptions } from '@/enums/index';
-import { LodopPrinter } from '@/utils/lodop';
+import { printer } from '@/utils/lodop';
 import { parseResMsg } from '@/utils/parseResponse';
 
 // 引入数据仓库
@@ -250,7 +250,6 @@ const billReversal = async (row: any) => {
   } catch (error) {}
 };
 
-const printer = new LodopPrinter();
 const reprint = async (row: any) => {
   // 打印小票
   if (row.rechargeStatus !== RechargeStatus.SUCCESS) {

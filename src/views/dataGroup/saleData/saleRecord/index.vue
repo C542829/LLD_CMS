@@ -167,7 +167,7 @@ import Message from '@/components/Message';
 import { reactive, inject, onMounted, ref } from 'vue';
 import { dateFormatter, timeFormatter } from '@/utils/formatter';
 import { OrderStatus, OrderStatusMap, orderStatusOptions, paymentTypeOptions } from '@/enums';
-import { LodopPrinter } from '@/utils/lodop';
+import { printer } from '@/utils/lodop';
 import { isFullDaysSince } from '@/utils/time';
 import { reqRollBackOrder } from '@/api/order';
 import { parseResMsg } from '@/utils/parseResponse';
@@ -231,8 +231,6 @@ const reversal = async (row: any) => {
     search();
   } catch (error) {}
 };
-
-const printer = new LodopPrinter();
 
 const printReceipt = async (row: any) => {
   // 打印小票
