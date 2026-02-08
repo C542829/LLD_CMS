@@ -1,5 +1,5 @@
 <template>
-  <div class="dynamic-input-container">
+  <div class="dynamic-input-container" :style="{ maxWidth: `${width}px` }">
     <!-- 查看状态 -->
     <template v-if="!isEditing">
       <div class="view-text">
@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, withDefaults, inject } from 'vue';
+import { ref, withDefaults, watch, inject } from 'vue';
 
 const $Message: any = inject('$Message');
 
@@ -31,12 +31,14 @@ interface DynamicInputProps {
   value: string; // 输入框值
   params?: any; // 额外参数
   btnColor?: string;
+  width?: number;
   size?: '' | 'default' | 'small' | 'large';
 }
 
 const props = withDefaults(defineProps<DynamicInputProps>(), {
   value: '',
   size: 'default',
+  width: 300,
 });
 
 const $emit = defineEmits(['update']);
@@ -66,6 +68,13 @@ const handleCancel = () => {
   isEditing.value = false;
   inputValue.value = props.value;
 };
+
+watch(
+  () => props.value,
+  (newValue) => {
+    inputValue.value = newValue;
+  },
+);
 </script>
 <script lang="ts">
 export default {
