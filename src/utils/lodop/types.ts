@@ -1,3 +1,7 @@
+export enum PrintType {
+  ORDER = 'ORDER',
+  RECHARGE = 'RECHARGE',
+}
 export interface Config {
   width: number;
   height: number;
