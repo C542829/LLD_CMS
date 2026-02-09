@@ -1,14 +1,20 @@
 import { get, post, put, ContentType } from '@/utils/request';
 import * as Types from './types';
 
+// 导出类型
 export { Types };
 
-//枚举地址
+// 门店接口
 enum API {
+  /** 门店列表 */
   LIST_URL = '/system/org/query-list',
+  /** 门店详情 */
   LIST_ONE_URL = '/system/org/query-one',
+  /** 新增门店 */
   ADD_URL = '/system/org/add-org',
+  /** 更新门店 */
   UPDATE_URL = '/system/org/update-org',
+  /** 更新门店状态 */
   UPDATE_STATUS_URL = '/system/org/update-org-status',
   /** 修改门店默认相关规则 */
   UPDATE_DEFAULT_RULE = `/system/org/update-default-rule`,
@@ -16,14 +22,43 @@ enum API {
   UPDATE_PRINT_WIDTH = `/system/org/update-print-width`,
 }
 
-export const reqList = (params: Types.SearchListParams): ApiResponse<Types.OrgInfoVO[]> => get(API.LIST_URL, params);
+/**
+ * 获取门店列表
+ * @param params 搜索参数
+ * @returns
+ */
+export const reqList = (params: Types.SearchListParams): ApiResponse<Types.OrgInfoVO[]> => {
+  return get(API.LIST_URL, params);
+};
 
-export const reqListOne = (id: number): ApiResponse<Types.OrgInfoVO> => get(API.LIST_ONE_URL, { id });
+/**
+ * 获取门店详情
+ * @param id 门店ID
+ * @returns
+ */
+export const reqListOne = (id: number): ApiResponse<Types.OrgInfoVO> => {
+  return get(API.LIST_ONE_URL, { id });
+};
 
+/**
+ * 新增门店
+ * @param data 门店信息
+ * @returns
+ */
 export const reqAdd = (data: Types.Org): ApiResponse<any> => post(API.ADD_URL, data);
 
+/**
+ * 更新门店
+ * @param data 门店信息
+ * @returns
+ */
 export const reqUpdate = (data: Types.Org): ApiResponse<any> => put(API.UPDATE_URL, data);
 
+/**
+ * 更新门店状态
+ * @param params 参数
+ * @returns
+ */
 export const reqUpdateStatus = (params: any): ApiResponse<any> =>
   put(API.UPDATE_STATUS_URL, params, ContentType.URLencoded);
 

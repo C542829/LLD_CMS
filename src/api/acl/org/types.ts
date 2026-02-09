@@ -195,6 +195,6 @@ export interface SearchListParams {
   /**
    * 机构状态
    */
-  orgStatus?: number;
+  orgStatus?: number | string;
   [property: string]: any;
 }
