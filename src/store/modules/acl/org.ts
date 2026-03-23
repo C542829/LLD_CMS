@@ -4,6 +4,7 @@ import { type Types, reqList, reqListOne, reqAdd, reqUpdate, reqUpdateStatus } f
 import { parseResList, parseResMsg, parseResObj } from '@/utils/parseResponse';
 import { getUserInfo } from '@/utils/localStorageTools';
 import { isEmpty, cloneDeep } from 'lodash';
+import { setStoreOrgInfo } from '@/store/index';
 
 import { useSettingStore } from '@/store/modules/acl/setting';
 
@@ -15,7 +16,7 @@ export const useOrgStore = defineStore('Org', () => {
    * @param id 门店id
    * @returns 门店详情
    */
-  const getOrgInfo = async (id: number): Promise<Types.Org | {}> => {
+  const getOrgInfo = async (id: number): Promise<OrgInfo | {}> => {
     try {
       const res = await reqListOne(id);
       const orgInfo = parseResObj(res);
@@ -28,12 +29,12 @@ export const useOrgStore = defineStore('Org', () => {
   };
 
   // 存储当前登录用户的门店信息
-  let _org: Types.Org | null = null;
+  let _org: OrgInfo | {} = {};
   /**
    * 获取当前登录用户的门店信息
    * @returns 门店信息
    */
-  const getOrg = async () => {
+  const getOrg = async (): Promise<OrgInfo | {}> => {
     try {
       const user = getUserInfo();
       // 未登录
@@ -41,7 +42,7 @@ export const useOrgStore = defineStore('Org', () => {
         return {};
       }
       // 已登录 - 直接返回
-      if (_org && _org.id === user.orgId) {
+      if (_org && _org?.id === user.orgId) {
         return _org;
       } else {
         // 门店信息与当前登录用户不一致 - 刷新门店信息
