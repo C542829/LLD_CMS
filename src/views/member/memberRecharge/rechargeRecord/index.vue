@@ -7,13 +7,7 @@
         <div class="search-item">
           <label>
             充值时段：
-            <DatePicker
-              v-model="store.recordSearch.date"
-              @change="search"
-              @clear="search"
-              clearable
-              style="width: 260px"
-            />
+            <DatePicker v-model="recordSearch.date" @change="search" @clear="search" clearable style="width: 260px" />
           </label>
         </div>
       </div>
@@ -24,7 +18,7 @@
           <label for="rechargeStatus">
             <span>充值状态：</span>
             <el-select
-              v-model="store.recordSearch.rechargeStatus"
+              v-model="recordSearch.rechargeStatus"
               @change="search"
               @clear="search"
               clearable
@@ -43,7 +37,7 @@
           <label>
             <span>支付类型：</span>
             <el-select
-              v-model="store.recordSearch.paymentType"
+              v-model="recordSearch.paymentType"
               @change="search"
               @clear="search"
               clearable
@@ -56,13 +50,7 @@
         <div class="search-item">
           <label>
             <span>销售人员：</span>
-            <el-select
-              v-model="store.recordSearch.userId"
-              @change="search"
-              @clear="search"
-              clearable
-              style="width: 120px"
-            >
+            <el-select v-model="recordSearch.userId" @change="search" @clear="search" clearable style="width: 120px">
               <el-option key="未指定" label="未指定" :value="''" />
               <el-option v-for="item in staffList" :key="item.id" :label="item.userName" :value="item.id" />
             </el-select>
@@ -73,7 +61,7 @@
             <span>会员信息：</span>
             <div>
               <el-input
-                v-model="store.recordSearch.vipInfoFiled"
+                v-model="recordSearch.vipInfoFiled"
                 clearable
                 @clear="search"
                 placeholder="姓名 | 卡号 | 手机号"
@@ -85,7 +73,7 @@
           <el-button type="primary" @click="search">搜索</el-button>
         </div>
         <div class="search-item">
-          <el-button type="info" @click="store.resetRecordSearchParams">重置</el-button>
+          <el-button type="info" @click="resetRecordSearchParams">重置</el-button>
         </div>
       </div>
     </Card>
@@ -95,12 +83,11 @@
       <PaginationTable
         v-loading="settingStore.loading"
         :element-loading-text="settingStore.loadingMsg"
-        :data="store.rechargeRecord.list"
-        :total="store.rechargeRecord.total"
+        :data="rechargeRecord.list"
+        :total="rechargeRecord.total"
         :row-class-name="getRowClassName"
-        v-model:currentPage="store.recordSearch.pageNum"
-        v-model:pageSize="store.recordSearch.pageSize"
-        :showPagination="false"
+        v-model:currentPage="recordSearch.pageNum"
+        v-model:pageSize="recordSearch.pageSize"
         @size-change="handleSizeChange"
         @pagination-current-change="handleCurrentChange"
       >
@@ -117,7 +104,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="infoPhoneNumber" label="充值会员" width="180">
+        <el-table-column prop="infoPhoneNumber" label="充值会员" min-width="80">
           <template #default="scope">
             <p>姓名：{{ scope.row.vipName }}</p>
             <p>卡号：{{ scope.row.vipCardNumber }}</p>
@@ -126,7 +113,10 @@
         </el-table-column>
         <el-table-column prop="infoLastConsumptionTime" label="充值金额及资产编号" min-width="100">
           <template #default="{ row }">
-            <p>充值：￥{{ row.rechargeValue }}({{ row.assetCode }})</p>
+            <div class="el-v-center">
+              <p>充值：￥{{ row.rechargeValue }}</p>
+              <el-tag style="margin-left: 8px">({{ row.assetCode }})</el-tag>
+            </div>
             <template v-if="row.ticketInfo">
               <p>赠券：{{ row.ticketInfo }}</p>
             </template>
@@ -138,7 +128,7 @@
         <el-table-column prop="infoLastRechargeTime" label="充值" min-width="60">
           <template #default="{ row }">
             <div>
-              <div>类型：{{ row.rechargeType }}</div>
+              <div>类型：{{ RechargeTypeMap[row.rechargeType as RechargeType] }}</div>
               <div v-for="(item, key) in row.paymentInfoList" :key="key">
                 <span>{{ item.paymentName }}</span>
                 <span>：￥{{ item.paymentAmount }}</span>
@@ -183,11 +173,17 @@ import Message from '@/components/Message';
 
 import { ref, reactive, onMounted } from 'vue';
 import { datetimeFormatter } from '@/utils/formatter';
-import { isFullDaysSince } from '@/utils/time';
-import { reqRollBackRecharge } from '@/api/member/recharge/index';
-import { RechargeStatus, rechargeStatusOptions, paymentTypeOptions } from '@/enums/index';
+import { formatDate, isFullDaysSince } from '@/utils/time';
+import { reqRechargeHistoryList, reqRollBackRecharge } from '@/api/member/recharge/index';
+import {
+  RechargeStatus,
+  rechargeStatusOptions,
+  paymentTypeOptions,
+  RechargeType,
+  RechargeTypeMap,
+} from '@/enums/index';
 import { printer } from '@/utils/lodop';
-import { parseResMsg } from '@/utils/parseResponse';
+import { parseResMsg, parseResObj } from '@/utils/parseResponse';
 
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
@@ -214,20 +210,74 @@ const getStaffList = async () => {
     staffList.value = res.data.rows || [];
   }
 };
+
+// #region 充值记录
+// 充值记录请求参数
+const recordSearch = reactive({
+  date: [],
+  paymentType: '',
+  vipInfoFiled: '',
+  rechargeStatus: RechargeStatus.SUCCESS,
+  userId: '',
+  pageNum: 1,
+  pageSize: 50,
+});
+
+const resetRecordSearchParams = () => {
+  recordSearch.vipInfoFiled = '';
+  recordSearch.paymentType = '';
+  recordSearch.rechargeStatus = RechargeStatus.SUCCESS;
+  recordSearch.userId = '';
+  recordSearch.date = [];
+  setRechargeRecord();
+};
+
+// 处理请求参数
+const handleParams = () => {
+  const params: any = { ...recordSearch };
+  if (params.date && params.date.length !== 0) {
+    params.startDate = formatDate(params.date[0]);
+    params.endDate = formatDate(params.date[1]);
+  }
+  // 移除多余参数
+  delete params.date;
+  return params || {};
+};
+
+// 响应结果
+const rechargeRecord: any = reactive({ total: 0, list: [] });
+const setRechargeRecord = async () => {
+  settingStore.loading = true;
+  try {
+    // 获取数据列表
+    const params = handleParams();
+    const res = await reqRechargeHistoryList(params);
+    const { rows, total } = parseResObj(res);
+    rechargeRecord.total = total;
+    rechargeRecord.list = rows;
+  } catch (error) {
+    console.error('获取充值记录失败：', error);
+  } finally {
+    settingStore.loading = false;
+  }
+};
+
+// #endregion
+
 // 搜索
 const search = () => {
-  store.setRechargeRecord();
+  setRechargeRecord();
 };
 
 // 处理分页变化
 const handleSizeChange = (val: number) => {
-  store.recordSearch.pageSize = val;
-  store.setRechargeRecord();
+  recordSearch.pageSize = val;
+  setRechargeRecord();
 };
 
 const handleCurrentChange = (val: number) => {
-  store.recordSearch.pageNum = val;
-  store.setRechargeRecord();
+  recordSearch.pageNum = val;
+  setRechargeRecord();
 };
 
 const billReversal = async (row: any) => {
@@ -281,7 +331,7 @@ const showDialog = (row: any) => {
   dialog.title = `修改单据`;
   dialog.visible = true;
   // 表单数据回显
-  // store.formData = row;
+  // formData = row;
 };
 
 // const isUpdate = (row: any) => {
@@ -291,7 +341,7 @@ const showDialog = (row: any) => {
 //   return isFullDaysSince
 // };
 
-// 设置行样式
+/** 设置行样式 */
 const getRowClassName = ({ row }: { row: { rechargeStatus: number } }) => {
   return row.rechargeStatus !== RechargeStatus.SUCCESS ? 'disabled-row' : '';
 };

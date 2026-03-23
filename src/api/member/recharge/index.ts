@@ -1,5 +1,8 @@
 import { get, post, put, del } from '@/utils/request';
 import { getToken } from '@/utils/localStorageTools';
+import * as Types from './types';
+
+export { Types };
 
 // 接口地址
 enum API {
@@ -18,7 +21,11 @@ enum API {
  * @param params 充值记录查询参数
  * @returns 充值记录列表
  */
-export const reqRechargeHistoryList = (params = {}) => get(API.LIST_URL, params);
+export const reqRechargeHistoryList = (
+  params: Types.RechargeHistoryParams = {},
+): ApiResponse<PageListInfo<Types.VipRechargeHistoryVO>> => {
+  return get(API.LIST_URL, params);
+};
 
 // export const reqAddRechargeHistory = (data = {}) => post(API.ADD_URL, data);
 

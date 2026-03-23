@@ -1,21 +1,31 @@
 <template>
-  <el-dialog v-model="dialogVisible" :title="dialogTitle" center @closed="close" width="400px">
-    <el-alert type="success" style="margin: 15px 0">如果存在充值活动，优先使用活动的折扣设置</el-alert>
-    <el-form ref="formRef" :model="formData" :rules="formRules" label-width="auto" label-position="right">
-      <el-form-item label=" 折 扣 率：" prop="defaultDiscountRate">
-        <el-input-number v-model="formData.defaultDiscountRate" :min="0" :max="100" />
-      </el-form-item>
-      <el-form-item label="折扣基础：" prop="defaultDiscountBase">
-        <el-select v-model="formData.defaultDiscountBase" placeholder="请选择">
-          <el-option v-for="item in discountTypeOptions" :key="item.value" :label="item.label" :value="item.value" />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="跨店结算：" prop="defaultIsCrossStore">
-        <el-select v-model="formData.defaultIsCrossStore" placeholder="请选择">
-          <el-option v-for="item in isCrossStoreOptions" :key="item.value" :label="item.label" :value="item.value" />
-        </el-select>
-      </el-form-item>
-    </el-form>
+  <el-dialog
+    v-model="dialogVisible"
+    :title="dialogTitle"
+    destroy-on-close
+    center
+    width="420px"
+    @open="initInfo"
+    @closed="close"
+  >
+    <div class="content">
+      <el-alert type="success" style="margin: 15px 0">如果存在充值活动，优先使用活动的折扣设置</el-alert>
+      <el-form ref="formRef" :model="formData" :rules="formRules" label-width="auto" label-position="right">
+        <el-form-item label=" 折 扣 率：" prop="defaultDiscountRate">
+          <el-input-number v-model="formData.defaultDiscountRate" :min="0" :max="100" />
+        </el-form-item>
+        <el-form-item label="折扣基础：" prop="defaultDiscountBase">
+          <el-select v-model="formData.defaultDiscountBase" placeholder="请选择">
+            <el-option v-for="item in discountTypeOptions" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="跨店结算：" prop="defaultIsCrossStore">
+          <el-select v-model="formData.defaultIsCrossStore" placeholder="请选择">
+            <el-option v-for="item in isCrossStoreOptions" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+        </el-form-item>
+      </el-form>
+    </div>
 
     <template #footer>
       <div class="submit-area">
@@ -34,17 +44,16 @@ import { DiscountType, IsCrossStore, discountTypeOptions, isCrossStoreOptions } 
 import { cloneDeep, isEmpty } from 'lodash';
 import { parseResMsg } from '@/utils/parseResponse';
 import { getOrgInfo } from '@/utils/localStorageTools';
+import { storeOrgInfo } from '@/store/index';
 
 // #region  参数定义
 
 interface Props {
-  data: any;
   // 弹窗显隐
   visible: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  data: () => ({}),
   visible: false,
 });
 
@@ -60,17 +69,6 @@ watch(
   },
 );
 
-watch(
-  () => props.data,
-  (val) => {
-    if (isEmpty(val)) {
-      formData.value = cloneDeep(DEFAULT_RC_FORM);
-    } else {
-      formData.value = val;
-    }
-  },
-);
-
 // 控制弹窗显隐
 const dialogVisible = ref<boolean>(false);
 const dialogTitle = ref('门店默认充值价格和折扣率设置');
@@ -81,7 +79,16 @@ const close = () => {
 
 // #endregion  参数定义
 
-onMounted(() => {});
+const initInfo = async () => {
+  let org = storeOrgInfo;
+  if (isEmpty(org)) {
+    org = getOrgInfo();
+  }
+
+  formData.value.defaultDiscountBase = org.defaultDiscountBase || DiscountType.Member;
+  formData.value.defaultDiscountRate = org.defaultDiscountRate || 100;
+  formData.value.defaultIsCrossStore = org.defaultIsCrossStore || IsCrossStore.YES;
+};
 
 const DEFAULT_RC_FORM = {
   defaultDiscountBase: DiscountType.Member,
@@ -108,4 +115,9 @@ const submit = async () => {
 };
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.content {
+  width: 85%;
+  margin: 0 auto;
+}
+</style>

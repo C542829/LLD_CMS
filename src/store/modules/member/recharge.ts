@@ -1,14 +1,41 @@
 import { defineStore } from 'pinia';
 import { reactive, ref } from 'vue';
 import Message from '@/components/Message';
-import { reqRecharge, reqRechargeHistoryList, reqUpdateRechargeHistory } from '@/api/member/recharge';
-import { reqDefaultCommissionRule, reqSetOrgDefaultCommissionRule } from '@/api/setGroup/rechargeCommissionRules/index';
+import { Types, reqRecharge } from '@/api/member/recharge';
 import { parseResList, parseResMsg, parseResObj } from '@/utils/parseResponse';
-import { formatDate } from '@/utils/time';
-import { RechargeStatus, ResponseCode, paymentTypeMap } from '@/enums/index';
-
+import { RechargeStatus, paymentTypeMap } from '@/enums/index';
+import { storeOrgInfo } from '@/store/index';
+import { getOrgInfo } from '@/utils/localStorageTools';
 import { useSettingStore } from '@/store/modules/acl/setting';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isEmpty } from 'lodash';
+
+const DEFAULT_RECHARGE_FORM_DATA: Types.RechargeDTO = {
+  vipId: 0,
+  vipName: '',
+  vipPhoneNumber: '',
+  vipCardNumber: '',
+  activeId: 0,
+  activeName: '',
+  rechargeValue: 0,
+  assetDiscountRate: 100,
+  assetDiscountBase: 0,
+  assetIsCrossStore: 0,
+  rechargeRoleId: 0,
+  userKpiList: [
+    {
+      userId: 0,
+      userName: '',
+      kpi: 0,
+    },
+  ],
+  paymentInfoList: [
+    {
+      paymentType: 0,
+      paymentName: '',
+      paymentAmount: 0,
+    },
+  ],
+};
 
 export const useRechargeStore = defineStore('Recharge', () => {
   const settingStore = useSettingStore();
@@ -17,41 +44,10 @@ export const useRechargeStore = defineStore('Recharge', () => {
   const rechargeActivity: any = ref({});
   const rcRule: any = ref({});
 
-  const rechargeFormData: any = ref({
-    vipId: '',
-    vipName: '',
-    vipPhoneNumber: '',
-    vipCardNumber: '',
-    activeId: '',
-    activeName: '',
-    rechargeValue: 0,
-    assetDiscountRate: 100,
-    assetDiscountBase: 0,
-    assetIsCrossStore: 0,
-    rechargeRoleId: '',
-    // userKpi: {
-    //   userId: '',
-    //   userName: '',
-    //   kpi: 0,
-    // },
-    userKpiList: [
-      {
-        userId: '',
-        userName: '',
-        kpi: 0,
-      },
-    ],
-    paymentInfoList: [
-      {
-        paymentType: 0,
-        paymentName: '',
-        paymentAmount: 0,
-      },
-    ],
-  });
+  const rechargeFormData = ref<Types.RechargeDTO>(cloneDeep(DEFAULT_RECHARGE_FORM_DATA));
 
   // 计算支付金额总和
-  const calcTotal = (params: any) => {
+  const calcTotal = (params: Types.RechargeDTO) => {
     let total = 0;
     if (params.paymentInfoList && params.paymentInfoList.length !== 0) {
       params.paymentInfoList.forEach((item: any) => {
@@ -145,98 +141,24 @@ export const useRechargeStore = defineStore('Recharge', () => {
     return data;
   };
 
+  /** 设置默认折扣率 */
+  const setDefaultDiscount = () => {
+    let org = storeOrgInfo;
+    if (isEmpty(org)) {
+      org = getOrgInfo();
+    }
+    rechargeFormData.value.assetDiscountRate = org.defaultDiscountRate || 100;
+    rechargeFormData.value.assetDiscountBase = org.defaultDiscountBase || 0;
+    rechargeFormData.value.assetIsCrossStore = org.defaultIsCrossStore || 0;
+  };
+
   // 重置充值表单
   const reset = () => {
     member.value = {};
     rechargeActivity.value = {};
-    rechargeFormData.value = {
-      vipId: '',
-      vipName: '',
-      vipPhoneNumber: '',
-      vipCardNumber: '',
-      activeId: '',
-      activeName: '',
-      rechargeValue: 0,
-      assetDiscountRate: 100,
-      assetDiscountBase: 0,
-      assetIsCrossStore: 0,
-      rechargeRoleId: '',
-      userKpi: {
-        userId: '',
-        userName: '',
-        kpi: 0,
-      },
-      userKpiList: [
-        {
-          userId: '',
-          userName: '',
-          kpi: 0,
-        },
-      ],
-      paymentInfoList: [
-        {
-          paymentType: '',
-          paymentName: '',
-          paymentAmount: 0,
-        },
-      ],
-    };
+    rechargeFormData.value = cloneDeep(DEFAULT_RECHARGE_FORM_DATA);
+    // setDefaultDiscount();
   };
-
-  // #region 充值记录
-  // 充值记录请求参数
-  const recordSearch = reactive({
-    date: [],
-    paymentType: '',
-    vipInfoFiled: '',
-    rechargeStatus: RechargeStatus.SUCCESS,
-    userId: '',
-    pageNum: 1,
-    pageSize: 50,
-  });
-
-  const resetRecordSearchParams = () => {
-    recordSearch.vipInfoFiled = '';
-    recordSearch.paymentType = '';
-    recordSearch.rechargeStatus = RechargeStatus.SUCCESS;
-    recordSearch.userId = '';
-    recordSearch.date = [];
-    setRechargeRecord();
-  };
-
-  // 处理请求参数
-  const handleParams = () => {
-    const params: any = { ...recordSearch };
-    if (params.date && params.date.length !== 0) {
-      params.startDate = formatDate(params.date[0]);
-      params.endDate = formatDate(params.date[1]);
-    }
-    // 移除多余参数
-    delete params.date;
-    return params || {};
-  };
-
-  // 响应结果
-  const rechargeRecord: any = reactive({ total: 0, list: [] });
-  const setRechargeRecord = async () => {
-    settingStore.loading = true;
-
-    // 获取数据列表
-    const params = handleParams();
-    const res = await reqRechargeHistoryList(params);
-    const data = parseResList(res);
-    rechargeRecord.total = data.length;
-    rechargeRecord.list = data;
-
-    // 处理数据
-    // const data = parseResObj(res);
-    // rechargeRecord.total = data.total;
-    // rechargeRecord.list = data.list;
-
-    settingStore.loading = false;
-  };
-
-  // #endregion
 
   return {
     member,
@@ -245,9 +167,6 @@ export const useRechargeStore = defineStore('Recharge', () => {
     rechargeActivity,
     recharge,
     reset,
-    rechargeRecord,
-    setRechargeRecord,
-    recordSearch,
-    resetRecordSearchParams,
+    setDefaultDiscount,
   };
 });

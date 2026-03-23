@@ -105,7 +105,7 @@
       </div>
     </div>
   </div>
-  <RCModify v-model:visible="RCDialog.visible" :data="RCDialog.data"></RCModify>
+  <RCModify v-model:visible="RCDialog.visible"></RCModify>
 </template>
 
 <script setup lang="ts">
@@ -132,7 +132,8 @@ const store = useRechargeStore();
 onMounted(async () => {
   getActivityList();
   getDefaultRCRule();
-  getDefaultDiscount();
+  store.reset();
+  // getDefaultDiscount();
 });
 
 /** 获取默认折扣规则 */
@@ -178,9 +179,6 @@ const querySearchAsync = async (queryString: string, cb: (arg: any) => void) => 
     return;
   }
   const results = await memberStore.getAssociateList(queryString, 50);
-  // if (results.length === 1) {
-  //   store.member = { ...results[0] };
-  // }
   cb(results);
 };
 
@@ -219,17 +217,11 @@ const selectActivity = (data: any) => {
 // #region 设置门店默认充值价格和折扣率
 const RCDialog = reactive({
   visible: false,
-  data: {},
 });
 const openRCDialog = () => {
   RCDialog.visible = true;
-  RCDialog.data = {
-    defaultDiscountBase: store.rcRule.defaultDiscountBase,
-    defaultDiscountRate: store.rcRule.defaultDiscountRate,
-    defaultIsCrossStore: store.rcRule.defaultIsCrossStore,
-  };
 };
-// #endregion
+// #endregion 设置门店默认充值价格和折扣率
 </script>
 
 <style lang="scss" scoped>

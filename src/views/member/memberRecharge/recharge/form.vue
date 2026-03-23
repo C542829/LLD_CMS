@@ -125,6 +125,7 @@ const store = useRechargeStore();
 
 onMounted(() => {
   getStaffList();
+  store.reset();
 });
 
 // 销售员列表
@@ -194,9 +195,10 @@ watch(
       store.rechargeFormData.assetIsCrossStore = newVal.isCrossStore;
       activityDisabled.value = true;
     } else {
-      store.rechargeFormData.assetDiscountRate = store.rcRule.defaultDiscountRate;
-      store.rechargeFormData.assetDiscountBase = store.rcRule.defaultDiscountBase;
-      store.rechargeFormData.assetIsCrossStore = store.rcRule.defaultIsCrossStore;
+      store.setDefaultDiscount();
+      // store.rechargeFormData.assetDiscountRate = store.rcRule.defaultDiscountRate;
+      // store.rechargeFormData.assetDiscountBase = store.rcRule.defaultDiscountBase;
+      // store.rechargeFormData.assetIsCrossStore = store.rcRule.defaultIsCrossStore;
       activityDisabled.value = false;
     }
   },
