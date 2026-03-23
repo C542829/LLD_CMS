@@ -1,4 +1,5 @@
 import { get, post, put, ContentType } from '@/utils/request';
+import { setStoreOrgInfo } from '@/store/index';
 import * as Types from './types';
 
 // 导出类型
@@ -27,7 +28,7 @@ enum API {
  * @param params 搜索参数
  * @returns
  */
-export const reqList = (params: Types.SearchListParams): ApiResponse<Types.OrgInfoVO[]> => {
+export const reqList = (params: Types.SearchListParams): ApiResponse<OrgInfo[]> => {
   return get(API.LIST_URL, params);
 };
 
@@ -36,7 +37,7 @@ export const reqList = (params: Types.SearchListParams): ApiResponse<Types.OrgIn
  * @param id 门店ID
  * @returns
  */
-export const reqListOne = (id: number): ApiResponse<Types.OrgInfoVO> => {
+export const reqListOne = (id: number): ApiResponse<OrgInfo> => {
   return get(API.LIST_ONE_URL, { id });
 };
 
@@ -78,4 +79,21 @@ export const reqSetOrgDefaultCommissionRule = (data: Types.OrgDefaultRuleUpdateD
  */
 export const reqSetPrintWidth = (data: { id: number; printWidth: number }): ApiResponse<any> => {
   return put(API.UPDATE_PRINT_WIDTH, data);
+};
+
+// 功能函数
+
+/**
+ * 初始化门店详情
+ * @param id 门店id
+ */
+export const getOrgInfo = async (id: number) => {
+  try {
+    const res = await reqListOne(id);
+    const orgInfo = res.data;
+    orgInfo.orgArea && (orgInfo.orgArea = JSON.parse(orgInfo.orgArea as string));
+    setStoreOrgInfo(orgInfo);
+  } catch (error) {
+    console.error(`获取门店信息报错：${error}`);
+  }
 };
