@@ -1,6 +1,23 @@
-// 仓库大仓库
+import { reactive, readonly, ref } from 'vue';
 import { createPinia, type Pinia } from 'pinia';
-// 创建大仓库
 const pinia = createPinia();
-// 对外暴露：入口文件需要安装仓库
+
 export default pinia;
+
+// 用户信息
+let userInfo_ = {} as UserInfo;
+const storeUserInfo_ = reactive(userInfo_);
+/** 用户信息 */
+export const storeUserInfo = readonly(storeUserInfo_);
+export function setStoreUserInfo(val: Partial<UserInfo>) {
+  Object.assign(storeUserInfo_, val);
+}
+
+// 门店信息
+let orgInfo_ = {} as OrgInfo;
+const storeOrgInfo_ = reactive(orgInfo_);
+/** 门店信息 */
+export const storeOrgInfo = readonly(storeOrgInfo_);
+export function setStoreOrgInfo(val: Partial<OrgInfo>) {
+  Object.assign(storeOrgInfo_, val);
+}
