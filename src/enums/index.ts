@@ -282,6 +282,28 @@ export const rechargeStatusOptions = [
 ];
 // #endregion 充值状态
 
+// #region 充值类型
+
+export enum RechargeType {
+  Store = 0,
+  Present = 1,
+}
+
+export const RechargeTypeMap = {
+  [RechargeType.Store]: '门店充值',
+  [RechargeStatus.REVERSAL]: '手动赠送',
+};
+
+/**
+ * 充值类型
+ */
+export const RechargeTypeOptions = [
+  { value: '', label: '全部状态' },
+  { value: RechargeType.Store, label: RechargeStatusMap[RechargeType.Store] },
+  { value: RechargeType.Present, label: RechargeStatusMap[RechargeType.Present] },
+];
+// #endregion 充值类型
+
 // #region 优惠券记录查询状态
 /**
  * 优惠券记录查询状态
