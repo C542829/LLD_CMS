@@ -28,7 +28,7 @@ import { ref, withDefaults, watch, inject } from 'vue';
 const $Message: any = inject('$Message');
 
 interface DynamicInputProps {
-  value: string; // 输入框值
+  value: string | null | undefined; // 输入框值
   params?: any; // 额外参数
   btnColor?: string;
   width?: number;
