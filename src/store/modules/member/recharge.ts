@@ -14,7 +14,7 @@ const DEFAULT_RECHARGE_FORM_DATA: Types.RechargeDTO = {
   vipName: '',
   vipPhoneNumber: '',
   vipCardNumber: '',
-  activeId: 0,
+  activeId: undefined,
   activeName: '',
   rechargeValue: 0,
   assetDiscountRate: 100,
