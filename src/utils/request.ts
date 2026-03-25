@@ -1,3 +1,4 @@
+import { isEmpty } from 'lodash';
 // 进行axios二次封装:
 import axios from 'axios';
 // 引入消息提示
@@ -48,6 +49,11 @@ request.interceptors.request.use((config) => {
   if (userStore.token && !config.noToken) {
     config.headers['Authorization'] = userStore.token;
   }
+  // 判断data是否为空
+  if (isEmpty(config.data)) {
+    config.data = null;
+  }
+
   //返回配置对象
   return config;
 });
