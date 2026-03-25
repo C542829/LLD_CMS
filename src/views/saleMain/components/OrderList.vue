@@ -52,7 +52,12 @@
         <!-- 优惠信息 -->
         <div class="discount-info">
           <span class="coupon-amount" v-for="item in orderStore.order.ticketUseList" :key="item">
-            已抵扣：{{ getCouponInfo(item.ticketId) }}元
+            <template v-if="item.ticketType === CouponType.voucher">
+              已抵扣：{{ getCouponInfo(item.ticketId!) }}元
+            </template>
+            <template v-else>
+              {{ getCouponInfo(item.ticketId!) }}
+            </template>
           </span>
           <template v-if="orderStore.order.discountAmount > 0">
             <span class="discount-amount">打折优惠：{{ orderStore.order.discountAmount || 0 }}元</span>
@@ -194,11 +199,17 @@ const handleSettle = () => {
   orderStore.order.paymentInfoList = [];
 
   if (orderStore.order.customerType === CustomerType.Member) {
-    if (orderStore.checkedAssetInfo.assetIds.length === 0) {
+    let truePayAmount = orderStore.truePayAmount;
+
+    if (orderStore.checkedAssetInfo.assetIds.length === 0 && truePayAmount > 0) {
       Message.warning('会员存在不同类型的资产记录，请您选择至少一个条资产记录，进行结算');
       return;
     }
-    let truePayAmount = orderStore.truePayAmount;
+
+    // if (truePayAmount === 0) {
+
+    // }
+
     for (const assetId of orderStore.checkedAssetInfo.assetIds) {
       const asset = orderStore.member.vipAssetVOList.find((assetItem: any) => assetItem.id === assetId);
       if (asset.assetBalance <= 0) {
@@ -252,10 +263,14 @@ const handleCancelCoupon = () => {
 // 获取优惠券金额
 const getCouponInfo = (id: number) => {
   const coupon = orderStore.member.vipTicketVOList.find((item: any) => item.id === id);
-  if (coupon) {
-    return coupon.ticketInfo.ticketValue;
+  if (isEmpty(coupon)) {
+    return 0;
   }
-  return 0;
+  if (coupon.ticketInfo.ticketType === CouponType.voucher) {
+    return coupon.ticketInfo.ticketValue;
+  } else {
+    return coupon.ticketName;
+  }
 };
 
 // 判断优惠券是否已选中

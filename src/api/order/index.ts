@@ -26,6 +26,8 @@ enum API {
   ORDER_ROLL_BACK = '/order/roll-back',
   /** 修改上钟类型 */
   UPDATE_SERVER_TYPE = '/order/update-server-type/{detailId}',
+  /** 修改服务技师 */
+  UPDATE_SERVER_EMPLOYEE = '/order/update-server-employee/{detailId}',
 }
 
 enum PathStr {
@@ -140,4 +142,18 @@ export const reqReconcileOrder = (orderId: string, remark: string): ApiResponse<
 export const reqUpdateServerType = (detailId: number, serverType: number): ApiResponse<any> => {
   const api = API.UPDATE_SERVER_TYPE.replace(PathStr.detailId, detailId.toString());
   return put(api, {}, { params: { serverType } });
+};
+
+/**
+ * 修改服务技师
+ * @param detailId 订单明细ID
+ * @param params 技师参数
+ * @returns
+ */
+export const reqUpdateServerEmployee = (
+  detailId: number,
+  params: { userId: number; userName: string },
+): ApiResponse<any> => {
+  const api = API.UPDATE_SERVER_EMPLOYEE.replace(PathStr.detailId, detailId.toString());
+  return put(api, {}, { params });
 };

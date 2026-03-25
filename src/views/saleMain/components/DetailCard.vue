@@ -102,7 +102,7 @@
 <script setup lang="ts">
 import CouponSelect from '@/views/saleMain/components/CouponSelect.vue';
 import { computed, ref, watch } from 'vue';
-import { type Types, reqUpdateServerType } from '@/api/order/index';
+import { type Types, reqUpdateServerEmployee, reqUpdateServerType } from '@/api/order/index';
 import { CouponType, OrderDetailType, ServiceTypeOptions } from '@/enums/index';
 import { useDataEnumStore } from '@/store/modules/enums/index';
 import { useOrderStore } from '@/store/modules/order/index';
@@ -156,10 +156,27 @@ const isPT = computed(() => {
 
 const handleChangeUser = (id: number) => {
   const user = dataEnumStore.staffList.find((user: any) => user.id === id);
-  if (user) {
+  if (isEmpty(user)) {
+    return;
+  }
+  if (props.data.id) {
+    updateServiceEmployee(props.data.id!, { userId: id, userName: user.userName });
+  } else {
     props.data.userId = id;
     props.data.userName = user.userName;
   }
+};
+
+const updateServiceEmployee = (detailId: number, params: { userId: number; userName: string }) => {
+  try {
+    reqUpdateServerEmployee(detailId, params).then((res) => {
+      Message.success('修改技师成功');
+      console.log('修改技师成功：', res);
+
+      props.data.userId = params.userId;
+      props.data.userName = params.userName;
+    });
+  } catch (error) {}
 };
 
 const handleCloseTag = () => {
@@ -167,6 +184,7 @@ const handleCloseTag = () => {
   if (index !== -1) {
     orderStore.order.ticketUseList.splice(index, 1);
   }
+  props.data.truePrice = props.data.stdPrice;
   props.data.coupon = null;
 };
 
