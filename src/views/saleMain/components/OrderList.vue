@@ -23,10 +23,10 @@
     </div>
 
     <!-- 订单明细 -->
-    <div class="order-content">
+    <div class="order-content" v-loading="loading">
       <el-scrollbar>
         <DetailCard
-          v-for="(item, index) in orderStore.order.details"
+          v-for="(item, index) in orderStore.order.orderDetails"
           :key="item.id"
           :index="index + 1"
           :data="item"
@@ -35,22 +35,11 @@
         <div style="height: 110px"></div>
       </el-scrollbar>
     </div>
-    <div v-show="coupons && coupons.length > 0" class="coupon-list-container">
-      <el-divider>
-        <el-radio-group v-model="tabSwitch">
-          <el-radio-button :value="0" :border="false" size="small">本单可选优惠券</el-radio-button>
-          <el-radio-button :value="1" :border="false" size="small">所有优惠券</el-radio-button>
-        </el-radio-group>
-      </el-divider>
-      <el-scrollbar class="coupon-content">
-        <template v-if="coupons && coupons.length > 0">
-          <CouponCard v-for="(item, index) in coupons" :key="item.id" :coupon="item" :active="couponActive(item)" />
-        </template>
-        <Empty v-else description="暂无优惠券" />
-      </el-scrollbar>
-    </div>
+
+    <!-- 结算栏 -->
     <footer class="order-list-footer">
       <div class="left-footer">
+        <!-- 待付款 -->
         <div class="pay-info">
           <span class="pay-amount">
             待付款:
@@ -60,6 +49,7 @@
             <span class="original-amount">应付：￥{{ orderStore.payAmount }}</span>
           </template>
         </div>
+        <!-- 优惠信息 -->
         <div class="discount-info">
           <span class="coupon-amount" v-for="item in orderStore.order.ticketUseList" :key="item">
             已抵扣：{{ getCouponInfo(item.ticketId) }}元
@@ -70,10 +60,20 @@
         </div>
       </div>
       <div class="right-footer">
-        <template v-if="orderStore.order && orderStore.order.ticketUseList.length > 0">
+        <!-- <template v-if="orderStore.order && orderStore.order.ticketUseList.length > 0">
           <el-button type="primary" link @click="handleCancelCoupon">取消所选优惠券</el-button>
+        </template> -->
+        <template v-if="orderStore.isCreated">
+          <el-button type="primary" :loading="btnLoading" @click="handleSettle">结 算</el-button>
+          <el-button type="danger" :loading="btnLoading" @click="handleCancel">取消订单</el-button>
         </template>
-        <el-button type="primary" @click="handleSettle">结 算</el-button>
+        <template v-else>
+          <el-tooltip effect="dark" content="选择床位后可开单" placement="left">
+            <el-button type="primary" :loading="btnLoading" :disabled="!canCreate" @click="handleCreate">
+              开 单
+            </el-button>
+          </el-tooltip>
+        </template>
       </div>
     </footer>
   </div>
@@ -82,22 +82,57 @@
 
 <script setup lang="ts">
 import Message from '@/components/Message';
+import MessageBox from '@/components/MessageBox';
 import DetailCard from './DetailCard.vue';
-import CouponCard from './CouponCard.vue';
 import EditDiscountPrice from './EditDiscountPrice.vue';
 import SettleForm from './SettleForm.vue';
-import MessageBox from '@/components/MessageBox';
-
 import { ref, onMounted, computed } from 'vue';
 import { CouponType, PaymentType, paymentTypeMap, CustomerType } from '@/enums/index';
+import { reqAddOrder, reqCancelOrder, reqDeleteOrderDetail } from '@/api/order/index';
 import { useOrderStore } from '@/store/modules/order/index';
+import { isEmpty } from 'lodash';
+
+const emit = defineEmits<{
+  (ev: 'update-order', value: number): void;
+}>();
+
 const orderStore = useOrderStore();
+const loading = ref(false);
+const btnLoading = ref(false);
+
+/** 是否满足创建订单的条件 */
+const canCreate = computed(() => orderStore.order.bedId !== 0);
+
+/**
+ * 处理创建订单事件
+ */
+const handleCreate = () => {
+  if (!canCreate) {
+    Message.warning('请先选择床位后进行开单');
+    return;
+  }
+  createOrder();
+};
+
+/** 创建订单 */
+const createOrder = async () => {
+  btnLoading.value = true;
+  try {
+    const res = await reqAddOrder(orderStore.order);
+    console.log('订单创建成功：', res);
+    Message.success('订单创建成功！');
+    emit('update-order', orderStore.order.bedId);
+  } catch (error) {
+  } finally {
+    btnLoading.value = false;
+  }
+};
 
 const handleCleanOrder = async () => {
   const result = await MessageBox.warning('确定清空订单吗？');
   if (result) {
     // orderStore.reset();
-    orderStore.order.details = [];
+    orderStore.order.orderDetails = [];
   }
 };
 
@@ -109,23 +144,34 @@ const handleDiscountConfirm = (discountAmount: number) => {
  * @param index 订单明细项索引
  */
 const handleDeleteItem = (item: any) => {
-  const index = orderStore.order.details.findIndex((detail: any) => detail.index === item.index);
-  orderStore.order.details.splice(index, 1);
-};
-
-const tabSwitch = ref(0);
-const coupons = computed(() => {
-  if (!orderStore.member.vipTicketVOList || orderStore.member.vipTicketVOList.length === 0) {
-    return [];
-  }
-  if (tabSwitch.value === 0) {
-    return orderStore.member.vipTicketVOList.filter((item: any) => {
-      return item.ticketInfo.ticketType === CouponType.voucher;
+  if (item.id) {
+    loading.value = true;
+    reqDeleteOrderDetail(item.id).then((result: any) => {
+      if (result) {
+        const index = orderStore.order.orderDetails.findIndex((detail: any) => detail.id === item.id);
+        orderStore.order.orderDetails.splice(index, 1);
+        loading.value = false;
+      }
     });
   } else {
-    return orderStore.member.vipTicketVOList;
+    const index = orderStore.order.orderDetails.findIndex((detail: any) => detail.index === item.index);
+    orderStore.order.orderDetails.splice(index, 1);
   }
-});
+};
+
+/** 取消订单 */
+const handleCancel = async () => {
+  btnLoading.value = true;
+  try {
+    const res = await reqCancelOrder(orderStore.order.id);
+    orderStore.reset();
+    Message.success('取消订单成功');
+  } catch (error) {
+    Message.error('取消订单失败');
+  } finally {
+    btnLoading.value = false;
+  }
+};
 
 const settleDialogVisible = ref(false);
 
@@ -140,7 +186,7 @@ const handleSettle = () => {
     return;
   }
   // 检查订单是否为空
-  if (orderStore.order.details.length === 0) {
+  if (orderStore.order.orderDetails.length === 0) {
     Message.warning('订单不能为空');
     return;
   }

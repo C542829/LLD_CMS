@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { CouponType } from '@/enums/index';
+import { CouponType, OrderDetailType } from '@/enums/index';
 import { PopoverInstance } from 'element-plus';
 
 import { useOrderStore } from '@/store/modules/order/index';
@@ -26,20 +26,39 @@ interface Emits {
 
 const emit = defineEmits<Emits>();
 
+interface Props {
+  detailItem: any;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  detailItem: {},
+});
+
+const filter = (item: any) => {
+  // 如果是代金券，直接返回true
+  if (item.ticketInfo.ticketType === CouponType.voucher) {
+    return false;
+  }
+
+  // 如果是服务项目，判断是否包含在优惠券的服务项目中
+  if (props.detailItem.detailType === OrderDetailType.Service) {
+    const ids = item.ticketInfo.serverItems.map((item: any) => item.id);
+    return ids.includes(props.detailItem.bid);
+  }
+  return false;
+};
+
 const coupons = computed(() => {
   if (store.order.ticketUseList && store.order.ticketUseList.length > 0) {
     return store.member.vipTicketVOList.filter((item: any) => {
-      return (
-        item.ticketInfo.ticketType === CouponType.voucher &&
-        !store.order.ticketUseList.some((useItem: any) => useItem.ticketId === item.id)
-      );
+      return filter(item) && !store.order.ticketUseList.some((useItem: any) => useItem.ticketId === item.id);
     });
   } else {
     if (!store.member.vipTicketVOList || store.member.vipTicketVOList.length === 0) {
       return [];
     }
     return store.member.vipTicketVOList.filter((item: any) => {
-      return item.ticketInfo.ticketType === CouponType.voucher;
+      return filter(item);
     });
   }
 });
@@ -49,6 +68,7 @@ const popoverRef = ref<PopoverInstance>();
 const selected = ref<any>();
 
 const handleChange = (coupon: any) => {
+  // if (item.ticketInfo.ticketType === CouponType.voucher) {
   emit('change', coupon);
   selected.value = '';
   popoverRef.value?.hide();

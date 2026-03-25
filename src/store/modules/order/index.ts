@@ -1,24 +1,22 @@
 import Message from '@/components/Message';
-import { cloneDeep, isEmpty } from 'lodash';
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import { cloneDeep, isEmpty } from 'lodash';
+import { parseResObj } from '@/utils/parseResponse';
+import { mul, div, add } from '@/utils/bigMethods';
+import { useSettingStore } from '@/store/modules/acl/setting';
+import { useDataEnumStore } from '@/store/modules/enums/index';
+import { useMemberStore } from '@/store/modules/member/member';
+import { CustomerType, DiscountType, IsDiscount, OrderDetailType, ResponseCode } from '@/enums';
 import {
-  reqOrderInfo,
+  type Types,
   reqAddOrder,
   reqAddOrderDetail,
   reqSettleOrder,
   reqDeleteOrderDetail,
-  reqCancelOrder,
-  reqQueryOrder,
   reqQueryOrderByBedId,
 } from '@/api/order/index';
-import { parseResObj } from '@/utils/parseResponse';
-import { mul, div, add } from '@/utils/bigMethods';
-import { CustomerType, DiscountType, IsDiscount, OrderDetailType, ResponseCode } from '@/enums';
-import { orderResToOrder } from '@/store/modules/order/utils';
-import { useSettingStore } from '@/store/modules/acl/setting';
-import { useDataEnumStore } from '@/store/modules/enums/index';
-import { useMemberStore } from '@/store/modules/member/member';
+import { orderResToOrder, DEFAULT_ORDER_FORM, addOrderDetailItem } from './utils';
 
 /**
  * 订单管理模块 - Pinia Store
@@ -48,39 +46,18 @@ export const useOrderStore = defineStore('Order', () => {
     serviceMap[OrderDetailType.TreatmentCoupon] = enumStore.treatmentCouponList;
   };
 
-  /**
-   * 订单表单数据
-   */
-  const orderForm: any = ref({
-    vipId: '', // 会员ID
-    vipName: '', // 会员姓名
-    vipCardNumber: '', // 会员卡号
-    vipPhoneNumber: '', // 会员手机号
-    customerType: CustomerType.Guest, // 客户类型
-    customerName: '散客', // 客户姓名
-    bedId: '', // 床位ID
-    bedName: '', // 床位名称
-    remark: '', // 备注
-    orderDetails: [], // 订单明细列表
+  //#region 概览状态数据
+
+  /** 是否开单 */
+  const isCreated = computed(() => {
+    return !!order.value.orderId && order.value.orderId != 0;
   });
 
-  /**
-   * 订单明细表单数据
-   */
-  const detailForm: any = ref({
-    bid: '', // 订单业务ID（产品ID、服务ID或疗程券ID）
-    userId: '', // 用户ID
-    userName: '', // 用户姓名
-    detailType: 1, // 明细类型
-    businessName: '', // 业务名称
-    stdPrice: 0, // 标准价格
-    truePrice: 0, // 实际价格
-    quantity: 1, // 数量
-    serverType: 0, // 服务类型
+  /** 是否是会员 */
+  const isMember = computed(() => {
+    return order.value.customerType === CustomerType.Member;
   });
 
-  // 会员信息
-  const member: any = ref({});
   // 选中资产信息
   const checkedAssetInfo = ref<any>({
     assetIds: [], // 资产ID
@@ -99,8 +76,13 @@ export const useOrderStore = defineStore('Order', () => {
   // 应付金额
   const payAmount: any = computed(() => {
     let amount = 0;
-    order.value.details.forEach((item: any) => {
-      amount = add(amount, mul(item.truePrice, item.quantity));
+    order.value.orderDetails.forEach((item: any) => {
+      // 不为项目时计算数量
+      if (item.detailType !== OrderDetailType.Service) {
+        amount = add(amount, mul(item.truePrice, item.quantity));
+      } else {
+        amount = add(amount, item.truePrice);
+      }
     });
     return amount;
   });
@@ -124,8 +106,13 @@ export const useOrderStore = defineStore('Order', () => {
   });
   // 订单明细数量
   const orderCount: any = computed(() => {
-    return order.value.details.length || 0;
+    return order.value.orderDetails.length || 0;
   });
+
+  //#endregion 概览状态数据
+
+  // 会员信息
+  const member: any = ref({});
 
   // #endregion
 
@@ -188,6 +175,38 @@ export const useOrderStore = defineStore('Order', () => {
   // #endregion
 
   // #region 开单操作
+
+  /**
+   * 订单表单数据
+   */
+  const orderForm: any = ref({
+    vipId: '', // 会员ID
+    vipName: '', // 会员姓名
+    vipCardNumber: '', // 会员卡号
+    vipPhoneNumber: '', // 会员手机号
+    customerType: CustomerType.Guest, // 客户类型
+    customerName: '散客', // 客户姓名
+    bedId: '', // 床位ID
+    bedName: '', // 床位名称
+    remark: '', // 备注
+    orderDetails: [], // 订单明细列表
+  });
+
+  /**
+   * 订单明细表单数据
+   */
+  const detailForm: any = ref({
+    bid: '', // 订单业务ID（产品ID、服务ID或疗程券ID）
+    userId: '', // 用户ID
+    userName: '', // 用户姓名
+    detailType: 1, // 明细类型
+    businessName: '', // 业务名称
+    stdPrice: 0, // 标准价格
+    truePrice: 0, // 实际价格
+    quantity: 1, // 数量
+    serverType: 0, // 服务类型
+  });
+
   /**
    * 创建订单
    * @param cb 回调函数
@@ -348,7 +367,7 @@ export const useOrderStore = defineStore('Order', () => {
     // 如果未选择会员卡或者订单详情为空则停止
     if (
       checkedAssetInfo.value.assetIds.length === 0 ||
-      order.value.details.length === 0 ||
+      order.value.orderDetails.length === 0 ||
       (member.value && member.value.vipAssetVOList && member.value.vipAssetVOList.length === 0)
     ) {
       console.warn('更新订单明细价格前置条件不满足');
@@ -367,21 +386,25 @@ export const useOrderStore = defineStore('Order', () => {
       const discountRate = asset.assetDiscountRate / 100;
 
       // 订单明细
-      const details = order.value.details;
+      const details = order.value.orderDetails;
       console.log('updateOrderItemPrice - 当前订单明细：', details);
 
       for (const detail of details) {
         // 获取当前订单项目的原始参数
         const curServiceList = serviceMap[detail.detailType];
         const curService = curServiceList.find((item: { id: number }) => item.id === detail.bid);
+        // 解析参数
+        const parseCurService = parseServiceData(curService);
+
+        // 如果折扣基础基于会员价，先将价格更新为会员价
+        if (discountBase === DiscountType.Member) {
+          detail.truePrice = parseCurService.vipPrice;
+        }
 
         // 如果设置为不打折则不进行更新
         if (curService.isDiscounts === IsDiscount.noDiscount || curService.isDiscount === IsDiscount.noDiscount) {
           continue;
         }
-        // 解析参数
-        const parseCurService = parseServiceData(curService);
-        // console.log();
 
         // 更新明细价格
         if (curService) {
@@ -395,6 +418,33 @@ export const useOrderStore = defineStore('Order', () => {
       }
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const resetOrderDetailPrice = () => {
+    // 订单明细
+    const details = order.value.orderDetails;
+    for (const detail of details) {
+      detail.truePrice = detail.stdPrice;
+      // 获取当前订单项目的原始参数
+      // const curServiceList = serviceMap[detail.detailType];
+      // const curService = curServiceList.find((item: { id: number }) => item.id === detail.bid);
+      // // 如果设置为不打折则不进行更新
+      // if (curService.isDiscounts === IsDiscount.noDiscount || curService.isDiscount === IsDiscount.noDiscount) {
+      //   continue;
+      // }
+      // // 解析参数
+      // const parseCurService = parseServiceData(curService);
+      // // console.log();
+      // // 更新明细价格
+      // if (curService) {
+      //   const discountPrice =
+      //     discountBase === DiscountType.Member
+      //       ? mul(parseCurService.vipPrice, discountRate)
+      //       : mul(parseCurService.stdPrice, discountRate);
+      //   detail.truePrice = discountPrice;
+      //   console.log('更新订单明细价格：', detail);
+      // }
     }
   };
 
@@ -419,23 +469,7 @@ export const useOrderStore = defineStore('Order', () => {
   // #region 结算操作
 
   // 订单结算信息
-  const order: any = ref({
-    orderId: null,
-    vipId: 0,
-    bedId: 0,
-    bedName: '',
-    customerType: CustomerType.Guest,
-    customerName: '散客',
-    remark: '',
-    totalAmount: 0,
-    actualAmount: 0,
-    discountAmount: 0,
-    orderTime: null,
-    details: [],
-    ticketUseList: [],
-    assetIds: [],
-    paymentInfoList: [],
-  });
+  const order = ref<Types.OrderSettleDTO>(cloneDeep(DEFAULT_ORDER_FORM));
   /**
    * 添加订单明细
    * @param detail 订单明细数据
@@ -446,24 +480,31 @@ export const useOrderStore = defineStore('Order', () => {
       (order.value.customerType === CustomerType.Member && !order.value.vipId) ||
       (order.value.customerType === CustomerType.Guest && !order.value.customerName)
     ) {
-      Message.error('请先选择会员或输入散客名称');
+      Message.warning('请先选择会员或输入散客名称');
       return false;
     }
 
-    // 处理订单明细参数
-    const data = handleDetailParam(detail);
-
-    // 校验明细是否完整
-    if (validOrderDetail(data)) {
-      Message.error('请填写完整订单明细');
-      return false;
+    console.log('添加明细：', detail);
+    if (isCreated.value) {
+      // detail.userId = 1;
+      addOrderDetailItem(order.value.id, detail).then((result) => {
+        if (result) {
+          // 生成订单明细索引
+          const index = order.value.orderDetails.length;
+          // 添加订单明细
+          detail = { index, ...detail };
+          order.value.orderDetails.push(detail);
+        }
+      });
+      return;
     }
+
     // 生成订单明细索引
-    const index = order.value.details.length;
+    const index = order.value.orderDetails.length;
     // 添加订单明细
-    detail = { index, ...data };
-    order.value.details.push(detail);
-    updateOrderDetailPrice();
+    detail = { index, ...detail };
+    order.value.orderDetails.push(detail);
+    // updateOrderDetailPrice();
     return true;
   };
 
@@ -496,78 +537,11 @@ export const useOrderStore = defineStore('Order', () => {
     }
   };
 
-  const setOrderByBed = async (bedId: number) => {
-    const orderRes = await getOrder(bedId);
-    if (Object.keys(orderRes).length <= 0) {
-      return;
-    }
-    order.value = orderResToOrder(orderRes);
-    if (order.value.vipId) {
-      await getMemberAsset(order.value.vipId);
-    }
-  };
-
+  /** 重置订单 */
   const resetOrder = () => {
-    order.value = {
-      orderId: null,
-      vipId: 0,
-      bedId: 0,
-      bedName: '',
-      customerType: CustomerType.Guest,
-      customerName: '散客',
-      remark: '',
-      totalAmount: 0,
-      actualAmount: 0,
-      discountAmount: 0,
-      orderTime: null,
-      details: [],
-      ticketUseList: [],
-      assetIds: [],
-      paymentInfoList: [],
-    };
+    order.value = cloneDeep(DEFAULT_ORDER_FORM);
   };
   // #endregion 结算操作
-
-  // #region 远程请求数据
-
-  /** 获取会员资产 */
-  const getMemberAsset = async (id: number) => {
-    const asset = await memberStore.getMemberAssetList(id);
-    if (asset && asset?.vipAssetVOList) {
-      asset.vipAssetVOList = asset.vipAssetVOList.map((item: any, index: number) => ({
-        ...item,
-        disabled: false,
-        discountValue: `${item.id}-${item?.assetDiscountBase}-${item?.assetDiscountRate}`,
-      }));
-    }
-    if (asset && asset?.vipTicketVOList) {
-      asset.vipTicketVOList = asset.vipTicketVOList.filter((item: any) => {
-        return item.status != '已使用';
-      });
-    }
-    console.log('会员资产', asset);
-    member.value = { ...asset.vipInfoVO, ...asset };
-  };
-
-  /** 获取订单信息（请求服务器） */
-  const getOrder = async (bedId: number) => {
-    if (!bedId) {
-      console.error('床位ID无效');
-      return {};
-    }
-    try {
-      const { code, data }: any = await reqQueryOrderByBedId(bedId);
-      console.log('查询订单:', data);
-      if (data) {
-        return data;
-      }
-    } catch (error) {
-      Message.error('查询订单失败');
-    }
-    return {};
-  };
-
-  // #endregion 远程请求数据
 
   // #region 导出状态和方法
   /**
@@ -598,10 +572,10 @@ export const useOrderStore = defineStore('Order', () => {
     addOrderDetail,
     updateOrderDetail,
     updateOrderDetailPrice,
+    resetOrderDetailPrice,
 
     // 会员状态
     member,
-    getMemberAsset,
     // 应付金额
     payAmount,
     discountAmount,
@@ -612,9 +586,10 @@ export const useOrderStore = defineStore('Order', () => {
     checkedAssetInfo,
     initServiceMap,
 
+    isCreated,
+    isMember,
+
     order,
-    getOrder,
-    setOrderByBed,
     addOrderItem,
     resetOrder,
     settleOrder,

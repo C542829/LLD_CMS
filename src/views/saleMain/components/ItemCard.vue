@@ -60,7 +60,7 @@ interface ItemCardProps {
 const props = withDefaults(defineProps<ItemCardProps>(), {
   config: () => ({}),
   disabled: false,
-  firstPriceText: '散客价',
+  firstPriceText: '标准价',
   secondPriceText: '会员价',
   showSecondPrice: true, // 是否显示第二价
 });

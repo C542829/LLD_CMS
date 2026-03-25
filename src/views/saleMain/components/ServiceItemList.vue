@@ -20,6 +20,7 @@ import { OrderDetailType, ServiceType } from '@/enums/index';
 import { ref, watch, onMounted } from 'vue';
 import { useDataEnumStore } from '@/store/modules/enums/index';
 import { useOrderStore } from '@/store/modules/order/index';
+import { cloneDeep } from 'lodash';
 const enumStore = useDataEnumStore();
 const orderStore = useOrderStore();
 
@@ -28,9 +29,16 @@ onMounted(async () => {
 });
 
 const handleAddItem = (item: any) => {
+  item = cloneDeep(item);
   item.detailType = OrderDetailType.Service;
   item.serverType = ServiceType.Point;
+  item.quantity = 1;
   item.bid = item.id;
+  item.businessName = item.itemName;
+  item.stdPrice = item.itemPrice;
+  item.truePrice = item.itemPrice;
+
+  delete item.id;
   orderStore.addOrderItem(item);
 };
 

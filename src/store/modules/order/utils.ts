@@ -1,3 +1,42 @@
+import { CustomerType, DiscountType, IsDiscount, OrderDetailType, ResponseCode } from '@/enums';
+import { OrderDetailCreateDTO, OrderSettleDTO } from '@/api/order/types';
+import { reqAddOrderDetail } from '@/api/order/index';
+
+/**
+ * 默认订单表单数据
+ */
+export const DEFAULT_ORDER_FORM: OrderSettleDTO = {
+  orderId: 0,
+  vipId: 0,
+  bedId: 0,
+  bedName: '',
+  customerType: CustomerType.Guest,
+  customerName: '散客',
+  remark: '',
+  totalAmount: 0,
+  actualAmount: 0,
+  discountAmount: 0,
+  orderTime: undefined,
+  orderDetails: [],
+  ticketUseList: [],
+  assetIds: [],
+  paymentInfoList: [],
+};
+
+/**
+ * 添加订单明细
+ * @param orderId 订单ID
+ * @param detail 明细
+ */
+export const addOrderDetailItem = async (orderId: number, detail: OrderDetailCreateDTO) => {
+  try {
+    const res = await reqAddOrderDetail(orderId, detail);
+    console.log('添加订单明细成功：', res);
+    return res.data;
+  } catch (error) {}
+  return false;
+};
+
 /**
  * 订单响应数据转换为订单表单数据
  * @param params 订单数据

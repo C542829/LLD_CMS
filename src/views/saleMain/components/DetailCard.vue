@@ -3,11 +3,11 @@
     <div class="item-top">
       <!-- 商品信息 -->
       <span>
-        <span>{{ index }}、{{ data?.businessName || '产品名称' }}</span>
+        <span>{{ index }}、{{ data?.businessName || '名称' }}</span>
       </span>
       <!-- 优惠券 -->
       <span class="item-coupon-info">
-        <CouponSelect @change="selectCoupon"></CouponSelect>
+        <CouponSelect :detailItem="data" @change="selectCoupon"></CouponSelect>
       </span>
       <!-- 平台券 -->
       <!-- <span class="item-coupon-platform">
@@ -49,20 +49,40 @@
       <div class="bottom-left">
         <label>
           <span>销售：</span>
-          <el-select v-model="data.userId" value-key="id" @change="handleChangeUser" clearable placeholder="请选择销售">
+          <el-select
+            v-model="data.userId"
+            value-key="id"
+            @change="handleChangeUser"
+            clearable
+            placeholder="销售人"
+            style="width: 100px"
+          >
             <el-option v-for="item in dataEnumStore.staffList" :key="item.id" :label="item.userName" :value="item.id" />
           </el-select>
         </label>
-        <label class="m-l-10" style="width: 160px">
-          <span class="m-r-5">数量:</span>
+        <label v-if="data.detailType !== OrderDetailType.Service" class="m-l-10">
+          <span>数量：</span>
           <el-input-number
             v-model="data.quantity"
             :min="1"
             :max="1000"
             :step="1"
             controls-position="right"
-            style="width: 120px"
+            style="width: 80px"
           />
+        </label>
+        <label class="m-l-10">
+          <span>服务类型：</span>
+          <el-select
+            v-model="data.serverType"
+            value-key="value"
+            clearable
+            placeholder="请选择服务类型"
+            style="width: 80px"
+            @change="handleChangeServerType"
+          >
+            <el-option v-for="item in ServiceTypeOptions" :value="item.value" :label="item.label" :key="item.value" />
+          </el-select>
         </label>
       </div>
       <div class="bottom-right">
@@ -82,15 +102,19 @@
 <script setup lang="ts">
 import CouponSelect from '@/views/saleMain/components/CouponSelect.vue';
 import { computed, ref, watch } from 'vue';
-import { OrderDetailType } from '@/enums/index';
+import { type Types, reqUpdateServerType } from '@/api/order/index';
+import { CouponType, OrderDetailType, ServiceTypeOptions } from '@/enums/index';
 import { useDataEnumStore } from '@/store/modules/enums/index';
 import { useOrderStore } from '@/store/modules/order/index';
+import { isEmpty } from 'lodash';
+import Message from '@/components/Message';
 const dataEnumStore = useDataEnumStore();
 const orderStore = useOrderStore();
 /**
  * 订单明细项接口
  */
 interface OrderDetailItem {
+  id?: number | undefined;
   bid: number; // 订单业务ID（产品ID、服务ID或疗程券ID）
   userId: number; // 用户ID
   userName: string; // 用户姓名
@@ -152,14 +176,28 @@ const handleDelete = () => {
 };
 
 const selectCoupon = (coupon: any) => {
-  if (props.data.coupon) {
+  if (!isEmpty(props.data.coupon)) {
     handleCloseTag();
   }
-  props.data.coupon = coupon;
-  orderStore.order.ticketUseList.push({
-    ticketId: coupon.id,
-    ticketType: coupon.ticketInfo.ticketType,
-  });
+
+  // console.log(111, coupon);
+  console.log(props.data);
+
+  if (coupon?.ticketInfo?.ticketType === CouponType.experience) {
+    props.data.truePrice = 0;
+    props.data.coupon = coupon;
+    const useCoupon: any = {
+      ticketId: coupon.id,
+      ticketType: coupon.ticketInfo.ticketType,
+    };
+    if (props.data?.id) {
+      useCoupon.detailId = props.data.id;
+    }
+    if (props.data.index) {
+      useCoupon.detailIndex = props.data.index;
+    }
+    orderStore.order.ticketUseList.push(useCoupon);
+  }
 };
 
 watch(
@@ -170,6 +208,22 @@ watch(
     }
   },
 );
+
+/**
+ * 修改上钟类型
+ * @param serverType
+ */
+const handleChangeServerType = async (serverType: number) => {
+  if (!props.data?.id) {
+    return;
+  }
+
+  try {
+    const res = await reqUpdateServerType(props.data.id, serverType);
+    console.log('更新服务类型成功：', res);
+    Message.success('更新服务类型成功');
+  } catch (error) {}
+};
 </script>
 
 <style lang="scss" scoped>
