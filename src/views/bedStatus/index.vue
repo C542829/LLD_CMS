@@ -1,6 +1,11 @@
 <template>
   <div class="bed-status-container">
-    <h1>床位状态</h1>
+    <div class="top-header">
+      <h1>床位状态</h1>
+      <div class="top-header-right">
+        <el-button type="success" @click="getBedList">刷新状态</el-button>
+      </div>
+    </div>
     <div v-loading="settingStore.loading" :element-loading-text="settingStore.loadingMsg" class="bed-status-content">
       <div v-for="item in bedList" :key="item.id" class="bed-card-box">
         <div class="bed-card">
@@ -22,7 +27,9 @@
               </div>
             </div>
             <div class="card-option">
-              <el-button @click="showDialog(item)" type="primary" plain size="small">开单</el-button>
+              <el-button @click="checkout(item, CashierRouteSign.Create)" type="primary" plain size="small">
+                开单
+              </el-button>
             </div>
           </div>
 
@@ -46,7 +53,9 @@
               </div>
               <div class="card-option">
                 <el-button @click="showDialog(item)" type="primary" plain size="small">账单</el-button>
-                <el-button @click="checkout(item)" type="primary" plain size="small">去结账</el-button>
+                <el-button @click="checkout(item, CashierRouteSign.Settle)" type="primary" plain size="small">
+                  去结账
+                </el-button>
               </div>
             </div>
           </el-tooltip>
@@ -55,20 +64,15 @@
     </div>
 
     <Drawer v-model="dialog.visible" :title="dialog.title" @closed="closeDrawer" size="550px" style="max-width: 600px">
-      <CreateOrder
-        :type="dialog.type"
-        @close="dialog.visible = false"
-        @refresh="getBedList"
-        @checkout="checkout"
-      ></CreateOrder>
+      <CreateOrder :type="dialog.type" @close="closeDrawer" @refresh="getBedList" @checkout="checkout"></CreateOrder>
     </Drawer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { BedStatus, BedStatusMap } from '@/enums/index';
+import { BedStatus, BedStatusMap, CashierRouteSign } from '@/enums/index';
 
 import BillSummary from './OrderSummary.vue';
 import ModifyBed from './ModifyBed.vue';
@@ -78,14 +82,24 @@ import CreateOrder from './CreateOrder.vue';
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useDataEnumStore } from '@/store/modules/enums/index';
 import { useOrderStore } from '@/store/modules/order/index';
+import { reqQueryOrderByBedId } from '@/api/order';
 const settingStore = useSettingStore();
 const dataEnumStore = useDataEnumStore();
 const orderStore = useOrderStore();
 
 const router = useRouter();
 
+let timer: any = null;
+
 onMounted(async () => {
   getBedList();
+  timer = setInterval(() => {
+    getBedList();
+  }, 1000 * 30);
+});
+
+onUnmounted(() => {
+  clearTimeout(timer);
 });
 
 const bedList: any = ref([]);
@@ -99,11 +113,13 @@ const getBedList = async () => {
  * 去结账
  * @param data 账单数据
  */
-const checkout = (data: any) => {
+const checkout = (data: any, sign: CashierRouteSign) => {
   router.push({
     path: '/saleMain',
     query: {
       bedId: data.id,
+      bedName: data.bedName,
+      sign,
     },
   });
 };
@@ -113,11 +129,12 @@ const createOrder = (item: any) => {
   orderStore.orderForm.bedName = item.bedName;
 };
 const previewOrder = async (item: any) => {
-  const order = await orderStore.getOrder(item.id);
-  console.log('预览订单:', order);
-  if (order) {
-    orderStore.orderForm = order;
-  }
+  try {
+    const res = await reqQueryOrderByBedId(item.id);
+    orderStore.orderForm = res.data;
+  } catch (error) {}
+  // const order = await orderStore.getOrder(item.id);
+  // console.log('预览订单:', order);
 };
 
 // 模态框
@@ -143,6 +160,8 @@ const showDialog = (item: any) => {
 };
 
 const closeDrawer = () => {
+  dialog.visible = false;
+  getBedList();
   orderStore.reset();
 };
 
@@ -183,7 +202,7 @@ const colors = [
   display: flex;
   flex-direction: column;
 
-  > h1 {
+  > .top-header {
     color: #fff;
     font-size: 18px;
     text-align: center;
@@ -192,6 +211,12 @@ const colors = [
     line-height: $base-tabbar-height;
     background-color: var(--el-color-primary-light-5);
     margin-bottom: $main-padding;
+    position: relative;
+    .top-header-right {
+      position: absolute;
+      top: -3px;
+      right: 12px;
+    }
   }
 
   .bed-status-content {

@@ -63,6 +63,7 @@
       <el-button type="default" @click="emit('close')">关闭</el-button>
       <el-button v-if="type === 'add'" type="primary" @click="createOrder">开单</el-button>
       <el-button v-if="type === 'view'" type="primary" @click="goCheckout">去结账</el-button>
+      <el-button v-if="type === 'view'" type="danger" :loading="btnLoading" @click="handleCancel">取消订单</el-button>
     </footer>
   </div>
   <DetailForm v-model="dialogVisible" :handleType="handleType"></DetailForm>
@@ -76,6 +77,7 @@ import Message from '@/components/Message';
 import DetailForm from './DetailForm.vue';
 import { cloneDeep } from 'lodash';
 import { useOrderStore } from '@/store/modules/order/index';
+import { reqCancelOrder } from '@/api/order';
 const orderStore = useOrderStore();
 
 const emit = defineEmits(['close', 'refresh', 'checkout']);
@@ -86,7 +88,24 @@ const props = defineProps({
   },
 });
 
+const btnLoading = ref(false);
+
 onMounted(async () => {});
+
+/** 取消订单 */
+const handleCancel = async () => {
+  btnLoading.value = true;
+  try {
+    const res = await reqCancelOrder(orderStore.orderForm.id);
+    orderStore.reset();
+    emit('close');
+    Message.success('取消订单成功');
+  } catch (error) {
+    Message.error('取消订单失败');
+  } finally {
+    btnLoading.value = false;
+  }
+};
 
 const createOrder = () => {
   orderStore.createOrder(() => {
