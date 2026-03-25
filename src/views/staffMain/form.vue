@@ -219,8 +219,10 @@ const formRules = {
   ],
   roleId: [{ required: true, message: '请选择人员角色', trigger: 'change' }],
   userIdCard: [
+    { required: true, message: '姓名为必填项', trigger: 'blur' },
     { pattern: /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/, message: '请输入正确的身份证号码', trigger: 'blur' },
   ],
   userAddress: [{ max: 200, message: '人员地址长度不能超过200个字符', trigger: 'blur' }],
+  userBirthday: [{ required: true, message: '出生日期为必填项', trigger: 'blur' }],
 };
 </script>
