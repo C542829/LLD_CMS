@@ -8,6 +8,12 @@ export enum Status {
   disabled = 1,
 }
 
+/** 跳转收银路由标识 */
+export enum CashierRouteSign {
+  Create = 'Create',
+  Settle = 'Settle',
+}
+
 export const StatusMap = {
   [Status.enabled]: '启用',
   [Status.disabled]: '禁用',
@@ -216,14 +222,14 @@ export enum CouponType {
  */
 export const couponTypeMap = {
   [CouponType.voucher]: '代金券',
-  [CouponType.experience]: '体验券',
+  [CouponType.experience]: '项目券',
 };
 /**
  * 优惠券类型
  */
 export const couponTypeOptions = [
   { value: CouponType.voucher, label: '代金券' },
-  { value: CouponType.experience, label: '体验券' },
+  { value: CouponType.experience, label: '项目券' },
 ];
 // #endregion 优惠券类型
 
