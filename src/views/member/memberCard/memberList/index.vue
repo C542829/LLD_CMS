@@ -50,7 +50,7 @@
             <el-button link type="success" :disabled="false" @click="showDrawer(3, row)">赠送优惠券</el-button>
             <el-button link type="warning" :disabled="true" @click="showDialog(4, row)">取消优惠券</el-button>
             <el-button link type="success" :disabled="false" @click="showDrawer(5, row)">赠送卡金</el-button>
-            <el-button link type="info" :disabled="true" @click="showDialog(6, row)">更多</el-button>
+            <el-button link type="info" :disabled="false" @click="showDialog(6, row)">更多</el-button>
           </template>
         </el-table-column>
       </PaginationTable>
