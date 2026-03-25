@@ -101,11 +101,11 @@
         <el-table-column prop="settleTime" label="结算时间" width="85" :formatter="timeFormatter" />
         <el-table-column prop="orderCode" label="销售单号" min-width="100" />
         <el-table-column label="顾客信息" width="160">
-          <template #default="scope">
-            <p>姓名：{{ scope.row.customerName }}</p>
-            <p>卡号：{{ scope.row.vipCardNumber }}</p>
-            <p>电话：{{ scope.row.vipPhoneNumber }}</p>
-            <p>余额：{{ scope.row.afterBalance }}元</p>
+          <template #default="{ row }">
+            <p>姓名：{{ row.customerName || row.vipName }}</p>
+            <p v-if="row.vipCardNumber">卡号：{{ row.vipCardNumber }}</p>
+            <p v-if="row.vipPhoneNumber">电话：{{ row.vipPhoneNumber }}</p>
+            <p v-if="row.vipName">余额：{{ row.afterBalance }}元</p>
           </template>
         </el-table-column>
         <el-table-column label="应收金额" min-width="60">
