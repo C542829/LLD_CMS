@@ -1,4 +1,4 @@
-import { get, post, put, ContentType } from '@/utils/request';
+import { get, post, put } from '@/utils/request';
 
 enum API {
   // 房间
@@ -28,6 +28,6 @@ export const reqBedList = (params = {}) => get(API.BED_LIST, params);
 
 export const reqAddBed = (data = {}) => post(API.BED_ADD, data);
 
-export const reqUpdateBed = (data = {}) => put(API.BED_UPDATE, data, ContentType.URLencoded);
+export const reqUpdateBed = (data = {}) => put(API.BED_UPDATE, data, { form_urlencoded: true });
 
-export const reqUpdateBedStatus = (data = {}) => put(API.BED_UPDATE_STATUS, data, ContentType.URLencoded);
+export const reqUpdateBedStatus = (data = {}) => put(API.BED_UPDATE_STATUS, data, { form_urlencoded: true });

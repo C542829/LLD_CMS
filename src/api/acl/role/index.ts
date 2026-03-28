@@ -1,4 +1,4 @@
-import { get, post, put, ContentType } from '@/utils/request';
+import { get, post, put } from '@/utils/request';
 
 //枚举地址
 enum API {
@@ -19,7 +19,7 @@ export const reqAdd = (params: any) => post(API.ADD_URL, params);
 
 export const reqUpdate = (params: any) => put(API.UPDATE_URL, params);
 
-export const reqUpdateStatus = (params: any) => put(API.UPDATE_STATUS_URL, params, ContentType.URLencoded);
+export const reqUpdateStatus = (params: any) => put(API.UPDATE_STATUS_URL, params, { form_urlencoded: true });
 
 export const reqAllocatedList = (roleId: number) => get(API.ALLOCATED_LIST_URL, { roleId });
 

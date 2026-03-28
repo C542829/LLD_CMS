@@ -1,4 +1,4 @@
-import { get, post, put, ContentType } from '@/utils/request';
+import { get, post, put } from '@/utils/request';
 
 // 优惠券管理模块接口地址
 enum API {
@@ -15,6 +15,6 @@ export const reqAddTicket = (data = {}) => post(API.ADD_URL, data);
 
 export const reqUpdateTicket = (data = {}) => put(API.UPDATE_URL, data);
 
-export const reqUpdateTicketStatus = (data = {}) => put(API.UPDATE_STATUS_URL, data, ContentType.URLencoded);
+export const reqUpdateTicketStatus = (data = {}) => put(API.UPDATE_STATUS_URL, data, { form_urlencoded: true });
 
 export const reqCountTicket = (params = {}) => get(API.COUNT_URL, params);

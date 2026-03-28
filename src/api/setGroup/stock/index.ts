@@ -1,4 +1,4 @@
-import { get, post, put, ContentType } from '@/utils/request';
+import { get, post, put } from '@/utils/request';
 
 enum API {
   IN_ADD_URL = '/stock/in-order/add-order',

@@ -1,4 +1,4 @@
-import { get, post, put, ContentType } from '@/utils/request';
+import { get, post, put } from '@/utils/request';
 import { setStoreOrgInfo } from '@/store/index';
 import * as Types from './types';
 
@@ -61,7 +61,7 @@ export const reqUpdate = (data: Types.Org): ApiResponse<any> => put(API.UPDATE_U
  * @returns
  */
 export const reqUpdateStatus = (params: any): ApiResponse<any> =>
-  put(API.UPDATE_STATUS_URL, params, ContentType.URLencoded);
+  put(API.UPDATE_STATUS_URL, params, { form_urlencoded: true });
 
 /**
  * 修改门店默认相关规则

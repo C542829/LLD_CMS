@@ -1,4 +1,4 @@
-import { get, post, put, ContentType } from '@/utils/request';
+import { get, post, put } from '@/utils/request';
 
 enum API {
   LIST_URL = '/server/item/query-list',
@@ -16,4 +16,4 @@ export const reqAddServiceItem = (data = {}) => post(API.ADD_URL, data);
 
 export const reqUpdateServiceItem = (data = {}) => put(API.UPDATE_URL, data);
 
-export const reqUpdateServiceItemStatus = (data = {}) => put(API.UPDATE_STATUS_URL, data, ContentType.URLencoded);
+export const reqUpdateServiceItemStatus = (data = {}) => put(API.UPDATE_STATUS_URL, data, { form_urlencoded: true });

@@ -1,4 +1,4 @@
-import { get, post, put, ContentType } from '@/utils/request';
+import { get, post, put } from '@/utils/request';
 
 //枚举地址
 enum API {
@@ -37,7 +37,7 @@ export const reqUpdatePerm = (data: any) => put(API.UPDATE_URL, data);
  * @param data 权限状态
  * @returns 更新结果
  */
-export const reqUpdatePermStatus = (data: any) => put(API.UPDATE_STATUS_URL, data, ContentType.URLencoded);
+export const reqUpdatePermStatus = (data: any) => put(API.UPDATE_STATUS_URL, data, { form_urlencoded: true });
 
 /**
  * 获取权限树

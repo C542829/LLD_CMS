@@ -1,4 +1,4 @@
-import { get, post, put, ContentType } from '@/utils/request';
+import { get, post, put } from '@/utils/request';
 
 enum API {
   LIST_URL = '/system/dict/query-list',
@@ -37,7 +37,7 @@ export const reqUpdateEnum = (data = {}) => put(API.UPDATE_URL, data);
  * @param dictTypeId 枚举类型ID
  * @returns 删除结果
  */
-export const reqDelEnum = (dictTypeId: number) => put(API.DEL_URL, { dictTypeId }, ContentType.URLencoded);
+export const reqDelEnum = (dictTypeId: number) => put(API.DEL_URL, { dictTypeId }, { form_urlencoded: true });
 
 /**
  * 获取枚举项列表
@@ -65,4 +65,4 @@ export const reqUpdateEnumItem = (data = {}) => put(API.ITEM_UPDATE_URL, data);
  * @param itemId 枚举项ID
  * @returns 删除结果
  */
-export const reqDelEnumItem = (itemId: number) => put(API.ITEM_DEL_URL, { itemId }, ContentType.URLencoded);
+export const reqDelEnumItem = (itemId: number) => put(API.ITEM_DEL_URL, { itemId }, { form_urlencoded: true });
