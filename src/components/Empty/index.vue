@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 interface Props {
-  description: string;
+  description?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
