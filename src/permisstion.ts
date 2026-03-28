@@ -1,7 +1,8 @@
 // 路由鉴权: 鉴权,项目当中路由能不能被的权限的设置(某一个路由什么条件下可以访问、什么条件下不可以访问)
 import router from '@/router';
 import setting from './setting';
-
+// 引入操作本地存储的工具方法
+import { getUserInfo } from '@/utils/localStorageTools';
 // @ts-expect-error 引入进度条样式，暂时忽略类型检查
 import nprogress from 'nprogress';
 import 'nprogress/nprogress.css';
@@ -15,7 +16,7 @@ const userStore = useUserStore(pinia);
 // 初始化注册路由，避免白屏
 (async () => {
   const routes = router.getRoutes();
-  if (userStore.token && routes.length === 4) {
+  if (userStore.token && routes.length <= 5) {
     await userStore.userInfo();
   }
 })();
@@ -36,9 +37,12 @@ router.beforeEach(async (to: any, from: any, next: any) => {
     }
   }
 
+  // 获取用户信息
+  const user = getUserInfo();
   // 获取token
   const token = userStore.token;
-  if (token || userStore.menuRoutes.length === 0) {
+
+  if (user || token || userStore.menuRoutes.length === 0) {
     // 获取用户信息
     if (userStore.userId || userStore.menuRoutes.length === 0) {
       await userStore.userInfo();
@@ -53,11 +57,11 @@ router.beforeEach(async (to: any, from: any, next: any) => {
     }
   } else {
     // 用户未登录判断
-    if (to.path === '/login') {
-      next();
-    } else {
-      next({ path: '/login', query: { redirect: to.path } });
-    }
+    // if (to.path === '/login') {
+    // next();
+    // } else {
+    next({ path: '/login', query: { redirect: to.path } });
+    // }
   }
 });
 
