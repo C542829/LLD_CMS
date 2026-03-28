@@ -1,10 +1,23 @@
 import type { ElPagination, TableInstance, FormInstance, ButtonInstance, TagInstance } from 'element-plus';
+import { Component } from 'vue';
 declare global {
   type ButtonType = ButtonInstance['type'];
   type SizeType = ButtonInstance['size'];
   type ElTagType = TagInstance['type'];
   type ElTableProps = TableInstance['$props'];
   type ElFormInstance = FormInstance;
+
+  /** 路由子项 */
+  interface RouteItem {
+    component: Component;
+    name: string;
+    path: string;
+    meta: {
+      hidden?: boolean;
+      title?: string;
+      icon?: string;
+    };
+  }
 
   /** 弹窗类型 */
   type DialogType = 'add' | 'view' | 'edit';
