@@ -19,6 +19,15 @@ declare module 'axios' {
   }
 }
 
+/**
+ * Content-Type 类型枚举
+ */
+export enum ContentType {
+  JSON = 'application/json;charset=UTF-8',
+  FORM_DATA = 'multipart/form-data;charset=UTF-8',
+  FORM_URLENCODED = 'application/x-www-form-urlencoded;charset=UTF-8',
+}
+
 // 创建axios实例
 const request = axios.create({
   baseURL: import.meta.env.VITE_APP_BASE_API, // 基础路径
@@ -29,10 +38,10 @@ const request = axios.create({
 request.interceptors.request.use((config) => {
   config.headers['X-Requested-With'] = 'XMLHttpRequest';
   if (Object.prototype.toString.call(config.data) === '[object FormData]') {
-    config.headers['Content-Type'] = 'multipart/form-data;charset=UTF-8';
-  } else {
+    config.headers['Content-Type'] = ContentType.FORM_DATA;
+  } else if (config.form_urlencoded) {
+    config.headers['Content-Type'] = ContentType.FORM_URLENCODED;
     // if (config.form_urlencoded) {
-    //   config.headers['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
     //   config.data = qs.stringify(config.data);
     // } else {
     //   config.headers['Content-Type'] = 'application/json;charset=UTF-8';
@@ -44,12 +53,12 @@ request.interceptors.request.use((config) => {
     // }
   }
 
-  // 如果用户登录成功,则会携带token
+  // 如果用户登录成功，则会携带token
   const userStore = useUserStore();
   if (userStore.token && !config.noToken) {
     config.headers['Authorization'] = userStore.token;
   }
-  // 判断data是否为空
+  // 如果 data 为空，将 data 设置为 null
   if (isEmpty(config.data)) {
     config.data = null;
   }
@@ -66,7 +75,9 @@ request.interceptors.response.use(
 
     // 二进制数据则直接返回
     const responseType = response.request?.responseType;
-    if (responseType === 'blob' || responseType === 'arraybuffer') return apiData;
+    if (responseType === 'blob' || responseType === 'arraybuffer') {
+      return apiData;
+    }
 
     // 如果没有 code, 代表这不是项目后端开发的 api
     if (code === undefined) {
@@ -74,57 +85,20 @@ request.interceptors.response.use(
       return Promise.reject(apiData);
     }
 
-    // 根据 code 进行判断
-    switch (code) {
-      // 业务正常
-      case ResponseCode.SUCCESS:
-        return apiData;
-        break;
-      // 业务失败
-      case ResponseCode.FAIL:
-        Message.error('服务器开小差！');
-        break;
-      // 用户未登录
-      case ResponseCode.UNAUTHORIZED:
-        logout();
-        break;
-      // 没有相关权限
-      case ResponseCode.FORBIDDEN:
-        Message.error('没有相关权限');
-        break;
-      // 服务器错误
-      case ResponseCode.SERVER_ERROR:
-        Message.error('服务器错误');
-        // window.location.href = '/#/500';
-        break;
-      // 上传参数异常
-      case ResponseCode.PARAMS_INVALID:
-        Message.error('上传参数异常');
-        break;
-      // ContentType错误
-      case ResponseCode.CONTENT_TYPE_ERR:
-        Message.error('ContentType错误');
-        break;
-      // 功能尚未实现
-      case ResponseCode.API_UN_IMPL:
-        Message.error('功能尚未实现');
-        break;
-      // 服务器繁忙
-      case ResponseCode.SERVER_BUSY:
-        Message.error('服务器繁忙');
-        break;
-      // 不是正确的 code
-      default:
-        Message.error(apiData.message || 'Error');
+    // 业务正常，正常返回响应数据
+    if (code === ResponseCode.SUCCESS) {
+      return apiData;
     }
+
+    // 业务异常，处理错误信息
+    errorCodeMsg(apiData);
+    // 抛出错误
     return Promise.reject(apiData);
   },
   (error) => {
     // 关闭加载状态
     const settingStore = useSettingStore();
     settingStore.loading = false;
-    // errorHandler(error);
-    // return Promise.reject(error);
     if (error.code === 'ECONNABORTED') {
       Message.error('请求超时！');
     }
@@ -144,50 +118,47 @@ const logout = () => {
 };
 
 /**
- * 错误处理函数
- * @param error 错误对象
+ * 错误状态码处理
+ * @param apiData 接口返回数据
  */
-const errorHandler = (error: any) => {
-  // 关闭加载状态
-  const settingStore = useSettingStore();
-  settingStore.loading = false;
-
-  // 失败回调：处理http网络错误的
-  try {
-    let message = '';
-    const status = error.response?.status || 0;
-    console.log('响应错误 = ', error);
-
-    switch (status) {
-      case 400:
-        message = '请求参数错误';
-        break;
-      case 401:
-        logout();
-        break;
-      case 403:
-        message = '无权访问';
-        break;
-      case 404:
-        message = '请求地址错误';
-        break;
-      case 500:
-        message = '服务器出现问题';
-        if (error.response.data.code === ResponseCode.UNAUTHORIZED) {
-          logout();
-        } else {
-          window.location.href = '/#/500';
-        }
-        break;
-      default:
-        message = '网络出现问题';
-        break;
-    }
-    //提示错误信息
-    Message.error(message);
-  } catch (error: any) {
-    console.error(error);
-    Message.error('网络出现问题');
+const errorCodeMsg = (apiData: ApiResponseData<any>) => {
+  // 根据 code 进行判断
+  switch (apiData.code) {
+    // 业务失败
+    case ResponseCode.FAIL:
+      Message.error(apiData.message || '服务器开小差！');
+      break;
+    // 用户未登录
+    case ResponseCode.UNAUTHORIZED:
+      logout();
+      break;
+    // 没有相关权限
+    case ResponseCode.FORBIDDEN:
+      Message.error('没有相关权限');
+      break;
+    // 服务器错误
+    case ResponseCode.SERVER_ERROR:
+      Message.error(apiData.message || '服务器错误！');
+      break;
+    // 上传参数异常
+    case ResponseCode.PARAMS_INVALID:
+      Message.error('上传参数异常');
+      break;
+    // ContentType错误
+    case ResponseCode.CONTENT_TYPE_ERR:
+      Message.error('ContentType错误');
+      break;
+    // 功能尚未实现
+    case ResponseCode.API_UN_IMPL:
+      Message.error('功能尚未实现');
+      break;
+    // 服务器繁忙
+    case ResponseCode.SERVER_BUSY:
+      Message.error('服务器繁忙');
+      break;
+    // 不是正确的 code
+    default:
+      Message.error(apiData.message || 'Error');
   }
 };
 
@@ -273,15 +244,6 @@ export const patch = <T>(url: string, data = {}, config = {}): Promise<T> => {
 
 // 统一导出所有方法
 export { get as GET, post as POST, put as PUT, del as DELETE, patch as PATCH };
-
-/**
- * Content-Type 类型枚举
- */
-export const ContentType = {
-  JSON: { headers: { 'Content-Type': 'application/json' } },
-  FormData: { headers: { 'Content-Type': 'multipart/form-data' } },
-  URLencoded: { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
-};
 
 // 对外暴露原始request实例
 export default request;
