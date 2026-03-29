@@ -1,28 +1,33 @@
 <template>
   <div class="product-list">
-    <el-scrollbar>
-      <ItemCard
-        v-for="item in enumStore.productList"
-        :key="item.id"
-        :data="item"
-        :config="customConfig"
-        :disabled="item.productStatus !== 0"
-        @add="handleAddItem"
-      />
-    </el-scrollbar>
+    <template v-if="enumStore.productList && enumStore.productList.length > 0">
+      <el-scrollbar>
+        <ItemCard
+          v-for="item in enumStore.productList"
+          :key="item.id"
+          :data="item"
+          :config="customConfig"
+          :disabled="item.productStatus !== 0"
+          @add="handleAddItem"
+        />
+      </el-scrollbar>
+    </template>
+    <template v-else>
+      <Empty></Empty>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
 import ItemCard from './ItemCard.vue';
-import Message from '@/components/Message';
 import { OrderDetailType, ServiceType } from '@/enums/index';
-import { ref, watch, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useDataEnumStore } from '@/store/modules/enums/index';
-import { useOrderStore } from '@/store/modules/order/index';
 import { cloneDeep } from 'lodash';
+
+const emit = defineEmits(['addItem']);
+
 const enumStore = useDataEnumStore();
-const orderStore = useOrderStore();
 
 onMounted(async () => {
   await enumStore.getProductList();
@@ -39,7 +44,8 @@ const handleAddItem = (item: any) => {
   item.truePrice = item.productPrice;
 
   delete item.id;
-  orderStore.addOrderItem(item);
+  // orderStore.addOrderItem(item);
+  emit('addItem', item);
 };
 
 const customConfig = ref({

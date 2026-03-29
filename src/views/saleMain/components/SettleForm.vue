@@ -27,23 +27,20 @@
 </template>
 
 <script setup lang="ts">
-import PayMethod from './PayMethod.vue';
 import Message from '@/components/Message';
+import PayMethod from './PayMethod.vue';
 
 import { ref, watch, onMounted } from 'vue';
 import { CustomerType, ResponseCode } from '@/enums/index';
-import { type FormInstance } from 'element-plus';
 import { printer } from '@/utils/lodop';
 import { reqQueryOrder } from '@/api/order/index';
+import { isEmpty } from 'lodash';
 
 import { useOrderStore } from '@/store/modules/order/index';
-import { useDataEnumStore } from '@/store/modules/enums/index';
 import { useOrgStore } from '@/store/modules/acl/org';
-import { isEmpty } from 'lodash';
-import Notification from '@/components/Notification';
+
 const orgStore = useOrgStore();
 const orderStore = useOrderStore();
-const enumStore = useDataEnumStore();
 
 interface Props {
   modelValue: boolean;
@@ -67,21 +64,30 @@ const dialogVisible = ref(false);
 const title = ref('结算确认单');
 const loading = ref(false);
 
+/** 结算操作 */
 const handleSubmit = async () => {
   const payMethods = orderStore.order.paymentInfoList.filter((item: any) => item.paymentType !== '');
   if (payMethods.length === 0) {
     Message.warning('请选择支付方式');
     return;
   }
+
   loading.value = true;
-  const order = await orderStore.settleOrder();
-  if (!isEmpty(order)) {
-    closeDialog();
-    printReceipt(order.orderCode);
+
+  try {
+    const order = await orderStore.settleOrder();
+    if (!isEmpty(order)) {
+      closeDialog();
+      printReceipt(order.orderCode);
+    }
+  } catch (error) {
+    console.log('结算订单失败：', error);
+  } finally {
+    loading.value = false;
   }
-  loading.value = false;
 };
 
+/** 打印小票 */
 const printReceipt = async (orderCode: string) => {
   if (!orderCode) {
     console.log('打印参数缺失：缺少订单编码');
@@ -93,6 +99,7 @@ const printReceipt = async (orderCode: string) => {
   printer.printOrderByHTML(data, false);
 };
 
+/** 获取订单信息 */
 const getOrder = async (orderCode: string) => {
   try {
     const res = await reqQueryOrder(orderCode);

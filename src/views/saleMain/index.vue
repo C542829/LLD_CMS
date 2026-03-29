@@ -54,20 +54,20 @@
             class="scale-tabs"
           >
             <el-tab-pane label="项目">
-              <ServiceItemList />
+              <ServiceItemList @addItem="addOrderItem" />
             </el-tab-pane>
             <el-tab-pane label="产品">
-              <ProductList />
+              <ProductList @addItem="addOrderItem" />
             </el-tab-pane>
             <el-tab-pane label="疗程">
-              <TreatmentCouponList />
+              <TreatmentCouponList @addItem="addOrderItem" />
             </el-tab-pane>
           </el-tabs>
           <MemberInfo v-show="tabSwitch === 1" />
         </div>
       </div>
       <div class="main-item">
-        <OrderList @update-order="setOrderByBed" />
+        <OrderList ref="orderListRef" @update-order="setOrderByBed" />
       </div>
     </div>
   </div>
@@ -91,12 +91,16 @@ import { CustomerType, BedStatus, BedStatusMap, CashierRouteSign } from '@/enums
 import { useRoomStore } from '@/store/modules/setGroup/room';
 import { useOrderStore } from '@/store/modules/order/index';
 import { useDataEnumStore } from '@/store/modules/enums/index';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isEmpty } from 'lodash';
+import { addOrderDetailItem } from '@/store/modules/order/utils';
 
 const orderStore = useOrderStore();
 const roomStore = useRoomStore();
 const dataEnumStore = useDataEnumStore();
 const router = useRouter();
+
+/** 订单列表 Ref */
+const orderListRef = ref<InstanceType<typeof OrderList>>();
 
 const loading = ref(false);
 // 切换项目和会员信息
@@ -164,6 +168,70 @@ const selectBed = (params: any) => {
     orderStore.order.bedName = params.bedName;
   }
   // });
+};
+
+/**
+ * 添加订单明细
+ * @param detail 订单明细数据
+ * @returns 操作结果
+ */
+const addOrderItem = async (detail: any) => {
+  if (
+    (orderStore.order.customerType === CustomerType.Member && !orderStore.order.vipId) ||
+    (orderStore.order.customerType === CustomerType.Guest && !orderStore.order.customerName)
+  ) {
+    Message.warning('请先选择会员或输入散客名称');
+    return;
+  }
+
+  if (!orderStore.order.bedId) {
+    Message.warning('请先选择床位');
+    return;
+  }
+
+  //   const detailTypes = orderStore.order.orderDetails.map((item) => item.detailType);
+  // if (detailTypes.includes(OrderDetailType.Product) || detailTypes.includes(OrderDetailType.Service)) {
+  //   Message.warning('疗程卡');
+  //   return;
+  // }
+
+  console.log('添加明细：', detail);
+
+  // 如果订单已创建，则发送请求添加订单明细
+  if (orderStore.isCreated) {
+    addOrderDetail(detail);
+    return;
+  }
+
+  // 生成订单明细索引
+  const index = orderStore.order.orderDetails.length;
+  // 添加订单明细
+  detail = { index, ...detail };
+  orderStore.order.orderDetails.push(detail);
+  orderStore.updateOrderDetailPrice();
+};
+
+/**
+ * 发送请求添加订单明细
+ * @param detail 订单明细
+ */
+const addOrderDetail = async (detail: any) => {
+  try {
+    orderListRef.value?.setLoading();
+    const res = await addOrderDetailItem(orderStore.order.id, detail);
+    console.log('添加订单明细成功：', res);
+    // 生成订单明细索引
+    const index = orderStore.order.orderDetails.length;
+    // 添加订单明细
+    detail = { index, ...detail };
+    orderStore.order.orderDetails.push(detail);
+    orderStore.updateOrderDetailPrice();
+  } catch (error) {
+    // addOrderItem(detail);
+    console.log('添加订单明细失败：', error);
+  } finally {
+    orderListRef.value?.setLoading();
+  }
 };
 
 /** 清空订单信息 */

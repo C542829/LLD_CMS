@@ -12,10 +12,13 @@
           v-for="(item, index) in coupons"
           :key="item.id"
           :coupon="item"
-          :active="couponActive(item)"
           @cancelSelect="cancelSelect(item)"
-          @click="selectCoupon(item)"
+          @select="selectCoupon(item)"
         />
+        <div style="height: 12px"></div>
+      </template>
+      <template v-else>
+        <Empty></Empty>
       </template>
     </el-scrollbar>
   </div>
@@ -129,6 +132,7 @@ const cancelSelect = (item: any) => {
     :deep(.el-scrollbar__view) {
       width: 260px;
       margin: 0 auto;
+      height: 100%;
       padding-bottom: 12px;
     }
   }

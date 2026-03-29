@@ -24,6 +24,16 @@ export const DEFAULT_ORDER_FORM: OrderSettleDTO = {
 };
 
 /**
+ * 默认选中资产信息
+ */
+export const DEFAULT_CHECKED_ASSET_INFO = {
+  assetIds: [], // 资产ID
+  assetTitle: '', // 资产类型
+  assetAmount: 0, // 资产金额
+  assetDiscountRate: 0, // 资产折扣率
+};
+
+/**
  * 添加订单明细
  * @param orderId 订单ID
  * @param detail 明细

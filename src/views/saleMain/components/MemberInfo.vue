@@ -1,6 +1,6 @@
 <template>
-  <!-- <div v-if="store.order.vipId" class="member-info"> -->
   <div class="member-info" v-loading="loading">
+    <!-- 会员卡信息 -->
     <div class="member-card-container">
       <template v-if="store.order.customerType === CustomerType.Member">
         <MemberCard :member="store.member.vipInfoVO || {}" :show-reset-btn="false" :show-remark="true" />
@@ -16,30 +16,31 @@
         </el-descriptions>
       </template>
     </div>
+
     <!-- <div v-if="false && store.order.customerType === CustomerType.Member" class="tag-container"></div> -->
+
     <!-- 资产信息 -->
     <div class="asset-container" v-if="store.order.customerType === CustomerType.Member">
-      <div class="member-card-container">
-        <el-scrollbar class="property-container">
-          <el-checkbox-group v-model="checkedList" @change="handleChange">
-            <PropertyCard
-              v-for="(item, index) in assetList"
-              :key="item.id"
-              :data="item"
-              :index="index + 1"
-              :amount="store.payAmount"
-            />
-          </el-checkbox-group>
-        </el-scrollbar>
-      </div>
+      <template v-if="assetList && assetList.length > 0">
+        <div class="member-card-container">
+          <el-scrollbar class="property-container">
+            <el-checkbox-group v-model="checkedList" @change="handleChange">
+              <PropertyCard
+                v-for="(item, index) in assetList"
+                :key="item.id"
+                :data="item"
+                :index="index + 1"
+                :amount="store.payAmount"
+              />
+            </el-checkbox-group>
+          </el-scrollbar>
+        </div>
+      </template>
       <div class="coupon-container" v-if="store.member.vipTicketVOList && store.member.vipTicketVOList.length > 0">
         <CouponList></CouponList>
       </div>
     </div>
   </div>
-  <!-- <div v-else class="member-info">
-    <el-empty description="未选择会员" />
-  </div> -->
 </template>
 
 <script setup lang="ts">
@@ -48,7 +49,7 @@ import PropertyCard from './PropertyCard.vue';
 import CouponList from './CouponList.vue';
 
 import { ref, watch, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { isEmpty } from 'lodash';
 import { CouponType, CustomerType, DiscountType, discountTypeMap } from '@/enums/index';
 
 import { useOrderStore } from '@/store/modules/order/index';
@@ -57,7 +58,6 @@ import { useDataEnumStore } from '@/store/modules/enums';
 const enumsStore = useDataEnumStore();
 const memberStore = useMemberStore();
 const store = useOrderStore();
-const router = useRouter();
 
 onMounted(() => {
   enumsStore.getOrgList();
@@ -91,6 +91,19 @@ const getMemberAsset = async (id: number) => {
       asset.vipTicketVOList = asset.vipTicketVOList.filter((item: any) => {
         return item.status != '已使用';
       });
+      // asset.vipTicketVOList.sort((a: any, b: any) => {
+      //   if (!a.expiryDate && a.expiryDate === -1) {
+      //     a.expiryDate = new Date('2060-12-31');
+      //   } else {
+      //     a.expiryDate = new Date(a.expiryDate);
+      //   }
+      //   if (!b.expiryDate && b.expiryDate === -1) {
+      //     b.expiryDate = new Date('2060-12-31');
+      //   } else {
+      //     b.expiryDate = new Date(b.expiryDate);
+      //   }
+      //   return a.expiryDate - b.expiryDate;
+      // });
     }
     store.member = { ...asset.vipInfoVO, ...asset };
   } catch (error) {
@@ -99,7 +112,27 @@ const getMemberAsset = async (id: number) => {
   }
 };
 
-const assetList: any = computed(() => store.member.vipAssetVOList || []);
+const assetList: any = computed(() => {
+  if (!store.member.vipAssetVOList && isEmpty(store.member.vipAssetVOList)) {
+    return [];
+  }
+
+  const assetList = store.member.vipAssetVOList.filter((item: any) => item.assetBalance > 0);
+  // 排序
+  assetList.sort((a: any, b: any) => {
+    // 第一条件：折扣基础
+    if (a.assetDiscountBase !== b.assetDiscountBase) {
+      return b.assetDiscountBase - a.assetDiscountBase;
+    }
+    // 第二条件：折扣率
+    if (a.assetDiscountRate !== b.assetDiscountRate) {
+      return a.assetDiscountRate - b.assetDiscountRate;
+    }
+    // 第三条件：余额
+    return a.assetBalance - b.assetBalance;
+  });
+  return assetList;
+});
 
 const checkedList = ref<any>([]);
 
@@ -156,67 +189,6 @@ const handleChange = (val: any) => {
 // 获取折扣值
 const getDiscountValue = (params: string) => {
   return params.substring(params.indexOf('-') + 1);
-};
-
-const tabSwitch = ref(0);
-
-/** 优惠券列表(tabSwitch = 0 返回代金券;1 返回项目券) */
-const coupons = computed(() => {
-  if (!store.member.vipTicketVOList || store.member.vipTicketVOList.length === 0) {
-    return [];
-  }
-  if (tabSwitch.value === 0) {
-    return store.member.vipTicketVOList.filter((item: any) => {
-      return item.ticketInfo.ticketType === CouponType.voucher;
-    });
-  } else {
-    return store.member.vipTicketVOList.filter((item: any) => {
-      return item.ticketInfo.ticketType === CouponType.experience;
-    });
-  }
-});
-
-/** 判断优惠券是否已选中 */
-const couponActive = (item: any) => {
-  return store.order.ticketUseList.some((useItem: any) => useItem.ticketId === item.id);
-};
-
-/** 代金券列表 */
-const vouchers = computed(() => {
-  if (!store.member.vipTicketVOList || store.member.vipTicketVOList.length === 0) {
-    return [];
-  }
-  if (tabSwitch.value === 0) {
-    return store.member.vipTicketVOList.filter((item: any) => {
-      return item.ticketInfo.ticketType === CouponType.voucher;
-    });
-  } else {
-    return store.member.vipTicketVOList.filter((item: any) => {
-      return item.ticketInfo.ticketType === CouponType.experience;
-    });
-  }
-});
-
-// const products = computed(async () => await enumsStore.getProductList());
-// const serviceItems = computed(async () => await enumsStore.getServiceItemList());
-// const treatmentCoupons = computed(async () => await enumsStore.getTreatmentCouponList());
-
-/** 选择会员卡时更新明细价格 */
-const updateOrderItemPrice = (asset: { assetDiscountBase: number; assetDiscountRate: number }) => {
-  if (asset.assetDiscountRate === 100) {
-    return;
-  }
-  const details = store.order.orderDetails;
-  if (details && details.length > 0) {
-    console.log('订单详情：', details);
-    // console.log('products = ', products);
-    // console.log('serviceItems = ', serviceItems);
-    // console.log('treatmentCoupons = ', treatmentCoupons);
-
-    for (const item of details) {
-    }
-  }
-  console.log(store.order);
 };
 
 /**

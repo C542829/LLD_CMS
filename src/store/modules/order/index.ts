@@ -2,21 +2,11 @@ import Message from '@/components/Message';
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { cloneDeep, isEmpty } from 'lodash';
-import { parseResObj } from '@/utils/parseResponse';
 import { mul, div, add } from '@/utils/bigMethods';
-import { useSettingStore } from '@/store/modules/acl/setting';
 import { useDataEnumStore } from '@/store/modules/enums/index';
-import { useMemberStore } from '@/store/modules/member/member';
 import { CustomerType, DiscountType, IsDiscount, OrderDetailType, ResponseCode } from '@/enums';
-import {
-  type Types,
-  reqAddOrder,
-  reqAddOrderDetail,
-  reqSettleOrder,
-  reqDeleteOrderDetail,
-  reqQueryOrderByBedId,
-} from '@/api/order/index';
-import { orderResToOrder, DEFAULT_ORDER_FORM, addOrderDetailItem } from './utils';
+import { type Types, reqAddOrder, reqSettleOrder } from '@/api/order/index';
+import { DEFAULT_ORDER_FORM, DEFAULT_CHECKED_ASSET_INFO, addOrderDetailItem } from './utils';
 
 /**
  * 订单管理模块 - Pinia Store
@@ -24,9 +14,8 @@ import { orderResToOrder, DEFAULT_ORDER_FORM, addOrderDetailItem } from './utils
  */
 export const useOrderStore = defineStore('Order', () => {
   // #region 状态管理
-  const settingStore = useSettingStore();
+
   const enumStore = useDataEnumStore();
-  const memberStore = useMemberStore();
 
   /**
    * 定义服务类型映射
@@ -46,6 +35,25 @@ export const useOrderStore = defineStore('Order', () => {
     serviceMap[OrderDetailType.TreatmentCoupon] = enumStore.treatmentCouponList;
   };
 
+  // #endregion 状态管理
+
+  /** 会员信息 */
+  const member: any = ref({});
+
+  /** 订单结算信息 */
+  const order = ref<Types.OrderSettleDTO>(cloneDeep(DEFAULT_ORDER_FORM));
+  /** 重置订单 */
+  const resetOrder = () => {
+    order.value = cloneDeep(DEFAULT_ORDER_FORM);
+  };
+
+  /** 选中资产信息 */
+  const checkedAssetInfo = ref<any>(cloneDeep(DEFAULT_CHECKED_ASSET_INFO));
+  /** 重置选中资产信息 */
+  const resetCheckedAssetInfo = () => {
+    checkedAssetInfo.value = cloneDeep(DEFAULT_CHECKED_ASSET_INFO);
+  };
+
   //#region 概览状态数据
 
   /** 是否开单 */
@@ -58,23 +66,8 @@ export const useOrderStore = defineStore('Order', () => {
     return order.value.customerType === CustomerType.Member;
   });
 
-  // 选中资产信息
-  const checkedAssetInfo = ref<any>({
-    assetIds: [], // 资产ID
-    assetTitle: '', // 资产类型
-    assetAmount: 0, // 资产金额
-    assetDiscountRate: 0, // 资产折扣率
-  });
-  const resetCheckedAssetInfo = () => {
-    checkedAssetInfo.value = {
-      assetIds: [],
-      assetTitle: '',
-      assetAmount: 0,
-      assetDiscountRate: 0,
-    };
-  };
-  // 应付金额
-  const payAmount: any = computed(() => {
+  /** 应付金额 */
+  const payAmount = computed<number>(() => {
     let amount = 0;
     order.value.orderDetails.forEach((item: any) => {
       // 不为项目时计算数量
@@ -86,8 +79,9 @@ export const useOrderStore = defineStore('Order', () => {
     });
     return amount;
   });
-  // 订单折扣金额
-  const discountAmount: any = computed(() => {
+
+  /** 订单折扣金额 */
+  const discountAmount = computed<number>(() => {
     let amount = order.value.discountAmount;
     if (order.value.ticketUseList && order.value.ticketUseList.length > 0) {
       for (const item of order.value.ticketUseList) {
@@ -99,169 +93,23 @@ export const useOrderStore = defineStore('Order', () => {
     }
     return amount;
   });
-  // 应付金额 = 订单金额 - 订单折扣金额
-  const truePayAmount: any = computed(() => {
+
+  /** 应付金额 = 订单金额 - 订单折扣金额 */
+  const truePayAmount = computed<number>(() => {
     const result = payAmount.value - discountAmount.value;
     return result < 0 ? 0 : result;
   });
-  // 订单明细数量
-  const orderCount: any = computed(() => {
+
+  /** 订单明细数量 */
+  const orderCount = computed<number>(() => {
     return order.value.orderDetails.length || 0;
   });
 
   //#endregion 概览状态数据
 
-  // 会员信息
-  const member: any = ref({});
-
-  // #endregion
-
-  // #region 订单表单验证
-  /**
-   * 验证订单表单数据
-   * @param params 订单表单参数
-   * @returns 验证结果
-   */
-  const validateOrderForm = (params: any) => {
-    // 校验会员信息
-    // if (!params.vipId || !params.vipName || !params.vipCardNumber || !params.vipPhoneNumber) {
-    //   Message.error('请填写完整会员信息');
-    //   return false;
-    // }
-    console.log('准备校验会员信息：', params);
-
-    if (params.customerType === CustomerType.Member && !params.vipId) {
-      Message.warning('请选择会员');
-      return;
-    } else if (params.customerType === CustomerType.Guest && !params.customerName) {
-      Message.warning('请输入散客姓名');
-      return;
-    }
-
-    // 校验订单明细
-    // if (params.orderDetails.length === 0) {
-    //   Message.error('请添加订单明细');
-    //   return false;
-    // } else {
-    //   // 校验订单明细
-    //   for (const item of params.orderDetails) {
-    //     if (validSubmitOrderDetail(item)) {
-    //       Message.error('请填写完整订单明细信息');
-    //       return false;
-    //     }
-    //   }
-    // }
-    return true;
-  };
-
-  /**
-   * 验证订单明细数据
-   * @param params 订单明细参数
-   * @returns 验证结果（true表示验证失败，false表示验证成功）
-   */
-  const validOrderDetail = (params: any) => {
-    return !params.bid || params.stdPrice < 0 || params.truePrice < 0 || !params.businessName;
-  };
-  const validSubmitOrderDetail = (params: any) => {
-    return (
-      !params.bid ||
-      !params.userId ||
-      !params.userName ||
-      params.stdPrice < 0 ||
-      params.truePrice < 0 ||
-      !params.businessName
-    );
-  };
-  // #endregion
-
-  // #region 开单操作
-
-  /**
-   * 订单表单数据
-   */
-  const orderForm: any = ref({
-    vipId: '', // 会员ID
-    vipName: '', // 会员姓名
-    vipCardNumber: '', // 会员卡号
-    vipPhoneNumber: '', // 会员手机号
-    customerType: CustomerType.Guest, // 客户类型
-    customerName: '散客', // 客户姓名
-    bedId: '', // 床位ID
-    bedName: '', // 床位名称
-    remark: '', // 备注
-    orderDetails: [], // 订单明细列表
-  });
-
-  /**
-   * 订单明细表单数据
-   */
-  const detailForm: any = ref({
-    bid: '', // 订单业务ID（产品ID、服务ID或疗程券ID）
-    userId: '', // 用户ID
-    userName: '', // 用户姓名
-    detailType: 1, // 明细类型
-    businessName: '', // 业务名称
-    stdPrice: 0, // 标准价格
-    truePrice: 0, // 实际价格
-    quantity: 1, // 数量
-    serverType: 0, // 服务类型
-  });
-
-  /**
-   * 创建订单
-   * @param cb 回调函数
-   */
-  const createOrder = (cb: Function) => {
-    if (!validateOrderForm(orderForm.value)) {
-      return;
-    }
-
-    // 移除索引
-    for (const item of orderForm.value.orderDetails) {
-      delete item.index;
-    }
-
-    settingStore.loading = true;
-
-    // 发送请求创建订单
-    reqAddOrder(orderForm.value)
-      .then((res) => {
-        const result: any = parseResObj(res);
-        if (Object.keys(result).length !== 0) {
-          Message.success('订单创建成功');
-          cb();
-          resetOrderForm();
-        } else {
-          // Message.error(result.message || '订单创建失败');
-        }
-      })
-      .catch((err) => {
-        Message.error(err.message || '订单创建失败');
-      })
-      .finally(() => {
-        settingStore.loading = false;
-      });
-  };
-
-  /**
-   * 重置订单表单
-   */
-  const resetOrderForm = () => {
-    orderForm.value = {
-      vipId: '',
-      vipName: '',
-      vipCardNumber: '',
-      vipPhoneNumber: '',
-      customerType: 0,
-      bedId: '',
-      bedName: '',
-      remark: '',
-      orderDetails: [],
-    };
-  };
-  // #endregion
-
   // #region 订单明细操作
+
+  /** 解析明细数据 */
   const parseServiceData = (serviceItem: any) => {
     return {
       name: serviceItem?.name || serviceItem?.productName || serviceItem?.itemName || '',
@@ -269,97 +117,6 @@ export const useOrderStore = defineStore('Order', () => {
       vipPrice:
         serviceItem?.vipProductPrice || serviceItem?.vipItemPrice || serviceItem?.vipPrice || serviceItem.price || 0,
     };
-  };
-
-  /**
-   * 处理订单明细参数
-   * @param params 订单明细参数
-   * @returns 处理后的订单明细参数
-   */
-  const handleDetailParam = (params: any) => {
-    console.log('订单项原始参数:', params);
-
-    const result: any = {};
-    // 查找用户和服务项
-    const user = enumStore.staffList.find((item: any) => item.id === params.userId);
-    if (user) {
-      result.userId = user.id;
-      result.userName = user.userName;
-    }
-
-    console.log('服务项映射', serviceMap);
-
-    const serviceItem = serviceMap[params.detailType].find((item: any) => item.id === params.bid);
-    console.log('服务项:', serviceItem);
-
-    if (isEmpty(serviceItem)) {
-      Message.warning('服务项不存在');
-      return;
-    }
-    const serviceData = parseServiceData(serviceItem);
-
-    result.bid = params.bid; // 订单业务ID（产品ID、服务ID或疗程券ID）
-    result.detailType = params.detailType; // 明细类型
-    result.businessName = serviceData.name; // 业务名称
-    result.stdPrice = serviceData.stdPrice; // 标准价格
-    result.truePrice = serviceData.stdPrice; // 实际价格
-    result.quantity = params.quantity || 1; // 数量
-    if (params.serverType !== undefined || params.serverType !== null) {
-      result.serverType = params.serverType || 0; // 服务类型
-    }
-    // 设置价格
-    if (orderForm.value.customerType === CustomerType.Member) {
-      result.stdPrice = serviceData.stdPrice;
-      result.truePrice = serviceData.vipPrice;
-    }
-    console.log('添加项:', params);
-    console.log('添加订单:', result);
-
-    return result;
-  };
-
-  /**
-   * 添加订单明细
-   * @param detail 订单明细数据
-   * @returns 操作结果
-   */
-  const addOrderDetail = (detail: any) => {
-    // if (!orderForm.value.vipId || orderForm.value.customerName == '') {
-    //   Message.error('请先选择会员或者输入散客姓名');
-    //   return false;
-    // }
-
-    // 处理订单明细参数
-    const data = handleDetailParam(detail);
-    console.log('处理后的订单明细:', data);
-
-    // 校验明细是否完整
-    if (validOrderDetail(data)) {
-      Message.error('请填写完整订单明细');
-      return false;
-    }
-    // 生成订单明细索引
-    const index = orderForm.value.orderDetails.length;
-    // 添加订单明细
-    detail = { index, ...data };
-    orderForm.value.orderDetails.push(detail);
-    return true;
-  };
-
-  /**
-   * 更新订单明细
-   * @param detail 订单明细数据
-   * @returns 操作结果
-   */
-  const updateOrderDetail = (detail: any) => {
-    // 校验明细是否完整
-    if (validOrderDetail(detail)) {
-      Message.error('请填写完整订单明细');
-      return false;
-    }
-
-    orderForm.value.orderDetails[detail.index] = detail;
-    return true;
   };
 
   /** 更新订单明细的折扣价格 */
@@ -390,6 +147,11 @@ export const useOrderStore = defineStore('Order', () => {
       console.log('updateOrderItemPrice - 当前订单明细：', details);
 
       for (const detail of details) {
+        // 如果绑定有优惠券，则跳过
+        if (detail.coupon) {
+          continue;
+        }
+
         // 获取当前订单项目的原始参数
         const curServiceList = serviceMap[detail.detailType];
         const curService = curServiceList.find((item: { id: number }) => item.id === detail.bid);
@@ -421,93 +183,25 @@ export const useOrderStore = defineStore('Order', () => {
     }
   };
 
+  /** 重置订单明细价格 */
   const resetOrderDetailPrice = () => {
     // 订单明细
     const details = order.value.orderDetails;
     for (const detail of details) {
+      // 如果绑定有优惠券，则跳过
+      if (detail.coupon) {
+        continue;
+      }
+
       detail.truePrice = detail.stdPrice;
-      // 获取当前订单项目的原始参数
-      // const curServiceList = serviceMap[detail.detailType];
-      // const curService = curServiceList.find((item: { id: number }) => item.id === detail.bid);
-      // // 如果设置为不打折则不进行更新
-      // if (curService.isDiscounts === IsDiscount.noDiscount || curService.isDiscount === IsDiscount.noDiscount) {
-      //   continue;
-      // }
-      // // 解析参数
-      // const parseCurService = parseServiceData(curService);
-      // // console.log();
-      // // 更新明细价格
-      // if (curService) {
-      //   const discountPrice =
-      //     discountBase === DiscountType.Member
-      //       ? mul(parseCurService.vipPrice, discountRate)
-      //       : mul(parseCurService.stdPrice, discountRate);
-      //   detail.truePrice = discountPrice;
-      //   console.log('更新订单明细价格：', detail);
-      // }
     }
   };
+
+  // #endregion 订单明细操作
 
   /**
-   * 重置订单明细表单
+   * 订单结算
    */
-  const resetDetailForm = () => {
-    detailForm.value = {
-      bid: '',
-      userId: '',
-      userName: '',
-      detailType: 1,
-      businessName: '',
-      stdPrice: 0,
-      truePrice: 0,
-      quantity: 1,
-      serverType: 0,
-    };
-  };
-  // #endregion
-
-  // #region 结算操作
-
-  // 订单结算信息
-  const order = ref<Types.OrderSettleDTO>(cloneDeep(DEFAULT_ORDER_FORM));
-  /**
-   * 添加订单明细
-   * @param detail 订单明细数据
-   * @returns 操作结果
-   */
-  const addOrderItem = (detail: any) => {
-    if (
-      (order.value.customerType === CustomerType.Member && !order.value.vipId) ||
-      (order.value.customerType === CustomerType.Guest && !order.value.customerName)
-    ) {
-      Message.warning('请先选择会员或输入散客名称');
-      return false;
-    }
-
-    console.log('添加明细：', detail);
-    if (isCreated.value) {
-      // detail.userId = 1;
-      addOrderDetailItem(order.value.id, detail).then((result) => {
-        if (result) {
-          // 生成订单明细索引
-          const index = order.value.orderDetails.length;
-          // 添加订单明细
-          detail = { index, ...detail };
-          order.value.orderDetails.push(detail);
-        }
-      });
-      return;
-    }
-
-    // 生成订单明细索引
-    const index = order.value.orderDetails.length;
-    // 添加订单明细
-    detail = { index, ...detail };
-    order.value.orderDetails.push(detail);
-    // updateOrderDetailPrice();
-    return true;
-  };
-
   const settleOrder = async () => {
     // order.value
     // order.value.truePayAmount =
@@ -537,21 +231,12 @@ export const useOrderStore = defineStore('Order', () => {
     }
   };
 
-  /** 重置订单 */
-  const resetOrder = () => {
-    order.value = cloneDeep(DEFAULT_ORDER_FORM);
-  };
-  // #endregion 结算操作
-
-  // #region 导出状态和方法
   /**
    * 重置订单状态
    */
   const reset = () => {
-    resetOrder();
-    resetOrderForm();
-    resetDetailForm();
     member.value = {};
+    resetOrder();
     resetCheckedAssetInfo();
   };
 
@@ -561,16 +246,10 @@ export const useOrderStore = defineStore('Order', () => {
   };
 
   return {
-    // 订单表单状态
-    orderForm,
-    createOrder,
-    resetOrderForm,
-
-    // 订单明细状态
-    detailForm,
-    resetDetailForm,
-    addOrderDetail,
-    updateOrderDetail,
+    order,
+    resetOrder,
+    settleOrder,
+    initServiceMap,
     updateOrderDetailPrice,
     resetOrderDetailPrice,
 
@@ -578,22 +257,17 @@ export const useOrderStore = defineStore('Order', () => {
     member,
     // 应付金额
     payAmount,
+    // 优惠金额
     discountAmount,
+    // 实付金额
     truePayAmount,
     // 订单总金额
     orderCount,
-    reset,
-    checkedAssetInfo,
-    initServiceMap,
-
     isCreated,
     isMember,
 
-    order,
-    addOrderItem,
-    resetOrder,
-    settleOrder,
+    checkedAssetInfo,
     resetCheckedAssetInfo,
+    reset,
   };
-  // #endregion
 });

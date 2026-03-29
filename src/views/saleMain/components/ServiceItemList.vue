@@ -1,15 +1,20 @@
 <template>
   <div class="product-list">
-    <el-scrollbar>
-      <ItemCard
-        v-for="item in enumStore.serviceItemList"
-        :key="item.id"
-        :data="item"
-        :config="customConfig"
-        :disabled="item.itemStatus !== 0"
-        @add="handleAddItem"
-      />
-    </el-scrollbar>
+    <template v-if="enumStore.serviceItemList && enumStore.serviceItemList.length > 0">
+      <el-scrollbar>
+        <ItemCard
+          v-for="item in enumStore.serviceItemList"
+          :key="item.id"
+          :data="item"
+          :config="customConfig"
+          :disabled="item.itemStatus !== 0"
+          @add="handleAddItem"
+        />
+      </el-scrollbar>
+    </template>
+    <template v-else>
+      <Empty></Empty>
+    </template>
   </div>
 </template>
 
@@ -21,6 +26,9 @@ import { ref, watch, onMounted } from 'vue';
 import { useDataEnumStore } from '@/store/modules/enums/index';
 import { useOrderStore } from '@/store/modules/order/index';
 import { cloneDeep } from 'lodash';
+
+const emit = defineEmits(['addItem']);
+
 const enumStore = useDataEnumStore();
 const orderStore = useOrderStore();
 
@@ -39,7 +47,8 @@ const handleAddItem = (item: any) => {
   item.truePrice = item.itemPrice;
 
   delete item.id;
-  orderStore.addOrderItem(item);
+  // orderStore.addOrderItem(item);
+  emit('addItem', item);
 };
 
 const customConfig = ref({

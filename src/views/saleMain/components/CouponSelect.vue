@@ -4,7 +4,9 @@
       <CouponCard v-for="(item, index) in coupons" :key="item.id" :coupon="item" @click="handleClick(item)" />
     </el-scrollbar> -->
     <el-select v-model="selected" placeholder="请选择优惠券" filterable clearable value-key="id" @change="handleChange">
-      <el-option v-for="(item, index) in coupons" :key="item.id" :label="item.ticketName" :value="item" />
+      <el-option v-for="(item, index) in coupons" :key="item.id" :label="item.ticketName" :value="item">
+        <span>{{ index + 1 }}、{{ item.ticketName }}</span>
+      </el-option>
     </el-select>
     <template #reference>
       <el-button type="primary" link size="large" icon="Ticket" style="transform: scale(1.3)" />

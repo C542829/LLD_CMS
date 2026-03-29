@@ -6,9 +6,11 @@
         <span>{{ index }}、{{ data?.businessName || '名称' }}</span>
       </span>
       <!-- 优惠券 -->
-      <span class="item-coupon-info">
-        <CouponSelect :detailItem="data" @change="selectCoupon"></CouponSelect>
-      </span>
+      <template v-if="data.detailType === OrderDetailType.Service">
+        <span class="item-coupon-info">
+          <CouponSelect :detailItem="data" @change="selectCoupon"></CouponSelect>
+        </span>
+      </template>
       <!-- 平台券 -->
       <!-- <span class="item-coupon-platform">
         <el-popover placement="left" title="请选择平台券" :width="200" trigger="click">
@@ -55,35 +57,39 @@
             @change="handleChangeUser"
             clearable
             placeholder="销售人"
-            style="width: 100px"
+            style="width: 90px"
           >
             <el-option v-for="item in dataEnumStore.staffList" :key="item.id" :label="item.userName" :value="item.id" />
           </el-select>
         </label>
-        <label v-if="data.detailType !== OrderDetailType.Service" class="m-l-10">
-          <span>数量：</span>
-          <el-input-number
-            v-model="data.quantity"
-            :min="1"
-            :max="1000"
-            :step="1"
-            controls-position="right"
-            style="width: 80px"
-          />
-        </label>
-        <label class="m-l-10">
-          <span>服务类型：</span>
-          <el-select
-            v-model="data.serverType"
-            value-key="value"
-            clearable
-            placeholder="请选择服务类型"
-            style="width: 80px"
-            @change="handleChangeServerType"
-          >
-            <el-option v-for="item in ServiceTypeOptions" :value="item.value" :label="item.label" :key="item.value" />
-          </el-select>
-        </label>
+        <template v-if="data.detailType !== OrderDetailType.Service">
+          <label class="m-l-10">
+            <span>数量：</span>
+            <el-input-number
+              v-model="data.quantity"
+              :min="1"
+              :max="1000"
+              :step="1"
+              controls-position="right"
+              style="width: 80px"
+            />
+          </label>
+        </template>
+        <template v-if="data.detailType === OrderDetailType.Service">
+          <label class="m-l-10">
+            <span>服务类型：</span>
+            <el-select
+              v-model="data.serverType"
+              value-key="value"
+              clearable
+              placeholder="类型"
+              style="width: 80px"
+              @change="handleChangeServerType"
+            >
+              <el-option v-for="item in ServiceTypeOptions" :value="item.value" :label="item.label" :key="item.value" />
+            </el-select>
+          </label>
+        </template>
       </div>
       <div class="bottom-right">
         <template v-if="data?.coupon">
@@ -100,6 +106,7 @@
 </template>
 
 <script setup lang="ts">
+import Message from '@/components/Message';
 import CouponSelect from '@/views/saleMain/components/CouponSelect.vue';
 import { computed, ref, watch } from 'vue';
 import { type Types, reqUpdateServerEmployee, reqUpdateServerType } from '@/api/order/index';
@@ -107,29 +114,13 @@ import { CouponType, OrderDetailType, ServiceTypeOptions } from '@/enums/index';
 import { useDataEnumStore } from '@/store/modules/enums/index';
 import { useOrderStore } from '@/store/modules/order/index';
 import { isEmpty } from 'lodash';
-import Message from '@/components/Message';
+
 const dataEnumStore = useDataEnumStore();
 const orderStore = useOrderStore();
-/**
- * 订单明细项接口
- */
-interface OrderDetailItem {
-  id?: number | undefined;
-  bid: number; // 订单业务ID（产品ID、服务ID或疗程券ID）
-  userId: number; // 用户ID
-  userName: string; // 用户姓名
-  detailType: number; // 明细类型
-  businessName: string; // 业务名称
-  stdPrice: number; // 标准价格
-  truePrice: number; // 实际价格
-  quantity: number; // 数量
-  serverType: number; // 服务类型
-  coupon?: any; // 优惠券
-}
 
 interface Props {
   index: number; // 订单明细项索引
-  data: OrderDetailItem; // 订单明细数据
+  data: Types.OrderDetailVO; // 订单明细数据
 }
 
 /**
@@ -167,24 +158,35 @@ const handleChangeUser = (id: number) => {
   }
 };
 
-const updateServiceEmployee = (detailId: number, params: { userId: number; userName: string }) => {
+const updateServiceEmployee = async (detailId: number, params: { userId: number; userName: string }) => {
   try {
-    reqUpdateServerEmployee(detailId, params).then((res) => {
-      Message.success('修改技师成功');
-      console.log('修改技师成功：', res);
-
-      props.data.userId = params.userId;
-      props.data.userName = params.userName;
-    });
-  } catch (error) {}
+    const res = await reqUpdateServerEmployee(detailId, params);
+    console.log('修改技师成功：', res);
+    Message.success('修改技师成功');
+    props.data.userId = params.userId;
+    props.data.userName = params.userName;
+  } catch (error) {
+    // props.data.userId = '';
+    props.data.userId = undefined;
+    props.data.userName = '';
+    console.error('修改技师失败：', error);
+  }
 };
 
 const handleCloseTag = () => {
+  if (!orderStore.order.ticketUseList) {
+    return;
+  }
+
   const index = orderStore.order.ticketUseList.findIndex((item: any) => item.ticketId === props.data.coupon.id);
   if (index !== -1) {
     orderStore.order.ticketUseList.splice(index, 1);
   }
   props.data.truePrice = props.data.stdPrice;
+  if (props.data.coupon) {
+    props.data.coupon.active = false;
+    // orderStore.order.discountAmount -= props.data.stdPrice;
+  }
   props.data.coupon = null;
 };
 
@@ -198,12 +200,11 @@ const selectCoupon = (coupon: any) => {
     handleCloseTag();
   }
 
-  // console.log(111, coupon);
-  console.log(props.data);
-
   if (coupon?.ticketInfo?.ticketType === CouponType.experience) {
+    coupon.active = true;
     props.data.truePrice = 0;
     props.data.coupon = coupon;
+    // orderStore.order.discountAmount += props.data.stdPrice;
     const useCoupon: any = {
       ticketId: coupon.id,
       ticketType: coupon.ticketInfo.ticketType,
@@ -214,14 +215,14 @@ const selectCoupon = (coupon: any) => {
     if (props.data.index) {
       useCoupon.detailIndex = props.data.index;
     }
-    orderStore.order.ticketUseList.push(useCoupon);
+    orderStore.order.ticketUseList && orderStore.order.ticketUseList.push(useCoupon);
   }
 };
 
 watch(
   () => orderStore.order.ticketUseList,
   (newVal) => {
-    if (newVal.length === 0) {
+    if (newVal && newVal.length === 0) {
       handleCloseTag();
     }
   },

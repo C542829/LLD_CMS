@@ -1,39 +1,64 @@
 <template>
-  <div class="coupon-info" :class="{ active: active || coupon?.isSelected }">
+  <div
+    class="coupon-info"
+    @click="select"
+    :class="{ active: coupon?.isSelected || coupon?.active, expired: isExpired }"
+  >
+    <!-- 优惠券信息 -->
     <template v-if="coupon.ticketInfo.ticketType === CouponType.voucher">
-      <span class="title text-overflow" :title="coupon.ticketInfo.ticketDescription">
+      <span
+        v-if="coupon.ticketInfo.ticketDescription"
+        class="title text-overflow"
+        :title="coupon.ticketInfo.ticketDescription"
+      >
         {{ coupon.ticketInfo.ticketDescription }}
       </span>
-      <!-- <span class="title text-overflow" :title="`抵扣金额：${coupon.ticketInfo.ticketValue} 元`">
-        抵扣金额：{{ coupon.ticketInfo.ticketValue }} 元
-      </span> -->
+      <span
+        v-else
+        class="title text-overflow"
+        :title="`满${coupon.ticketInfo.ticketFullPayment}减${coupon.ticketInfo.ticketValue}元`"
+      >
+        满{{ coupon.ticketInfo.ticketFullPayment }}减{{ coupon.ticketInfo.ticketValue }}元
+      </span>
     </template>
     <template v-else>
       <span class="title text-overflow" :title="getServerItems(coupon.ticketInfo.serverItems)">
         {{ getServerItems(coupon.ticketInfo.serverItems) }}
       </span>
     </template>
+
+    <!-- 优惠券名字 -->
     <div class="coupon-tip text-overflow" :title="coupon.ticketInfo.ticketName">
       {{ coupon.ticketInfo.ticketName }}
     </div>
+
+    <!-- 过期时间 -->
     <div class="coupon-tip text-overflow" :title="`${getExpiryDate(coupon.expiryDate)}`">
       {{ getExpiryDate(coupon.expiryDate) }}
     </div>
 
+    <!-- 取消选择遮盖 -->
     <div v-if="coupon?.isSelected" class="cancel-select">
       <el-button type="primary" link @click.stop.prevent="cancelSelect">取消选择</el-button>
+    </div>
+
+    <!-- 过期优惠券遮盖 -->
+    <div v-if="isExpired" class="cancel-select expired-coupon">
+      <!-- <el-button type="danger" link>已过期</el-button> -->
+      <span class="expired-text">优惠券已过期</span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { CouponType } from '@/enums/index';
+import { computed } from 'vue';
 
 interface Props {
-  active: boolean;
   coupon: {
-    expiryDate: string;
+    expiryDate: string | number;
     isSelected?: boolean;
+    active?: boolean;
     ticketInfo: {
       ticketName: string;
       ticketDescription: string;
@@ -50,17 +75,40 @@ interface Props {
   };
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  active: true,
+const props = withDefaults(defineProps<Props>(), {});
+
+const emit = defineEmits(['cancelSelect', 'select']);
+
+/** 判断优惠券是否过期 */
+const isExpired = computed(() => {
+  if (!props.coupon.expiryDate || props.coupon.expiryDate === -1) {
+    return false;
+  } else {
+    const expiryDate = new Date(props.coupon.expiryDate);
+    return expiryDate < new Date();
+  }
 });
 
-const emit = defineEmits(['cancelSelect']);
+/**
+ * 选择优惠券
+ */
+const select = () => {
+  // 优惠券已过期 - 不可点击
+  if (isExpired.value) {
+    return;
+  }
+  emit('select', props.coupon);
+};
 
 /** 取消选择 */
 const cancelSelect = () => {
   emit('cancelSelect', props.coupon);
 };
 
+/**
+ * 获取优惠券的到期时间
+ * @param expiryDate 优惠券有效期
+ */
 const getExpiryDate = (expiryDate: string) => {
   let result = '到期时间：';
   if (expiryDate) {
@@ -71,6 +119,7 @@ const getExpiryDate = (expiryDate: string) => {
   return result;
 };
 
+/** 获取服务项 */
 const getServerItems = (serverItems: any) => {
   if (serverItems) {
     return serverItems.map((item: any) => item.itemName).join('、');
@@ -91,6 +140,18 @@ const getServerItems = (serverItems: any) => {
     opacity: 0.9;
   }
 }
+
+.coupon-info.expired {
+  background-color: var(--el-color-info);
+  .title {
+    color: #fff;
+  }
+  .coupon-tip {
+    color: var(--el-fill-color-light);
+    opacity: 0.9;
+  }
+}
+
 .coupon-info {
   cursor: pointer;
   display: inline-block;
@@ -140,6 +201,15 @@ const getServerItems = (serverItems: any) => {
     align-items: center;
     background: rgba(255, 255, 255, 0.8);
     // border-radius: 3px;
+  }
+
+  .expired-coupon {
+    background: rgba(255, 255, 255, 0.8);
+    cursor: not-allowed;
+
+    .expired-text {
+      color: var(--el-color-danger);
+    }
   }
 }
 </style>

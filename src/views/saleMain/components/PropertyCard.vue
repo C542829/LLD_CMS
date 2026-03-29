@@ -7,7 +7,7 @@
       </div>
       <div class="row-item">
         <el-checkbox :label="discountLabel" :value="data?.discountValue" :disabled="data?.disabled" />
-        <span class="fin-row-balance">余额：{{ data?.assetBalance || '' }} 元</span>
+        <span class="fin-row-balance">余额：{{ data?.assetBalance }} 元</span>
       </div>
       <div class="row-item fin-row-org">
         <div class="fin-row-org-name">
@@ -33,18 +33,6 @@ import { reqUpdateAssetRemark } from '@/api/member/member/index';
 import { useDataEnumStore } from '@/store/modules/enums';
 const enumsStore = useDataEnumStore();
 
-/** 更新会员备注 */
-const updateRemark = async (remark: string, data: any) => {
-  try {
-    const res = await reqUpdateAssetRemark(data.id, remark);
-    data.remark = remark;
-    Message.success('更新资产备注成功');
-  } catch (error) {
-    Message.error('更新资产备注失败');
-  } finally {
-  }
-};
-
 interface Props {
   data: any;
   index: number;
@@ -56,6 +44,20 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   amount: 0,
 });
+
+const payAmount = computed(() => {});
+
+/** 更新会员备注 */
+const updateRemark = async (remark: string, data: any) => {
+  try {
+    const res = await reqUpdateAssetRemark(data.id, remark);
+    data.remark = remark;
+    Message.success('更新资产备注成功');
+  } catch (error) {
+    Message.error('更新资产备注失败');
+  } finally {
+  }
+};
 
 // 折扣标签
 const discountLabel = computed(() => {

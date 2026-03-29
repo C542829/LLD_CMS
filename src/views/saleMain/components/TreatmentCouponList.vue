@@ -1,17 +1,22 @@
 <template>
   <div class="product-list">
-    <el-scrollbar>
-      <ItemCard
-        v-for="item in enumStore.treatmentCouponList"
-        :key="item.id"
-        :data="item"
-        :config="customConfig"
-        :disabled="item.status !== 0"
-        :showSecondPrice="false"
-        firstPriceText="疗程券价"
-        @add="handleAddItem"
-      />
-    </el-scrollbar>
+    <template v-if="enumStore.treatmentCouponList && enumStore.treatmentCouponList.length > 0">
+      <el-scrollbar>
+        <ItemCard
+          v-for="item in enumStore.treatmentCouponList"
+          :key="item.id"
+          :data="item"
+          :config="customConfig"
+          :disabled="item.status !== 0"
+          :showSecondPrice="false"
+          firstPriceText="疗程券价"
+          @add="handleAddItem"
+        />
+      </el-scrollbar>
+    </template>
+    <template v-else>
+      <Empty></Empty>
+    </template>
   </div>
 </template>
 
@@ -27,6 +32,9 @@ import { IsDiscount } from '@/enums';
 import { useDataEnumStore } from '@/store/modules/enums/index';
 import { useOrderStore } from '@/store/modules/order/index';
 import { cloneDeep } from 'lodash';
+
+const emit = defineEmits(['addItem']);
+
 const enumStore = useDataEnumStore();
 const orderStore = useOrderStore();
 
@@ -45,7 +53,8 @@ const handleAddItem = (item: any) => {
   item.truePrice = item.price;
 
   delete item.id;
-  orderStore.addOrderItem(item);
+  // orderStore.addOrderItem(item);
+  emit('addItem', item);
 };
 
 const customConfig = ref({
