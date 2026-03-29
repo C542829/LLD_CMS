@@ -6,6 +6,8 @@
         <el-button type="success" @click="getBedList">刷新状态</el-button>
       </div>
     </div>
+
+    <!-- 床位列表 -->
     <div v-loading="settingStore.loading" :element-loading-text="settingStore.loadingMsg" class="bed-status-content">
       <div v-for="item in bedList" :key="item.id" class="bed-card-box">
         <div class="bed-card">
@@ -34,55 +36,57 @@
           </div>
 
           <!-- 服务状态 -->
-          <el-tooltip v-if="item.status === 1" placement="bottom" effect="light">
-            <template #content>
-              <!-- <BillSummary /> -->
-            </template>
-            <div class="card-bottom bed-status-svr">
-              <div class="card-info">
-                <div class="card-info-left">
-                  <span>即将上钟：</span>
-                </div>
-                <div class="card-progress">
-                  <el-progress type="circle" :percentage="percentage2" :color="colors" :striped-flow="true" :width="71">
-                    <template #default>
-                      <span style="color: #fff">140分钟</span>
-                    </template>
-                  </el-progress>
-                </div>
+          <!-- <el-tooltip v-if="item.status === 1" placement="bottom" effect="light"> -->
+          <!-- <template #content> -->
+          <!-- <BillSummary /> -->
+          <!-- </template> -->
+          <div v-if="item.status === 1" class="card-bottom bed-status-svr">
+            <div class="card-info">
+              <div class="card-info-left">
+                <span>即将上钟：</span>
               </div>
-              <div class="card-option">
-                <el-button @click="showDialog(item)" type="primary" plain size="small">账单</el-button>
-                <el-button @click="checkout(item, CashierRouteSign.Settle)" type="primary" plain size="small">
-                  去结账
-                </el-button>
+              <div class="card-progress">
+                <Progress :bed="item"></Progress>
               </div>
             </div>
-          </el-tooltip>
+            <div class="card-option">
+              <el-button @click="showDrawer(item)" type="primary" plain size="small">账单</el-button>
+              <!-- <el-button @click="showDrawer(item)" type="primary" plain size="small">上钟</el-button> -->
+              <el-button @click="checkout(item, CashierRouteSign.Settle)" type="primary" plain size="small">
+                去结账
+              </el-button>
+            </div>
+          </div>
+          <!-- </el-tooltip> -->
         </div>
       </div>
     </div>
 
-    <Drawer v-model="dialog.visible" :title="dialog.title" @closed="closeDrawer" size="550px" style="max-width: 600px">
-      <CreateOrder :type="dialog.type" @close="closeDrawer" @refresh="getBedList" @checkout="checkout"></CreateOrder>
-    </Drawer>
+    <CreateOrder
+      v-model="drawer.visible"
+      :type="drawer.type"
+      :params="drawer.params"
+      @close="closeDrawer"
+      @refresh="getBedList"
+      @checkout="checkout"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { BedStatus, BedStatusMap, CashierRouteSign } from '@/enums/index';
-
 import BillSummary from './OrderSummary.vue';
 import ModifyBed from './ModifyBed.vue';
 import CreateOrder from './CreateOrder.vue';
+import Progress from './components/Progress.vue';
 
+import { ref, reactive, onMounted, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { BedStatus, BedStatusMap, CashierRouteSign } from '@/enums/index';
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useDataEnumStore } from '@/store/modules/enums/index';
 import { useOrderStore } from '@/store/modules/order/index';
-import { reqQueryOrderByBedId } from '@/api/order';
+
 const settingStore = useSettingStore();
 const dataEnumStore = useDataEnumStore();
 const orderStore = useOrderStore();
@@ -99,10 +103,13 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-  clearTimeout(timer);
+  clearInterval(timer);
 });
 
+// 床列表
 const bedList: any = ref([]);
+
+/** 获取床列表 */
 const getBedList = async () => {
   settingStore.loading = true;
   bedList.value = await dataEnumStore.getAllBedList();
@@ -124,44 +131,28 @@ const checkout = (data: any, sign: CashierRouteSign) => {
   });
 };
 
-const createOrder = (item: any) => {
-  orderStore.orderForm.bedId = item.id;
-  orderStore.orderForm.bedName = item.bedName;
-};
-const previewOrder = async (item: any) => {
-  try {
-    const res = await reqQueryOrderByBedId(item.id);
-    orderStore.orderForm = res.data;
-  } catch (error) {}
-  // const order = await orderStore.getOrder(item.id);
-  // console.log('预览订单:', order);
-};
-
-// 模态框
-const dialog: any = reactive({
-  title: '开单',
+// 抽屉参数
+const drawer: any = reactive({
   type: 'add',
   visible: false,
+  params: {},
 });
 
-const showDialog = (item: any) => {
-  orderStore.initServiceMap();
-
+// 显示抽屉
+const showDrawer = (item: any) => {
   if (item.status === BedStatus.Available) {
-    dialog.title = '开单';
-    dialog.type = 'add';
-    createOrder(item);
+    drawer.type = 'add';
+    drawer.params = item;
   } else if (item.status === BedStatus.Occupied) {
-    dialog.title = '账单';
-    dialog.type = 'view';
-    previewOrder(item);
+    drawer.type = 'view';
+    drawer.params = item;
   }
-  dialog.visible = true;
+  drawer.visible = true;
 };
 
+/** 关闭抽屉 */
 const closeDrawer = () => {
-  dialog.visible = false;
-  getBedList();
+  drawer.visible = false;
   orderStore.reset();
 };
 
@@ -186,7 +177,7 @@ const calcPercentage = (total: number, current: number) => {
   return (current / total) * 100;
 };
 
-const percentage2 = ref(calcPercentage(140, 0));
+const percentage2 = ref(calcPercentage(140, 60));
 
 const colors = [
   { color: '#e74c3c', percentage: 100 },

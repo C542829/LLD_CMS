@@ -178,14 +178,13 @@ const handleSubmit = () => {
   formRef.value &&
     formRef.value.validate((valid) => {
       if (valid) {
-        console.log('提交开单明细:', orderStore.detailForm);
+        // console.log('提交开单明细:', orderStore.detailForm);
         // 调用添加开单明细方法
-        const result =
-          props.handleType === 'add'
-            ? orderStore.addOrderDetail(orderStore.detailForm)
-            : orderStore.updateOrderDetail(orderStore.detailForm);
-
-        result && closeDialog();
+        // const result =
+        //   props.handleType === 'add'
+        //     ? orderStore.addOrderDetail(orderStore.detailForm)
+        //     : orderStore.updateOrderDetail(orderStore.detailForm);
+        // result && closeDialog();
       }
     });
 };
@@ -195,7 +194,7 @@ const closeDialog = () => {
 };
 
 const changeDetailType = () => {
-  orderStore.detailForm.bid = '';
+  // orderStore.detailForm.bid = '';
 };
 
 const formRef = ref<FormInstance | null>(null);
