@@ -1,16 +1,17 @@
 <template>
   <div class="login-container">
     <!-- 登录的表单 -->
-    <el-form class="login-form" :model="loginForm" :rules="rules" ref="loginForms">
-      <h1>Hello</h1>
-      <h2>欢迎来到刘丽德健康管理后台</h2>
+    <el-form class="login-form" :model="loginForm" :rules="rules" ref="loginForms" label-position="top">
+      <h1>刘丽德健康管理运营系统</h1>
+      <h2>请输入您的门店账号信息登录</h2>
+      <!-- <h2>刘丽德健康管理后台</h2> -->
       <!-- <el-form-item prop="orgCode" class="form-item">
         <el-input :prefix-icon="HomeFilled" v-model="loginForm.orgCode"></el-input>
       </el-form-item> -->
-      <el-form-item prop="username" class="form-item">
+      <el-form-item prop="username" label="账号" class="form-item">
         <el-input :prefix-icon="User" v-model="loginForm.username"></el-input>
       </el-form-item>
-      <el-form-item prop="password" class="form-item">
+      <el-form-item prop="password" label="密码" class="form-item">
         <el-input :prefix-icon="Lock" type="password" v-model="loginForm.password" show-password></el-input>
       </el-form-item>
       <el-form-item class="form-item">
@@ -74,8 +75,8 @@ const login = async () => {
 // 定义表单校验需要配置对象
 const rules = {
   // orgCode: [{ required: true, message: '请输入门店编码', trigger: 'blur' }],
-  username: [{ required: true, min: 6, max: 20, message: '账号长度6-20位', trigger: 'blur' }],
-  password: [{ required: true, min: 6, max: 20, message: '密码长度6-20位', trigger: 'blur' }],
+  username: [{ required: true, min: 3, max: 20, message: '账号长度3-20位', trigger: 'blur' }],
+  password: [{ required: true, min: 3, max: 20, message: '密码长度3-20位', trigger: 'blur' }],
 };
 </script>
 
@@ -86,28 +87,42 @@ const rules = {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: var(--el-text-color-primary);
+  // background-color: var(--el-text-color-primary);
+  background-color: var(--el-color-primary-light-5);
 
   .login-form {
-    padding: 40px;
+    padding: 30px;
     width: 360px;
     border-radius: 20px;
     border: 1px solid #fff;
     transform: translateY(-30px);
-
+    background: var(--el-bg-color);
+    transition: 0.5s ease;
+    &:hover {
+      border: 1px solid var(--el-color-primary);
+      box-shadow: 0 4px 10px 4px var(--el-color-primary-light-3);
+      // box-shadow: var(--el-box-shadow);
+    }
     h1 {
-      color: white;
-      font-size: 40px;
+      // color: white;
+      color: var(--el-color-primary);
+      font-weight: 600;
+      font-size: 24px;
+      text-align: center;
+      // font-size: 40px;
     }
 
     h2 {
-      font-size: 16px;
-      color: white;
-      margin: 20px 0px 30px 0px;
+      text-align: center;
+      font-size: 14px;
+      // color: white;
+      color: var(--el-color-primary);
+      // margin: 20px 0px 30px 0px;
+      margin: 16px 0px;
     }
 
     .form-item {
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
 
     .login-btn {
