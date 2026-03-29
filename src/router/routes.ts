@@ -46,6 +46,18 @@ export const constantRoute = [
   },
 ];
 
+// 任意路由
+export const anyRoute = {
+  path: '/:pathMatch(.*)*',
+  redirect: '/404',
+  name: 'Any',
+  meta: {
+    title: '任意路由',
+    hidden: true,
+    icon: 'DataLine',
+  },
+};
+
 // 异步路由
 export const asyncRoute = [
   // 默认首页
@@ -343,15 +355,3 @@ export const asyncRoute = [
     ],
   },
 ];
-
-// 任意路由
-export const anyRoute = {
-  path: '/:pathMatch(.*)*',
-  redirect: '/404',
-  name: 'Any',
-  meta: {
-    title: '任意路由',
-    hidden: true,
-    icon: 'DataLine',
-  },
-};

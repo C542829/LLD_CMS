@@ -16,4 +16,10 @@ const router = createRouter({
   },
 });
 
+export function addRouter(routes: RouteItem[]) {
+  routes.forEach((route: any) => {
+    router.addRoute(route);
+  });
+}
+
 export default router;
