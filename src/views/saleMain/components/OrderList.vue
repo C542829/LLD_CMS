@@ -234,6 +234,16 @@ const handleSettle = () => {
   if (orderStore.order.customerType === CustomerType.Member) {
     let truePayAmount = orderStore.truePayAmount;
 
+    if (orderStore.order.ticketUseList && truePayAmount === 0) {
+      orderStore.order.paymentInfoList.push({
+        paymentType: PaymentType.WeChat,
+        paymentName: paymentTypeMap[PaymentType.WeChat],
+        paymentAmount: orderStore.truePayAmount,
+        assetCode: '',
+      });
+      settleDialogVisible.value = true;
+      return;
+    }
     // if (orderStore.checkedAssetInfo.assetIds.length === 0 && truePayAmount > 0) {
     //   Message.warning('会员存在不同类型的资产记录，请您选择至少一个条资产记录，进行结算');
     //   return;

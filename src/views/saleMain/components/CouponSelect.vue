@@ -42,6 +42,12 @@ const filter = (item: any) => {
     return false;
   }
 
+  // 过期时间过滤
+  if (item.expiryDate && item.expiryDate !== -1) {
+    const expiryDate = new Date(item.expiryDate);
+    return expiryDate > new Date();
+  }
+
   // 如果是服务项目，判断是否包含在优惠券的服务项目中
   if (props.detailItem.detailType === OrderDetailType.Service) {
     const ids = item.ticketInfo.serverItems.map((item: any) => item.id);
@@ -59,9 +65,7 @@ const coupons = computed(() => {
     if (!store.member.vipTicketVOList || store.member.vipTicketVOList.length === 0) {
       return [];
     }
-    return store.member.vipTicketVOList.filter((item: any) => {
-      return filter(item);
-    });
+    return store.member.vipTicketVOList.filter(filter);
   }
 });
 

@@ -51,30 +51,6 @@ const coupons = computed(() => {
   }
 });
 
-/** 判断优惠券是否已选中 */
-const couponActive = (item: any) => {
-  if (Array.isArray(store.order.ticketUseList)) {
-    return false;
-  }
-  return store.order.ticketUseList.some((useItem: any) => useItem.ticketId === item.id);
-};
-
-/** 代金券列表 */
-const vouchers = computed(() => {
-  if (!store.member.vipTicketVOList || store.member.vipTicketVOList.length === 0) {
-    return [];
-  }
-  if (tabSwitch.value === 0) {
-    return store.member.vipTicketVOList.filter((item: any) => {
-      return item.ticketInfo.ticketType === CouponType.voucher;
-    });
-  } else {
-    return store.member.vipTicketVOList.filter((item: any) => {
-      return item.ticketInfo.ticketType === CouponType.experience;
-    });
-  }
-});
-
 let currentCoupon: any | null = null;
 
 /** 选择优惠券 */
