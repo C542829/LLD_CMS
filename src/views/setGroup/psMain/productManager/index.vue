@@ -44,7 +44,11 @@
       >
         <el-table-column prop="productName" label="产品" />
         <el-table-column prop="productEncode" label="编码" />
-        <el-table-column prop="quantity" label="库存" />
+        <el-table-column prop="quantity" label="库存">
+          <template #default="{ row }">
+            <el-tag :type="parseInt(row.quantity!) <= 10 ? 'danger' : 'primary'">{{ row.quantity }}</el-tag>
+          </template>
+        </el-table-column>
         <el-table-column prop="unit" label="单位/规格" :formatter="unitFormatter" width="90" />
         <el-table-column prop="productPrice" label="标准价(元)" />
         <el-table-column prop="vipProductPrice" label="会员价(元)" />

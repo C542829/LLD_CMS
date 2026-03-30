@@ -1,14 +1,13 @@
 import { defineStore } from 'pinia';
 import { reactive, ref } from 'vue';
 import {
+  type Types,
   reqProductList,
   reqProductInfo,
   reqAddProduct,
   reqUpdateProduct,
   reqUpdateStatus,
 } from '@/api/setGroup/product';
-
-import { Product } from '@/api/setGroup/product/type';
 
 import { parseResMsg, parseResList, parseResObj } from '@/utils/parseResponse';
 
@@ -23,7 +22,7 @@ export const useProductStore = defineStore('Product', () => {
    * @returns 产品详情
    */
   const getProductInfo = async (id: number) => {
-    const res = await reqProductInfo({ id });
+    const res = await reqProductInfo(id);
     const result = parseResObj(res);
     return result;
   };
@@ -48,7 +47,7 @@ export const useProductStore = defineStore('Product', () => {
   /**
    * 数据列表
    */
-  const tableData = ref<Product[]>([]);
+  const tableData = ref<Types.ProductInfoVO[]>([]);
 
   /**
    * 刷新数据列表
@@ -91,7 +90,7 @@ export const useProductStore = defineStore('Product', () => {
   };
 
   // 表单数据
-  const formData = ref<Product>({} as Product);
+  const formData = ref<Types.ProductDTO>({} as Types.ProductDTO);
 
   // 重置表单数据模型
   const resetFormData = () => {

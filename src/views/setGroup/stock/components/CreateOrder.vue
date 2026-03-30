@@ -6,7 +6,7 @@
         <div
           v-for="item in productList"
           @click="addItem(item)"
-          :type="item.quantity == 0 ? 'danger' : 'primary'"
+          :type="parseInt(item.quantity!) < 10 ? 'danger' : 'primary'"
           :key="item.productId"
           class="product-card"
         >
