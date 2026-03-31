@@ -4,7 +4,6 @@
     <el-form class="login-form" :model="loginForm" :rules="rules" ref="loginForms" label-position="top">
       <h1>刘丽德健康管理运营系统</h1>
       <h2>请输入您的门店账号信息登录</h2>
-      <!-- <h2>刘丽德健康管理后台</h2> -->
       <!-- <el-form-item prop="orgCode" class="form-item">
         <el-input :prefix-icon="HomeFilled" v-model="loginForm.orgCode"></el-input>
       </el-form-item> -->
@@ -25,14 +24,13 @@
 </template>
 
 <script setup lang="ts">
-import { User, Lock, HomeFilled } from '@element-plus/icons-vue';
+import { User, Lock } from '@element-plus/icons-vue';
 import { reactive, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { reqLogin } from '@/api/user/index';
 import useUserStore from '@/store/modules/acl/user';
-import { useSettingStore } from '@/store/modules/acl/setting';
 
 const store = useUserStore();
-const settingStore = useSettingStore();
 
 // 获取el-form组件
 const loginForms = ref();
@@ -42,8 +40,8 @@ const router = useRouter();
 const route = useRoute();
 
 // 收集账号与密码的数据
-// const loginForm = reactive({ orgCode: '1', username: 'N15572555269', password: '123456' });
-const loginForm = reactive({ username: 'N15572555269', password: '123456' });
+// const loginForm = reactive({ orgCode: '1', username: '', password: '' });
+const loginForm = reactive({ username: '', password: '' });
 
 // 登录加载状态
 const loading = ref(false);
