@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia';
+import { isEmpty } from 'lodash';
 // 引入接口
 import { reqLogin, reqUserInfo, reqLogout, reqUpdate } from '@/api/user';
+import { reqListOne } from '@/api/acl/org/index';
 // 引入操作本地存储的工具方法
 import {
   setUserInfo,
@@ -27,10 +29,8 @@ import router from '@/router';
 import { parseResObj } from '@/utils/parseResponse';
 
 import { usePermissionStore } from '@/store/modules/acl/permission';
-import { useOrgStore } from '@/store/modules/acl/org';
 import { useDataEnumStore } from '@/store/modules/enums/index';
 import { useDynamicDataStore } from '@/store/modules/enums/dynamicData';
-import { isEmpty } from 'lodash';
 
 // 用于过滤当前用户需要展示的异步路由
 function filterAsyncRoute(asyncRoute: any, routes: any) {
@@ -47,7 +47,8 @@ function filterAsyncRoute(asyncRoute: any, routes: any) {
 const useUserStore = defineStore('User', {
   state: () => {
     return {
-      user: <any>{},
+      user: <UserInfo>{},
+      org: <OrgInfo>{},
       userId: 0,
       username: '',
       nickname: '',
@@ -61,26 +62,26 @@ const useUserStore = defineStore('User', {
   actions: {
     // 登录
     async login(data: any) {
-      const res: any = await reqLogin(data);
-      const isSuccess = res.code === ResponseCode.SUCCESS;
-      if (isSuccess) {
+      try {
+        const res = await reqLogin(data);
+        console.log('登录成功：', res);
         const result = res.data;
-        this.setUserInfo(result);
-        setToken(this.token);
+        this.setStoreUserInfo(result);
         setUserInfo(result);
+        setToken(this.token);
         this.userInfo();
-        this.storageOrgInfo();
-      } else {
-        $Message.error(res.message);
+        return true;
+      } catch (error) {
+        return false;
       }
-      return isSuccess;
     },
 
-    setUserInfo(user: any) {
+    setStoreUserInfo(user: any) {
       this.userId = user.userId;
       this.nickname = user.userName;
       this.username = user.userCode;
       this.token = `Bearer ${user.token}`;
+      this.user = user;
     },
 
     // 获取用户信息
@@ -89,9 +90,15 @@ const useUserStore = defineStore('User', {
         const permStore = usePermissionStore();
         const user = getUserInfo();
         if (isEmpty(user)) {
+          this.clearUserInfo();
           return;
         }
-        this.setUserInfo(user);
+        // 同步用户信息
+        this.setStoreUserInfo(user);
+        // 获取门店信息
+        this.storageOrgInfo(user.orgId);
+        // 获取用户信息
+        this.storageUserInfo(user.userId);
 
         // this.buttons = result.data.buttons;
         if (this.menuRoutes.length === 0) {
@@ -120,10 +127,25 @@ const useUserStore = defineStore('User', {
       }
     },
 
-    async storageOrgInfo() {
-      const orgStore = useOrgStore();
-      const org = await orgStore.getOrg();
-      setOrgInfo(org);
+    /** 存储门店信息 */
+    async storageOrgInfo(orgId: number) {
+      try {
+        const res = await reqListOne(orgId);
+        const orgInfo = res.data;
+        orgInfo.orgArea && (orgInfo.orgArea = JSON.parse(orgInfo.orgArea as string));
+        this.org = orgInfo;
+        setOrgInfo(orgInfo);
+      } catch (error) {}
+    },
+
+    /** 存储当前用户信息 */
+    async storageUserInfo(userId: number) {
+      try {
+        const res = await reqUserInfo(userId);
+        const userInfo = res.data;
+        this.user = { ...this.user, ...userInfo };
+        // setUserInfo(userInfo);
+      } catch (error) {}
     },
 
     // 退出登录
@@ -140,6 +162,8 @@ const useUserStore = defineStore('User', {
     },
 
     clearUserInfo() {
+      this.user = {};
+      this.org = {};
       this.token = '';
       this.username = '';
       this.nickname = '';
