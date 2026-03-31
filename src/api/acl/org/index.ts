@@ -1,5 +1,6 @@
 import { get, post, put } from '@/utils/request';
 import { setStoreOrgInfo } from '@/store/index';
+import { setOrgInfo } from '@/utils/localStorageTools';
 import * as Types from './types';
 
 // 导出类型
@@ -87,13 +88,16 @@ export const reqSetPrintWidth = (data: { id: number; printWidth: number }): ApiR
  * 初始化门店详情
  * @param id 门店id
  */
-export const getOrgInfo = async (id: number) => {
+export const storageOrgInfo = async (id: number) => {
   try {
     const res = await reqListOne(id);
     const orgInfo = res.data;
     orgInfo.orgArea && (orgInfo.orgArea = JSON.parse(orgInfo.orgArea as string));
     setStoreOrgInfo(orgInfo);
+    setOrgInfo(orgInfo);
+    return orgInfo;
   } catch (error) {
     console.error(`获取门店信息报错：${error}`);
   }
+  return null;
 };
