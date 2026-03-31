@@ -79,15 +79,15 @@ request.interceptors.response.use(
       return apiData;
     }
 
+    // 业务正常，正常返回响应数据
+    if (code === ResponseCode.SUCCESS) {
+      return apiData;
+    }
+
     // 如果没有 code, 代表这不是项目后端开发的 api
     if (code === undefined) {
       Message.error('服务器开小差！');
       return Promise.reject(apiData);
-    }
-
-    // 业务正常，正常返回响应数据
-    if (code === ResponseCode.SUCCESS) {
-      return apiData;
     }
 
     // 业务异常，处理错误信息
@@ -126,7 +126,7 @@ const errorCodeMsg = (apiData: ApiResponseData<any>) => {
   switch (apiData.code) {
     // 业务失败
     case ResponseCode.FAIL:
-      Message.error(apiData.message || '服务器开小差！');
+      Message.error(apiData.message || '操作失败');
       break;
     // 用户未登录
     case ResponseCode.UNAUTHORIZED:
