@@ -22,7 +22,7 @@ const originalNavList = ref([
 const navList: any = ref([]);
 
 const userStore = useUserStore();
-userStore.tabs.push('库存概览');
+// userStore.tabs.push('库存概览');
 for (const item of originalNavList.value) {
   if (userStore.tabs.includes(item.label)) {
     navList.value.push(item);
