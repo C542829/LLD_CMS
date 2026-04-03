@@ -1,4 +1,7 @@
 import { get, post, put } from '@/utils/request';
+import * as Types from './types';
+
+export { Types };
 
 //枚举地址
 enum API {
@@ -14,6 +17,19 @@ enum API {
 }
 
 export const reqList = (params: any) => get(API.LIST_URL, params);
+
+/**
+ * 获取角色列表
+ * @param params 查询参数
+ * @returns
+ */
+export const reqRoleList = (
+  params: Types.SearchRoleParams = {
+    roleName: '',
+    roleCode: '',
+    status: 0,
+  },
+): ApiResponse<Types.RoleInfoVo[]> => get(API.LIST_URL, params);
 
 export const reqAdd = (params: any) => post(API.ADD_URL, params);
 

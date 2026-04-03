@@ -205,7 +205,7 @@ const assignPermissions = async () => {
   // 提交请求
   const result = await store.addPerm(params);
   settingStore.loading = false;
-  result && window.location.reload();
+  // result && window.location.reload();
 };
 
 // 过滤树结构
