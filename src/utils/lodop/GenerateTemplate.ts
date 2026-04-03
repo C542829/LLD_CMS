@@ -29,7 +29,7 @@ export const generateOrderHtmlTemplate = (data: OrderData, width = '48mm'): stri
             <td style="width: 45%; padding-bottom: 1mm;">
             ${item.businessName} ￥${item.stdPrice.toFixed(2)}
             </td>
-            <td style="width: 20%;" align="center">${item.userName}</td>
+            <td style="width: 20%;" align="center">${item.technicians.map((e: any) => e.userName).join('、')}</td>
             <td style="width: 15%;" align="center">${item.quantity}</td>
             <td style="width: 20%;" align="center">￥${item.truePrice.toFixed(2)}</td>
           </tr>
