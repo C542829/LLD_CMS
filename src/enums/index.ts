@@ -3,6 +3,28 @@ import { ResponseCode, ResponseCodeMeaning } from '@/enums/response';
 export { ResponseCode, ResponseCodeMeaning };
 
 // #region 状态选项
+/** 角色状态码 */
+export const RoleCode = {
+  Admin: 'ADMIN',
+  SuperAdmin: 'SUPER_ADMIN',
+  AreaManager: 'AREA_MANAGER',
+  StoreManager: 'STORE_MANAGER',
+};
+
+/**
+ * 枚举编码
+ */
+export enum Enums {
+  BED_STATUS = 'bed_status',
+  UNIT = 'unit',
+  POSITION = 'position',
+  DEPARTMENT = 'department',
+  PERF_TYPE = 'item_type',
+  SERVICE_TYPE = 'service_type',
+  ITEM_CATEGORY = 'item_category',
+  PRODUCT_CATEGORY = 'product_category',
+}
+
 export enum Status {
   enabled = 0,
   disabled = 1,
@@ -64,18 +86,18 @@ export const commissionTypeOptions = [
  * 是否打折
  */
 export enum IsDiscount {
-  discount = 0,
-  noDiscount = 1,
+  Yes = 0,
+  No = 1,
 }
 
 export const IsDiscountMap = {
-  [IsDiscount.discount]: '打折',
-  [IsDiscount.noDiscount]: '不打折',
+  [IsDiscount.Yes]: '打折',
+  [IsDiscount.No]: '不打折',
 };
 
 export const IsDiscountOptions = [
-  { value: IsDiscount.discount, label: '打折' },
-  { value: IsDiscount.noDiscount, label: '不打折' },
+  { value: IsDiscount.Yes, label: '打折' },
+  { value: IsDiscount.No, label: '不打折' },
 ];
 // #endregion 是否打折
 
@@ -111,7 +133,6 @@ export const vipLevelMap = new Map(vipLevelOptions.map((item) => [item.value, it
  * 性别
  */
 export const sexOptions = [
-  { value: 2, label: '未知' },
   { value: 0, label: '男' },
   { value: 1, label: '女' },
 ];
@@ -244,6 +265,14 @@ export enum PaymentType {
   MemberCard = 3,
   BankCard = 4,
 }
+// export enum PaymentType {
+//   QR = 0,
+//   Cash = 1,
+//   POS = 2,
+//   DouYi = 3,
+//   MeiTuan = 4,
+//   MemberCard = 5,
+// }
 /**
  * 支付类型
  */
