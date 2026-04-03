@@ -142,7 +142,8 @@ export const asyncRoute = [
     children: [
       {
         path: '/staffMain',
-        component: () => import('@/views/staffMain/index.vue'),
+        component: () => import('@/views/acl/user/index.vue'),
+        // component: () => import('@/views/staffMain/index.vue'),
         name: 'StaffMain',
         meta: {
           title: '人事',
@@ -350,6 +351,15 @@ export const asyncRoute = [
         meta: {
           title: '字典管理',
           icon: 'List',
+        },
+      },
+      {
+        path: '/acl/operLog',
+        component: () => import('@/views/sys/operLog/index.vue'),
+        name: 'OperLog',
+        meta: {
+          title: '操作日志',
+          icon: 'Memo',
         },
       },
     ],
