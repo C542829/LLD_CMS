@@ -79,7 +79,8 @@ export const useOrgStore = defineStore('Org', () => {
     for (const item of data) {
       item.orgArea && (item.orgArea = JSON.parse(item.orgArea as string));
     }
-    tableData.value = data;
+
+    tableData.value = data.filter((item) => !item.orgCode.includes('Test'));
     settingStore.loading = false;
   };
 
