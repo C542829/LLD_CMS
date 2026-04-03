@@ -100,6 +100,66 @@
   justify-content: center;
 }
 
+// #region 宽度
+
+.w-50 {
+  width: 50px !important;
+}
+
+.w-60 {
+  width: 60px !important;
+}
+
+.w-80 {
+  width: 80px !important;
+}
+
+.w-90 {
+  width: 90px !important;
+}
+
+.w-100 {
+  width: 100px !important;
+}
+
+.w-120 {
+  width: 120px !important;
+}
+
+.w-130 {
+  width: 130px !important;
+}
+
+.w-140 {
+  width: 140px !important;
+}
+
+.w-150 {
+  width: 150px !important;
+}
+
+.w-160 {
+  width: 160px !important;
+}
+
+.w-180 {
+  width: 180px !important;
+}
+
+.w-200 {
+  width: 200px !important;
+}
+
+.w-220 {
+  width: 220px !important;
+}
+
+.w-240 {
+  width: 240px !important;
+}
+
+// #endregion 宽度
+
 // 间距 - 根据上下左右外边距生成5-30px的间距，每次前进5px 用for循环，生成类名m-5 m-10 ... m-30
 
 // @mixin margin($direction, $value) {
