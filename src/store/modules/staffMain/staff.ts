@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { reactive, ref } from 'vue';
-import { reqUserList, reqAddUser, reqUpdateUser, reqUserInfo } from '@/api/staffMain/staff/index';
+import { reqUserList, reqAddUser, reqUpdateUser, reqUserInfo } from '@/api/staffMain/index';
 
 import { parseResList, parseResMsg, parseResObj } from '@/utils/parseResponse';
 
@@ -53,10 +53,10 @@ export const useStaffStore = defineStore('Staff', () => {
       userPassword: '123456',
       userName: '',
       userNumber: '',
-      userPosition: '采耳师',
-      userSex: 1,
+      userPosition: '',
+      userSex: 0,
       userBirthday: '',
-      userDept: '管理部',
+      userDept: '',
       userEntryDate: formatDate(new Date()),
       userStatus: '在职',
       userIdCard: '',
@@ -64,7 +64,7 @@ export const useStaffStore = defineStore('Staff', () => {
       userMarry: '未知',
       userEdu: '未知',
       userHealth: '',
-      roleId: 3,
+      roleId: null,
     };
   };
 

@@ -1,4 +1,5 @@
 import { get, post, put } from '@/utils/request';
+import * as Types from './types';
 
 enum API {
   LIST_URL = '/system/user/query-list',
@@ -9,9 +10,10 @@ enum API {
   ALLOCATE_ROLE_URL = '/system/user/allocate-role',
 }
 
-export const reqUserList = (params = {}) => get(API.LIST_URL, params);
+export const reqUserList = (params: Types.SearchUserParams): ApiResponse<PageListInfo<Types.UserInfoVO[]>> =>
+  get(API.LIST_URL, params, { addOrgId: true });
 
-export const reqUserInfo = (id: number) => get(API.INFO_URL, { id });
+export const reqUserInfo = (id: number): ApiResponse<Types.UserInfoVO> => get(API.INFO_URL, { id });
 
 export const reqAddUser = (data = {}) => post(API.ADD_URL, data);
 

@@ -31,7 +31,7 @@
           <label>
             <span>角色：</span>
             <el-select v-model="store.search.roleId" @change="search" @clear="search" clearable style="width: 120px">
-              <el-option v-for="item in roleList" :label="item.roleName" :value="item.id" :key="item.id" />
+              <el-option v-for="item in roles" :label="item.roleName" :value="item.id" :key="item.id" />
             </el-select>
           </label>
         </div>
@@ -98,27 +98,24 @@
 
 <script setup lang="ts">
 import { Search } from '@element-plus/icons-vue';
-import { ref, onMounted, reactive } from 'vue';
+import { ref, onMounted, reactive, computed } from 'vue';
 import StaffForm from './form.vue';
 
 // 导入枚举数据
-import { searchEmployedOptions } from '@/enums/index';
+import { RoleCode, searchEmployedOptions } from '@/enums/index';
 import { sexMap } from '@/utils/formatter';
 
 // 引入数据仓库
 import { useStaffStore } from '@/store/modules/staffMain/staff';
 import { useSettingStore } from '@/store/modules/acl/setting';
-import { useRoleStore } from '@/store/modules/acl/role';
+import { reqRoleList, Types } from '@/api/acl/role';
 const store = useStaffStore();
 const settingStore = useSettingStore();
-const roleStore = useRoleStore();
-
-const roleList = ref<any>([]);
 
 // 初始化
 onMounted(async () => {
   search();
-  roleList.value = (await roleStore.getRoleList()).slice(1);
+  getRoleList();
 });
 
 // 搜索
@@ -165,6 +162,31 @@ const handleDrawerClose = () => {
 const getRowClassName = ({ row }: { row: { userStatus: string } }) => {
   return row.userStatus === '离职' ? 'disabled-row' : '';
 };
+
+//#region 角色列表
+
+// 过滤角色列表
+const roleCodes = [RoleCode.Admin, RoleCode.SuperAdmin, RoleCode.AreaManager];
+/** 角色列表 */
+const roleList = ref<Types.RoleInfoVo[]>([]);
+/** 过滤后的角色列表 */
+const roles = computed(() => {
+  return roleList.value.filter((item: Types.RoleInfoVo) => {
+    return !roleCodes.includes(item.roleCode || '');
+  });
+});
+
+/** 获取角色列表 */
+const getRoleList = async () => {
+  try {
+    const res = await reqRoleList();
+    roleList.value = res.data;
+  } catch (error) {
+    console.error('获取角色列表失败：', error);
+  }
+};
+
+//#endregion 角色列表
 </script>
 
 <style scoped lang="scss">

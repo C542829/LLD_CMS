@@ -3,13 +3,19 @@ import { setStoreUserInfo } from '@/store/index';
 import { setUserInfo } from '@/utils/localStorageTools';
 import * as Types from './types';
 
+export { Types };
+
 // 项目用户相关的请求地址
 enum API {
+  LIST_URL = '/system/user/query-list',
   LOGIN_URL = '/auth/login',
   USERINFO_URL = '/system/user/query-info',
   LOGOUT_URL = '/auth/logout',
-  UPDATE_URL = '/system/user/update-user',
   UPDATE_PWD_URL = '/system/user/update-pwd',
+  ADD_URL = '/system/user/add-user',
+  UPDATE_URL = '/system/user/update-user',
+  ROLE_LIST_URL = '/system/user/query-role-list',
+  ALLOCATE_ROLE_URL = '/system/user/allocate-role',
 }
 
 /**
@@ -21,10 +27,22 @@ export const reqLogin = (data: Types.LoginForm): ApiResponse<Types.LoginResponse
   post(API.LOGIN_URL, data, { form_urlencoded: true });
 
 /**
+ * 获取用户列表
+ * @param params
+ * @returns
+ */
+export const reqUserList = (params: Types.SearchUserParams): ApiResponse<PageListInfo<UserInfo[]>> =>
+  get(API.LIST_URL, params, {
+    paramsSerializer: (params: any) => {
+      return new URLSearchParams(params).toString();
+    },
+  });
+
+/**
  * 获取用户信息
  * @returns 用户信息
  */
-export const reqUserInfo = (id: number): ApiResponse<Types.UserInfoVO> => get(API.USERINFO_URL, { id });
+export const reqUserInfo = (id: number): ApiResponse<UserInfo> => get(API.USERINFO_URL, { id });
 
 /**
  * 退出登录
@@ -45,6 +63,24 @@ export const reqUpdate = (data: any) => put(API.UPDATE_URL, data);
  * @returns 更新密码结果
  */
 export const reqUpdatePwd = (data: any) => post(API.UPDATE_PWD_URL, data);
+
+/**
+ * 添加用户信息
+ * @param data 用户信息参数
+ * @returns 用户信息结果
+ */
+export const reqAddUser = (data: Types.UserDTO): ApiResponse<any> => post(API.ADD_URL, data);
+
+/**
+ * 更新用户信息
+ * @param data 更新用户信息参数
+ * @returns 更新用户信息结果
+ */
+export const reqUpdateUser = (data: Types.UserDTO): ApiResponse<any> => put(API.UPDATE_URL, data);
+
+export const reqUserRoleList = (userId: number) => get(API.ROLE_LIST_URL, { userId });
+
+export const reqAllocateUserRole = (data = {}) => post(API.ALLOCATE_ROLE_URL, data);
 
 /**
  * 初始化当前登录用户信息

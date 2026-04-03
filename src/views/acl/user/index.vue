@@ -3,14 +3,14 @@
     <!-- 数据筛选 -->
     <Card class="operation-card">
       <div class="search-container">
-        <el-button type="primary" @click="showDrawer(0)">添加人员</el-button>
+        <el-button type="primary" @click="showDrawer('add')">添加人员</el-button>
       </div>
       <div class="search-container">
         <!-- 人员在职状态 -->
         <div class="search-item">
           <label>
             <span>在职状态：</span>
-            <el-select v-model="store.search.userStatus" @change="search" style="width: 120px">
+            <el-select v-model="searchParams.userStatus" clearable @change="search" style="width: 120px">
               <el-option
                 v-for="item in searchEmployedOptions"
                 :key="item.value"
@@ -24,15 +24,15 @@
         <div class="search-item">
           <label>
             <span>角色：</span>
-            <el-select v-model="store.search.roleId" @change="search" style="width: 120px">
-              <el-option v-for="item in roleList" :label="item.roleName" :value="item.id" :key="item.id" />
+            <el-select v-model="searchParams.roleId" clearable @change="search" style="width: 120px">
+              <el-option v-for="item in roles" :label="item.roleName" :value="item.id" :key="item.id" />
             </el-select>
           </label>
         </div>
         <!-- 搜索 -->
         <div class="search-item">
           <el-input
-            v-model="store.search.userName"
+            v-model="searchParams.userName"
             @keydown.enter="search"
             @clear="search"
             :prefix-icon="Search"
@@ -45,17 +45,22 @@
             </template>
           </el-input>
         </div>
+
+        <!-- 搜索 -->
+        <div class="search-item">
+          <el-button type="info" @click="resetSearchParams">重置</el-button>
+        </div>
       </div>
     </Card>
 
     <!-- 数据列表 -->
     <Card padding="0">
       <PaginationTable
-        v-loading="settingStore.loading && !drawer.visible"
-        :data="store.tableData.list"
-        :total="store.tableData.total"
-        v-model:currentPage="store.search.pageNum"
-        v-model:pageSize="store.search.pageSize"
+        v-loading="loading"
+        :data="tableData.list"
+        :total="tableData.total"
+        v-model:currentPage="searchParams.pageNum"
+        v-model:pageSize="searchParams.pageSize"
         @size-change="handleSizeChange"
         @pagination-current-change="handleCurrentChange"
         :row-class-name="getRowClassName"
@@ -71,8 +76,8 @@
         <el-table-column prop="userStatus" label="在职状态" width="90" />
         <el-table-column label="操作" min-width="120">
           <template #default="{ row }">
-            <el-button link type="info" @click="showDrawer(2, row)">更多</el-button>
-            <el-button link type="primary" @click="showDrawer(1, row)">编辑</el-button>
+            <el-button link type="info" @click="showDrawer('view', row)">更多</el-button>
+            <el-button link type="primary" @click="showDrawer('edit', row)">编辑</el-button>
           </template>
         </el-table-column>
       </PaginationTable>
@@ -80,87 +85,168 @@
   </div>
 
   <!-- 抽屉 -->
-  <Drawer v-model="drawer.visible" :title="drawer.title" @closed="handleDrawerClose">
-    <!-- 表单 -->
-    <StaffForm :disabled="drawer.disabled" @close-drawer="drawer.visible = false" />
-    <!-- 抽屉操作按钮 -->
-    <div v-show="drawer.disabled" class="drawer-buttons">
-      <el-button @click="drawer.visible = false">取消</el-button>
-    </div>
-  </Drawer>
+  <DrawerForm
+    v-model="drawer.visible"
+    :type="drawer.type"
+    :data="drawer.data"
+    :roleList="roles"
+    @close="handleDrawerClose"
+  ></DrawerForm>
 </template>
 
 <script setup lang="ts">
+import DrawerForm from './components/DrawerForm.vue';
 import { Search } from '@element-plus/icons-vue';
-import { ref, onMounted, reactive } from 'vue';
-import StaffForm from './form.vue';
-
-// 导入枚举数据
-import { searchEmployedOptions } from '@/enums/index';
+import { ref, onMounted, reactive, computed } from 'vue';
+import { cloneDeep, isEmpty } from 'lodash';
+import { DEFAULT_SEARCH_PARAMS, RoleCodeFilterMap } from './utils/index';
+import { RoleCode, searchEmployedOptions } from '@/enums/index';
 import { sexMap } from '@/utils/formatter';
+import { reqRoleList, Types as RoleTypes } from '@/api/acl/role';
+import { reqUserList, Types as UserTypes } from '@/api/user/index';
+import { useDataEnumStore } from '@/store/modules/enums/index';
+import useUserStore from '@/store/modules/acl/user';
 
-// 引入数据仓库
-import { useStaffStore } from '@/store/modules/staffMain/staff';
-import { useSettingStore } from '@/store/modules/acl/setting';
-import { useRoleStore } from '@/store/modules/acl/role';
-const store = useStaffStore();
-const settingStore = useSettingStore();
-const roleStore = useRoleStore();
-
-const roleList = ref<any>([]);
+const userStore = useUserStore();
+const dataEnumStore = useDataEnumStore();
 
 // 初始化
 onMounted(async () => {
+  await dataEnumStore.getOrgList();
   search();
-  roleList.value = await roleStore.getRoleList();
+  getRoleList();
+});
+
+//#region 表格
+
+const loading = ref<boolean>(false);
+/** 搜索参数 */
+const searchParams = reactive<UserTypes.SearchUserParams>(cloneDeep(DEFAULT_SEARCH_PARAMS));
+/** 重置搜索参数 */
+const resetSearchParams = () => {
+  Object.assign(searchParams, cloneDeep(DEFAULT_SEARCH_PARAMS));
+  search();
+};
+
+/**
+ * 表格数据
+ */
+const tableData = reactive<{ list: UserInfo[]; total: number }>({
+  list: [],
+  total: 0,
 });
 
 // 搜索
 const search = () => {
-  store.setTableData();
+  // if (isEmpty(searchParams.roleId)) {
+  //   searchParams.roleId = '';
+  // }
+  // if (isEmpty(searchParams.userName) || searchParams.userName == undefined) {
+  //   searchParams.userName = '';
+  // }
+  handleOrgIds();
+  setTableData();
 };
 
-// 处理分页变化
+/**
+ * 设置表格数据
+ */
+const setTableData = async () => {
+  loading.value = true;
+  try {
+    const { data } = await reqUserList(searchParams);
+    tableData.total = data.total;
+    tableData.list = data.rows;
+  } catch (error) {
+    console.error('获取操作日志失败：', error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 设置 orgIds
+const handleOrgIds = () => {
+  let orgs: any = [];
+  if (userStore.isAdmin) {
+    orgs = dataEnumStore.orgList;
+  } else {
+    orgs = userStore.user.orgs;
+  }
+
+  if (isEmpty(orgs)) {
+    orgs = [];
+  }
+
+  searchParams.orgIds = orgs.map((item: any) => item.id);
+};
+
+// 分页容量变化
 const handleSizeChange = (val: number) => {
-  store.search.pageSize = val;
+  searchParams.pageSize = val;
   search();
 };
 
+// 分页变化
 const handleCurrentChange = (val: number) => {
-  store.search.pageNum = val;
+  searchParams.pageNum = val;
   search();
-};
-
-const drawer: any = reactive({
-  title: '新增人员信息',
-  visible: false,
-  disabled: false,
-});
-
-// 抽屉标题
-const drawerTitles = ['新增人员信息', '人员信息', '修改人员信息'];
-
-// 打开抽屉
-const showDrawer = async (handleIndex: number, row: any = {}) => {
-  // 表单数据回显
-  row?.id ? (store.formData = { ...row }) : store.resetFormData();
-  drawer.title = drawerTitles[handleIndex];
-  drawer.visible = true;
-
-  // 如果点击更多 禁用表单
-  handleIndex === 2 && (drawer.disabled = true);
-};
-
-// 关闭抽屉触发
-const handleDrawerClose = () => {
-  store.resetFormData(); // 当抽屉关闭时重置表单
-  drawer.disabled = false; // 去除预览禁用
 };
 
 // 设置行样式
 const getRowClassName = ({ row }: { row: { userStatus: string } }) => {
   return row.userStatus === '离职' ? 'disabled-row' : '';
 };
+//#endregion 表格
+
+//#region 抽屉
+
+const drawer: any = reactive({
+  visible: false,
+  type: 'add',
+  data: {},
+});
+
+// 打开抽屉
+const showDrawer = async (type: DialogType, row: any = {}) => {
+  drawer.type = type;
+  drawer.visible = true;
+  drawer.data = row;
+};
+
+// 关闭抽屉触发
+const handleDrawerClose = () => {
+  if (drawer.type === 'view') {
+    return;
+  }
+  search();
+};
+
+//#endregion 抽屉
+
+//#region 角色列表
+
+/** 角色列表 */
+const roleList = ref<RoleTypes.RoleInfoVo[]>([]);
+/** 过滤后的角色列表 */
+const roles = computed(() => {
+  return roleList.value.filter((item: RoleTypes.RoleInfoVo) => {
+    const roleCode = userStore.user.role?.roleCode || RoleCode.AreaManager;
+    const roleCodes = RoleCodeFilterMap[roleCode];
+    return !roleCodes.includes(item.roleCode || '');
+  });
+});
+
+/** 获取角色列表 */
+const getRoleList = async () => {
+  try {
+    const res = await reqRoleList();
+    roleList.value = res.data;
+  } catch (error) {
+    console.error('获取角色列表失败：', error);
+  }
+};
+
+//#endregion 角色列表
 </script>
 
 <style scoped lang="scss">

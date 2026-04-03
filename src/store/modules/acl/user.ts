@@ -31,6 +31,7 @@ import { parseResObj } from '@/utils/parseResponse';
 import { usePermissionStore } from '@/store/modules/acl/permission';
 import { useDataEnumStore } from '@/store/modules/enums/index';
 import { useDynamicDataStore } from '@/store/modules/enums/dynamicData';
+import { RoleCode } from '@/enums';
 
 // 用于过滤当前用户需要展示的异步路由
 function filterAsyncRoute(asyncRoute: any, routes: any) {
@@ -104,16 +105,15 @@ const useUserStore = defineStore('User', {
         if (this.menuRoutes.length === 0) {
           const perms = await permStore.getPermTreeByUserId(this.userId);
           const routes = perms.treeMap((item) => item.component);
-          this.buttons = perms
-            .treeMap((item) => item.permCode)
-            .filter((item: string) => {
-              const btnCode = ['add', 'update', 'disabled'];
-              for (const code of btnCode) {
-                if (item.includes(code)) {
-                  return true;
-                }
-              }
-            });
+          this.buttons = perms.treeMap((item) => item.permCode);
+          // .filter((item: string) => {
+          //   const btnCode = ['add', 'update', 'disabled'];
+          //   for (const code of btnCode) {
+          //     if (item.includes(code)) {
+          //       return true;
+          //     }
+          //   }
+          // });
           this.tabs = perms.treeMap((item) => item.remark && [...item.children.map((child: any) => child.name)]).flat();
           const userAsyncRoute = filterAsyncRoute(cloneDeep(asyncRoute), routes);
           this.menuRoutes = [...constantRoute, ...userAsyncRoute, anyRoute];
@@ -170,6 +170,7 @@ const useUserStore = defineStore('User', {
       this.userId = 0;
       this.menuRoutes = [];
       this.buttons = [];
+      this.tabs = [];
       removeToken();
       removeUserInfo();
       removeOrgInfo();
@@ -199,7 +200,23 @@ const useUserStore = defineStore('User', {
       return isSuccess;
     },
   },
-  getters: {},
+  getters: {
+    isAdmin: (state) => {
+      const role = state.user?.role;
+      if (isEmpty(role)) {
+        return false;
+      }
+      const roleCodes = [RoleCode.Admin, RoleCode.SuperAdmin];
+      return roleCodes.includes(role?.roleCode || '');
+    },
+    isAreaManager: (state) => {
+      const role = state.user?.role;
+      if (isEmpty(role)) {
+        return false;
+      }
+      return role?.roleCode === RoleCode.AreaManager;
+    },
+  },
 });
 
 export default useUserStore;

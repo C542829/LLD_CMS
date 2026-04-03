@@ -10,33 +10,35 @@
     >
       <!-- 人员编号 -->
       <el-form-item label="编号" prop="userCode">
-        <el-input v-model="store.formData.userCode" placeholder="请输入编号" />
+        <el-input v-model="store.formData.userCode" clearable class="w-240" placeholder="请输入编号" />
       </el-form-item>
 
       <!-- 姓名 -->
       <el-form-item label="姓名" prop="userName">
-        <el-input v-model="store.formData.userName" placeholder="请输入姓名" />
+        <el-input v-model="store.formData.userName" clearable class="w-240" placeholder="请输入姓名" />
       </el-form-item>
 
       <!-- 手机号 -->
       <el-form-item label="手机号" prop="userNumber">
-        <el-input v-model="store.formData.userNumber" placeholder="请输入手机号" />
+        <el-input v-model="store.formData.userNumber" clearable class="w-240" placeholder="请输入手机号" />
+      </el-form-item>
+
+      <!-- 身份证号 -->
+      <el-form-item label="身份证号" prop="userIdCard">
+        <el-input v-model="store.formData.userIdCard" clearable class="w-240" placeholder="请输入身份证号" />
       </el-form-item>
 
       <!-- 分配角色 -->
       <el-form-item label="人员角色" prop="roleId">
-        <div style="width: 100%; display: flex; gap: 10px">
-          <el-select v-model="store.formData.roleId" style="width: 200px" placeholder="选择角色">
-            <el-option v-for="item in roleList" :key="item.id" :label="item.roleName" :value="item.id" />
-          </el-select>
-          <el-button link type="primary" @click="goRoleMgr">角色管理</el-button>
-        </div>
+        <el-select v-model="store.formData.roleId" class="w-120" placeholder="选择角色">
+          <el-option v-for="item in roles" :key="item.id" :label="item.roleName" :value="item.id" />
+        </el-select>
       </el-form-item>
 
       <!-- 人员职位 -->
       <el-form-item label="人员职位" prop="userPosition">
         <div style="width: 100%; display: flex; gap: 10px">
-          <el-select v-model="store.formData.userPosition" style="width: 200px" placeholder="选择职位">
+          <el-select v-model="store.formData.userPosition" class="w-120" placeholder="选择职位">
             <el-option
               v-for="item in positionList"
               :key="item.itemValue"
@@ -48,9 +50,19 @@
         </div>
       </el-form-item>
 
+      <!-- 所属部门 -->
+      <el-form-item label="所属部门" prop="userDept">
+        <div style="width: 100%; display: flex; gap: 10px">
+          <el-select v-model="store.formData.deptOptions" class="w-120" placeholder="选择职位">
+            <el-option v-for="item in deptList" :key="item.itemValue" :label="item.itemLabel" :value="item.itemValue" />
+          </el-select>
+          <div><el-button link type="primary" @click="deptMgr">部门管理</el-button></div>
+        </div>
+      </el-form-item>
+
       <!-- 性别 -->
       <el-form-item label="性别" prop="userSex">
-        <el-select v-model="store.formData.userSex" style="width: 200px" placeholder="性别">
+        <el-select v-model="store.formData.userSex" class="w-120" placeholder="性别">
           <el-option v-for="item in sexOptions" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
       </el-form-item>
@@ -62,18 +74,8 @@
           type="date"
           placeholder="选择生日"
           value-format="YYYY-MM-DD"
-          style="width: 200px"
+          class="w-240"
         />
-      </el-form-item>
-
-      <!-- 所属部门 -->
-      <el-form-item label="所属部门" prop="userDept">
-        <div style="width: 100%; display: flex; gap: 10px">
-          <el-select v-model="store.formData.deptOptions" style="width: 200px" placeholder="选择职位">
-            <el-option v-for="item in deptList" :key="item.itemValue" :label="item.itemLabel" :value="item.itemValue" />
-          </el-select>
-          <div><el-button link type="primary" @click="deptMgr">部门管理</el-button></div>
-        </div>
       </el-form-item>
 
       <!-- 入职时间 -->
@@ -83,37 +85,32 @@
           type="date"
           placeholder="选择入职时间"
           value-format="YYYY-MM-DD"
-          style="width: 200px"
+          class="w-240"
         />
       </el-form-item>
 
       <!-- 在职状态 -->
       <el-form-item label="在职状态" prop="userStatus">
-        <el-select v-model="store.formData.userStatus" style="width: 200px" placeholder="请选择在职状态">
+        <el-select v-model="store.formData.userStatus" class="w-120" placeholder="请选择在职状态">
           <el-option v-for="item in employedOptions" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
       </el-form-item>
 
-      <!-- 身份证号 -->
-      <el-form-item label="身份证号" prop="userIdCard">
-        <el-input v-model="store.formData.userIdCard" placeholder="请输入身份证号" />
-      </el-form-item>
-
       <!-- 人员地址 -->
       <el-form-item label="人员地址" prop="userAddress">
-        <el-input v-model="store.formData.userAddress" placeholder="请输入居住地址" />
+        <el-input v-model="store.formData.userAddress" clearable class="w-240" placeholder="请输入居住地址" />
       </el-form-item>
 
       <!-- 婚姻状况 -->
       <el-form-item label="婚姻状况" prop="userMarry">
-        <el-select v-model="store.formData.userMarry" style="width: 200px" placeholder="请选择婚姻状况">
+        <el-select v-model="store.formData.userMarry" class="w-120" placeholder="请选择婚姻状况">
           <el-option v-for="item in maritalStatusOptions" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
       </el-form-item>
 
       <!-- 学历状况 -->
       <el-form-item label="学历状况" prop="userEdu">
-        <el-select v-model="store.formData.userEdu" style="width: 200px" placeholder="请选择学历">
+        <el-select v-model="store.formData.userEdu" class="w-120" placeholder="请选择学历">
           <el-option v-for="item in educationOptions" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
       </el-form-item>
@@ -125,7 +122,7 @@
           type="date"
           placeholder="选择健康证到期时间"
           value-format="YYYY-MM-DD"
-          style="width: 200px"
+          class="w-240"
         />
       </el-form-item>
     </Form>
@@ -135,31 +132,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
 import EnumHandler from '@/components/EnumHandler/index.vue';
-
-// 导入枚举数据
-import { sexOptions, employedOptions, maritalStatusOptions, educationOptions } from '@/enums/index';
-
+import { ref, reactive, onMounted, computed } from 'vue';
+import { type Types, reqRoleList } from '@/api/acl/role';
+import { sexOptions, employedOptions, maritalStatusOptions, educationOptions, RoleCode } from '@/enums/index';
 // 引入数据仓库
 import { useStaffStore } from '@/store/modules/staffMain/staff';
 import { useEnumStore, Enums } from '@/store/modules/enums/index';
-import { useRoleStore } from '@/store/modules/acl/role';
-
-// 引入路由
-import { useRouter } from 'vue-router';
-const router = useRouter();
 
 const store = useStaffStore();
 const enumStore = useEnumStore();
-const roleStore = useRoleStore();
 
 const $emit = defineEmits(['close-drawer']);
 
 defineProps(['disabled']);
 
 onMounted(async () => {
-  await initEnum();
+  getRoleList();
+  initEnum();
 });
 
 // 表单提交
@@ -173,12 +163,35 @@ const handleFormReset = () => {
   store.resetFormData();
 };
 
-const roleList = ref<any>([]);
+//#region 角色列表
+
+// 过滤角色列表
+const roleCodes = [RoleCode.Admin, RoleCode.SuperAdmin, RoleCode.AreaManager];
+/** 角色列表 */
+const roleList = ref<Types.RoleInfoVo[]>([]);
+/** 过滤后的角色列表 */
+const roles = computed(() => {
+  return roleList.value.filter((item: Types.RoleInfoVo) => {
+    return !roleCodes.includes(item.roleCode || '');
+  });
+});
+
+/** 获取角色列表 */
+const getRoleList = async () => {
+  try {
+    const res = await reqRoleList();
+    roleList.value = res.data;
+  } catch (error) {
+    console.error('获取角色列表失败：', error);
+  }
+};
+
+//#endregion 角色列表
+
 const deptList = ref<any>([]);
 const positionList = ref<any>([]);
 
 const initEnum = async () => {
-  roleList.value = (await roleStore.getRoleList()).slice(1);
   deptList.value = await enumStore.getDeptList();
   positionList.value = await enumStore.getPositionList();
 };
@@ -189,10 +202,6 @@ const enumHandler = reactive({
   dictCode: '',
   defaultData: <any>[],
 });
-
-const goRoleMgr = () => {
-  router.push({ path: '/acl/role' });
-};
 
 const deptMgr = () => {
   enumHandler.title = '部门管理';
