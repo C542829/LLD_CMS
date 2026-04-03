@@ -22,21 +22,15 @@
 
 <script setup lang="ts">
 import ItemCard from './ItemCard.vue';
-
 import { ref, watch, onMounted } from 'vue';
 import { OrderDetailType } from '@/enums/index';
-import Message from '@/components/Message';
-import { type FormInstance } from 'element-plus';
 import { IsDiscount } from '@/enums';
-
 import { useDataEnumStore } from '@/store/modules/enums/index';
-import { useOrderStore } from '@/store/modules/order/index';
 import { cloneDeep } from 'lodash';
 
 const emit = defineEmits(['addItem']);
 
 const enumStore = useDataEnumStore();
-const orderStore = useOrderStore();
 
 onMounted(async () => {
   await enumStore.getTreatmentCouponList();
@@ -45,10 +39,11 @@ onMounted(async () => {
 const handleAddItem = (item: any) => {
   item = cloneDeep(item);
   item.detailType = OrderDetailType.TreatmentCoupon;
-  item.isDiscount = IsDiscount.noDiscount;
+  item.isDiscount = IsDiscount.No;
   item.quantity = 1;
   item.bid = item.id;
   item.businessName = item.name;
+  item.businessCode = item.encode;
   item.stdPrice = item.price;
   item.truePrice = item.price;
 
@@ -59,10 +54,8 @@ const handleAddItem = (item: any) => {
 
 const customConfig = ref({
   nameKey: 'name',
-  codeKey: 'remark',
+  codeKey: 'encode',
   retailPriceKey: 'price',
-  memberPriceKey: 'vipProductPrice',
-  // isDiscountKey: 'isDiscount',
 });
 </script>
 

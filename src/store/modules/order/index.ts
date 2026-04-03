@@ -1,12 +1,11 @@
-import Message from '@/components/Message';
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { cloneDeep, isEmpty } from 'lodash';
 import { mul, div, add } from '@/utils/bigMethods';
 import { useDataEnumStore } from '@/store/modules/enums/index';
-import { CustomerType, DiscountType, IsDiscount, OrderDetailType, ResponseCode } from '@/enums';
-import { type Types, reqAddOrder, reqSettleOrder } from '@/api/order/index';
-import { DEFAULT_ORDER_FORM, DEFAULT_CHECKED_ASSET_INFO, addOrderDetailItem } from './utils';
+import { CustomerType, DiscountType, IsDiscount, OrderDetailType } from '@/enums';
+import { type Types } from '@/api/order/index';
+import { DEFAULT_ORDER_FORM, DEFAULT_CHECKED_ASSET_INFO } from './utils';
 
 /**
  * 订单管理模块 - Pinia Store
@@ -164,7 +163,7 @@ export const useOrderStore = defineStore('Order', () => {
         }
 
         // 如果设置为不打折则不进行更新
-        if (curService.isDiscounts === IsDiscount.noDiscount || curService.isDiscount === IsDiscount.noDiscount) {
+        if (curService.isDiscounts === IsDiscount.No || curService.isDiscount === IsDiscount.No) {
           continue;
         }
 
@@ -193,43 +192,12 @@ export const useOrderStore = defineStore('Order', () => {
         continue;
       }
 
+      // 获取当前订单项目的原始参数
       detail.truePrice = detail.stdPrice;
     }
   };
 
   // #endregion 订单明细操作
-
-  /**
-   * 订单结算
-   */
-  const settleOrder = async () => {
-    // order.value
-    // order.value.truePayAmount =
-    order.value.assetIds = checkedAssetInfo.value.assetIds;
-    order.value.totalAmount = payAmount.value;
-    order.value.actualAmount = truePayAmount.value;
-    order.value.discountAmount = discountAmount.value;
-    console.log('结算订单:', order.value);
-    try {
-      const res: any = await reqSettleOrder(order.value);
-      // parseResObj()
-      console.log('结算订单结果：', res);
-
-      if (res.code === ResponseCode.SUCCESS) {
-        console.log('结算订单成功:', res);
-        Message.success('订单结算成功');
-        resetOrderStatus();
-        return res.data;
-      } else {
-        console.log('结算订单失败:', res);
-        Message.error(`订单结算失败：${res.message}`);
-        return {};
-      }
-    } catch (error) {
-      console.error('结算订单报错', error);
-      return {};
-    }
-  };
 
   /**
    * 重置订单状态
@@ -240,15 +208,9 @@ export const useOrderStore = defineStore('Order', () => {
     resetCheckedAssetInfo();
   };
 
-  const resetOrderStatus = () => {
-    resetOrder();
-    resetCheckedAssetInfo();
-  };
-
   return {
     order,
     resetOrder,
-    settleOrder,
     initServiceMap,
     updateOrderDetailPrice,
     resetOrderDetailPrice,

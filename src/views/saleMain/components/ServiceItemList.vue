@@ -20,17 +20,14 @@
 
 <script setup lang="ts">
 import ItemCard from './ItemCard.vue';
-import Message from '@/components/Message';
 import { OrderDetailType, ServiceType } from '@/enums/index';
 import { ref, watch, onMounted } from 'vue';
 import { useDataEnumStore } from '@/store/modules/enums/index';
-import { useOrderStore } from '@/store/modules/order/index';
 import { cloneDeep } from 'lodash';
 
 const emit = defineEmits(['addItem']);
 
 const enumStore = useDataEnumStore();
-const orderStore = useOrderStore();
 
 onMounted(async () => {
   await enumStore.getServiceItemList(true);
@@ -39,15 +36,15 @@ onMounted(async () => {
 const handleAddItem = (item: any) => {
   item = cloneDeep(item);
   item.detailType = OrderDetailType.Service;
-  item.serverType = ServiceType.Point;
+  item.serverType = ServiceType.Round;
   item.quantity = 1;
   item.bid = item.id;
   item.businessName = item.itemName;
+  item.businessCode = item.itemEncode;
   item.stdPrice = item.itemPrice;
   item.truePrice = item.itemPrice;
 
   delete item.id;
-  // orderStore.addOrderItem(item);
   emit('addItem', item);
 };
 

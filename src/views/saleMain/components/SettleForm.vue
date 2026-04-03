@@ -33,7 +33,7 @@ import PayMethod from './PayMethod.vue';
 import { ref, watch, onMounted } from 'vue';
 import { CustomerType, ResponseCode } from '@/enums/index';
 import { printer } from '@/utils/lodop';
-import { reqQueryOrder } from '@/api/order/index';
+import { type Types, reqQueryOrder, reqSettleOrder } from '@/api/order/index';
 import { isEmpty } from 'lodash';
 
 import { useOrderStore } from '@/store/modules/order/index';
@@ -66,22 +66,42 @@ const loading = ref(false);
 
 /** 结算操作 */
 const handleSubmit = async () => {
-  const payMethods = orderStore.order.paymentInfoList.filter((item: any) => item.paymentType !== '');
-  if (payMethods.length === 0) {
-    Message.warning('请选择支付方式');
-    return;
-  }
+  // const payMethods = orderStore.order.paymentInfoList.filter((item: any) => item.paymentType !== '');
+  // if (payMethods.length === 0) {
+  //   Message.warning('请选择支付方式');
+  //   return;
+  // }
 
+  settleOrder();
+};
+
+/**
+ * 订单结算
+ */
+const settleOrder = async () => {
   loading.value = true;
 
+  // 同步订单信息
+  orderStore.order.assetIds = orderStore.checkedAssetInfo.assetIds;
+  orderStore.order.totalAmount = orderStore.payAmount;
+  orderStore.order.actualAmount = orderStore.truePayAmount;
+  orderStore.order.discountAmount = orderStore.discountAmount;
+  // console.log('结算订单:', orderStore.order);
   try {
-    const order = await orderStore.settleOrder();
-    if (!isEmpty(order)) {
-      closeDialog();
-      printReceipt(order.orderCode);
-    }
+    const res = await reqSettleOrder(orderStore.order);
+    console.log('结算订单成功：', res);
+    Message.success('订单结算成功');
+
+    // 获取订单编码
+    const orderCode = res.data.orderCode;
+    //  打印小票
+    printReceipt(orderCode);
+    // 重置订单表单
+    orderStore.reset();
+    // 关闭弹窗
+    closeDialog();
   } catch (error) {
-    console.log('结算订单失败：', error);
+    console.error('结算订单报错：', error);
   } finally {
     loading.value = false;
   }

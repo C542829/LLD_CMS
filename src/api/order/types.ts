@@ -83,6 +83,10 @@ export interface OrderDetailCreateDTO {
    * 技师名称
    */
   userName?: string;
+  /**
+   * 技师列表
+   */
+  technicians?: OrderDetailTechnicianDTO[];
   [property: string]: any;
 }
 
@@ -217,6 +221,25 @@ export interface OrderDetailSettleDTO {
   userId: number;
   /**
    * 技师名称
+   */
+  userName?: string;
+  /**
+   * 技师列表
+   */
+  technicians?: OrderDetailTechnicianDTO[];
+  [property: string]: any;
+}
+
+/**
+ * org.haut.common.domain.dto.order.OrderDetailTechnicianDTO
+ */
+export interface OrderDetailTechnicianDTO {
+  /**
+   * 技师ID
+   */
+  userId: number;
+  /**
+   * 技师姓名
    */
   userName?: string;
   [property: string]: any;
@@ -479,6 +502,10 @@ export interface OrderDetailVO {
    * 员工名称
    */
   userName?: string;
+  /**
+   * 技师列表
+   */
+  technicians?: OrderDetailTechnicianDTO[];
   [property: string]: any;
 }
 

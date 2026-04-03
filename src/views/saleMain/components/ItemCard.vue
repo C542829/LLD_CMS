@@ -4,12 +4,12 @@
       <div class="title"><EllipsisText :content="getItemValue(data, config.nameKey || 'name')" /></div>
       <template v-if="config.isDiscountKey">
         <span
-          v-if="getItemValue(data, config.isDiscountKey || 'isDiscount') == IsDiscount.discount"
+          v-if="getItemValue(data, config.isDiscountKey || 'isDiscount') == IsDiscount.Yes"
           class="discount-tag discount"
         >
-          {{ IsDiscountMap[IsDiscount.discount] }}
+          {{ IsDiscountMap[IsDiscount.Yes] }}
         </span>
-        <span v-else class="discount-tag not-discount">{{ IsDiscountMap[IsDiscount.noDiscount] }}</span>
+        <span v-else class="discount-tag not-discount">{{ IsDiscountMap[IsDiscount.No] }}</span>
       </template>
     </div>
     <div class="item sub-title"><EllipsisText :content="getItemValue(data, config.codeKey || 'code')" /></div>

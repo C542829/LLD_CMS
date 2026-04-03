@@ -5,6 +5,7 @@
       <div class="order-count">账单明细({{ orderStore.orderCount }})</div>
       <div class="operation-btns">
         <el-button type="primary" link size="large" @click="handleCleanOrder">清空</el-button>
+        <!-- <el-button type="warning" link size="large" @click="handleApplyModifyAuth">申请改价</el-button> -->
         <EditDiscountPrice @confirm="handleDiscountConfirm">
           <template #reference>
             <el-button type="success" plain round size="small">打折优惠</el-button>
@@ -23,7 +24,6 @@
     </div>
 
     <!-- 订单明细 -->
-
     <div class="order-content" v-loading="loading">
       <template v-if="orderStore.order.orderDetails && orderStore.order.orderDetails.length > 0">
         <el-scrollbar>
@@ -98,10 +98,13 @@ import DetailCard from './DetailCard.vue';
 import EditDiscountPrice from './EditDiscountPrice.vue';
 import SettleForm from './SettleForm.vue';
 import { ref, onMounted, computed } from 'vue';
+import { isEmpty } from 'lodash';
 import { CouponType, PaymentType, paymentTypeMap, CustomerType } from '@/enums/index';
 import { type Types, reqAddOrder, reqCancelOrder, reqDeleteOrderDetail } from '@/api/order/index';
 import { useOrderStore } from '@/store/modules/order/index';
-import { isEmpty } from 'lodash';
+import { storeOrgInfo } from '@/store/index';
+import { verifyOrder } from '../utils';
+import { getOrgInfo } from '@/utils/localStorageTools';
 
 const emit = defineEmits<{
   (ev: 'update-order', value: number): void;
@@ -155,6 +158,21 @@ const handleCleanOrder = async () => {
     // orderStore.reset();
     orderStore.order.orderDetails = [];
   }
+};
+
+/**
+ * 处理申请改价事件
+ */
+const handleApplyModifyAuth = () => {
+  //
+  console.log(getOrgInfo());
+};
+
+/**
+ * 执行修改权限
+ */
+const applyModifyAuth = () => {
+  //
 };
 
 /**
@@ -215,6 +233,10 @@ const settleDialogVisible = ref(false);
 
 // 处理结算事件
 const handleSettle = () => {
+  if (!verifyOrder(orderStore.order)) {
+    return;
+  }
+
   if (orderStore.order.customerType === CustomerType.Member && !orderStore.order.vipId) {
     Message.warning('请选择会员进行结算');
     return;
@@ -234,16 +256,16 @@ const handleSettle = () => {
   if (orderStore.order.customerType === CustomerType.Member) {
     let truePayAmount = orderStore.truePayAmount;
 
-    if (orderStore.order.ticketUseList && truePayAmount === 0) {
-      orderStore.order.paymentInfoList.push({
-        paymentType: PaymentType.WeChat,
-        paymentName: paymentTypeMap[PaymentType.WeChat],
-        paymentAmount: orderStore.truePayAmount,
-        assetCode: '',
-      });
-      settleDialogVisible.value = true;
-      return;
-    }
+    // if (orderStore.order.ticketUseList && truePayAmount === 0) {
+    //   orderStore.order.paymentInfoList.push({
+    //     paymentType: PaymentType.WeChat,
+    //     paymentName: paymentTypeMap[PaymentType.WeChat],
+    //     paymentAmount: orderStore.truePayAmount,
+    //     assetCode: '',
+    //   });
+    //   settleDialogVisible.value = true;
+    //   return;
+    // }
     // if (orderStore.checkedAssetInfo.assetIds.length === 0 && truePayAmount > 0) {
     //   Message.warning('会员存在不同类型的资产记录，请您选择至少一个条资产记录，进行结算');
     //   return;
@@ -295,13 +317,15 @@ const handleSettle = () => {
   }
 };
 
-// 取消所有优惠券
+/**
+ * 取消所有优惠券
+ */
 const handleCancelCoupon = () => {
   orderStore.order.ticketUseList = [];
 };
 
 /**
- * 获取优惠券信息
+ * 获取优惠信息
  * @param id 优惠券id
  */
 const getCouponInfo = (id: number) => {

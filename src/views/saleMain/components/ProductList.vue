@@ -36,10 +36,11 @@ onMounted(async () => {
 const handleAddItem = (item: any) => {
   item = cloneDeep(item);
   item.detailType = OrderDetailType.Product;
-  item.serverType = ServiceType.Point;
+  // item.serverType = ServiceType.Round;
   item.quantity = 1;
   item.bid = item.id;
   item.businessName = item.productName;
+  item.businessCode = item.productEncode;
   item.stdPrice = item.productPrice;
   item.truePrice = item.productPrice;
 

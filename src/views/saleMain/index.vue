@@ -84,15 +84,14 @@ import MemberInfo from './components/MemberInfo.vue';
 import OrderList from './components/OrderList.vue';
 
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { cloneDeep, isEmpty } from 'lodash';
 import { useRouter } from 'vue-router';
-import { reqQueryOrderByBedId } from '@/api/order/index';
+import { type Types, reqQueryOrderByBedId, reqAddOrderDetail } from '@/api/order/index';
 import { DEFAULT_ORDER_FORM } from '@/views/saleMain/utils/index';
 import { CustomerType, BedStatus, BedStatusMap, CashierRouteSign } from '@/enums/index';
 import { useRoomStore } from '@/store/modules/setGroup/room';
 import { useOrderStore } from '@/store/modules/order/index';
 import { useDataEnumStore } from '@/store/modules/enums/index';
-import { cloneDeep, isEmpty } from 'lodash';
-import { addOrderDetailItem } from '@/store/modules/order/utils';
 
 const orderStore = useOrderStore();
 const roomStore = useRoomStore();
@@ -130,7 +129,7 @@ const setOrderByBed = async (bedId: number) => {
     const orderRes = await reqQueryOrderByBedId(bedId);
     const order = { ...DEFAULT_ORDER_FORM, ...orderRes.data };
     order.orderId = order.id;
-    orderStore.order = cloneDeep(order);
+    orderStore.order = cloneDeep(order) as Types.OrderSettleDTO;
   } catch (error) {
     Message.error('获取订单信息出错，请刷新页面后重试');
   } finally {
@@ -144,6 +143,10 @@ const setOrderByBed = async (bedId: number) => {
 const initByBedId = () => {
   // 从路由参数中获取床位ID
   const bedId = Number(router.currentRoute.value.query.bedId || 0);
+  if (bedId === 0) {
+    return;
+  }
+
   const sign = router.currentRoute.value.query.sign;
   const bedName = router.currentRoute.value.query.bedName as string;
   if (sign === CashierRouteSign.Create) {
@@ -195,6 +198,8 @@ const addOrderItem = async (detail: any) => {
   //   return;
   // }
 
+  // 初始化详情项 技师列表
+  detail.technicians = [];
   console.log('添加明细：', detail);
 
   // 如果订单已创建，则发送请求添加订单明细
@@ -218,7 +223,7 @@ const addOrderItem = async (detail: any) => {
 const addOrderDetail = async (detail: any) => {
   try {
     orderListRef.value?.setLoading();
-    const res = await addOrderDetailItem(orderStore.order.id, detail);
+    const res = await reqAddOrderDetail(orderStore.order.id, detail);
     console.log('添加订单明细成功：', res);
     // 生成订单明细索引
     const index = orderStore.order.orderDetails.length;

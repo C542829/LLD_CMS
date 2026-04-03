@@ -1,6 +1,5 @@
-import { CustomerType, DiscountType, IsDiscount, OrderDetailType, ResponseCode } from '@/enums';
-import { OrderDetailCreateDTO, OrderSettleDTO } from '@/api/order/types';
-import { reqAddOrderDetail } from '@/api/order/index';
+import { CustomerType } from '@/enums';
+import { OrderSettleDTO } from '@/api/order/types';
 
 /**
  * 默认订单表单数据
@@ -31,20 +30,6 @@ export const DEFAULT_CHECKED_ASSET_INFO = {
   assetTitle: '', // 资产类型
   assetAmount: 0, // 资产金额
   assetDiscountRate: 0, // 资产折扣率
-};
-
-/**
- * 添加订单明细
- * @param orderId 订单ID
- * @param detail 明细
- */
-export const addOrderDetailItem = async (orderId: number, detail: OrderDetailCreateDTO) => {
-  try {
-    const res = await reqAddOrderDetail(orderId, detail);
-    console.log('添加订单明细成功：', res);
-    return res.data;
-  } catch (error) {}
-  return false;
 };
 
 /**

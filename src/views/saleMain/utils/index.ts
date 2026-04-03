@@ -1,4 +1,5 @@
-import { CustomerType, DiscountType, IsDiscount, OrderDetailType, ResponseCode } from '@/enums';
+import Message from '@/components/Message';
+import { CustomerType } from '@/enums';
 import { OrderSettleDTO } from '@/api/order/types';
 
 /**
@@ -20,4 +21,19 @@ export const DEFAULT_ORDER_FORM: OrderSettleDTO = {
   ticketUseList: [],
   assetIds: [],
   paymentInfoList: [],
+};
+
+/**
+ * 验证订单
+ * @param order 订单内容
+ */
+export const verifyOrder = (order: OrderSettleDTO) => {
+  for (const detail of order.orderDetails) {
+    if (detail.technicians && detail.technicians.length === 0) {
+      Message.warning('请选择销售人员');
+      return false;
+    }
+  }
+
+  return true;
 };

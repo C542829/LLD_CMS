@@ -39,7 +39,13 @@
       </span> -->
       <!-- 自定义价格 -->
       <span class="item-price">
-        <el-input-number v-model="data.truePrice" :min="0" controls-position="right" style="width: 120px" />
+        <el-input-number
+          v-model="data.truePrice"
+          :min="0"
+          :disabled="data.disabled"
+          controls-position="right"
+          style="width: 120px"
+        />
       </span>
       <!-- 删除按钮 -->
       <span class="item-del">
@@ -47,19 +53,25 @@
       </span>
     </div>
 
+    <!-- 订单明细项参数 -->
     <div class="item-bottom">
+      <!-- 订单明细项参数 -->
       <div class="bottom-left">
         <label>
           <span>销售：</span>
           <el-select
-            v-model="data.userId"
-            value-key="id"
+            v-model="data.technicians"
+            value-key="userId"
             @change="handleChangeUser"
             clearable
+            multiple
+            collapse-tags
+            collapse-tags-tooltip
+            :max-collapse-tags="0"
             placeholder="销售人"
             style="width: 90px"
           >
-            <el-option v-for="item in dataEnumStore.staffList" :key="item.id" :label="item.userName" :value="item.id" />
+            <el-option v-for="item in dataEnumStore.staffList" :key="item.id" :label="item.userName" :value="item" />
           </el-select>
         </label>
         <template v-if="data.detailType !== OrderDetailType.Service">
@@ -91,6 +103,8 @@
           </label>
         </template>
       </div>
+
+      <!-- 优惠券标签 -->
       <div class="bottom-right">
         <template v-if="data?.coupon">
           <el-tag type="primary" closable @close="handleCloseTag">
@@ -108,7 +122,7 @@
 <script setup lang="ts">
 import Message from '@/components/Message';
 import CouponSelect from '@/views/saleMain/components/CouponSelect.vue';
-import { computed, ref, watch } from 'vue';
+import { computed } from 'vue';
 import { type Types, reqUpdateServerEmployee, reqUpdateServerType } from '@/api/order/index';
 import { CouponType, OrderDetailType, ServiceTypeOptions } from '@/enums/index';
 import { useDataEnumStore } from '@/store/modules/enums/index';
@@ -130,49 +144,50 @@ const props = withDefaults(defineProps<Props>(), {});
 
 const emit = defineEmits(['cancel-coupon', 'delete']);
 
-const isPT = computed(() => {
-  const result = { class: '', text: '' };
-  if (props.data?.detailType === OrderDetailType.Product) {
-    result.class = 'is-pt-prod';
-    result.text = '产 品';
-  } else if (props.data?.detailType === OrderDetailType.Service) {
-    result.class = 'is-pt-svr';
-    result.text = '项 目';
-  } else if (props.data?.detailType === OrderDetailType.TreatmentCoupon) {
-    result.class = 'is-pt-treat';
-    result.text = '疗 程';
-  }
-  return result;
-});
-
-const handleChangeUser = (id: number) => {
-  const user = dataEnumStore.staffList.find((user: any) => user.id === id);
-  if (isEmpty(user)) {
-    return;
-  }
+/**
+ * 修改销售人员
+ * @param id 员工ID
+ */
+const handleChangeUser = (technicians: Types.OrderDetailTechnicianDTO[]) => {
   if (props.data.id) {
-    updateServiceEmployee(props.data.id!, { userId: id, userName: user.userName });
-  } else {
-    props.data.userId = id;
-    props.data.userName = user.userName;
+    updateServiceEmployee(props.data.id!, technicians);
   }
 };
 
-const updateServiceEmployee = async (detailId: number, params: { userId: number; userName: string }) => {
+/**
+ * 同步销售信息
+ * @param detailId 订单明细ID
+ * @param params 销售信息
+ */
+const updateServiceEmployee = async (detailId: number, technicians: Types.OrderDetailTechnicianDTO[]) => {
   try {
-    const res = await reqUpdateServerEmployee(detailId, params);
+    const res = await reqUpdateServerEmployee(detailId, technicians);
     console.log('修改技师成功：', res);
-    Message.success('修改技师成功');
-    props.data.userId = params.userId;
-    props.data.userName = params.userName;
+    Message.success('修改销售成功');
   } catch (error) {
-    // props.data.userId = '';
-    props.data.userId = undefined;
-    props.data.userName = '';
     console.error('修改技师失败：', error);
   }
 };
 
+/**
+ * 修改上钟类型
+ * @param serverType
+ */
+const handleChangeServerType = async (serverType: number) => {
+  if (!props.data?.id) {
+    return;
+  }
+
+  try {
+    const res = await reqUpdateServerType(props.data.id, serverType);
+    // console.log('更新服务类型成功：', res);
+    Message.success('更新服务类型成功');
+  } catch (error) {}
+};
+
+/**
+ * 删除选择的项目券
+ */
 const handleCloseTag = () => {
   if (!orderStore.order.ticketUseList) {
     return;
@@ -185,16 +200,14 @@ const handleCloseTag = () => {
   props.data.truePrice = props.data.stdPrice;
   if (props.data.coupon) {
     props.data.coupon.active = false;
-    // orderStore.order.discountAmount -= props.data.stdPrice;
   }
   props.data.coupon = null;
 };
 
-const handleDelete = () => {
-  // 处理删除事件
-  emit('delete', props.data);
-};
-
+/**
+ * 选择项目券
+ * @param coupon 项目券
+ */
 const selectCoupon = (coupon: any) => {
   if (!isEmpty(props.data.coupon)) {
     handleCloseTag();
@@ -219,30 +232,40 @@ const selectCoupon = (coupon: any) => {
   }
 };
 
-watch(
-  () => orderStore.order.ticketUseList,
-  (newVal) => {
-    if (newVal && newVal.length === 0) {
-      handleCloseTag();
-    }
-  },
-);
+// watch(
+//   () => orderStore.order.ticketUseList,
+//   (newVal) => {
+//     if (newVal && newVal.length === 0) {
+//       handleCloseTag();
+//     }
+//   },
+// );
 
 /**
- * 修改上钟类型
- * @param serverType
+ * 删除订单明细项
  */
-const handleChangeServerType = async (serverType: number) => {
-  if (!props.data?.id) {
-    return;
-  }
-
-  try {
-    const res = await reqUpdateServerType(props.data.id, serverType);
-    console.log('更新服务类型成功：', res);
-    Message.success('更新服务类型成功');
-  } catch (error) {}
+const handleDelete = () => {
+  // 处理删除事件
+  emit('delete', props.data);
 };
+
+/**
+ * 订单明细标签
+ */
+const isPT = computed(() => {
+  const result = { class: '', text: '' };
+  if (props.data?.detailType === OrderDetailType.Product) {
+    result.class = 'is-pt-prod';
+    result.text = '产 品';
+  } else if (props.data?.detailType === OrderDetailType.Service) {
+    result.class = 'is-pt-svr';
+    result.text = '项 目';
+  } else if (props.data?.detailType === OrderDetailType.TreatmentCoupon) {
+    result.class = 'is-pt-treat';
+    result.text = '疗 程';
+  }
+  return result;
+});
 </script>
 
 <style lang="scss" scoped>
@@ -412,9 +435,9 @@ const handleChangeServerType = async (serverType: number) => {
   min-width: 260px;
 }
 
-.bottom-left .el-select {
-  max-width: 140px;
-}
+// .bottom-left .el-select {
+//   max-width: 140px;
+// }
 
 .el-select-dropdown__list .item-select-option-panel {
   padding: 10px;

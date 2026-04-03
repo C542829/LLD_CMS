@@ -150,10 +150,7 @@ export const reqUpdateServerType = (detailId: number, serverType: number): ApiRe
  * @param params 技师参数
  * @returns
  */
-export const reqUpdateServerEmployee = (
-  detailId: number,
-  params: { userId: number; userName: string },
-): ApiResponse<any> => {
+export const reqUpdateServerEmployee = (detailId: number, data: Types.OrderDetailTechnicianDTO[]): ApiResponse<any> => {
   const api = API.UPDATE_SERVER_EMPLOYEE.replace(PathStr.detailId, detailId.toString());
-  return put(api, {}, { params });
+  return put(api, data);
 };
