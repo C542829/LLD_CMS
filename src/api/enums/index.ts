@@ -44,7 +44,7 @@ export const reqDelEnum = (dictTypeId: number) => put(API.DEL_URL, { dictTypeId 
  * @param params 查询参数
  * @returns 枚举项列表
  */
-export const reqEnumItemList = (params = {}) => get(API.ITEM_LIST_URL, params);
+export const reqEnumItemList = (params = {}): ApiResponse<any> => get(API.ITEM_LIST_URL, params);
 
 /**
  * 新增枚举项
