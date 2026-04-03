@@ -9,6 +9,7 @@ import { ResponseCode } from '@/enums/response';
 import useUserStore from '@/store/modules/acl/user';
 // 引入配置相关的仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
+import { RoleCode } from '@/enums';
 
 // 扩展config自定义参数
 declare module 'axios' {
@@ -16,6 +17,7 @@ declare module 'axios' {
     form_urlencoded?: boolean; // Content-Type = application/x-www-form-urlencoded
     noToken?: boolean; // 接口请求是否携带token
     serviceName?: string; // 接口调用时的服务，不传时默认为VITE_BASE_API（服务名称在public文件夹下config.json中配置，并在global.d.ts中的EnvConfig定义中声明类型）
+    addOrgId?: boolean;
   }
 }
 
@@ -58,8 +60,16 @@ request.interceptors.request.use((config) => {
   if (userStore.token && !config.noToken) {
     config.headers['Authorization'] = userStore.token;
   }
+
+  // 如果是管理员，则不添加orgId
+  if (!userStore.isAdmin) {
+    if (config.addOrgId && userStore.user?.orgId) {
+      config.params.orgId = userStore.user.orgId;
+    }
+  }
+
   // 如果 data 为空，将 data 设置为 null
-  if (isEmpty(config.data)) {
+  if (isEmpty(config.data) && !Array.isArray(config.data)) {
     config.data = null;
   }
 
@@ -130,6 +140,7 @@ const errorCodeMsg = (apiData: ApiResponseData<any>) => {
       break;
     // 用户未登录
     case ResponseCode.UNAUTHORIZED:
+      Message.error(apiData.message || '操作失败');
       logout();
       break;
     // 没有相关权限
