@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, markRaw } from 'vue';
+import { ref, markRaw, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useRechargeStore } from '@/store/modules/member/recharge';
 import { useMemberStore } from '@/store/modules/member/member';
@@ -13,7 +13,13 @@ import Recharge from './recharge/index.vue';
 import RechargeRecord from './rechargeRecord/index.vue';
 import RechargeActivity from './rechargeActivity/index.vue';
 import useUserStore from '@/store/modules/acl/user';
+import { useDataEnumStore } from '@/store/modules/enums/index';
 
+const dataEnumStore = useDataEnumStore();
+
+onMounted(() => {
+  dataEnumStore.getOrgList(true);
+});
 const route = useRoute();
 const rechargeStore = useRechargeStore();
 const memberStore = useMemberStore();

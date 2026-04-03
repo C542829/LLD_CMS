@@ -15,6 +15,21 @@
             </el-select>
           </label>
         </div>
+        <!-- 产品分类 -->
+        <div class="search-item">
+          <label>
+            <span>产品分类：</span>
+            <el-select v-model="store.search.category" clearable @change="search" style="width: 120px">
+              <!-- <el-option v-for="item in categoryList" :key="item.value" :label="item.label" :value="item.value" /> -->
+              <el-option
+                v-for="item in categoryList"
+                :key="item.itemValue"
+                :label="item.itemLabel"
+                :value="item.itemValue"
+              />
+            </el-select>
+          </label>
+        </div>
         <!-- 搜索框 -->
         <div class="search-item">
           <el-input
@@ -42,18 +57,20 @@
         :row-class-name="getRowClassName"
         :showPagination="false"
       >
-        <el-table-column prop="productName" label="产品" />
-        <el-table-column prop="productEncode" label="编码" />
-        <el-table-column prop="quantity" label="库存">
+        <el-table-column type="index" label="序号" width="60" />
+        <el-table-column prop="category" label="产品分类" min-width="50" />
+        <el-table-column prop="productName" label="产品名称" min-width="80" />
+        <el-table-column prop="productEncode" label="产品编码" min-width="50" />
+        <el-table-column prop="quantity" label="库存" min-width="50">
           <template #default="{ row }">
             <el-tag :type="parseInt(row.quantity!) <= 10 ? 'danger' : 'primary'">{{ row.quantity }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="unit" label="单位/规格" :formatter="unitFormatter" width="90" />
-        <el-table-column prop="productPrice" label="标准价(元)" />
-        <el-table-column prop="vipProductPrice" label="会员价(元)" />
-        <el-table-column prop="isDiscount" label="参与折扣卡打折" :formatter="isDiscountMap" />
-        <el-table-column label="操作">
+        <el-table-column prop="productPrice" label="标准价(元)" min-width="50" />
+        <el-table-column prop="vipProductPrice" label="会员价(元)" min-width="50" />
+        <el-table-column prop="isDiscount" label="参与折扣卡打折" :formatter="isDiscountMap" min-width="50" />
+        <el-table-column label="操作" min-width="80">
           <template #default="{ row }">
             <el-button @click="showDrawer(2, row)" link type="info">详情</el-button>
             <el-button @click="showDrawer(1, row)" :disabled="!!row.productStatus" link type="primary">编辑</el-button>
@@ -140,10 +157,12 @@ const handleDrawerClose = () => {
 };
 
 const unitList = ref<any>([]);
-const getUnitList = async () => {
+const categoryList = ref<any>([]);
+const getEnumList = async () => {
   unitList.value = await enumStore.getUnits();
+  categoryList.value = await enumStore.getProductCategoryList();
 };
-getUnitList();
+getEnumList();
 
 /**
  * 单位格式化

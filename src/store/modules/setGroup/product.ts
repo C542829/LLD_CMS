@@ -35,12 +35,16 @@ export const useProductStore = defineStore('Product', () => {
   const getProductList = async (params: { keyWord?: string; productStatus?: number }) => {
     const res = await reqProductList(params);
     const data = parseResList(res);
+    for (const item of data) {
+      item.orgIds = item.orgs.map((e: any) => e.id);
+    }
     return data;
   };
 
   // 搜索参数
   const search = reactive({
     keyWord: '',
+    category: '',
     productStatus: 0,
   });
 
@@ -107,6 +111,8 @@ export const useProductStore = defineStore('Product', () => {
       commissionBase: 0,
       productStatus: 0,
       unit: '',
+      orgIds: [],
+      category: '',
     };
   };
 

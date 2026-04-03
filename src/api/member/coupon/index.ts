@@ -9,7 +9,7 @@ enum API {
   COUNT_URL = '/vip/ticket/count-ticket',
 }
 
-export const reqTicketList = (params = {}) => get(API.LIST_URL, params);
+export const reqTicketList = (params = {}) => get(API.LIST_URL, params, { addOrgId: true });
 
 export const reqAddTicket = (data = {}) => post(API.ADD_URL, data);
 

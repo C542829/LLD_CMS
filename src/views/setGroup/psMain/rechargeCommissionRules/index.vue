@@ -51,7 +51,13 @@
       >
         <el-table-column type="index" label="序号" width="60" />
         <el-table-column prop="rechargeRoleName" label="提成规则名称" min-width="100" />
-        <el-table-column prop="rechargePrice" label="充值金额" :formatter="amountFormatter" min-width="50" />
+        <!-- <el-table-column prop="rechargePrice" label="充值金额" :formatter="amountFormatter" min-width="50" /> -->
+        <el-table-column label="状态" min-width="60">
+          <template #default="{ row }">
+            <el-tag v-if="row.status === 0" type="success">启用</el-tag>
+            <el-tag v-else type="danger">禁用</el-tag>
+          </template>
+        </el-table-column>
         <el-table-column label="提成类型" min-width="60">
           <template #default="{ row }">
             {{ commissionTypeMap[row.commissionType as CommissionType] }}

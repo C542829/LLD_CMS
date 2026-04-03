@@ -7,66 +7,74 @@
     @submit="handleFormSubmit"
     @reset="handleFormReset"
   >
+    <!-- 关联门店 -->
+    <template v-if="userStore.isAdmin">
+      <el-form-item label="关联门店" prop="orgIds">
+        <el-select
+          v-model="store.formData.orgIds"
+          placeholder="关联门店"
+          class="w-240"
+          value-key="id"
+          clearable
+          multiple
+          collapse-tags
+          collapse-tags-tooltip
+          :max-collapse-tags="1"
+        >
+          <el-option v-for="item in dataEnumStore.orgList" :key="item.id" :label="item.orgName" :value="item.id" />
+        </el-select>
+      </el-form-item>
+    </template>
+
     <!-- 优惠券名称 -->
     <el-form-item label="优惠券名称" prop="ticketName">
-      <el-input v-model="store.formData.ticketName" placeholder="请输入优惠券名称" clearable />
+      <el-input v-model="store.formData.ticketName" clearable class="w-240" placeholder="请输入优惠券名称" />
     </el-form-item>
 
     <!-- 优惠券描述 -->
     <el-form-item label="优惠券描述" prop="ticketDescription">
-      <el-input v-model="store.formData.ticketDescription" placeholder="请输入优惠券描述" clearable />
+      <el-input v-model="store.formData.ticketDescription" clearable class="w-240" placeholder="请输入优惠券描述" />
     </el-form-item>
 
     <!-- 优惠券类型 -->
     <el-form-item label="优惠券类型" prop="ticketType">
-      <el-select v-model="store.formData.ticketType" placeholder="请选择优惠券类型" clearable>
+      <el-select v-model="store.formData.ticketType" clearable class="w-160" placeholder="请选择优惠券类型">
         <el-option v-for="item in couponTypeOptions" :key="item.value" :label="item.label" :value="item.value" />
       </el-select>
     </el-form-item>
 
     <!-- 领取后有效天数 -->
     <el-form-item label="领取后有效天数" prop="ticketEffectiveTime">
-      <el-input
-        v-model.number="store.formData.ticketEffectiveTime"
-        placeholder="请输入有效天数"
-        style="width: 120px; margin-right: 8px"
-        clearable
-      />
-      <el-text>（-1代表无限期）</el-text>
+      <el-input v-model.number="store.formData.ticketEffectiveTime" placeholder="请输入有效天数" class="w-160">
+        <template #suffix>天</template>
+      </el-input>
+      <el-alert title="值为 -1 代表无限期" type="warning" style="margin-top: 8px" />
     </el-form-item>
 
     <!-- 代金券 -->
     <template v-if="store.formData.ticketType === CouponType.voucher">
       <!-- 限制满额 -->
       <el-form-item label="限制满额" prop="ticketFullPayment">
-        <el-input
-          v-model.number="store.formData.ticketFullPayment"
-          placeholder="请输入限制满额"
-          style="width: 120px; margin-right: 8px"
-          clearable
-        />
-        <el-text>元可用</el-text>
-        <el-alert title="限制满额为0表示无限制，可任意使用" type="error" style="margin-top: 8px" />
+        <el-input v-model.number="store.formData.ticketFullPayment" placeholder="请输入限制满额" class="w-160">
+          <template #suffix>元</template>
+        </el-input>
+        <el-alert title="限制满额为 0 表示无限制，可任意使用" type="error" style="margin-top: 8px" />
       </el-form-item>
 
       <!-- 代金券面值 -->
       <el-form-item label="代金券面值" prop="ticketValue">
-        <el-input
-          v-model.number="store.formData.ticketValue"
-          placeholder="请输入代金券面值"
-          style="width: 120px; margin-right: 8px"
-          clearable
-        />
-        <el-text>元</el-text>
-        <el-alert title="规则结果：满0元，可使用优惠券抵扣元" type="warning" style="margin-top: 8px" />
+        <el-input v-model.number="store.formData.ticketValue" placeholder="请输入代金券面值" class="w-160">
+          <template #suffix>元</template>
+        </el-input>
+        <el-alert title="规则结果：满 0 元，可使用优惠券抵扣元" type="warning" style="margin-top: 8px" />
       </el-form-item>
     </template>
 
     <!-- 体验券 -->
     <template v-if="store.formData.ticketType === CouponType.experience">
       <!-- 可体验项目 -->
-      <el-form-item label="可体验项目" prop="serverItemIds">
-        <el-select v-model="store.formData.serverItemIds" placeholder="请选择可体验项目" clearable multiple>
+      <el-form-item label="选择项目" prop="serverItemIds">
+        <el-select v-model="store.formData.serverItemIds" clearable multiple class="w-240" placeholder="请选择项目">
           <el-option v-for="item in serviceItemOptions" :key="item.id" :label="item.itemName" :value="item.id" />
         </el-select>
       </el-form-item>
@@ -76,12 +84,16 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
-import { CouponType, couponTypeOptions } from '@/enums/index';
+import { CouponType, couponTypeOptions, RoleCode } from '@/enums/index';
 
 import { useCouponStore } from '@/store/modules/member/memberCoupon';
 import { useServiceItemStore } from '@/store/modules/setGroup/serviceItem';
+import useUserStore from '@/store/modules/acl/user';
+import { useDataEnumStore } from '@/store/modules/enums/index';
 const serviceItemStore = useServiceItemStore();
 const store = useCouponStore();
+const dataEnumStore = useDataEnumStore();
+const userStore = useUserStore();
 
 const $emit = defineEmits(['close-drawer']);
 

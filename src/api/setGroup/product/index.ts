@@ -27,7 +27,7 @@ export const reqProductList = (
     keyWord: '',
     productStatus: Status.enabled,
   },
-): ApiResponse<Types.ProductInfoVO[]> => get(API.LIST_URL, params);
+): ApiResponse<Types.ProductInfoVO[]> => get(API.LIST_URL, params, { addOrgId: true });
 
 /**
  * 根据服务产品id查询详细信息

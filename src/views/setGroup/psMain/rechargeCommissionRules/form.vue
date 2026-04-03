@@ -1,22 +1,28 @@
 <template>
   <div>
     <Form :model="store.formData" :rules="formRules" @submit="handleFormSubmit" @reset="handleFormReset">
+      <!-- 关联门店 -->
+      <template v-if="userStore.isAdmin">
+        <el-form-item label="关联门店" prop="orgIds">
+          <el-select
+            v-model="store.formData.orgIds"
+            placeholder="关联门店"
+            class="w-240"
+            value-key="id"
+            clearable
+            multiple
+            collapse-tags
+            collapse-tags-tooltip
+            :max-collapse-tags="1"
+          >
+            <el-option v-for="item in dataEnumStore.orgList" :key="item.id" :label="item.orgName" :value="item.id" />
+          </el-select>
+        </el-form-item>
+      </template>
+
       <!-- 提成规则名称 -->
       <el-form-item label="提成规则名称" prop="rechargeRoleName">
-        <el-input v-model="store.formData.rechargeRoleName" placeholder="请输入提成规则名称" />
-      </el-form-item>
-
-      <!-- 充值金额 -->
-      <el-form-item label="充值金额" prop="rechargePrice">
-        <el-input-number
-          v-model="store.formData.rechargePrice"
-          placeholder="请输入充值金额"
-          :controls="false"
-          style="width: 120px"
-          size="small"
-        >
-          <template #suffix>元</template>
-        </el-input-number>
+        <el-input v-model="store.formData.rechargeRoleName" clearable class="w-240" placeholder="请输入提成规则名称" />
       </el-form-item>
 
       <!-- 提成类型 -->
@@ -34,27 +40,25 @@
 
       <!-- 固定金额 -->
       <template v-if="store.formData.commissionType === CommissionType.FixedAmount">
-        <!-- 允许打折 -->
-        <el-form-item label="倍数叠加" prop="double">
-          <el-switch v-model="store.formData.double" :active-value="0" :inactive-value="1" />
-        </el-form-item>
         <el-form-item label="提成值" prop="rechargeCommissionValue">
-          <el-input-number size="small" v-model="store.formData.rechargeCommissionValue" :controls="false" />
-          &nbsp;元
+          <el-input-number v-model="store.formData.rechargeCommissionValue" :controls="false" class="w-120">
+            <template #suffix>元</template>
+          </el-input-number>
         </el-form-item>
       </template>
 
       <!-- 比例提成 -->
       <template v-if="store.formData.commissionType === CommissionType.Proportion">
-        <el-form-item label="提成比例" prop="rechargeCommissionValue" style="margin-bottom: 15px">
+        <el-form-item label="提成比例" prop="rechargeCommissionValue">
           <el-input-number
             v-model="store.formData.rechargeCommissionValue"
             :min="0"
             :max="100"
             :controls="false"
-            size="small"
-          />
-          &nbsp;%
+            class="w-120"
+          >
+            <template #suffix>%</template>
+          </el-input-number>
         </el-form-item>
       </template>
 
@@ -62,8 +66,8 @@
       <el-form-item label="其他描述">
         <el-input
           v-model="store.formData.remark"
-          style="width: 240px"
           :autosize="{ minRows: 2, maxRows: 4 }"
+          class="w-240"
           type="textarea"
           placeholder="请输入其他描述"
         />
@@ -77,7 +81,12 @@ import { onMounted } from 'vue';
 import { CommissionType, commissionTypeOptions } from '@/enums';
 // 引入数据仓库
 import { useRechargeCommissionRulesStore } from '@/store/modules/setGroup/rechargeCommissionRules';
+import { useDataEnumStore } from '@/store/modules/enums/index';
+import useUserStore from '@/store/modules/acl/user';
+
 const store = useRechargeCommissionRulesStore();
+const dataEnumStore = useDataEnumStore();
+const userStore = useUserStore();
 
 // 定义组件触发的事件 - 关闭抽屉
 const $emit = defineEmits(['close-drawer']);

@@ -7,23 +7,44 @@
       :disabled="disabled"
       @submit="handleFormSubmit"
       @reset="handleFormReset"
+      label-width="100px"
     >
+      <!-- 关联门店 -->
+      <template v-if="userStore.isAdmin">
+        <el-form-item label="关联门店" prop="orgIds">
+          <el-select
+            v-model="store.formData.orgIds"
+            placeholder="关联门店"
+            class="w-240"
+            value-key="id"
+            clearable
+            multiple
+            collapse-tags
+            collapse-tags-tooltip
+            :max-collapse-tags="1"
+          >
+            <el-option v-for="item in dataEnumStore.orgList" :key="item.id" :label="item.orgName" :value="item.id" />
+          </el-select>
+        </el-form-item>
+      </template>
+
       <!-- 疗程券编码 -->
       <el-form-item label="疗程券编码" prop="encode">
-        <el-input v-model="store.formData.encode" placeholder="请输入疗程券编码" clearable />
+        <el-input v-model="store.formData.encode" clearable class="w-240" placeholder="请输入疗程券编码" />
       </el-form-item>
 
       <!-- 疗程券名称（必填） -->
       <el-form-item label="疗程券名称" prop="name">
-        <el-input v-model="store.formData.name" placeholder="请输入疗程券名称" clearable />
+        <el-input v-model="store.formData.name" clearable class="w-240" placeholder="请输入疗程券名称" />
       </el-form-item>
 
       <!-- 价格设置 -->
       <el-form-item label="价格设置">
-        <Card style="width: 75%" padding="10px 0">
-          <el-form-item label="疗程价：" prop="price">
-            <el-input-number size="" v-model="store.formData.price" :controls="false" />
-            &nbsp;元
+        <Card>
+          <el-form-item label="疗程价：" prop="price" class="form-item-m-l-0">
+            <el-input-number v-model="store.formData.price" :controls="false" class="w-130">
+              <template #suffix>元</template>
+            </el-input-number>
           </el-form-item>
         </Card>
       </el-form-item>
@@ -44,81 +65,56 @@
       <!-- 固定金额 -->
       <template v-if="store.formData.type === CommissionType.FixedAmount">
         <el-form-item label="提成值" prop="commissionValue">
-          <el-input-number size="" v-model="store.formData.commissionValue" :controls="false" />
-          &nbsp;元
+          <el-input-number v-model="store.formData.commissionValue" :controls="false" class="w-120">
+            <template #suffix>元</template>
+          </el-input-number>
         </el-form-item>
       </template>
 
       <!-- 比例提成 -->
       <template v-if="store.formData.type === CommissionType.Proportion">
         <el-form-item label="提成比例" prop="commissionValue" style="margin-bottom: 15px">
-          <el-input-number size="" v-model="store.formData.commissionValue" :controls="false" />
-          &nbsp;%
+          <el-input-number v-model="store.formData.commissionValue" :controls="false" class="w-120">
+            <template #suffix>%</template>
+          </el-input-number>
         </el-form-item>
         <el-form-item label="价格类型" prop="commissionBase">
-          <el-select v-model="store.formData.commissionBase" style="width: 200px">
+          <el-select v-model="store.formData.commissionBase" class="w-120">
             <el-option v-for="item in commissionOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
       </template>
 
-      <!-- 套餐明细 -->
-      <!-- <el-form-item label="套餐明细" prop="cureTicketDetailInfoDTOList">
-        <el-alert title="点击胶囊按钮, 可修改产品数量哦" type="warning" style="width: 75%; margin-bottom: 10px" />
-        <Card style="width: 75%">
-          <Autocomplete
-            :dataList="tickets"
-            :selectedList="store.formData.vipTicketList"
-            @submit="submitSelect"
-            @update-number="updateNumber"
-          >
-            <template #selected="{ item }">{{ item.vipTicketName }} &nbsp; 数量：{{ item.vipTicketNum }}</template>
-            <template #default="{ item }">
-              <Card padding="10px" :gap="5" bgColor="#fff" shadow="always" class="package-card">
-                <div class="package-item">
-                  <span>名称：</span>
-                  <span>{{ item.vipTicketName }}</span>
-                </div>
-                <div class="package-item text-overflow" style="color: var(--el-text-color-secondary)">
-                  <span>描述：</span>
-                  <span :title="item.ticketDescription">{{ item.ticketDescription || '-' }}</span>
-                </div>
-              </Card>
-            </template>
-          </Autocomplete>
-        </Card>
-      </el-form-item> -->
-      <!-- 套餐明细 -->
-      <el-form-item label="套餐明细" prop="cureTicketDetailInfoDTOList">
-        <el-alert title="点击胶囊按钮, 可修改产品数量哦" type="warning" style="width: 75%; margin-bottom: 10px" />
-        <Card style="width: 75%">
-          <TicketSelect
-            v-model="store.formData.vipTicketList"
-            :options="tickets"
-            value-key="vipTicketId"
-            labelKey="vipTicketName"
-          ></TicketSelect>
-        </Card>
+      <el-form-item label="优惠券" prop="ticketIds">
+        <MultipleSelect
+          v-model="store.formData.vipTicketList"
+          :displayProps="defaultProps"
+          @visible-change="visibleChange"
+          value-key="vipTicketId"
+          class="w-240"
+        >
+          <el-option v-for="item in couponOptions" :key="item.vipTicketId" :label="item.vipTicketName" :value="item" />
+        </MultipleSelect>
       </el-form-item>
 
       <!-- 其他描述 -->
       <el-form-item label="其他描述" prop="remark">
-        <el-input v-model="store.formData.remark" type="textarea" placeholder="请输入其他描述" clearable />
+        <el-input v-model="store.formData.remark" class="w-240" type="textarea" placeholder="请输入其他描述" />
       </el-form-item>
     </Form>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed, watch } from 'vue';
-import Autocomplete from './Autocomplete.vue';
-import TicketSelect from './TicketSelect.vue';
-
+import { onMounted, computed, reactive, ref } from 'vue';
 import { commissionOptions, commissionTypeOptions, CommissionType } from '@/enums/index';
-
 // 引入数据仓库
 import { useTreatmentCouponStore } from '@/store/modules/setGroup/treatmentCoupon';
 import { useDataEnumStore } from '@/store/modules/enums/index';
+import { useCouponStore } from '@/store/modules/member/memberCoupon';
+import useUserStore from '@/store/modules/acl/user';
+const userStore = useUserStore();
+const couponStore = useCouponStore();
 const store = useTreatmentCouponStore();
 const dataEnumStore = useDataEnumStore();
 
@@ -131,38 +127,63 @@ defineProps(['disabled']);
 // 组件挂载后执行的生命周期钩子
 onMounted(() => {
   // 可在此处添加组件初始化逻辑
-  store.resetFormData();
+  // store.resetFormData();
   dataEnumStore.getTicketList();
+  getCouponList();
 });
 
-const tickets = computed(() =>
-  dataEnumStore.ticketList.map((item: any) => {
+// 下拉框展示区显示的属性
+const defaultProps = reactive({ label: 'vipTicketName', value: 'vipTicketNum' });
+// 优惠券列表
+const couponOptions = ref<any[]>([]);
+
+// 当下拉框打开时加载数据
+const visibleChange = (visible: boolean) => {
+  if (visible && couponOptions.value.length === 0) {
+    getCouponList();
+  }
+};
+
+// 获取优惠券列表
+const getCouponList = async () => {
+  const couponList = await couponStore.getCouponList();
+  couponOptions.value = couponList.map((item) => {
     return {
       vipTicketId: item.id,
       vipTicketName: item.ticketName,
       vipTicketNum: 1,
-      ticketDescription: item.ticketDescription,
-      isEdit: false,
     };
-  }),
-);
+  });
+};
+
+// const tickets = computed(() =>
+//   dataEnumStore.ticketList.map((item: any) => {
+//     return {
+//       vipTicketId: item.id,
+//       vipTicketName: item.ticketName,
+//       vipTicketNum: 1,
+//       ticketDescription: item.ticketDescription,
+//       isEdit: false,
+//     };
+//   }),
+// );
 
 /**
  * 选择框选择方法 - 将选择的内容添加到已选择数组
  * @param data 选择的内容
  */
-const submitSelect = (data: any) => {
-  console.log('已选择：', data);
-  store.formData.vipTicketList = data;
-};
+// const submitSelect = (data: any) => {
+//   console.log('已选择：', data);
+//   store.formData.vipTicketList = data;
+// };
 
 /**
  * 更新数量
  * @param item 已选择的内容
  */
-const updateNumber = (item: any) => {
-  item.vipTicketNum = item.vipTicketNum;
-};
+// const updateNumber = (item: any) => {
+//   item.vipTicketNum = item.vipTicketNum;
+// };
 
 /**
  * 表单提交处理函数
@@ -212,6 +233,12 @@ const formRules = {
   .package-item {
     color: var(--el-text-color-primary);
     line-height: 20px;
+  }
+}
+
+.form-item-m-l-0 {
+  :deep(.el-form-item__label-wrap) {
+    margin-left: 0 !important;
   }
 }
 </style>

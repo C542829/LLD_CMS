@@ -37,11 +37,14 @@ export const useRechargeCommissionRulesStore = defineStore('RechargeCommissionRu
     // 获取数据列表
     const res = await reqRechargeCommissionRulesList(searchParams.value);
     const data = parseResList(res);
-
+    for (const item of data) {
+      item.orgIds = item.orgs.map((e: any) => e.id);
+    }
+    dataList.value = data;
     // 处理数据
-    dataList.value = data.map((item: any) => {
-      return { ...item, commissionType: parseInt(item.commissionType) };
-    });
+    // dataList.value = data.map((item: any) => {
+    //   return { ...item, commissionType: parseInt(item.commissionType) };
+    // });
     settingStore.loading = false;
   };
 
@@ -71,10 +74,10 @@ export const useRechargeCommissionRulesStore = defineStore('RechargeCommissionRu
       id: null,
       remark: '',
       rechargeRoleName: '',
-      rechargePrice: null,
       commissionType: 1,
       rechargeCommissionValue: null,
-      double: 1,
+      status: 0,
+      orgIds: [],
     };
   };
 

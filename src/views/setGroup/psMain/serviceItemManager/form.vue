@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="drawer-form">
     <Form
       :model="store.formData"
       :rules="formRules"
@@ -8,82 +8,118 @@
       @submit="handleFormSubmit"
       @reset="handleFormReset"
     >
+      <!-- 关联门店 -->
+      <template v-if="userStore.isAdmin">
+        <el-form-item label="关联门店" prop="orgIds">
+          <el-select
+            v-model="store.formData.orgIds"
+            placeholder="关联门店"
+            class="w-240"
+            value-key="id"
+            clearable
+            multiple
+            collapse-tags
+            collapse-tags-tooltip
+            :max-collapse-tags="1"
+          >
+            <el-option v-for="item in dataEnumStore.orgList" :key="item.id" :label="item.orgName" :value="item.id" />
+          </el-select>
+        </el-form-item>
+      </template>
+
       <!-- 项目编码 -->
       <el-form-item label="项目编码" prop="itemEncode">
-        <el-input v-model="store.formData.itemEncode" placeholder="请输入项目编码" clearable />
+        <el-input v-model="store.formData.itemEncode" clearable class="w-240" placeholder="请输入项目编码" />
       </el-form-item>
 
       <!-- 项目名称（必填） -->
       <el-form-item label="项目名称" prop="itemName">
-        <el-input v-model="store.formData.itemName" placeholder="请输入项目名称" clearable />
+        <el-input v-model="store.formData.itemName" clearable class="w-240" placeholder="请输入项目名称" />
       </el-form-item>
 
       <!-- 服务时长 -->
       <el-form-item label="服务时长" prop="serverTime">
         <el-input
           v-model.number="store.formData.serverTime"
-          placeholder="请输入服务时长"
-          style="width: 120px"
           clearable
           :controls="false"
-        />
-        &nbsp;分钟
+          placeholder="请输入服务时长"
+          class="w-240"
+        >
+          <template #suffix>分钟</template>
+        </el-input>
+      </el-form-item>
+
+      <!-- 项目分类 -->
+      <el-form-item label="项目分类" prop="category">
+        <el-select
+          v-model="store.formData.category"
+          placeholder="选择项目分类"
+          style="width: 160px; margin-right: 15px"
+        >
+          <el-option
+            v-for="item in serviceItemsCategoryList"
+            :key="item.itemValue"
+            :label="item.itemLabel"
+            :value="item.itemValue"
+          />
+        </el-select>
+        <el-button link type="primary" @click="serviceItemsCategoryMgr">分类管理</el-button>
       </el-form-item>
 
       <!-- 价格设置 -->
+
+      <!-- 价格设置 -->
       <el-form-item label="价格设置">
-        <Card padding="15px 15px 20px 0">
-          <el-form-item label="标准价：" prop="itemPrice">
-            <el-input-number size="small" v-model="store.formData.itemPrice" :controls="false" />
-            &nbsp;元
+        <Card>
+          <el-form-item label="标准价：" prop="itemPrice" class="form-item-m-l-0">
+            <el-input-number v-model="store.formData.itemPrice" :controls="false" class="w-130">
+              <template #suffix>元</template>
+            </el-input-number>
           </el-form-item>
-          <el-form-item label="会员价：" prop="vipItemPrice">
-            <el-input-number size="small" v-model="store.formData.vipItemPrice" :controls="false" />
-            &nbsp;元
+          <el-form-item label="会员价：" prop="vipItemPrice" class="form-item-m-l-0">
+            <el-input-number v-model="store.formData.vipItemPrice" :controls="false" class="w-130">
+              <template #suffix>元</template>
+            </el-input-number>
           </el-form-item>
         </Card>
       </el-form-item>
 
       <!-- 允许打折（开关） -->
       <el-form-item label="允许打折" prop="isDiscounts">
-        <el-switch v-model="store.formData.isDiscounts" :active-value="0" :inactive-value="1" />
+        <el-switch
+          v-model="store.formData.isDiscounts"
+          :active-value="IsDiscount.Yes"
+          :inactive-value="IsDiscount.No"
+        />
       </el-form-item>
 
       <!-- 提成类型（单选） -->
       <el-form-item label="提成类型" prop="commissionType">
         <el-radio-group v-model.number="store.formData.commissionType">
-          <el-radio :value="0" :border="true">固定金额</el-radio>
-          <el-radio :value="1" :border="true">比例提成</el-radio>
+          <el-radio v-for="item in commissionTypeOptions" :value="item.value" :border="true">{{ item.label }}</el-radio>
         </el-radio-group>
       </el-form-item>
 
       <!-- 提成值（根据提成类型动态显示单位：元/百分比） -->
-      <template v-if="store.formData.commissionType === 0">
+      <template v-if="store.formData.commissionType === CommissionType.FixedAmount">
         <el-form-item label="提成值(轮牌)" prop="commissionValueRotation">
-          <el-input
-            v-model.number="store.formData.commissionValueRotation"
-            style="width: 100px; margin-right: 8px"
-            clearable
-          />
-          <span>元</span>
+          <el-input-number v-model.number="store.formData.commissionValueRotation" :controls="false" class="w-120">
+            <template #suffix>元</template>
+          </el-input-number>
         </el-form-item>
         <el-form-item label="提成值(点钟)" prop="commissionValueAppointment">
-          <el-input
-            v-model.number="store.formData.commissionValueAppointment"
-            style="width: 100px; margin-right: 8px"
-            clearable
-          />
-          <span>元</span>
+          <el-input-number v-model.number="store.formData.commissionValueAppointment" :controls="false" class="w-120">
+            <template #suffix>元</template>
+          </el-input-number>
         </el-form-item>
         <el-form-item label="提成值(加钟)" prop="commissionValueExtend">
-          <el-input
-            v-model.number="store.formData.commissionValueExtend"
-            style="width: 100px; margin-right: 8px"
-            clearable
-          />
-          <span>元</span>
+          <el-input-number v-model.number="store.formData.commissionValueExtend" :controls="false" class="w-120">
+            <template #suffix>元</template>
+          </el-input-number>
         </el-form-item>
       </template>
+      <!-- 比例提成 -->
       <template v-else>
         <el-form-item label="提成值(轮牌)" prop="commissionValueRotation">
           <el-input-number
@@ -91,9 +127,10 @@
             :min="0"
             :max="100"
             :controls="false"
-            style="width: 100px; margin-right: 8px"
-          />
-          <span>%</span>
+            class="w-120"
+          >
+            <template #suffix>%</template>
+          </el-input-number>
         </el-form-item>
         <el-form-item label="提成值(点钟)" prop="commissionValueAppointment">
           <el-input-number
@@ -101,9 +138,10 @@
             :min="0"
             :max="100"
             :controls="false"
-            style="width: 100px; margin-right: 8px"
-          />
-          <span>%</span>
+            class="w-120"
+          >
+            <template #suffix>%</template>
+          </el-input-number>
         </el-form-item>
         <el-form-item label="提成值(加钟)" prop="commissionValueExtend">
           <el-input-number
@@ -111,37 +149,40 @@
             :min="0"
             :max="100"
             :controls="false"
-            style="width: 100px; margin-right: 8px"
-          />
-          <span>%</span>
+            class="w-120"
+          >
+            <template #suffix>%</template>
+          </el-input-number>
         </el-form-item>
         <el-form-item label="提成价格" prop="commissionBase">
-          <el-select
-            v-model="store.formData.commissionBase"
-            placeholder="请选择提成基数"
-            style="width: 160px"
-            clearable
-          >
-            <el-option label="标准价提成" :value="0" />
-            <el-option label="会员价提成" :value="1" />
+          <el-select v-model="store.formData.commissionBase" placeholder="请选择提成基数" class="w-120" clearable>
+            <el-option v-for="item in commissionOptions" :label="item.label" :value="item.value" :key="item.value" />
           </el-select>
         </el-form-item>
       </template>
 
       <!-- 其他描述 -->
       <el-form-item label="其他描述" prop="remark">
-        <el-input v-model="store.formData.remark" type="textarea" placeholder="请输入其他描述" />
+        <el-input v-model="store.formData.remark" class="w-240" type="textarea" placeholder="请输入其他描述" />
       </el-form-item>
     </Form>
+    <EnumHandler v-model="enumHandler.visible" :title="enumHandler.title" :dictCode="enumHandler.dictCode" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
-
+import EnumHandler from '@/components/EnumHandler/index.vue';
+import { ref, onMounted, reactive } from 'vue';
+import { CommissionType, IsDiscount, commissionTypeOptions, commissionOptions, Enums } from '@/enums';
 // 引入数据仓库
 import { useServiceItemStore } from '@/store/modules/setGroup/serviceItem';
+import { useEnumStore, useDataEnumStore } from '@/store/modules/enums/index';
+import useUserStore from '@/store/modules/acl/user';
+const dataEnumStore = useDataEnumStore();
+
 const store = useServiceItemStore();
+const enumStore = useEnumStore();
+const userStore = useUserStore();
 
 // 定义组件触发的事件 - 关闭抽屉
 const emit = defineEmits(['close-drawer']);
@@ -153,6 +194,7 @@ defineProps(['disabled']);
 onMounted(async () => {
   // 可在此处添加组件初始化逻辑
   await getServiceItems();
+  initEnum();
 });
 
 const serviceItems = ref<any>([]);
@@ -179,6 +221,32 @@ const handleFormSubmit = async (model: any) => {
 const handleFormReset = () => {
   store.resetFormData();
 };
+
+//#region 字典管理
+
+const serviceItemsCategoryList = ref<any>([]);
+
+const initEnum = async () => {
+  serviceItemsCategoryList.value = await enumStore.getServiceItemCategoryList();
+};
+
+const enumHandler = reactive({
+  title: '项目分类管理',
+  visible: false,
+  dictCode: Enums.ITEM_CATEGORY,
+  defaultData: <any>[],
+});
+
+const serviceItemsCategoryMgr = () => {
+  enumHandler.visible = true;
+  enumHandler.title = '项目分类管理';
+  // enumHandler.dictCode = 'item_category';
+  enumHandler.dictCode = Enums.ITEM_CATEGORY;
+  // enumHandler.dictCode = serviceItemsCategoryList?.value?.[0]?.dictCode || Enums.ITEM_CATEGORY;
+  enumHandler.visible = true;
+};
+
+//#endregion 字典管理
 
 // 表单验证规则
 const formRules = {
@@ -224,3 +292,13 @@ const formRules = {
   commissionBase: [{ required: true, message: '请选择提成价格', trigger: 'blur' }],
 };
 </script>
+
+<style lang="scss" scoped>
+.drawer-form {
+}
+.form-item-m-l-0 {
+  :deep(.el-form-item__label-wrap) {
+    margin-left: 0 !important;
+  }
+}
+</style>

@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, markRaw } from 'vue';
+import { ref, markRaw, onMounted } from 'vue';
 import ChildNav from '@/components/ChildNav/index.vue';
 import PackageManager from './packageManager/index.vue';
 import ProductManager from './productManager/index.vue';
@@ -11,6 +11,13 @@ import RechargeCommissionRules from './rechargeCommissionRules/index.vue';
 import ServiceItemManager from './serviceItemManager/index.vue';
 import TreatmentCouponManager from './treatmentCouponManager/index.vue';
 import useUserStore from '@/store/modules/acl/user';
+import { useDataEnumStore } from '@/store/modules/enums/index';
+
+const dataEnumStore = useDataEnumStore();
+
+onMounted(() => {
+  dataEnumStore.getOrgList(true);
+});
 
 const originalNavList = ref([
   { label: '产品管理', icon: '', component: markRaw(ProductManager) },

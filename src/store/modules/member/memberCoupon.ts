@@ -12,6 +12,7 @@ import { parseResList, parseResMsg, parseResObj } from '@/utils/parseResponse';
 import { formatDate } from '@/utils/time';
 
 import { useSettingStore } from '@/store/modules/acl/setting';
+import { CommissionType } from '@/enums';
 
 export const useCouponStore = defineStore('CouponStore', () => {
   const settingStore = useSettingStore();
@@ -49,6 +50,7 @@ export const useCouponStore = defineStore('CouponStore', () => {
     const res = await reqTicketList(params);
     let data = parseResList(res);
     for (const coupon of data) {
+      coupon.orgIds = coupon.orgs.map((e: any) => e.id);
       if (coupon.serverItems && coupon.serverItems.length > 0) {
         coupon.serverItemIds = coupon.serverItems.map((item: any) => item.id);
       }
@@ -114,6 +116,7 @@ export const useCouponStore = defineStore('CouponStore', () => {
       ticketValue: null,
       ticketDescription: '',
       serverItemIds: [],
+      orgIds: [],
     };
   };
   //#endregion

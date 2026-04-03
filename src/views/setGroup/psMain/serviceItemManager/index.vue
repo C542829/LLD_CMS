@@ -16,6 +16,21 @@
           </label>
         </div>
 
+        <!-- 服务项目分类 -->
+        <div class="search-item">
+          <label>
+            <span>服务项目分类：</span>
+            <el-select v-model="store.searchParams.category" clearable @change="search" style="width: 120px">
+              <el-option
+                v-for="item in categoryList"
+                :key="item.itemValue"
+                :label="item.itemLabel"
+                :value="item.itemValue"
+              />
+            </el-select>
+          </label>
+        </div>
+
         <!-- 搜索框 -->
         <div class="search-item">
           <el-input
@@ -43,13 +58,15 @@
         :row-class-name="getRowClassName"
         :showPagination="false"
       >
-        <el-table-column prop="itemName" label="名称" />
-        <el-table-column prop="itemEncode" label="编码" />
-        <el-table-column prop="serverTime" label="服务时长(分钟)" />
-        <el-table-column prop="itemPrice" label="标准价(元)" :formatter="amountFormatter" />
-        <el-table-column prop="vipItemPrice" label="会员价(元)" :formatter="amountFormatter" />
-        <el-table-column prop="isDiscounts" label="参与折扣卡打折" :formatter="isDiscountMap" />
-        <el-table-column label="操作">
+        <el-table-column type="index" label="序号" width="60" />
+        <el-table-column prop="category" label="项目分类" min-width="50" />
+        <el-table-column prop="itemName" label="名称" min-width="80" />
+        <el-table-column prop="itemEncode" label="编码" min-width="50" />
+        <el-table-column prop="serverTime" label="服务时长(分钟)" min-width="50" />
+        <el-table-column prop="itemPrice" label="标准价(元)" :formatter="amountFormatter" min-width="50" />
+        <el-table-column prop="vipItemPrice" label="会员价(元)" :formatter="amountFormatter" min-width="50" />
+        <el-table-column prop="isDiscounts" label="参与折扣卡打折" :formatter="isDiscountMap" min-width="50" />
+        <el-table-column label="操作" min-width="80">
           <template #default="{ row }">
             <el-button @click="showDrawer(2, row)" link type="info">详情</el-button>
             <el-button @click="showDrawer(1, row)" :disabled="!!row.itemStatus" link type="primary">编辑</el-button>
@@ -74,7 +91,7 @@
 
 <script setup lang="ts">
 import { Search } from '@element-plus/icons-vue';
-import { onMounted, inject, reactive } from 'vue';
+import { onMounted, inject, reactive, ref } from 'vue';
 import ServiceItemForm from './form.vue';
 
 // 导入表格数据格式化器
@@ -84,9 +101,11 @@ import { statusOptions } from '@/enums/index';
 
 // 导入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
+import { useEnumStore } from '@/store/modules/enums/index';
 import { useServiceItemStore } from '@/store/modules/setGroup/serviceItem';
 const settingStore = useSettingStore();
 const store = useServiceItemStore();
+const enumStore = useEnumStore();
 
 // 引入消息提示组件
 const $MessageBox: any = inject('$MessageBox');
@@ -95,6 +114,12 @@ const $MessageBox: any = inject('$MessageBox');
 onMounted(() => {
   search();
 });
+
+const categoryList = ref<any>([]);
+const getEnumList = async () => {
+  categoryList.value = await enumStore.getServiceItemCategoryList();
+};
+getEnumList();
 
 // 搜索
 const search = () => {

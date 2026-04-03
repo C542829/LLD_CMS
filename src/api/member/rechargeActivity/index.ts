@@ -10,7 +10,7 @@ enum API {
 /**
  * 获取充值活动列表
  */
-export const reqActiveList = (params = {}) => get(API.LIST_URL, params);
+export const reqActiveList = (params = {}) => get(API.LIST_URL, params, { addOrgId: true });
 
 /**
  * 添加充值活动

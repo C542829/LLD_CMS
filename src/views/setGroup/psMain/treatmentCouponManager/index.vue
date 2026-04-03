@@ -78,7 +78,7 @@
   </div>
 
   <!-- 抽屉表单 -->
-  <Drawer v-model="drawer.visible" :title="drawer.title" @closed="handleDrawerClose">
+  <Drawer v-model="drawer.visible" :title="drawer.title" destroy-on-close @closed="handleDrawerClose">
     <!-- 表单 -->
     <TreatmentCouponForm :disabled="drawer.disabled" @close-drawer="drawer.visible = false" />
     <!-- 抽屉操作按钮 -->
@@ -140,6 +140,7 @@ const drawer = reactive({
 
 // 打开抽屉
 const showDrawer = (handleIndex: number, row: any = {}) => {
+  row.vipTicketList = row.ticketDetails;
   handleIndex === 2 && (drawer.disabled = true);
   handleIndex !== 0 ? (store.formData = cloneDeep(row)) : store.resetFormData();
   drawer.title = drawerTitles[handleIndex];

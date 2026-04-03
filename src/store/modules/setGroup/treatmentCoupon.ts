@@ -27,6 +27,9 @@ export const useTreatmentCouponStore = defineStore('TreatmentCoupon', () => {
     // 获取数据列表
     const res = await reqTreatmentCouponList(searchParams.value);
     const data = parseResList(res);
+    for (const item of data) {
+      item.orgIds = item.orgs.map((e: any) => e.id);
+    }
     dataList.value = data;
     // 处理数据
     // dataList.value = data.map((item, i) => {
@@ -97,6 +100,7 @@ export const useTreatmentCouponStore = defineStore('TreatmentCoupon', () => {
       commissionBase: 0,
       status: 0,
       vipTicketList: [],
+      orgIds: [],
     };
   };
 

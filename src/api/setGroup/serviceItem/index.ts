@@ -8,7 +8,7 @@ enum API {
   UPDATE_STATUS_URL = '/server/item/update-status',
 }
 
-export const reqServiceItemList = (params = {}) => get(API.LIST_URL, params);
+export const reqServiceItemList = (params = {}) => get(API.LIST_URL, params, { addOrgId: true });
 
 export const reqServiceItemInfo = (id: number) => get(API.INFO_URL, { id });
 

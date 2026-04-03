@@ -34,6 +34,9 @@ export const useServiceItemStore = defineStore('ServiceItem', () => {
   const getServiceItems = async (params = { keyWord: '', itemStatus: 0 }) => {
     const res = await reqServiceItemList(params);
     const data = parseResList(res);
+    for (const item of data) {
+      item.orgIds = item.orgs.map((e: any) => e.id);
+    }
     return data;
   };
 
@@ -42,6 +45,7 @@ export const useServiceItemStore = defineStore('ServiceItem', () => {
    */
   const searchParams = reactive({
     keyWord: '',
+    category: '',
     itemStatus: 0,
   });
 
@@ -96,6 +100,8 @@ export const useServiceItemStore = defineStore('ServiceItem', () => {
       commissionBase: 0,
       itemStatus: 0,
       remark: '',
+      orgIds: [],
+      category: '',
     };
   };
 

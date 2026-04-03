@@ -8,7 +8,7 @@ enum API {
   UPDATE_STATUS = '/server/cureTicket/update-status',
 }
 
-export const reqTreatmentCouponList = (params = {}) => get(API.LIST_URL, params);
+export const reqTreatmentCouponList = (params = {}) => get(API.LIST_URL, params, { addOrgId: true });
 
 export const reqTreatmentCouponInfo = (params = {}) => get(API.INFO_URL, params);
 

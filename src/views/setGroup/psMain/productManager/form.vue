@@ -8,19 +8,38 @@
       @submit="handleFormSubmit"
       @reset="handleFormReset"
     >
+      <!-- 关联门店 -->
+      <template v-if="userStore.isAdmin">
+        <el-form-item label="关联门店" prop="orgIds">
+          <el-select
+            v-model="store.formData.orgIds"
+            placeholder="关联门店"
+            class="w-240"
+            value-key="id"
+            clearable
+            multiple
+            collapse-tags
+            collapse-tags-tooltip
+            :max-collapse-tags="1"
+          >
+            <el-option v-for="item in dataEnumStore.orgList" :key="item.id" :label="item.orgName" :value="item.id" />
+          </el-select>
+        </el-form-item>
+      </template>
+
       <!-- 产品编码 -->
       <el-form-item label="产品编码" prop="productEncode">
-        <el-input v-model="store.formData.productEncode" placeholder="请输入产品编码" />
+        <el-input v-model="store.formData.productEncode" class="w-240" placeholder="请输入产品编码" clearable />
       </el-form-item>
 
       <!-- 产品名称 -->
       <el-form-item label="产品名称" prop="productName">
-        <el-input v-model="store.formData.productName" placeholder="请输入产品名称" />
+        <el-input v-model="store.formData.productName" class="w-240" placeholder="请输入产品名称" clearable />
       </el-form-item>
 
       <!-- 产品单位 -->
       <el-form-item label="产品单位" prop="unit">
-        <el-select v-model="store.formData.unit" placeholder="选择产品单位" style="width: 150px; margin-right: 15px">
+        <el-select v-model="store.formData.unit" placeholder="选择产品单位" style="width: 160px; margin-right: 15px">
           <el-option
             v-for="item in unitOptions"
             :key="item.itemValue"
@@ -28,52 +47,72 @@
             :value="item.itemValue"
           />
         </el-select>
-        <el-button link type="primary" @click="enumDialog.visible = true">单位管理</el-button>
+        <el-button link type="primary" @click="unitMgr">单位管理</el-button>
+      </el-form-item>
+
+      <!-- 产品分类 -->
+      <el-form-item label="产品分类" prop="unit">
+        <el-select
+          v-model="store.formData.category"
+          placeholder="选择产品分类"
+          style="width: 160px; margin-right: 15px"
+        >
+          <el-option
+            v-for="item in productCategoryList"
+            :key="item.itemValue"
+            :label="item.itemLabel"
+            :value="item.itemValue"
+          />
+        </el-select>
+        <el-button link type="primary" @click="productCategoryMgr">分类管理</el-button>
       </el-form-item>
 
       <!-- 价格设置 -->
       <el-form-item label="价格设置">
         <Card>
-          <el-form-item label="标准价：" prop="productPrice" style="margin-bottom: 15px">
-            <el-input-number size="small" v-model="store.formData.productPrice" :controls="false" />
-            &nbsp;元
+          <el-form-item label="标准价：" prop="productPrice">
+            <el-input-number v-model="store.formData.productPrice" :controls="false" class="w-130">
+              <template #suffix>元</template>
+            </el-input-number>
           </el-form-item>
           <el-form-item label="会员价：" prop="vipProductPrice">
-            <el-input-number size="small" v-model="store.formData.vipProductPrice" :controls="false" />
-            &nbsp;元
+            <el-input-number v-model="store.formData.vipProductPrice" :controls="false" class="w-130">
+              <template #suffix>元</template>
+            </el-input-number>
           </el-form-item>
         </Card>
       </el-form-item>
 
       <!-- 允许打折 -->
       <el-form-item label="允许打折" prop="isDiscount">
-        <el-switch v-model="store.formData.isDiscount" :active-value="0" :inactive-value="1" />
+        <el-switch v-model="store.formData.isDiscount" :active-value="IsDiscount.Yes" :inactive-value="IsDiscount.No" />
       </el-form-item>
 
       <!-- 提成类型 -->
       <el-form-item label="提成类型" prop="commissionType">
         <el-radio-group v-model="store.formData.commissionType">
-          <el-radio :value="CommissionType.FixedAmount" :border="true">固定金额</el-radio>
-          <el-radio :value="CommissionType.Proportion" :border="true">比例提成</el-radio>
+          <el-radio v-for="item in commissionTypeOptions" :value="item.value" :border="true">{{ item.label }}</el-radio>
         </el-radio-group>
       </el-form-item>
 
       <!-- 固定金额 -->
       <template v-if="store.formData.commissionType === CommissionType.FixedAmount">
         <el-form-item label="提成值" prop="commissionValue">
-          <el-input-number size="small" v-model="store.formData.commissionValue" :controls="false" />
-          &nbsp;元
+          <el-input-number v-model="store.formData.commissionValue" :controls="false" class="w-120">
+            <template #suffix>元</template>
+          </el-input-number>
         </el-form-item>
       </template>
 
       <!-- 比例提成 -->
       <template v-if="store.formData.commissionType === CommissionType.Proportion">
         <el-form-item label="提成比例" prop="commissionValue" style="margin-bottom: 15px">
-          <el-input-number size="small" v-model="store.formData.commissionValue" :controls="false" />
-          &nbsp;%
+          <el-input-number v-model="store.formData.commissionValue" :controls="false" class="w-120">
+            <template #suffix>%</template>
+          </el-input-number>
         </el-form-item>
         <el-form-item label="价格类型" prop="commissionBase">
-          <el-select v-model="store.formData.commissionBase" style="width: 150px">
+          <el-select v-model="store.formData.commissionBase" class="w-120">
             <el-option v-for="item in commissionOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
@@ -83,8 +122,8 @@
       <el-form-item label="其他描述">
         <el-input
           v-model="store.formData.remark"
-          style="width: 240px"
           :autosize="{ minRows: 2, maxRows: 4 }"
+          class="w-240"
           type="textarea"
           placeholder="请输入产品描述"
         />
@@ -92,22 +131,22 @@
     </Form>
 
     <!-- 枚举管理dialog -->
-    <EnumHandler v-model="enumDialog.visible" :title="enumDialog.title" :dictCode="enumDialog.dictCode"></EnumHandler>
+    <EnumHandler v-model="enumDialog.visible" :title="enumDialog.title" :dictCode="enumDialog.dictCode" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
 import EnumHandler from '@/components/EnumHandler/index.vue';
-
-// 导入枚举数据
-import { commissionOptions, CommissionType, IsDiscount } from '@/enums/index';
-
+import { ref, reactive, onMounted } from 'vue';
+import { commissionOptions, CommissionType, IsDiscount, commissionTypeOptions } from '@/enums/index';
 // 引入数据仓库
 import { useProductStore } from '@/store/modules/setGroup/product';
-import { useEnumStore, Enums } from '@/store/modules/enums/index';
+import useUserStore from '@/store/modules/acl/user';
+import { useEnumStore, Enums, useDataEnumStore } from '@/store/modules/enums/index';
 const store = useProductStore();
 const enumStore = useEnumStore();
+const dataEnumStore = useDataEnumStore();
+const userStore = useUserStore();
 
 // 定义组件触发的事件 - 关闭抽屉
 const $emit = defineEmits(['close-drawer']);
@@ -134,17 +173,40 @@ const handleFormReset = () => {
   store.resetFormData();
 };
 
-const unitOptions = ref<any>([]);
 onMounted(async () => {
-  unitOptions.value = await enumStore.getUnits();
+  // unitOptions.value = await enumStore.getUnits();
+  initEnum();
+  // productCategoryList.value = await enumStore.getProductCategoryList();
 });
 
-// dialog 参数
+//#region 字典管理
+
+const unitOptions = ref<any>([]);
+const productCategoryList = ref<any>([]);
+const initEnum = async () => {
+  unitOptions.value = await enumStore.getUnits();
+  productCategoryList.value = await enumStore.getProductCategoryList();
+};
+
 const enumDialog = reactive({
   title: '单位管理',
   visible: false,
-  dictCode: Enums.UNIT,
+  dictCode: '',
 });
+
+const unitMgr = () => {
+  enumDialog.title = '单位管理';
+  enumDialog.dictCode = Enums.UNIT;
+  enumDialog.visible = true;
+};
+
+const productCategoryMgr = () => {
+  enumDialog.title = '产品分类管理';
+  enumDialog.dictCode = Enums.PRODUCT_CATEGORY;
+  enumDialog.visible = true;
+};
+
+//#endregion 字典管理
 
 // 表单验证规则
 const formRules = {

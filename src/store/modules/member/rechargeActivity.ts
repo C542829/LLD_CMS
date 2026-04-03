@@ -6,6 +6,7 @@ import { parseResMsg, parseResList } from '@/utils/parseResponse';
 import { formatDate } from '@/utils/time';
 
 import { useSettingStore } from '@/store/modules/acl/setting';
+import { CommissionType } from '@/enums';
 
 export const useRechargeActivityStore = defineStore('RechargeActivity', () => {
   const settingStore = useSettingStore();
@@ -41,6 +42,9 @@ export const useRechargeActivityStore = defineStore('RechargeActivity', () => {
       });
       return item;
     });
+    for (const item of data) {
+      item.orgIds = item.orgs.map((e: any) => e.id);
+    }
     return data;
   };
 
@@ -70,8 +74,8 @@ export const useRechargeActivityStore = defineStore('RechargeActivity', () => {
    * @returns 更新结果
    */
   const update = async (data: any) => {
-    data.activeBeginTime = formatDate(data.activeTime[0]);
-    data.activeFinalTime = formatDate(data.activeTime[1]);
+    data.activeBeginTime = data.activeTime[0];
+    data.activeFinalTime = data.activeTime[1];
     // 发送请求
     // const res = await (data?.id ? reqUpdateActive(data) : reqAddActive(data));
     const res = await (data?.id ? data : reqAddActive(data));
@@ -111,7 +115,7 @@ export const useRechargeActivityStore = defineStore('RechargeActivity', () => {
       activeType: 0,
       activeCapital: 0,
       activeDiscount: 100,
-      activeBase: 1,
+      activeBase: 0,
       isCrossStore: 1,
 
       presentValue: 0,
@@ -121,6 +125,9 @@ export const useRechargeActivityStore = defineStore('RechargeActivity', () => {
       presentIsCrossStore: 0,
       ticketIds: [],
       remark: '',
+      commissionType: CommissionType.FixedAmount,
+      commissionValue: 0,
+      orgIds: [],
     };
   };
 
