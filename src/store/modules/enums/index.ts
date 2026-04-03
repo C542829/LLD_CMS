@@ -14,27 +14,21 @@ import {
 } from '@/api/enums/index';
 import { reqTicketList } from '@/api/member/coupon/index';
 import { reqActiveList } from '@/api/member/rechargeActivity/index';
-import { reqUserList } from '@/api/staffMain/staff/index';
+import { reqUserList } from '@/api/staffMain/index';
 import { reqProductList } from '@/api/setGroup/product/index';
 import { reqServiceItemList } from '@/api/setGroup/serviceItem/index';
 import { reqPackageList } from '@/api/setGroup/package/index';
 import { reqBedListAll } from '@/api/setGroup/room/index';
 import { reqTreatmentCouponList } from '@/api/setGroup/treatmentCoupon/index';
 import { reqList as reqOrgList } from '@/api/acl/org/index';
+import { reqRoleList } from '@/api/acl/role';
 
 import { parseResList, parseResMsg, parseResObj } from '@/utils/parseResponse';
-import { CouponType } from '@/enums/index';
-
-export enum Enums {
-  BED_STATUS = 'bed_status',
-  UNIT = 'unit',
-  POSITION = 'position',
-  DEPARTMENT = 'department',
-  PERF_TYPE = 'item_type',
-  SERVICE_TYPE = 'service_type',
-}
+import { Enums } from '@/enums/index';
 
 import { useSettingStore } from '@/store/modules/acl/setting';
+
+export { Enums };
 
 export const useEnumStore = defineStore('Enum', () => {
   const settingStore = useSettingStore();
@@ -110,10 +104,15 @@ export const useEnumStore = defineStore('Enum', () => {
    * @returns 枚举项列表
    */
   const getEnumItemList = async (dictCode: string) => {
-    const params = { dictCode };
-    const res = await reqEnumItemList(params);
-    const data = parseResList(res);
-    return data;
+    try {
+      const params = { dictCode };
+      const res = await reqEnumItemList(params);
+      const data = parseResList(res);
+      return data;
+    } catch (error) {
+      console.error('获取字典列表失败：', error);
+      return [];
+    }
   };
 
   /**
@@ -156,6 +155,21 @@ export const useEnumStore = defineStore('Enum', () => {
     return await getEnumItemList(Enums.SERVICE_TYPE);
   };
 
+  /**
+   * 获取服务项目分类列表
+   * @returns 服务项目分类列表
+   */
+  const getServiceItemCategoryList = async () => {
+    return await getEnumItemList(Enums.ITEM_CATEGORY);
+  };
+  /**
+   * 获取产品分类列表
+   * @returns 产品分类列表
+   */
+  const getProductCategoryList = async () => {
+    return await getEnumItemList(Enums.PRODUCT_CATEGORY);
+  };
+
   return {
     getDeptList,
     getUnits,
@@ -163,6 +177,8 @@ export const useEnumStore = defineStore('Enum', () => {
     getPerfTypeList,
     getServiceTypeList,
     getEnumItemList,
+    getServiceItemCategoryList,
+    getProductCategoryList,
 
     search,
     tableData,
@@ -198,7 +214,16 @@ export const useDataEnumStore = defineStore('DataEnum', () => {
   const setStaffList = async (params: any) => {
     const res = await reqUserList(params);
     const data = parseResObj(res);
-    staffList.value = data.rows;
+    staffList.value = data.rows.map((item: any) => {
+      return {
+        id: item.id,
+        userId: item.id,
+        userName: item.userName,
+      };
+    });
+    // for (const staff of staffList.value) {
+    //   staff.userId = staff.id;
+    // }
   };
 
   /** 优惠券列表 */
@@ -363,9 +388,36 @@ export const useDataEnumStore = defineStore('DataEnum', () => {
     }
   };
   const setOrgList = async (params: any) => {
-    const res = await reqOrgList(params);
-    const data = parseResList(res);
-    orgList.value = data;
+    try {
+      const res = await reqOrgList(params);
+      const data = parseResList(res);
+      orgList.value = data.filter((item) => !item?.orgCode.includes('Test'));
+    } catch (error) {}
+  };
+
+  /** 角色列表 */
+  const roleList: any = ref([]);
+  /**
+   * 获取门店列表
+   * @param refresh 是否刷新
+   * @param params 请求参数
+   * @returns 门店列表
+   */
+  const getRoleList = async (refresh = false, params = { status: 0 }) => {
+    if (isEmpty(roleList.value) || refresh) {
+      await setRoleList(params);
+      return roleList.value;
+    } else {
+      return roleList.value;
+    }
+  };
+  const setRoleList = async (params: any) => {
+    try {
+      const res = await reqRoleList(params);
+      roleList.value = res.data;
+    } catch (error) {
+      console.error('获取角色列表失败：', error);
+    }
   };
 
   const $reset = () => {
@@ -377,6 +429,7 @@ export const useDataEnumStore = defineStore('DataEnum', () => {
     packageList.value = [];
     treatmentCouponList.value = [];
     orgList.value = [];
+    roleList.value = [];
   };
 
   return {
@@ -423,6 +476,11 @@ export const useDataEnumStore = defineStore('DataEnum', () => {
     orgList,
     setOrgList,
     getOrgList,
+
+    // 角色列表
+    roleList,
+    setRoleList,
+    getRoleList,
   };
 });
 
