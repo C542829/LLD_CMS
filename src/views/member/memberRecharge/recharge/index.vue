@@ -77,22 +77,26 @@
 
           <!-- 充值活动列表 -->
           <div v-loading="settingStore.loading" class="activity-list">
-            <h1>可选充值活动</h1>
-            <div>
-              <ActivityCard
-                v-for="item in activityList"
-                :key="item.id"
-                :id="item.id"
-                :title="item.activeName"
-                :subtitle="item.remark"
-                :status="item.status"
-                :end-date="item.activeFinalTime"
-                @click="handleCardClick"
-              />
-              <div v-if="activityList.length === 0" class="activity-empty">
-                <span>暂无活动...</span>
-                <el-button type="primary" size="small" link @click="getActivityList">点击刷新</el-button>
-              </div>
+            <h1>
+              可选充值活动
+              <el-button type="primary" size="small" link @click="getActivities">刷新</el-button>
+            </h1>
+            <div class="activity-list-content">
+              <template v-if="activityList.length === 0">
+                <Empty></Empty>
+              </template>
+              <template v-else>
+                <ActivityCard
+                  v-for="item in activityList"
+                  :key="item.id"
+                  :id="item.id"
+                  :title="item.activeName"
+                  :subtitle="item.remark"
+                  :status="item.status"
+                  :end-date="item.activeFinalTime"
+                  @click="handleCardClick"
+                />
+              </template>
             </div>
           </div>
 
@@ -116,41 +120,26 @@ import ActivityCard from './ActivityCard.vue';
 import { Search } from '@element-plus/icons-vue';
 import { ref, watch, onMounted, reactive } from 'vue';
 import { reqDefaultCommissionRule } from '@/api/setGroup/rechargeCommissionRules/index';
+import { getActivityList } from '@/api/member/rechargeActivity/index';
 
 import { useSettingStore } from '@/store/modules/acl/setting';
-import { useDynamicDataStore } from '@/store/modules/enums/dynamicData';
 import { useMemberStore } from '@/store/modules/member/member';
 import { useRechargeStore } from '@/store/modules/member/recharge';
-import { useOrgStore } from '@/store/modules/acl/org';
 
 const settingStore = useSettingStore();
-const dynamicDataStore = useDynamicDataStore();
 const memberStore = useMemberStore();
-const orgStore = useOrgStore();
 const store = useRechargeStore();
 
 onMounted(async () => {
-  getActivityList();
+  getActivities();
   getDefaultRCRule();
   store.reset();
-  // getDefaultDiscount();
 });
-
-/** 获取默认折扣规则 */
-const getDefaultDiscount = async () => {
-  try {
-    const org: any = await orgStore.getOrg();
-    store.rcRule.defaultDiscountRate = org.defaultDiscountRate;
-    store.rcRule.defaultDiscountBase = org.defaultDiscountBase;
-    store.rcRule.defaultIsCrossStore = org.defaultIsCrossStore;
-    store.rcRule.defaultRechargeRoleId = org.defaultRechargeRoleId;
-  } catch (error) {}
-};
 
 /** 获取默认充值佣金规则 */
 const getDefaultRCRule = async () => {
   try {
-    const res = await reqDefaultCommissionRule();
+    const res: any = await reqDefaultCommissionRule();
     store.rcRule = res.data;
   } catch (error) {
     console.error('获取默认充值佣金规则', error);
@@ -159,14 +148,16 @@ const getDefaultRCRule = async () => {
 
 // 活动列表
 const activityList = ref<any>([]);
-const getActivityList = async () => {
+const getActivities = async () => {
   settingStore.loading = true;
-  const res = await dynamicDataStore.getActiveList();
+  const data = await getActivityList();
   activityList.value =
-    res.data.map((item: any) => {
+    data.map((item: any) => {
       item.status = 'active';
       return item;
     }) || [];
+
+  // activityList.value = [];
   settingStore.loading = false;
 };
 
@@ -334,7 +325,7 @@ const openRCDialog = () => {
             font-weight: bold;
             text-align: center;
           }
-          > div {
+          .activity-list-content {
             width: 800px;
             height: calc(100% - 50px);
             margin: 0 auto;

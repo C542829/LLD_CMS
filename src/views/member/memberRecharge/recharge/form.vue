@@ -116,11 +116,10 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
 import { Plus, Minus } from '@element-plus/icons-vue';
+import { isEmpty } from 'lodash';
+import { getUserList } from '@/api/user';
 import { paymentTypeOptions, isCrossStoreOptions, discountTypeOptions } from '@/enums';
 import { useRechargeStore } from '@/store/modules/member/recharge';
-import { useDynamicDataStore } from '@/store/modules/enums/dynamicData';
-import { isEmpty } from 'lodash';
-const dynamicDataStore = useDynamicDataStore();
 const store = useRechargeStore();
 
 onMounted(() => {
@@ -131,10 +130,7 @@ onMounted(() => {
 // 销售员列表
 const staffList = ref<any>([]);
 const getStaffList = async () => {
-  const res = await dynamicDataStore.getUserList();
-  if (res && res.data && res.data.rows) {
-    staffList.value = res.data.rows || [];
-  }
+  staffList.value = await getUserList();
 };
 
 // 响应式数据
