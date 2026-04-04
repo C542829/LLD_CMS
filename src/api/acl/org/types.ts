@@ -42,7 +42,7 @@ declare global {
     /**
      * 机构编号
      */
-    orgCode?: string;
+    orgCode: string;
     /**
      * 机构负责人
      */

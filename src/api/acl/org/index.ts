@@ -29,7 +29,7 @@ enum API {
  * @param params 搜索参数
  * @returns
  */
-export const reqList = (params: Types.SearchListParams): ApiResponse<OrgInfo[]> => {
+export const reqList = (params: Types.SearchListParams = { orgState: 0 }): ApiResponse<OrgInfo[]> => {
   return get(API.LIST_URL, params);
 };
 
