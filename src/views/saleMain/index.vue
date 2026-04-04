@@ -229,6 +229,8 @@ const addOrderDetail = async (detail: any) => {
     const index = orderStore.order.orderDetails.length;
     // 添加订单明细
     detail = { index, ...detail };
+    // 设置订单明细ID
+    detail.id = res.data;
     orderStore.order.orderDetails.push(detail);
     orderStore.updateOrderDetailPrice();
   } catch (error) {
