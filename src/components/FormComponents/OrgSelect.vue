@@ -89,8 +89,8 @@ watch(
  * 选择门店
  */
 const handleChange = (val: number | number[]) => {
-  emit('change', val);
   emit('update:modelValue', val);
+  emit('change', val);
 };
 
 /**
@@ -107,7 +107,9 @@ const handleClear = () => {
  */
 const handleSelectAll = () => {
   if (props.multiple && options.value) {
-    emit('update:modelValue', options.value.map((item) => item.id) as number[]);
+    const val = options.value.map((item) => item.id) as number[];
+    emit('update:modelValue', val);
+    emit('change', val);
   }
 };
 
