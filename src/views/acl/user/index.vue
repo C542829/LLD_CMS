@@ -89,12 +89,13 @@
         <el-table-column prop="userName" label="姓名" width="80" />
         <el-table-column prop="userSex" label="性别" width="60" :formatter="sexMap" />
         <el-table-column prop="userNumber" label="手机号" width="120" />
-        <el-table-column prop="userCode" label="编号" min-width="60" />
-        <el-table-column prop="userDept" label="部门" min-width="70" />
-        <el-table-column prop="userPosition" label="职位" min-width="70" />
+        <el-table-column prop="userCode" label="账号" min-width="60" />
+        <el-table-column prop="role.roleName" label="角色" min-width="40" />
+        <el-table-column prop="userDept" label="部门" min-width="50" />
+        <el-table-column prop="userPosition" label="职位" min-width="40" />
         <el-table-column prop="userEntryDate" label="入职时间" width="110" />
         <el-table-column prop="userStatus" label="在职状态" width="90" />
-        <el-table-column label="操作" min-width="120">
+        <el-table-column label="操作" min-width="100">
           <template #default="{ row }">
             <el-button link type="info" @click="showDrawer('view', row)">更多</el-button>
             <el-button link type="primary" @click="showDrawer('edit', row)">编辑</el-button>
