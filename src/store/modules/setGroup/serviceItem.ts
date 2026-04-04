@@ -97,7 +97,7 @@ export const useServiceItemStore = defineStore('ServiceItem', () => {
       commissionValueRotation: null,
       commissionValueAppointment: null,
       commissionValueExtend: null,
-      commissionBase: 0,
+      commissionBase: 1,
       itemStatus: 0,
       remark: '',
       orgIds: [],

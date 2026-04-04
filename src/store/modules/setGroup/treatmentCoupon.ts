@@ -97,7 +97,7 @@ export const useTreatmentCouponStore = defineStore('TreatmentCoupon', () => {
       price: 0,
       type: 0,
       commissionValue: 0,
-      commissionBase: 0,
+      commissionBase: 1,
       status: 0,
       vipTicketList: [],
       orgIds: [],

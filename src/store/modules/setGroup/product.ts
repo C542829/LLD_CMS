@@ -108,7 +108,7 @@ export const useProductStore = defineStore('Product', () => {
       isDiscount: 1,
       commissionType: 1,
       commissionValue: null,
-      commissionBase: 0,
+      commissionBase: 1,
       productStatus: 0,
       unit: '',
       orgIds: [],

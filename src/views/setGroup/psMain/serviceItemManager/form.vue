@@ -11,19 +11,7 @@
       <!-- 关联门店 -->
       <template v-if="userStore.isAdmin">
         <el-form-item label="关联门店" prop="orgIds">
-          <el-select
-            v-model="store.formData.orgIds"
-            placeholder="关联门店"
-            class="w-240"
-            value-key="id"
-            clearable
-            multiple
-            collapse-tags
-            collapse-tags-tooltip
-            :max-collapse-tags="1"
-          >
-            <el-option v-for="item in dataEnumStore.orgList" :key="item.id" :label="item.orgName" :value="item.id" />
-          </el-select>
+          <OrgSelect v-model="store.formData.orgIds" />
         </el-form-item>
       </template>
 
@@ -166,7 +154,12 @@
         <el-input v-model="store.formData.remark" class="w-240" type="textarea" placeholder="请输入其他描述" />
       </el-form-item>
     </Form>
-    <EnumHandler v-model="enumHandler.visible" :title="enumHandler.title" :dictCode="enumHandler.dictCode" />
+    <EnumHandler
+      v-model="enumHandler.visible"
+      :title="enumHandler.title"
+      :dictCode="enumHandler.dictCode"
+      @refresh="initEnum"
+    />
   </div>
 </template>
 
@@ -176,9 +169,8 @@ import { ref, onMounted, reactive } from 'vue';
 import { CommissionType, IsDiscount, commissionTypeOptions, commissionOptions, Enums } from '@/enums';
 // 引入数据仓库
 import { useServiceItemStore } from '@/store/modules/setGroup/serviceItem';
-import { useEnumStore, useDataEnumStore } from '@/store/modules/enums/index';
+import { useEnumStore } from '@/store/modules/enums/index';
 import useUserStore from '@/store/modules/acl/user';
-const dataEnumStore = useDataEnumStore();
 
 const store = useServiceItemStore();
 const enumStore = useEnumStore();
@@ -240,9 +232,7 @@ const enumHandler = reactive({
 const serviceItemsCategoryMgr = () => {
   enumHandler.visible = true;
   enumHandler.title = '项目分类管理';
-  // enumHandler.dictCode = 'item_category';
   enumHandler.dictCode = Enums.ITEM_CATEGORY;
-  // enumHandler.dictCode = serviceItemsCategoryList?.value?.[0]?.dictCode || Enums.ITEM_CATEGORY;
   enumHandler.visible = true;
 };
 
@@ -250,29 +240,31 @@ const serviceItemsCategoryMgr = () => {
 
 // 表单验证规则
 const formRules = {
+  orgIds: [{ required: true, message: '请选择关联门店', trigger: 'blur' }],
   itemEncode: [
     { required: true, message: '请输入服务项目编码', trigger: 'blur' },
-    {
-      validator: (rule: any, value: any, callback: any) => {
-        const item = serviceItems.value.filter((item: any) => item.itemEncode === value);
-        if (item.length === 0) {
-          callback();
-          return;
-        }
-        if (item.length === 1 && store.formData.id === item[0].id) {
-          callback();
-          return;
-        }
-        callback(new Error('编码已存在'));
-      },
-      trigger: 'blur',
-    },
+    // {
+    //   validator: (rule: any, value: any, callback: any) => {
+    //     const item = serviceItems.value.filter((item: any) => item.itemEncode === value);
+    //     if (item.length === 0) {
+    //       callback();
+    //       return;
+    //     }
+    //     if (item.length === 1 && store.formData.id === item[0].id) {
+    //       callback();
+    //       return;
+    //     }
+    //     callback(new Error('编码已存在'));
+    //   },
+    //   trigger: 'blur',
+    // },
   ],
   itemName: [{ required: true, message: '请输入服务项目名称', trigger: 'blur' }],
   serverTime: [
     { required: true, message: '请输入服务时间', trigger: 'blur' },
     { type: 'number', message: '请输入数字', trigger: 'blur' },
   ],
+  category: [{ required: true, message: '请选择服务项目分类', trigger: 'blur' }],
   itemPrice: [{ required: true, message: '请输入服务项目价格', trigger: 'blur' }],
   vipItemPrice: [{ required: true, message: '请输入会员价格', trigger: 'blur' }],
   isDiscounts: [{ required: true, message: '请输入是否提成', trigger: 'blur' }],

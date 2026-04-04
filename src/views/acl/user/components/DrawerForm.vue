@@ -12,33 +12,19 @@
       <!-- 关联门店 -->
       <template v-if="userStore.isAdmin">
         <el-form-item label="关联门店" prop="orgIds">
-          <el-select
-            v-model="formdata.orgIds"
-            placeholder="关联门店"
-            class="w-240"
-            value-key="id"
-            clearable
-            multiple
-            collapse-tags
-            collapse-tags-tooltip
-            :max-collapse-tags="1"
-          >
-            <el-option v-for="item in dataEnumStore.orgList" :key="item.id" :label="item.orgName" :value="item.id" />
-          </el-select>
+          <OrgSelect v-model="formdata.orgIds" />
         </el-form-item>
       </template>
       <!-- 关联门店 -->
       <template v-if="userStore.isAdmin || userStore.isAreaManager">
         <el-form-item label="默认门店" prop="orgId">
-          <el-select v-model="formdata.orgId" placeholder="默认门店" class="w-240" value-key="id" clearable>
-            <el-option v-for="item in dataEnumStore.orgList" :key="item.id" :label="item.orgName" :value="item.id" />
-          </el-select>
+          <OrgSelect v-model="formdata.orgId" :multiple="false" />
         </el-form-item>
       </template>
 
       <!-- 人员编号 -->
-      <el-form-item label="编号" prop="userCode">
-        <el-input v-model="formdata.userCode" clearable class="w-240" placeholder="请输入编号" />
+      <el-form-item label="账号" prop="userCode">
+        <el-input v-model="formdata.userCode" clearable class="w-240" placeholder="请输入账号" />
       </el-form-item>
 
       <!-- 姓名 -->
@@ -167,11 +153,15 @@
       <el-button @click="drawerVisible = false">取消</el-button>
     </div>
   </Drawer>
-  <EnumHandler v-model="enumHandler.visible" :title="enumHandler.title" :dictCode="enumHandler.dictCode" />
+  <EnumHandler
+    v-model="enumHandler.visible"
+    :title="enumHandler.title"
+    :dictCode="enumHandler.dictCode"
+    @refresh="initEnum"
+  />
 </template>
 
 <script setup lang="ts">
-import EnumHandler from '@/components/EnumHandler/index.vue';
 import { ref, reactive, onMounted, computed, watch } from 'vue';
 import { cloneDeep } from 'lodash';
 import { type Types } from '@/api/acl/role';
@@ -336,7 +326,9 @@ const positionMgr = () => {
 
 // 表单验证规则
 const formRules = {
-  userCode: [{ required: true, message: '人员编号为必填项', trigger: 'blur' }],
+  orgIds: [{ required: true, message: '请选择关联门店', trigger: 'blur' }],
+  orgId: [{ required: true, message: '请选择默认门店', trigger: 'blur' }],
+  userCode: [{ required: true, message: '人员账号为必填项', trigger: 'blur' }],
   userName: [
     { required: true, message: '姓名为必填项', trigger: 'blur' },
     { min: 2, max: 20, message: '姓名长度在2到20个字符之间', trigger: 'blur' },
@@ -347,7 +339,7 @@ const formRules = {
   ],
   roleId: [{ required: true, message: '请选择人员角色', trigger: 'change' }],
   userIdCard: [
-    { required: true, message: '姓名为必填项', trigger: 'blur' },
+    { required: true, message: '身份证号为必填项', trigger: 'blur' },
     { pattern: /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/, message: '请输入正确的身份证号码', trigger: 'blur' },
   ],
   userAddress: [{ max: 200, message: '人员地址长度不能超过200个字符', trigger: 'blur' }],

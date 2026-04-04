@@ -12,19 +12,7 @@
       <!-- 关联门店 -->
       <template v-if="userStore.isAdmin">
         <el-form-item label="关联门店" prop="orgIds">
-          <el-select
-            v-model="store.formData.orgIds"
-            placeholder="关联门店"
-            class="w-240"
-            value-key="id"
-            clearable
-            multiple
-            collapse-tags
-            collapse-tags-tooltip
-            :max-collapse-tags="1"
-          >
-            <el-option v-for="item in dataEnumStore.orgList" :key="item.id" :label="item.orgName" :value="item.id" />
-          </el-select>
+          <OrgSelect v-model="store.formData.orgIds" />
         </el-form-item>
       </template>
 
@@ -78,14 +66,14 @@
             <template #suffix>%</template>
           </el-input-number>
         </el-form-item>
-        <el-form-item label="价格类型" prop="commissionBase">
+        <el-form-item label="提成基准" prop="commissionBase">
           <el-select v-model="store.formData.commissionBase" class="w-120">
             <el-option v-for="item in commissionOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
       </template>
 
-      <el-form-item label="优惠券" prop="ticketIds">
+      <el-form-item label="优惠券" prop="vipTicketList">
         <MultipleSelect
           v-model="store.formData.vipTicketList"
           :displayProps="defaultProps"
@@ -156,35 +144,6 @@ const getCouponList = async () => {
   });
 };
 
-// const tickets = computed(() =>
-//   dataEnumStore.ticketList.map((item: any) => {
-//     return {
-//       vipTicketId: item.id,
-//       vipTicketName: item.ticketName,
-//       vipTicketNum: 1,
-//       ticketDescription: item.ticketDescription,
-//       isEdit: false,
-//     };
-//   }),
-// );
-
-/**
- * 选择框选择方法 - 将选择的内容添加到已选择数组
- * @param data 选择的内容
- */
-// const submitSelect = (data: any) => {
-//   console.log('已选择：', data);
-//   store.formData.vipTicketList = data;
-// };
-
-/**
- * 更新数量
- * @param item 已选择的内容
- */
-// const updateNumber = (item: any) => {
-//   item.vipTicketNum = item.vipTicketNum;
-// };
-
 /**
  * 表单提交处理函数
  * @param model 表单数据对象
@@ -207,6 +166,7 @@ const handleFormReset = () => {
 
 // 表单验证规则
 const formRules = {
+  orgIds: [{ required: true, message: '请选择关联门店', trigger: 'blur' }],
   encode: [{ required: true, message: '请输入疗程券编码', trigger: 'blur' }],
   name: [{ required: true, message: '请输入疗程券名称', trigger: 'blur' }],
   price: [
@@ -218,11 +178,8 @@ const formRules = {
     { required: true, message: '请输入提成比例', trigger: 'blur' },
     { type: 'number', message: '请输入数字', trigger: 'blur' },
   ],
-  commissionBase: [
-    { required: true, message: '请输入提成金额', trigger: 'blur' },
-    { type: 'number', message: '请输入数字', trigger: 'blur' },
-  ],
-  vipTicketList: [{ required: true, message: '请选择套餐项目信息', trigger: 'blur' }],
+  commissionBase: [{ required: true, message: '请选择提成基准', trigger: 'blur' }],
+  vipTicketList: [{ required: true, message: '请选择优惠券', trigger: 'blur' }],
 };
 </script>
 

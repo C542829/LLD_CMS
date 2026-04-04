@@ -12,7 +12,8 @@
       <!-- 关联门店 -->
       <template v-if="userStore.isAdmin">
         <el-form-item label="关联门店" prop="orgIds">
-          <el-select
+          <OrgSelect v-model="formdata.orgIds" />
+          <!-- <el-select
             v-model="formdata.orgIds"
             placeholder="关联门店"
             class="w-240"
@@ -24,7 +25,7 @@
             :max-collapse-tags="1"
           >
             <el-option v-for="item in dataEnumStore.orgList" :key="item.id" :label="item.orgName" :value="item.id" />
-          </el-select>
+          </el-select> -->
         </el-form-item>
       </template>
 
@@ -78,7 +79,7 @@
             <template #suffix>%</template>
           </el-input-number>
         </el-form-item>
-        <el-form-item label="价格类型" prop="commissionBase">
+        <el-form-item label="提成基准" prop="commissionBase">
           <el-select v-model="formdata.commissionBase" class="w-120">
             <el-option v-for="item in commissionOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
@@ -119,13 +120,12 @@ import { type Types } from '@/api/acl/role';
 import { type Types as UserTypes, reqAddUser, reqUpdateUser } from '@/api/user/index';
 import { DEFAULT_FORMDATA } from '../utils/index';
 import { sexOptions, employedOptions, maritalStatusOptions, educationOptions } from '@/enums/index';
-import { useEnumStore, Enums, useDataEnumStore } from '@/store/modules/enums/index';
+import { useEnumStore, Enums } from '@/store/modules/enums/index';
 import useUserStore from '@/store/modules/acl/user';
 import Message from '@/components/Message';
 
 const userStore = useUserStore();
 const enumStore = useEnumStore();
-const dataEnumStore = useDataEnumStore();
 
 //#region 父子组件交互
 interface Props {

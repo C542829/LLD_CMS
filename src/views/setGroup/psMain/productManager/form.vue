@@ -11,19 +11,7 @@
       <!-- 关联门店 -->
       <template v-if="userStore.isAdmin">
         <el-form-item label="关联门店" prop="orgIds">
-          <el-select
-            v-model="store.formData.orgIds"
-            placeholder="关联门店"
-            class="w-240"
-            value-key="id"
-            clearable
-            multiple
-            collapse-tags
-            collapse-tags-tooltip
-            :max-collapse-tags="1"
-          >
-            <el-option v-for="item in dataEnumStore.orgList" :key="item.id" :label="item.orgName" :value="item.id" />
-          </el-select>
+          <OrgSelect v-model="store.formData.orgIds" />
         </el-form-item>
       </template>
 
@@ -51,7 +39,7 @@
       </el-form-item>
 
       <!-- 产品分类 -->
-      <el-form-item label="产品分类" prop="unit">
+      <el-form-item label="产品分类" prop="category">
         <el-select
           v-model="store.formData.category"
           placeholder="选择产品分类"
@@ -131,7 +119,12 @@
     </Form>
 
     <!-- 枚举管理dialog -->
-    <EnumHandler v-model="enumDialog.visible" :title="enumDialog.title" :dictCode="enumDialog.dictCode" />
+    <EnumHandler
+      v-model="enumDialog.visible"
+      :title="enumDialog.title"
+      :dictCode="enumDialog.dictCode"
+      @refresh="initEnum"
+    />
   </div>
 </template>
 
@@ -210,21 +203,23 @@ const productCategoryMgr = () => {
 
 // 表单验证规则
 const formRules = {
+  orgIds: [{ required: true, message: '请选择关联门店', trigger: 'blur' }],
   productEncode: [
-    { required: false, message: '请输入产品编码', trigger: 'blur' },
-    {
-      validator: (rule: any, value: string, callback: any) => {
-        const isExist = store.tableData.filter((item: any) => item.productEncode === value);
-        if (isExist.length > 1) {
-          callback(new Error('产品编码已存在'));
-        }
-        callback();
-      },
-      trigger: 'blur',
-    },
+    { required: true, message: '请输入产品编码', trigger: 'blur' },
+    // {
+    //   validator: (rule: any, value: string, callback: any) => {
+    //     const isExist = store.tableData.filter((item: any) => item.productEncode === value);
+    //     if (isExist.length > 1) {
+    //       callback(new Error('产品编码已存在'));
+    //     }
+    //     callback();
+    //   },
+    //   trigger: 'blur',
+    // },
   ],
   productName: [{ required: true, message: '请输入产品名称', trigger: 'blur' }],
-  unit: [{ required: true, message: '请输入产品单位', trigger: 'blur' }],
+  unit: [{ required: true, message: '请选择产品单位', trigger: 'blur' }],
+  category: [{ required: true, message: '请选择产品分类', trigger: 'blur' }],
   productPrice: [{ required: true, message: '请输入产品价格', trigger: 'blur' }],
   vipProductPrice: [{ required: true, message: '请输入会员价格', trigger: 'blur' }],
   isDiscount: [{ required: true, message: '请选择是否参与折扣卡打折', trigger: 'blur' }],

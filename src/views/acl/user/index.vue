@@ -66,6 +66,11 @@
         :row-class-name="getRowClassName"
       >
         <el-table-column type="index" label="序号" width="60" />
+        <el-table-column prop="orgs" label="关联门店" min-width="50">
+          <template #default="{ row }">
+            {{ row.orgs.map((org: OrgInfo) => org.orgName).join('、') }}
+          </template>
+        </el-table-column>
         <el-table-column prop="userName" label="姓名" width="80" />
         <el-table-column prop="userSex" label="性别" width="60" :formatter="sexMap" />
         <el-table-column prop="userNumber" label="手机号" width="120" />

@@ -59,6 +59,11 @@
         :showPagination="false"
       >
         <el-table-column type="index" label="序号" width="60" />
+        <el-table-column prop="orgs" label="关联门店" min-width="50">
+          <template #default="{ row }">
+            {{ row.orgs.map((org: OrgInfo) => org.orgName).join('、') }}
+          </template>
+        </el-table-column>
         <el-table-column prop="category" label="项目分类" min-width="50" />
         <el-table-column prop="itemName" label="名称" min-width="80" />
         <el-table-column prop="itemEncode" label="编码" min-width="50" />

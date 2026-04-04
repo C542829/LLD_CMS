@@ -4,19 +4,7 @@
       <!-- 关联门店 -->
       <template v-if="userStore.isAdmin">
         <el-form-item label="关联门店" prop="orgIds">
-          <el-select
-            v-model="store.formData.orgIds"
-            placeholder="关联门店"
-            class="w-240"
-            value-key="id"
-            clearable
-            multiple
-            collapse-tags
-            collapse-tags-tooltip
-            :max-collapse-tags="1"
-          >
-            <el-option v-for="item in dataEnumStore.orgList" :key="item.id" :label="item.orgName" :value="item.id" />
-          </el-select>
+          <OrgSelect v-model="store.formData.orgIds" />
         </el-form-item>
       </template>
 
@@ -81,11 +69,9 @@ import { onMounted } from 'vue';
 import { CommissionType, commissionTypeOptions } from '@/enums';
 // 引入数据仓库
 import { useRechargeCommissionRulesStore } from '@/store/modules/setGroup/rechargeCommissionRules';
-import { useDataEnumStore } from '@/store/modules/enums/index';
 import useUserStore from '@/store/modules/acl/user';
 
 const store = useRechargeCommissionRulesStore();
-const dataEnumStore = useDataEnumStore();
 const userStore = useUserStore();
 
 // 定义组件触发的事件 - 关闭抽屉
@@ -112,6 +98,7 @@ const handleFormReset = () => {
 
 // 表单验证规则
 const formRules = {
+  orgIds: [{ required: true, message: '请选择关联门店', trigger: 'blur' }],
   rechargeRoleName: [{ required: true, message: '请输入提成规则名称', trigger: 'blur' }],
   rechargePrice: [
     { required: true, message: '请输入充值金额', trigger: 'blur' },

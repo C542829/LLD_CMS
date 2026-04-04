@@ -43,6 +43,12 @@
         :row-class-name="getRowClassName"
         :showPagination="false"
       >
+        <el-table-column type="index" label="序号" width="60" />
+        <el-table-column prop="orgs" label="关联门店" min-width="50">
+          <template #default="{ row }">
+            {{ row.orgs.map((org: OrgInfo) => org.orgName).join('、') }}
+          </template>
+        </el-table-column>
         <el-table-column label="疗程券" min-width="60">
           <template #default="{ row }">
             <p>名称：{{ row.name }}</p>
