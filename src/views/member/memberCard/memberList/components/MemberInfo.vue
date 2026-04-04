@@ -6,7 +6,7 @@
       <div class="member-card">
         <div>
           <h1>{{ store.formData.name }}</h1>
-          <span>{{ store.formData.gender === 1 ? '先生' : '女士' }}</span>
+          <span>{{ store.formData.gender === 0 ? '先生' : '女士' }}</span>
         </div>
         <div>普通会员</div>
         <div>{{ store.formData.cardNumber }}</div>
@@ -69,14 +69,7 @@
 
     <!-- 资产明细 -->
     <div class="right-content">
-      <div>
-        <span>时间段：</span>
-        <DatePicker @selectDate="selectDate" :default="defaultDate" style="width: 260px; margin-right: 10px" />
-        <el-button type="primary">查询</el-button>
-      </div>
-      <div>
-        <PropertyDetail />
-      </div>
+      <PropertyDetail />
     </div>
   </div>
 </template>
@@ -93,18 +86,6 @@ const rechargeStore = useRechargeStore();
 
 // 路由
 const router = useRouter();
-
-// 默认最近一月日期
-const defaultDate = computed(() => {
-  const end = new Date();
-  const start = new Date();
-  start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-  return [start, end];
-});
-
-const selectDate = (start: string, end: string) => {
-  console.log('选择的日期范围:', start, end);
-};
 
 const handleRecharge = () => {
   rechargeStore.member = store.formData;
@@ -168,15 +149,6 @@ const handleRecharge = () => {
   // 右侧-资产信息
   .right-content {
     flex: 1;
-
-    > div:first-child {
-      margin: 10px;
-      width: 100%;
-    }
-    > div:last-child {
-      height: calc(100% - 52px);
-      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-    }
   }
 }
 

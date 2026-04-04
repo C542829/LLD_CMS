@@ -101,6 +101,7 @@
     v-model="dialog.visible"
     :title="dialog.title"
     @closed="handleDrawerClose"
+    destroy-on-close
     center
     :style="{
       width: dialog.width,
