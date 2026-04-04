@@ -58,10 +58,10 @@ const login = async () => {
     const isSuccess = await store.login(loginForm);
     if (isSuccess) {
       // 获取路由
-      let redirect: any = route.query.redirect;
-      redirect = redirect === '/404' ? '/' : redirect;
+      // let redirect: any = route.query.redirect;
+      // redirect = redirect === '/404' ? '/' : redirect;
       // 跳转路由
-      router.push({ path: redirect || '/' });
+      router.push({ path: '/' });
     }
   } catch (error) {
   } finally {
@@ -73,7 +73,7 @@ const login = async () => {
 // 定义表单校验需要配置对象
 const rules = {
   // orgCode: [{ required: true, message: '请输入门店编码', trigger: 'blur' }],
-  username: [{ required: true, min: 3, max: 20, message: '账号长度3-20位', trigger: 'blur' }],
+  username: [{ required: true, min: 2, max: 20, message: '账号长度2-20位', trigger: 'blur' }],
   password: [{ required: true, min: 3, max: 20, message: '密码长度3-20位', trigger: 'blur' }],
 };
 </script>
