@@ -387,10 +387,11 @@ export const useDataEnumStore = defineStore('DataEnum', () => {
       return orgList.value;
     }
   };
+
   const setOrgList = async (params: any) => {
     try {
       const res = await reqOrgList(params);
-      const data = parseResList(res);
+      const data = res.data;
       orgList.value = data.filter((item) => !item?.orgCode.includes('Test'));
     } catch (error) {}
   };
