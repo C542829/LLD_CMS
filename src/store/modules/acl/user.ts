@@ -199,6 +199,13 @@ const useUserStore = defineStore('User', {
     },
   },
   getters: {
+    isSuperAdmin: (state) => {
+      const role = state.user?.role;
+      if (isEmpty(role)) {
+        return false;
+      }
+      return role?.roleCode === RoleCode.SuperAdmin;
+    },
     isAdmin: (state) => {
       const role = state.user?.role;
       if (isEmpty(role)) {
