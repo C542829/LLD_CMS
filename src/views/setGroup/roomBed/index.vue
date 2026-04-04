@@ -72,7 +72,7 @@
           >
             <el-table-column prop="bedName" label="床位名" width="230">
               <template #default="{ row }">
-                <DynamicInput :value="row.bedName" :params="row" @update="updateBedName" :width="120" :key="row.id" />
+                <DynamicInput :value="row.bedName" :params="row" @update="updateBedName" width="100%" :key="row.id" />
               </template>
             </el-table-column>
             <el-table-column prop="status" label="状态" :formatter="bedStatusMap" min-width="50" />
