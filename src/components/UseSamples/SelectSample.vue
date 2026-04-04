@@ -2,6 +2,46 @@
   <div class="select-sample-container">
     <h3>Select 组件示例</h3>
 
+    <div class="search-item">
+      <label>
+        产品：
+        <ProductSelect
+          v-model="basicValue"
+          placeholder="选择产品"
+          class="w-100"
+          :multiple="false"
+          @change=""
+          @clear=""
+        />
+      </label>
+    </div>
+    <div class="search-item">
+      <label>
+        项目：
+        <ServiceItemSelect
+          v-model="basicValue"
+          placeholder="选择项目"
+          class="w-100"
+          :multiple="false"
+          @change=""
+          @clear=""
+        />
+      </label>
+    </div>
+    <div class="search-item">
+      <label>
+        疗程券：
+        <TreatmentCouponSelect
+          v-model="basicValue"
+          placeholder="选择疗程券"
+          class="w-100"
+          :multiple="false"
+          @change=""
+          @clear=""
+        />
+      </label>
+    </div>
+
     <div class="example-group">
       <h4>基础用法</h4>
       <Select v-model="basicValue" :options="options" placeholder="请选择一个选项" />
@@ -67,6 +107,9 @@
 </template>
 
 <script setup lang="ts">
+import ProductSelect from '@/components/FormComponents/ProductSelect.vue';
+import ServiceItemSelect from '@/components/FormComponents/ServiceItemSelect.vue';
+import TreatmentCouponSelect from '@/components/FormComponents/TreatmentCouponSelect.vue';
 import { ref, watch } from 'vue';
 import Select from '../Select/index.vue';
 
