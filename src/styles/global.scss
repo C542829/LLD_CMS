@@ -100,6 +100,24 @@
   justify-content: center;
 }
 
+.el-align-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.el-align-right {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.el-align-left {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
 // #region 宽度
 
 .w-p-100 {
