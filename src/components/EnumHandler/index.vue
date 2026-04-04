@@ -2,7 +2,8 @@
   <!-- 使用高阶组件渲染 Element-Plus 对话框 -->
   <component
     :is="h(ElDialog, { ...$attrs, ...props, ref: changeRef }, $slots)"
-    title="字典项管理"
+    :title="props.title"
+    @close="handleClose"
     style="max-width: 800px"
   >
     <div class="enum-handler-container">
@@ -15,8 +16,8 @@
       <div class="enum-handler-content">
         <PaginationTable
           :data="tableData"
-          v-loading="settingStore.loading"
-          :element-loading-text="settingStore.loadingMsg"
+          v-loading="loading"
+          :element-loading-text="LOADING_MSG"
           :showPagination="false"
         >
           <el-table-column type="index" label="序号" width="60" />
@@ -55,11 +56,10 @@
 <script setup lang="ts">
 import { ElDialog, type DialogProps } from 'element-plus';
 import { ref, onMounted, onUpdated, inject, h, getCurrentInstance, reactive, watch } from 'vue';
+import { LOADING_MSG } from '@/utils/constant';
 
 import { useEnumStore } from '@/store/modules/enums/index';
-import { useSettingStore } from '@/store/modules/acl/setting';
 const store = useEnumStore();
-const settingStore = useSettingStore();
 
 const $MessageBox: any = inject('$MessageBox');
 
@@ -69,12 +69,22 @@ const $MessageBox: any = inject('$MessageBox');
  * - config: 配置对象，包含API调用方法和父级ID
  */
 interface CustomProps extends Partial<DialogProps> {
+  modelValue: boolean;
+  title: string;
   dictCode: string;
   defaultData?: Array<any>;
 }
 
 // 定义组件属性
-const props = defineProps<CustomProps>();
+const props = withDefaults(defineProps<CustomProps>(), {
+  modelValue: false,
+  title: '字典项管理',
+});
+
+const emit = defineEmits(['update:modelValue', 'refresh']);
+
+const loading = ref(false);
+// const dialogVisible = ref(false);
 
 // 表格数据
 const tableData: any = ref([]);
@@ -86,6 +96,11 @@ onMounted(() => {
 onUpdated(() => {
   init();
 });
+
+const handleClose = () => {
+  emit('update:modelValue', false);
+  emit('refresh');
+};
 
 const init = () => {
   if (props.defaultData && props.defaultData.length !== 0) {
@@ -103,17 +118,27 @@ const init = () => {
 };
 
 const getList = async () => {
-  settingStore.loading = true;
-  const data = await store.getEnumItemList(props.dictCode);
-  tableData.value = data;
-  settingStore.loading = false;
+  try {
+    loading.value = true;
+    const data = await store.getEnumItemList(props.dictCode);
+    tableData.value = data;
+  } catch (error) {
+  } finally {
+    loading.value = false;
+  }
 };
 
 const handleSubmit = async () => {
-  const result = await store.updateDictItem();
-  if (result) {
-    getList();
-    dialog.visible = false;
+  try {
+    loading.value = true;
+    const result = await store.updateDictItem();
+    if (result) {
+      getList();
+      dialog.visible = false;
+    }
+  } catch (error) {
+  } finally {
+    loading.value = false;
   }
 };
 
