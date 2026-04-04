@@ -22,7 +22,7 @@
 
 <script setup lang="ts">
 import { reactive, onMounted } from 'vue';
-
+import { reqUpdate } from '@/api/user/index';
 import useUserStore from '@/store/modules/acl/user';
 const store = useUserStore();
 
@@ -58,9 +58,6 @@ const formRules = {
     { min: 6, max: 20, message: '密码长度6-20位', trigger: 'change' },
     {
       validator: async (rule: any, value: any, callback: any) => {
-        if (!store.user.userPassword) {
-          await store.getUserInfo();
-        }
         if (value !== store.user.userPassword) {
           callback(new Error('原密码错误'));
         } else {
