@@ -1,10 +1,9 @@
 import { defineStore } from 'pinia';
-import { reactive, ref } from 'vue';
+import { ref } from 'vue';
 import Message from '@/components/Message';
 import { Types, reqRecharge } from '@/api/member/recharge';
-import { parseResList, parseResMsg, parseResObj } from '@/utils/parseResponse';
-import { RechargeStatus, paymentTypeMap } from '@/enums/index';
-import { storeOrgInfo } from '@/store/index';
+import { parseResMsg } from '@/utils/parseResponse';
+import { paymentTypeMap } from '@/enums/index';
 import { getOrgInfo } from '@/utils/localStorageTools';
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { cloneDeep, isEmpty } from 'lodash';
@@ -143,10 +142,7 @@ export const useRechargeStore = defineStore('Recharge', () => {
 
   /** 设置默认折扣率 */
   const setDefaultDiscount = () => {
-    let org = storeOrgInfo;
-    if (isEmpty(org)) {
-      org = getOrgInfo();
-    }
+    const org = getOrgInfo();
     rechargeFormData.value.assetDiscountRate = org.defaultDiscountRate || 100;
     rechargeFormData.value.assetDiscountBase = org.defaultDiscountBase || 0;
     rechargeFormData.value.assetIsCrossStore = org.defaultIsCrossStore || 0;
