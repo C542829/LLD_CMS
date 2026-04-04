@@ -27,37 +27,45 @@
 
       <!-- 第二行 -->
       <div class="search-container">
-        <!-- <div class="search-item">
-          <label>
-            选择部门：
-            <el-select v-model="store.searchParams.saleStaff" clearable placeholder="选择部门" style="width: 120px">
-              <el-option label="未指定" value="0" />
-              <el-option
-                v-for="item in [{ value: 1, label: '' }]"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+        <template v-if="userStore.isAdmin || userStore.isAreaManager">
+          <div class="search-item">
+            <label>
+              门店：
+              <OrgSelect
+                v-model="store.searchParams.orgIds"
+                placeholder="门店"
+                class="w-120"
+                :multiple="true"
+                @change="search"
+                @clear="search"
               />
-            </el-select>
-          </label>
-        </div> -->
+            </label>
+          </div>
+        </template>
         <div class="search-item">
           <label>
-            产品/项目：
-            <el-select
-              v-model="store.searchParams.orderCode"
-              clearable
-              placeholder="选择产品/项目"
-              style="width: 140px"
-            >
-              <el-option label="未指定" value="0" />
-              <el-option
-                v-for="item in [{ value: 1, label: '' }]"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
+            产品：
+            <ProductSelect
+              v-model="store.searchParams.serviceCode"
+              placeholder="选择产品"
+              class="w-100"
+              :multiple="false"
+              @change="search"
+              @clear="search"
+            />
+          </label>
+        </div>
+        <div class="search-item">
+          <label>
+            项目：
+            <ServiceItemSelect
+              v-model="store.searchParams.serviceCode"
+              placeholder="选择项目"
+              class="w-100"
+              :multiple="false"
+              @change="search"
+              @clear="search"
+            />
           </label>
         </div>
         <!-- <div class="search-item">
@@ -102,6 +110,7 @@
         show-summary
       >
         <el-table-column type="index" label="序号" width="60" />
+        <el-table-column prop="orgName" label="门店" min-width="40" />
         <el-table-column prop="createTime" label="业绩日期" :formatter="dateFormatter" />
         <el-table-column label="订单编号" width="200">
           <template #default="scope">
@@ -138,15 +147,17 @@
 </template>
 
 <script setup lang="ts">
+import ProductSelect from '@/components/FormComponents/ProductSelect.vue';
+import ServiceItemSelect from '@/components/FormComponents/ServiceItemSelect.vue';
+import Receipt from './Receipt.vue';
 import { ref, reactive, onMounted, computed } from 'vue';
 import { ElMessage } from 'element-plus';
 import { dateFormatter } from '@/utils/time';
-import Receipt from './Receipt.vue';
-
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useStaffPerformanceStore } from '@/store/modules/dataGroup/staffPerformance';
 import { useEnumStore, useDataEnumStore } from '@/store/modules/enums/index';
-
+import useUserStore from '@/store/modules/acl/user';
+const userStore = useUserStore();
 const settingStore = useSettingStore();
 const store = useStaffPerformanceStore();
 const enumStore = useEnumStore();

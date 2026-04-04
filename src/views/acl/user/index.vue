@@ -6,6 +6,21 @@
         <el-button type="primary" @click="showDrawer('add')">添加人员</el-button>
       </div>
       <div class="search-container">
+        <template v-if="userStore.isAdmin || userStore.isAreaManager">
+          <div class="search-item">
+            <label>
+              门店：
+              <OrgSelect
+                v-model="searchParams.orgIds"
+                placeholder="门店"
+                class="w-120"
+                :multiple="true"
+                @change="search"
+                @clear="search"
+              />
+            </label>
+          </div>
+        </template>
         <!-- 人员在职状态 -->
         <div class="search-item">
           <label>
@@ -118,6 +133,7 @@ const dataEnumStore = useDataEnumStore();
 // 初始化
 onMounted(async () => {
   await dataEnumStore.getOrgList();
+  handleOrgIds();
   search();
   getRoleList();
 });
@@ -149,7 +165,7 @@ const search = () => {
   // if (isEmpty(searchParams.userName) || searchParams.userName == undefined) {
   //   searchParams.userName = '';
   // }
-  handleOrgIds();
+  // handleOrgIds();
   setTableData();
 };
 

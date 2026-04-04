@@ -22,14 +22,7 @@
             <div v-for="(technician, index) in rechRecord.userKpiList" :key="index" class="technician-row">
               <el-button :icon="Plus" circle size="small" @click="addTechnician" v-if="index === 0" />
               <el-button :icon="Minus" circle size="small" @click="removeTechnician(index)" v-if="index > 0" />
-              <el-select
-                v-model="technician.userId"
-                placeholder="请选择"
-                value-key="id"
-                style="width: 120px; margin-left: 10px"
-              >
-                <el-option v-for="item in staffList" :key="item.id" :label="item.userName" :value="item.id" />
-              </el-select>
+              <UserSelect v-model="technician.userId" :multiple="false" />
               <el-input-number
                 v-model="technician.kpi"
                 :min="0"
@@ -53,9 +46,7 @@
 import { Plus, Minus } from '@element-plus/icons-vue';
 import { ref, onMounted, watch } from 'vue';
 import { paymentTypeMap, paymentTypeOptions } from '@/enums/index';
-import { useDynamicDataStore } from '@/store/modules/enums/dynamicData';
 import { cloneDeep } from 'lodash';
-const dynamicDataStore = useDynamicDataStore();
 
 interface Props {
   data: any;
@@ -92,14 +83,18 @@ watch(
   },
 );
 
-onMounted(() => {
-  getStaffList();
-});
+onMounted(() => {});
 
 const DEFAULT_USER_KPI = {
   userId: '',
   userName: '',
   kpi: 0,
+};
+const DEFAULT_PAY_INFO = {
+  assetCode: '',
+  paymentType: '',
+  paymentName: '',
+  paymentAmount: 0,
 };
 
 // 控制弹窗显隐
@@ -115,17 +110,6 @@ const btnLoading = ref<boolean>(false);
 const rechRecord = ref<any>({});
 // 标签页激活状态
 const activeTab = ref('payment');
-
-// 销售员列表
-const staffList = ref<any>([]);
-const staffMap = ref<Record<number, string>>({});
-const getStaffList = async () => {
-  const res = await dynamicDataStore.getUserList();
-  if (res && res.data && res.data.rows) {
-    staffList.value = res.data.rows || [];
-    staffMap.value = staffList.value.map((item: any) => ({ [item.id]: item.userName }));
-  }
-};
 
 /** 处理支付信息 */
 const handlePaymentType = (payList: any) => {

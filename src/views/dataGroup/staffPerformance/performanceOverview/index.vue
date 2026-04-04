@@ -4,19 +4,6 @@
     <Card class="operation-card">
       <!-- 第一行 -->
       <div class="search-container">
-        <!-- <div class="search-item" v-if="false">
-          <label>
-            选择门店：
-            <el-select v-model="store.searchParams.storeId" style="width: 120px" placeholder="选择门店">
-              <el-option
-                v-for="item in [{ value: 1, label: '' }]"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </label>
-        </div> -->
         <div class="search-item">
           <label>
             销售时段：
@@ -27,23 +14,24 @@
 
       <!-- 第二行 -->
       <div class="search-container">
-        <!-- <div class="search-item">
-          <label>
-            选择部门：
-            <el-select v-model="store.searchParams.saleStaff" clearable placeholder="选择部门" style="width: 120px">
-              <el-option label="未指定" value="0" />
-              <el-option
-                v-for="item in [{ value: 1, label: '' }]"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+        <template v-if="userStore.isAdmin || userStore.isAreaManager">
+          <div class="search-item">
+            <label>
+              门店：
+              <OrgSelect
+                v-model="store.searchParams.orgIds"
+                placeholder="门店"
+                class="w-120"
+                :multiple="true"
+                @change="search"
+                @clear="search"
               />
-            </el-select>
-          </label>
-        </div> -->
+            </label>
+          </div>
+        </template>
         <div class="search-item">
           <label>
-            选择技师：
+            技师：
             <UserSelect
               v-model="store.searchParams.userId"
               placeholder="技师"
@@ -52,17 +40,6 @@
               @change="search"
               @clear="search"
             />
-            <!-- <el-select
-              v-model="store.searchParams.userId"
-              clearable
-              placeholder="选择技师"
-              filterable
-              style="width: 120px"
-              @change="search"
-            >
-              <el-option label="全部" value="" />
-              <el-option v-for="item in staffList" :key="item.id" :label="item.userName" :value="item.id" />
-            </el-select> -->
           </label>
         </div>
         <div class="search-item">
@@ -88,7 +65,8 @@
             <PersonalPerformanceTable :data="row" />
           </template>
         </el-table-column>
-        <!-- <el-table-column type="index" label="序号" width="60" fixed /> -->
+        <el-table-column type="index" label="序号" width="60" fixed />
+        <el-table-column prop="orgName" label="门店" width="60" fixed />
         <el-table-column prop="userName" label="技师" width="100" fixed />
         <el-table-column prop="totalPerformance" label="总业绩" min-width="85" fixed />
         <el-table-column prop="totalCommission" label="总提成" min-width="85" fixed />
@@ -116,7 +94,9 @@ import { ref, reactive, onMounted } from 'vue';
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useStaffPerformanceStore } from '@/store/modules/dataGroup/staffPerformance';
 import { useDataEnumStore } from '@/store/modules/enums/index';
+import useUserStore from '@/store/modules/acl/user';
 
+const userStore = useUserStore();
 const settingStore = useSettingStore();
 const store = useStaffPerformanceStore();
 const dataEnumStore = useDataEnumStore();

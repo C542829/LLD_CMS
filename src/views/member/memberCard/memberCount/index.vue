@@ -9,6 +9,21 @@
             <DatePicker v-model="store.search.date" style="width: 260px" />
           </label>
         </div>
+        <template v-if="userStore.isAdmin || userStore.isAreaManager">
+          <div class="search-item">
+            <label>
+              门店：
+              <OrgSelect
+                v-model="store.search.orgIds"
+                placeholder="门店"
+                class="w-120"
+                :multiple="true"
+                @change="search"
+                @clear="search"
+              />
+            </label>
+          </div>
+        </template>
         <div class="search-item">
           <el-input v-model="store.search.amount" style="width: 220px" placeholder="输入金额" clearable>
             <template #prepend>
@@ -43,6 +58,8 @@
         @size-change="handleSizeChange"
         @pagination-current-change="handleCurrentChange"
       >
+        <el-table-column type="index" label="序号" width="60" />
+        <el-table-column prop="orgName" label="门店" min-width="40" />
         <el-table-column prop="name" label="姓名" min-width="60" />
         <el-table-column prop="gender" label="性别" min-width="30" :formatter="sexMap" />
         <el-table-column prop="cardNumber" label="卡号" min-width="80" />
@@ -73,6 +90,9 @@ import PropertyDetail from '../components/PropertyDetail.vue';
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useMemberCountStore } from '@/store/modules/member/memberCount';
+import useUserStore from '@/store/modules/acl/user';
+
+const userStore = useUserStore();
 const settingStore = useSettingStore();
 const store = useMemberCountStore();
 

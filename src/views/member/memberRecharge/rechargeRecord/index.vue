@@ -10,6 +10,21 @@
             <DatePicker v-model="recordSearch.date" @change="search" @clear="search" clearable style="width: 260px" />
           </label>
         </div>
+        <template v-if="userStore.isAdmin || userStore.isAreaManager">
+          <div class="search-item">
+            <label>
+              门店：
+              <OrgSelect
+                v-model="recordSearch.orgIds"
+                placeholder="门店"
+                class="w-120"
+                :multiple="true"
+                @change="search"
+                @clear="search"
+              />
+            </label>
+          </div>
+        </template>
       </div>
 
       <!-- 第二行 -->
@@ -50,10 +65,6 @@
         <div class="search-item">
           <label>
             <span>销售人员：</span>
-            <!-- <el-select v-model="recordSearch.userId" @change="search" @clear="search" clearable style="width: 120px">
-              <el-option key="未指定" label="未指定" :value="''" />
-              <el-option v-for="item in staffList" :key="item.id" :label="item.userName" :value="item.id" />
-            </el-select> -->
             <UserSelect
               v-model="recordSearch.userId"
               placeholder="销售人员"
@@ -89,8 +100,8 @@
     <!-- 数据列表 -->
     <Card padding="0">
       <PaginationTable
-        v-loading="settingStore.loading"
-        :element-loading-text="settingStore.loadingMsg"
+        v-loading="loading"
+        :element-loading-text="LOADING_MSG"
         :data="rechargeRecord.list"
         :total="rechargeRecord.total"
         :row-class-name="getRowClassName"
@@ -100,6 +111,7 @@
         @pagination-current-change="handleCurrentChange"
       >
         <el-table-column type="index" label="序号" width="60" />
+        <el-table-column prop="orgName" label="门店" min-width="30" />
         <el-table-column prop="rechargeTime" label="充值时间" width="155" :formatter="datetimeFormatter" />
         <el-table-column prop="infoCardNumber" label="相关人员" min-width="80">
           <template #default="{ row }">
@@ -182,7 +194,8 @@ import Message from '@/components/Message';
 import { ref, reactive, onMounted } from 'vue';
 import { datetimeFormatter } from '@/utils/formatter';
 import { formatDate, isFullDaysSince } from '@/utils/time';
-import { reqRechargeHistoryList, reqRollBackRecharge } from '@/api/member/recharge/index';
+import { LOADING_MSG } from '@/utils/constant';
+import { type Types, reqRechargeHistoryList, reqRollBackRecharge } from '@/api/member/recharge/index';
 import {
   RechargeStatus,
   rechargeStatusOptions,
@@ -192,37 +205,20 @@ import {
 } from '@/enums/index';
 import { printer } from '@/utils/lodop';
 import { parseResMsg, parseResObj } from '@/utils/parseResponse';
+import useUserStore from '@/store/modules/acl/user';
 
-// 引入数据仓库
-import { useSettingStore } from '@/store/modules/acl/setting';
-import { useRechargeStore } from '@/store/modules/member/recharge';
-import { useDynamicDataStore } from '@/store/modules/enums/dynamicData';
-import { useOrgStore } from '@/store/modules/acl/org';
-
-const settingStore = useSettingStore();
-const store = useRechargeStore();
-const dynamicDataStore = useDynamicDataStore();
-const orgStore = useOrgStore();
+const userStore = useUserStore();
 
 // 初始化
 onMounted(() => {
   search();
-  getStaffList();
 });
-
-// 销售员列表
-const staffList = ref<any>([]);
-const getStaffList = async () => {
-  const res = await dynamicDataStore.getUserList();
-  if (res && res.data && res.data.rows) {
-    staffList.value = res.data.rows || [];
-  }
-};
 
 // #region 充值记录
 // 充值记录请求参数
-const recordSearch = reactive({
+const recordSearch = reactive<Types.RechargeRecordRequest>({
   date: [],
+  orgIds: [],
   paymentType: '',
   vipInfoFiled: '',
   rechargeStatus: RechargeStatus.SUCCESS,
@@ -237,7 +233,7 @@ const resetRecordSearchParams = () => {
   recordSearch.rechargeStatus = RechargeStatus.SUCCESS;
   recordSearch.userId = '';
   recordSearch.date = [];
-  setRechargeRecord();
+  search();
 };
 
 // 处理请求参数
@@ -252,10 +248,12 @@ const handleParams = () => {
   return params || {};
 };
 
+const loading = ref(false);
+
 // 响应结果
 const rechargeRecord: any = reactive({ total: 0, list: [] });
 const setRechargeRecord = async () => {
-  settingStore.loading = true;
+  loading.value = true;
   try {
     // 获取数据列表
     const params = handleParams();
@@ -266,7 +264,7 @@ const setRechargeRecord = async () => {
   } catch (error) {
     console.error('获取充值记录失败：', error);
   } finally {
-    settingStore.loading = false;
+    loading.value = false;
   }
 };
 
@@ -280,12 +278,12 @@ const search = () => {
 // 处理分页变化
 const handleSizeChange = (val: number) => {
   recordSearch.pageSize = val;
-  setRechargeRecord();
+  search();
 };
 
 const handleCurrentChange = (val: number) => {
   recordSearch.pageNum = val;
-  setRechargeRecord();
+  search();
 };
 
 const billReversal = async (row: any) => {
@@ -315,7 +313,7 @@ const reprint = async (row: any) => {
     return;
   }
 
-  const org = await orgStore.getOrg();
+  const org = userStore.org;
   const data = { ...row, ...org };
   printer.printRechargeByHTML(data, false);
 };

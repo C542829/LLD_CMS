@@ -4,17 +4,6 @@
     <Card class="operation-card">
       <!-- 第一行 -->
       <div class="search-container">
-        <div class="search-item" v-if="false">
-          <label for="staffStatus">选择店铺：</label>
-          <el-select v-model="store.searchParams.storeId" id="staffStatus" style="width: 120px" placeholder="选择店铺">
-            <el-option
-              v-for="item in [{ value: 1, label: '' }]"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
-        </div>
         <div class="search-item">
           <label>
             开单时段：
@@ -25,6 +14,21 @@
 
       <!-- 第二行 -->
       <div class="search-container">
+        <template v-if="userStore.isAdmin || userStore.isAreaManager">
+          <div class="search-item">
+            <label>
+              门店：
+              <OrgSelect
+                v-model="store.searchParams.orgIds"
+                placeholder="门店"
+                class="w-120"
+                :multiple="true"
+                @change="search"
+                @clear="search"
+              />
+            </label>
+          </div>
+        </template>
         <div class="search-item">
           <label>
             销售员：
@@ -40,21 +44,28 @@
         </div>
         <div class="search-item">
           <label>
-            产品/项目：
-            <el-select
-              v-model="store.searchParams.productId"
-              clearable
-              placeholder="选择产品/项目"
-              style="width: 140px"
-            >
-              <el-option label="未指定" value="" />
-              <el-option
-                v-for="item in [{ value: 1, label: '' }]"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
+            产品：
+            <ProductSelect
+              v-model="store.searchParams.businessCode"
+              placeholder="选择产品"
+              class="w-100"
+              :multiple="false"
+              @change="search"
+              @clear="search"
+            />
+          </label>
+        </div>
+        <div class="search-item">
+          <label>
+            项目：
+            <ServiceItemSelect
+              v-model="store.searchParams.businessCode"
+              placeholder="选择项目"
+              class="w-100"
+              :multiple="false"
+              @change="search"
+              @clear="search"
+            />
           </label>
         </div>
         <div class="search-item">
@@ -79,6 +90,7 @@
         @pagination-current-change="handleCurrentChange"
       >
         <el-table-column type="index" label="序号" width="60" />
+        <el-table-column prop="orgName" label="门店" min-width="30" />
         <el-table-column prop="orderCode" label="订单编号" />
         <el-table-column prop="detailCode" label="明细编号" />
         <el-table-column label="名称/标准价">
@@ -134,6 +146,8 @@
 </template>
 
 <script setup lang="ts">
+import ProductSelect from '@/components/FormComponents/ProductSelect.vue';
+import ServiceItemSelect from '@/components/FormComponents/ServiceItemSelect.vue';
 import { reactive, inject, onMounted, ref } from 'vue';
 import { datetimeFormatter } from '@/utils/formatter';
 import { OrderDetailTypeMap, ServiceTypeMap } from '@/enums';
@@ -143,6 +157,9 @@ import { ElMessage } from 'element-plus';
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useSaleStore } from '@/store/modules/dataGroup/saleData';
 import { useDataEnumStore } from '@/store/modules/enums/index';
+import useUserStore from '@/store/modules/acl/user';
+
+const userStore = useUserStore();
 const settingStore = useSettingStore();
 const store = useSaleStore();
 const dataEnumStore = useDataEnumStore();

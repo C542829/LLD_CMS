@@ -43,17 +43,36 @@
           </el-table-column>
           <el-table-column label="修改项目/产品" min-width="120">
             <template #default="{ row }">
-              <el-select v-model="row.bid" placeholder="选择项目">
-                <template v-if="row.detailType === OrderDetailType.Product">
-                  <el-option v-for="item in productList" :key="item.id" :label="item.productName" :value="item.id" />
-                </template>
-                <template v-if="row.detailType === OrderDetailType.Service">
-                  <el-option v-for="item in serviceItemList" :key="item.id" :label="item.itemName" :value="item.id" />
-                </template>
-                <template v-if="row.detailType === OrderDetailType.TreatmentCoupon">
-                  <el-option v-for="item in treatmentCouponList" :key="item.id" :label="item.name" :value="item.id" />
-                </template>
-              </el-select>
+              <template v-if="row.detailType === OrderDetailType.Product">
+                <ProductSelect
+                  v-model="row.bid"
+                  placeholder="选择产品"
+                  class="w-100"
+                  :multiple="false"
+                  @change=""
+                  @clear=""
+                />
+              </template>
+              <template v-else-if="row.detailType === OrderDetailType.Service">
+                <ServiceItemSelect
+                  v-model="row.bid"
+                  placeholder="选择项目"
+                  class="w-100"
+                  :multiple="false"
+                  @change=""
+                  @clear=""
+                />
+              </template>
+              <template v-else-if="row.detailType === OrderDetailType.TreatmentCoupon">
+                <TreatmentCouponSelect
+                  v-model="row.bid"
+                  placeholder="选择疗程券"
+                  class="w-100"
+                  :multiple="false"
+                  @change=""
+                  @clear=""
+                />
+              </template>
             </template>
           </el-table-column>
           <el-table-column label="技师/销售" min-width="100">
@@ -63,9 +82,14 @@
           </el-table-column>
           <el-table-column label="修改技师/销售" min-width="120">
             <template #default="{ row }">
-              <el-select v-model="row.userId" placeholder="选择人员">
-                <el-option v-for="item in staffList" :key="item.id" :label="item.userName" :value="item.id" />
-              </el-select>
+              <UserSelect
+                v-model="row.userId"
+                placeholder="选择人员"
+                class="w-100"
+                :multiple="false"
+                @change=""
+                @clear=""
+              />
             </template>
           </el-table-column>
           <el-table-column label="修改上钟类型" min-width="120">
@@ -92,12 +116,12 @@
 </template>
 
 <script setup lang="ts">
+import ProductSelect from '@/components/FormComponents/ProductSelect.vue';
+import ServiceItemSelect from '@/components/FormComponents/ServiceItemSelect.vue';
+import TreatmentCouponSelect from '@/components/FormComponents/TreatmentCouponSelect.vue';
 import { ref, onMounted, watch } from 'vue';
-import { PaymentType, paymentTypeMap, paymentTypeOptions, ServiceTypeOptions, OrderDetailType } from '@/enums/index';
-import { useDynamicDataStore } from '@/store/modules/enums/dynamicData';
+import { PaymentType, paymentTypeOptions, ServiceTypeOptions, OrderDetailType } from '@/enums/index';
 import { cloneDeep } from 'lodash';
-
-const dynamicDataStore = useDynamicDataStore();
 
 interface Props {
   data: any;
@@ -127,27 +151,11 @@ watch(
   (val) => {
     if (val) {
       orderData.value = val;
-      // rechRecord.value = val;
-      // if (val.userKpiList && val.userKpiList.length == 0) {
-      //   rechRecord.value.userKpiList.push(cloneDeep(DEFAULT_USER_KPI));
-      // }
     }
   },
 );
 
-onMounted(async () => {
-  // const products = computed(async () => await enumsStore.getProductList());
-  // const serviceItems = computed(async () => await enumsStore.getServiceItemList());
-  // const treatmentCoupons = computed(async () => await enumsStore.getTreatmentCouponList());
-  getStaffList();
-  productList.value = (await dynamicDataStore.getProductList()).data;
-  serviceItemList.value = (await dynamicDataStore.getServiceItemList()).data;
-  treatmentCouponList.value = (await dynamicDataStore.getTreatmentCouponList()).data;
-});
-
-const productList = ref<any>([]);
-const serviceItemList = ref<any>([]);
-const treatmentCouponList = ref<any>([]);
+onMounted(async () => {});
 
 // 控制弹窗显隐
 const dialogVisible = ref<boolean>(false);
@@ -160,17 +168,6 @@ const close = () => {
 const orderData = ref<any>({});
 // 标签页激活状态
 const activeTab = ref('payment');
-
-// 销售员列表
-const staffList = ref<any>([]);
-const staffMap = ref<Record<number, string>>({});
-const getStaffList = async () => {
-  const res = await dynamicDataStore.getUserList();
-  if (res && res.data && res.data.rows) {
-    staffList.value = res.data.rows || [];
-    staffMap.value = staffList.value.map((item: any) => ({ [item.id]: item.userName }));
-  }
-};
 
 const loading = ref(false);
 

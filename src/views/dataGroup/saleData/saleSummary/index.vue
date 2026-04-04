@@ -21,6 +21,21 @@
             <DatePicker v-model="store.searchParams.date" style="width: 260px" />
           </label>
         </div>
+        <template v-if="userStore.isAdmin || userStore.isAreaManager">
+          <div class="search-item">
+            <label>
+              门店：
+              <OrgSelect
+                v-model="store.searchParams.orgIds"
+                placeholder="门店"
+                class="w-120"
+                :multiple="true"
+                @change="search"
+                @clear="search"
+              />
+            </label>
+          </div>
+        </template>
         <div class="search-item">
           <el-button type="primary" @click="search">搜索</el-button>
         </div>
@@ -40,6 +55,7 @@
         show-summary
       >
         <el-table-column type="index" label="序号" width="60" fixed />
+        <el-table-column prop="orgName" label="门店" width="60" fixed />
         <el-table-column prop="statsDate" label="日期" width="105" :formatter="dateFormatter" fixed />
         <el-table-column prop="totalTurnover" label="总营业额" width="85" fixed />
         <el-table-column prop="totalActualReceipt" label="总实收" width="85" fixed />
@@ -73,6 +89,9 @@ import { dateFormatter } from '@/utils/formatter';
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useSaleStore } from '@/store/modules/dataGroup/saleData';
+import useUserStore from '@/store/modules/acl/user';
+
+const userStore = useUserStore();
 const settingStore = useSettingStore();
 const store = useSaleStore();
 

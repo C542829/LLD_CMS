@@ -6,6 +6,21 @@
         <div class="search-item">
           <el-button type="primary" @click="showDrawer(0)" class="add-button">新增会员</el-button>
         </div>
+        <template v-if="userStore.isAdmin || userStore.isAreaManager">
+          <div class="search-item">
+            <label>
+              门店：
+              <OrgSelect
+                v-model="store.search.orgIds"
+                placeholder="门店"
+                class="w-120"
+                :multiple="true"
+                @change="search"
+                @clear="search"
+              />
+            </label>
+          </div>
+        </template>
         <div class="search-item">
           <el-input
             v-model="store.search.queryField"
@@ -36,6 +51,8 @@
         @size-change="handleSizeChange"
         @pagination-current-change="handleCurrentChange"
       >
+        <el-table-column type="index" label="序号" width="60" />
+        <el-table-column prop="orgName" label="门店" min-width="40" />
         <el-table-column prop="name" label="姓名" min-width="40" />
         <el-table-column prop="gender" label="性别" min-width="30" :formatter="sexMap" />
         <el-table-column prop="cardNumber" label="卡号" min-width="80" />
@@ -124,10 +141,10 @@ import GiveCouponForm from './components/GiveCouponForm.vue';
 import CancelCoupon from './components/CancelCoupon.vue';
 import GiveCardAmount from './components/GiveCardAmount.vue';
 import MemberInfo from './components/MemberInfo.vue';
-
-// 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useMemberStore } from '@/store/modules/member/member';
+import useUserStore from '@/store/modules/acl/user';
+const userStore = useUserStore();
 const settingStore = useSettingStore();
 const store = useMemberStore();
 

@@ -4,35 +4,29 @@
     <Card class="operation-card">
       <!-- 第一行 -->
       <div class="search-container">
-        <!-- <div class="search-item" v-if="false">
-          <label for="staffStatus">选择店铺：</label>
-          <el-select v-model="store.searchParams.storeId" id="staffStatus" style="width: 120px" placeholder="选择店铺">
-            <el-option
-              v-for="item in paymentTypeOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
-        </div> -->
         <div class="search-item">
           <label>
             开单时段：
             <DatePicker v-model="store.searchParams.date" style="width: 260px" />
           </label>
         </div>
+        <template v-if="userStore.isAdmin || userStore.isAreaManager">
+          <div class="search-item">
+            <label>
+              门店：
+              <OrgSelect
+                v-model="store.searchParams.orgIds"
+                placeholder="门店"
+                class="w-120"
+                :multiple="true"
+                @change="search"
+                @clear="search"
+              />
+            </label>
+          </div>
+        </template>
         <div class="search-item">
           <label for="saleStaff">收银员：</label>
-          <!-- <el-select
-            v-model="store.searchParams.userId"
-            clearable
-            id="saleStaff"
-            placeholder="选择收银员"
-            style="width: 120px"
-          >
-            <el-option label="未指定" value="null" />
-            <el-option v-for="item in staffList" :key="item.id" :label="item.userName" :value="item.id" />
-          </el-select> -->
           <UserSelect
             v-model="store.searchParams.userId"
             placeholder="收银员"
@@ -104,10 +98,11 @@
         @pagination-current-change="handleCurrentChange"
       >
         <el-table-column type="index" label="序号" width="60" />
+        <el-table-column prop="orgName" label="门店" min-width="40" />
         <el-table-column prop="orderTime" label="开单日期" width="105" :formatter="dateFormatter" />
         <el-table-column prop="orderTime" label="开单时间" width="85" :formatter="timeFormatter" />
         <el-table-column prop="settleTime" label="结算时间" width="85" :formatter="timeFormatter" />
-        <el-table-column prop="orderCode" label="销售单号" min-width="100" />
+        <el-table-column prop="orderCode" label="销售单号" min-width="80" />
         <el-table-column label="顾客信息" width="160">
           <template #default="{ row }">
             <p>姓名：{{ row.customerName || row.vipName }}</p>
@@ -119,13 +114,13 @@
         <el-table-column label="应收金额" min-width="60">
           <template #default="scope">￥{{ scope.row.totalAmount }}</template>
         </el-table-column>
-        <el-table-column label="实收金额" min-width="80">
-          <template #default="scope">实收：￥{{ scope.row.actualAmount }}</template>
+        <el-table-column label="实收金额" min-width="60">
+          <template #default="scope">￥{{ scope.row.actualAmount }}</template>
         </el-table-column>
         <el-table-column label="优惠金额" min-width="60">
           <template #default="scope">￥{{ scope.row.discountAmount }}</template>
         </el-table-column>
-        <el-table-column label="付款方式" min-width="100">
+        <el-table-column label="付款方式" min-width="90">
           <template #default="scope">
             <p v-for="item in scope.row.payments" :key="item.paymentType">
               {{ item.paymentName }}：￥{{ item.totalAmount }}
@@ -146,7 +141,7 @@
             </el-button>
             <br />
             <!-- <el-button :disabled="row.orderStatus !== OrderStatus.SETTLED" @click="showDialog(row)" link type="warning"> -->
-            <el-button :disabled="true" @click="showDialog(row)" link type="warning">修改销售单据</el-button>
+            <el-button :disabled="false" @click="showDialog(row)" link type="warning">修改销售单据</el-button>
             <br />
             <el-button
               :disabled="row.orderStatus !== OrderStatus.SETTLED"
@@ -186,6 +181,8 @@ import { useSettingStore } from '@/store/modules/acl/setting';
 import { useSaleStore } from '@/store/modules/dataGroup/saleData';
 import { useDataEnumStore } from '@/store/modules/enums';
 import { useOrgStore } from '@/store/modules/acl/org';
+import useUserStore from '@/store/modules/acl/user';
+const userStore = useUserStore();
 const orgStore = useOrgStore();
 const settingStore = useSettingStore();
 const store = useSaleStore();
