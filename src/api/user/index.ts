@@ -1,5 +1,6 @@
 import { get, post, put } from '@/utils/request';
 import { setStoreUserInfo } from '@/store/index';
+import useUserStore from '@/store/modules/acl/user';
 import { setUserInfo } from '@/utils/localStorageTools';
 import * as Types from './types';
 
@@ -98,4 +99,44 @@ export const storageUserInfo = async (id: number, token: string) => {
     console.error(`获取当前登录信息报错：${error}`);
   }
   return null;
+};
+
+/**
+ * 默认用户列表查询参数
+ */
+export const defaultParams: Types.SearchUserParams = {
+  roleId: '',
+  userName: '',
+  userStatus: '在职',
+  userNumber: '',
+  pageNum: 1,
+  pageSize: 200,
+  orgIds: [],
+};
+
+/**
+ * 获取用户列表
+ */
+export const getUserList = async (params: Types.SearchUserParams = defaultParams): Promise<UserInfo[]> => {
+  try {
+    if (params.orgIds && params.orgIds.length === 0) {
+      const userStore = useUserStore();
+      if (userStore.user.orgs) {
+        params.orgIds = userStore.user.orgs.map((item) => item.id as number);
+      } else {
+        params.orgIds = [userStore.user.orgId as number];
+      }
+    }
+    const res = await reqUserList(params);
+    const data = res.data.rows.map((item: UserInfo) => {
+      return {
+        id: item.id,
+        userId: item.id,
+        userName: item.userName,
+      };
+    });
+    return data || [];
+  } catch (error) {
+    return [];
+  }
 };
