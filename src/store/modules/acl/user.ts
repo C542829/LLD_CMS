@@ -30,7 +30,6 @@ import { parseResObj } from '@/utils/parseResponse';
 
 import { usePermissionStore } from '@/store/modules/acl/permission';
 import { useDataEnumStore } from '@/store/modules/enums/index';
-import { useDynamicDataStore } from '@/store/modules/enums/dynamicData';
 import { RoleCode } from '@/enums';
 
 // 用于过滤当前用户需要展示的异步路由
@@ -175,7 +174,6 @@ const useUserStore = defineStore('User', {
       removeUserInfo();
       removeOrgInfo();
       useDataEnumStore().$reset();
-      useDynamicDataStore().clearAllData();
     },
 
     async getUserInfo() {
