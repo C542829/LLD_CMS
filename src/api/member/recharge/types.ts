@@ -1,8 +1,80 @@
-export interface RechargeHistoryParams {
+//#region 充值参数
+
+/**
+ * org.haut.common.domain.dto.vip.RechargeDTO
+ */
+export interface RechargeDTO {
+  /**
+   * 活动id
+   */
+  activeId?: number;
+  /**
+   * 活动名称
+   */
+  activeName?: string;
+  /**
+   * 资产折扣基数（0 标准价，1 会员价）
+   */
+  assetDiscountBase?: number;
+  /**
+   * 资产折扣率
+   */
+  assetDiscountRate?: number;
+  /**
+   * 资产是否允许跨店（0 不允许，1 允许）
+   */
+  assetIsCrossStore?: number;
+  /**
+   * 支付信息
+   */
+  paymentInfoList?: PaymentInfoDTO[];
+  /**
+   * 充值提成规则id
+   */
+  rechargeRoleId: number;
+  /**
+   * 充值金额
+   */
+  rechargeValue: number;
+  /**
+   * 业绩技师信息(支持多人业绩)
+   */
+  userKpiList?: UserKpiDTO[];
+  /**
+   * 会员卡号
+   */
+  vipCardNumber?: string;
+  /**
+   * 会员id
+   */
+  vipId: number;
+  /**
+   * 会员姓名
+   */
+  vipName?: string;
+  /**
+   * 会员手机号
+   */
+  vipPhoneNumber?: string;
+  [property: string]: any;
+}
+
+//#endregion 充值参数
+
+//#region 充值记录
+
+/**
+ * 充值记录查询参数
+ */
+export interface RechargeRecordRequest {
   /**
    * 结束时间
    */
   endDate?: string;
+  /**
+   * 门店ID列表，不传则查全部关联门店
+   */
+  orgIds?: number[];
   /**
    * 当前页码
    */
@@ -14,16 +86,16 @@ export interface RechargeHistoryParams {
   /**
    * 支付方式
    */
-  paymentType?: number;
+  paymentType?: number | string;
   /**
    * 充值状态
    */
-  rechargeStatus?: number;
+  rechargeStatus?: number | string;
   /**
    * 开始时间
    */
   startDate?: string;
-  userId?: number;
+  userId?: number | string;
   /**
    * 会员信息
    */
@@ -32,9 +104,16 @@ export interface RechargeHistoryParams {
 }
 
 /**
- * org.haut.common.domain.vo.vip.RechargeHistoryVO
+ * 充值记录查询响应
  */
-export interface VipRechargeHistoryVO {
+export type RechargeRecordResponse = PageListInfo<RechargeHistoryVO[]>;
+
+/**
+ * org.haut.common.domain.vo.vip.RechargeHistoryVO
+ *
+ * RechargeHistoryVO
+ */
+export interface RechargeHistoryVO {
   /**
    * 充值活动名称
    */
@@ -56,13 +135,21 @@ export interface VipRechargeHistoryVO {
    */
   id?: number;
   /**
+   * 门店编码
+   */
+  orgCode?: string;
+  /**
    * 门店id
    */
   orgId?: number;
   /**
+   * 门店名称
+   */
+  orgName?: string;
+  /**
    * 支付信息
    */
-  paymentInfoList?: OrgHautCommonDomainDtoVipPaymentInfoDTO[];
+  paymentInfoList?: PaymentInfoDTO[];
   /**
    * 赠送资产编号
    */
@@ -102,7 +189,7 @@ export interface VipRechargeHistoryVO {
   /**
    * 业绩信息
    */
-  userKpiList?: OrgHautCommonDomainDtoVipRechargeDTOUserKpiDTO[];
+  userKpiList?: UserKpiDTO[];
   /**
    * 操作员名称
    */
@@ -127,11 +214,11 @@ export interface VipRechargeHistoryVO {
 }
 
 /**
- * org.haut.common.domain.dto.vip.RechargeDTO.PaymentInfoDTO
+ * org.haut.common.domain.dto.vip.PaymentInfoDTO
  *
- * org.haut.common.domain.dto.vip.PaymentInfoDTO
+ * PaymentInfoDTO
  */
-export interface OrgHautCommonDomainDtoVipPaymentInfoDTO {
+export interface PaymentInfoDTO {
   /**
    * 资产编号
    */
@@ -139,13 +226,13 @@ export interface OrgHautCommonDomainDtoVipPaymentInfoDTO {
   /**
    * 支付金额
    */
-  paymentAmount?: number;
+  paymentAmount: number;
   /**
    * 支付名称
    */
   paymentName?: string;
   /**
-   * 支付类型
+   * 支付类型枚举
    */
   paymentType?: number;
   [property: string]: any;
@@ -153,8 +240,10 @@ export interface OrgHautCommonDomainDtoVipPaymentInfoDTO {
 
 /**
  * org.haut.common.domain.dto.vip.RechargeDTO.UserKpiDTO
+ *
+ * UserKpiDTO
  */
-export interface OrgHautCommonDomainDtoVipRechargeDTOUserKpiDTO {
+export interface UserKpiDTO {
   /**
    * 业绩金额
    */
@@ -170,101 +259,4 @@ export interface OrgHautCommonDomainDtoVipRechargeDTOUserKpiDTO {
   [property: string]: any;
 }
 
-/**
- * org.haut.common.domain.dto.vip.RechargeDTO
- */
-export interface RechargeDTO {
-  /**
-   * 活动id
-   */
-  activeId?: number;
-  /**
-   * 活动名称
-   */
-  activeName?: string;
-  /**
-   * 资产折扣基数（0 标准价，1 会员价）
-   */
-  assetDiscountBase?: number;
-  /**
-   * 资产折扣率
-   */
-  assetDiscountRate?: number;
-  /**
-   * 资产是否允许跨店（0 不允许，1 允许）
-   */
-  assetIsCrossStore?: number;
-  /**
-   * 支付信息
-   */
-  paymentInfoList?: OrgHautCommonDomainDtoVipPaymentInfoDTO[];
-  /**
-   * 充值提成规则id
-   */
-  rechargeRoleId: number;
-  /**
-   * 充值金额
-   */
-  rechargeValue: number;
-  /**
-   * 业绩技师信息(支持多人业绩)
-   */
-  userKpiList?: OrgHautCommonDomainDtoVipRechargeDTOUserKpiDTO[];
-  /**
-   * 会员卡号
-   */
-  vipCardNumber?: string;
-  /**
-   * 会员id
-   */
-  vipId: number;
-  /**
-   * 会员姓名
-   */
-  vipName?: string;
-  /**
-   * 会员手机号
-   */
-  vipPhoneNumber?: string;
-  [property: string]: any;
-}
-
-/**
- * org.haut.common.domain.dto.vip.PaymentInfoDTO
- */
-export interface OrgHautCommonDomainDtoVipPaymentInfoDTO {
-  /**
-   * 资产编号
-   */
-  assetCode?: string;
-  /**
-   * 支付金额
-   */
-  paymentAmount?: number;
-  /**
-   * 支付名称
-   */
-  paymentName?: string;
-  /**
-   * 支付类型
-   */
-  paymentType?: number;
-}
-
-/**
- * org.haut.common.domain.dto.vip.RechargeDTO.UserKpiDTO
- */
-export interface OrgHautCommonDomainDtoVipRechargeDTOUserKpiDTO {
-  /**
-   * 业绩金额
-   */
-  kpi?: number;
-  /**
-   * 业绩技师id
-   */
-  userId?: number;
-  /**
-   * 业绩技师姓名
-   */
-  userName?: string;
-}
+//#endregion 充值记录

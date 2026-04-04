@@ -7,6 +7,7 @@ export { Types };
 // 接口地址
 enum API {
   RECHARGE_URL = '/vip/recharge',
+  /** 获取会员充值记录列表 */
   LIST_URL = '/vip/recharge-history/query-list',
   UPDATE_URL = '/vip/recharge-history/update-status',
   ACTIVE_LIST_URL = '/vip/recharge-active/active-list',
@@ -22,12 +23,10 @@ enum API {
  * @returns 充值记录列表
  */
 export const reqRechargeHistoryList = (
-  params: Types.RechargeHistoryParams = {},
-): ApiResponse<PageListInfo<Types.VipRechargeHistoryVO>> => {
+  params: Types.RechargeRecordRequest = {},
+): ApiResponse<PageListInfo<Types.RechargeHistoryVO[]>> => {
   return get(API.LIST_URL, params);
 };
-
-// export const reqAddRechargeHistory = (data = {}) => post(API.ADD_URL, data);
 
 export const reqUpdateRechargeHistory = (data = {}) => put(API.UPDATE_URL, data);
 
