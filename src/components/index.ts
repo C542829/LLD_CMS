@@ -11,6 +11,8 @@ import BtnForm from './BtnForm/index.vue';
 import DynamicInput from './DynamicInput/index.vue';
 import DatePicker from './DatePicker/index.vue';
 import MultipleSelect from './MultipleSelect/index.vue';
+import OrgSelect from './FormComponents/OrgSelect.vue';
+import UserSelect from './FormComponents/UserSelect.vue';
 import EllipsisText from './EllipsisText/index.vue';
 import Empty from './Empty/index.vue';
 import Message from './Message';
@@ -18,6 +20,7 @@ import MessageBox from './MessageBox';
 import Notification from './Notification';
 import ServiceTypeTag from './Tag/ServiceTypeTag.vue';
 import ClockInTypeTag from './Tag/ClockInTypeTag.vue';
+import EnumHandler from './EnumHandler/index.vue';
 
 // 引入element-plus提供全部图标组件
 import * as ElementPlusIconsVue from '@element-plus/icons-vue';
@@ -35,11 +38,14 @@ const allGlobalComponent: any = {
   BtnForm,
   DynamicInput,
   DatePicker,
+  UserSelect,
   MultipleSelect,
+  OrgSelect,
   EllipsisText,
   Empty,
   ServiceTypeTag,
   ClockInTypeTag,
+  EnumHandler,
 };
 
 // 对外暴露插件对象

@@ -36,6 +36,7 @@
         :lazy="props.lazy"
         :load="props.load"
         :table-layout="props.tableLayout"
+        :show-overflow-tooltip="props.showOverflowTooltip"
         @selection-change="handleSelectionChange"
         @cell-mouse-enter="handleCellMouseEnter"
         @cell-mouse-leave="handleCellMouseLeave"
@@ -202,6 +203,8 @@ const props = withDefaults(
     load?: (row: any, treeNode: any, resolve: (data: any[]) => void) => void;
     // 表格的布局方式
     tableLayout?: 'fixed' | 'auto';
+    // 是否显示溢出提示
+    showOverflowTooltip?: boolean;
 
     // 分页相关属性
     // 是否显示分页
@@ -243,6 +246,7 @@ const props = withDefaults(
     showSummary: false,
     selectOnIndeterminate: true,
     tableLayout: 'fixed',
+    showOverflowTooltip: true,
 
     // 分页默认值
     showPagination: true,
@@ -519,6 +523,24 @@ defineExpose({
   .table-container {
     flex: 1;
     overflow: hidden;
+
+    /* 单元格文本溢出显示省略号 */
+    :deep(.el-table__body-wrapper .el-table__body .cell),
+    :deep(.el-table__body-wrapper .el-table__body .cell .text),
+    :deep(.el-table__body-wrapper .el-table__body td .cell) {
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      white-space: nowrap !important;
+      display: block;
+    }
+
+    // :deep(.el-table__header-wrapper .el-table__header .cell),
+    // :deep(.el-table__header-wrapper .el-table__header th .cell) {
+    //   overflow: hidden !important;
+    //   text-overflow: ellipsis !important;
+    //   white-space: nowrap !important;
+    //   display: block;
+    // }
   }
 
   .pagination-container {
