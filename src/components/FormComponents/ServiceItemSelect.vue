@@ -24,23 +24,22 @@
 
     <template #header>
       <div class="el-align-center">
-        <el-button v-if="multiple" type="primary" size="small" link @click="handleClear">取消选择</el-button>
-        <el-button type="success" size="small" link @click="getUserList">刷新数据</el-button>
+        <el-button v-if="multiple" type="primary" link size="small" @click="handleClear">取消选择</el-button>
+        <el-button type="success" size="small" link @click="getServiceItemList">刷新数据</el-button>
       </div>
     </template>
   </el-select>
 </template>
 
 <script setup lang="ts">
-import { reqUserList, type Types } from '@/api/user/index';
+import { reqServiceItemList, type Types } from '@/api/setGroup/serviceItem/index';
 import { computed, onMounted, ref, watch } from 'vue';
 import { SelectInstance } from 'element-plus';
-import useUserStore from '@/store/modules/acl/user';
 
 type ElSelectProps = SelectInstance['$props'];
 
 interface Props extends Partial<ElSelectProps> {
-  modelValue: number | number[] | UserInfo | UserInfo[] | string;
+  modelValue: number | number[] | Types.ServerItemVO | Types.ServerItemVO[] | string;
   placeholder?: string;
   class?: string;
   valueKey?: string;
@@ -48,25 +47,29 @@ interface Props extends Partial<ElSelectProps> {
   clearable?: boolean;
   multiple?: boolean;
   emitObject?: boolean;
-  defaultProps?: any;
   filterable?: boolean;
   placement?: PlacementType;
+  itemStatus?: number;
+  category?: string;
+  defaultProps?: any;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   modelValue: () => [],
-  placeholder: '用户',
+  placeholder: '服务项目',
   class: 'w-120',
-  valueKey: 'userId',
+  valueKey: 'id',
   maxCollapseTags: 0,
   clearable: true,
   multiple: true,
   emitObject: false,
   filterable: true,
   placement: 'bottom',
+  itemStatus: 0,
+  category: '',
   defaultProps: () => ({
-    label: 'userName',
-    value: 'userId',
+    label: 'itemName',
+    value: 'id',
   }),
 });
 
@@ -75,8 +78,6 @@ const emit = defineEmits(['update:modelValue', 'change', 'clear']);
 const selectedValue = ref<any>(props.multiple ? [] : undefined);
 
 const loading = ref(false);
-
-const userStore = useUserStore();
 
 watch(
   () => props.modelValue,
@@ -99,7 +100,7 @@ watch(
 );
 
 /**
- * 选择用户
+ * 选择服务项目
  */
 const handleChange = (val: any) => {
   emit('update:modelValue', val);
@@ -107,7 +108,7 @@ const handleChange = (val: any) => {
 };
 
 /**
- * 取消选择用户
+ * 取消选择服务项目
  */
 const handleClear = () => {
   const value = props.multiple ? [] : '';
@@ -116,51 +117,28 @@ const handleClear = () => {
 };
 
 onMounted(() => {
-  getUserList();
+  getServiceItemList();
 });
 
-/** 当前用户选项列表 */
+/** 当前服务项目选项列表 */
 const options = computed(() => {
-  return userList.value;
+  return serviceItemList.value;
 });
 
-/** 门店列表 */
-const userList = ref<UserInfo[]>([]);
-
-const params: Types.SearchUserParams = {
-  roleId: '',
-  userName: '',
-  userStatus: '在职',
-  userNumber: '',
-  pageNum: 1,
-  pageSize: 200,
-  orgIds: [],
-};
-
-const orgIds = computed(() => {
-  if (userStore.user.orgs) {
-    return userStore.user.orgs.map((item) => item.id);
-  } else {
-    return [userStore.user.orgId];
-  }
-});
+/** 服务项目列表 */
+const serviceItemList = ref<Types.ServerItemVO[]>([]);
 
 /**
- * 获取用户列表
+ * 获取服务项目列表
  */
-const getUserList = async () => {
+const getServiceItemList = async () => {
   loading.value = true;
   try {
-    params.orgIds = orgIds.value;
-    const res = await reqUserList(params);
-    const data = res.data.rows.map((item: UserInfo) => {
-      return {
-        id: item.id,
-        userId: item.id,
-        userName: item.userName,
-      };
+    const res = await reqServiceItemList({
+      itemStatus: props.itemStatus,
+      category: props.category,
     });
-    userList.value = data || [];
+    serviceItemList.value = res.data || [];
   } catch (error) {
   } finally {
     loading.value = false;

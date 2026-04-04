@@ -21,9 +21,11 @@
       :value="item[defaultProps.value]"
     />
     <template v-if="multiple" #header>
-      <el-button type="primary" size="small" @click="handleSelectAll">全选</el-button>
-      <el-button type="primary" size="small" @click="handleClear">取消选择</el-button>
-      <el-button type="success" size="small" @click="getOrgList">刷新数据</el-button>
+      <div class="el-align-center">
+        <el-button type="primary" size="small" link @click="handleSelectAll">全选</el-button>
+        <el-button type="primary" size="small" link @click="handleClear">取消选择</el-button>
+        <el-button type="success" size="small" link @click="getOrgList">刷新数据</el-button>
+      </div>
     </template>
   </el-select>
 </template>
@@ -31,9 +33,12 @@
 <script setup lang="ts">
 import { reqList as reqOrgList } from '@/api/acl/org/index';
 import { computed, onMounted, ref, watch } from 'vue';
+import { SelectInstance } from 'element-plus';
 import useUserStore from '@/store/modules/acl/user';
 
-interface Props {
+type ElSelectProps = SelectInstance['$props'];
+
+interface Props extends Partial<ElSelectProps> {
   modelValue: number | number[];
   placeholder?: string;
   class?: string;
