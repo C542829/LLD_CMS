@@ -33,11 +33,7 @@ export const reqLogin = (data: Types.LoginForm): ApiResponse<Types.LoginResponse
  * @returns
  */
 export const reqUserList = (params: Types.SearchUserParams): ApiResponse<PageListInfo<UserInfo[]>> =>
-  get(API.LIST_URL, params, {
-    paramsSerializer: (params: any) => {
-      return new URLSearchParams(params).toString();
-    },
-  });
+  get(API.LIST_URL, params);
 
 /**
  * 获取用户信息

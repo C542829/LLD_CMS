@@ -35,7 +35,7 @@ export const reqUpdateActiveStatus = (data = {}) => put(API.UPDATE_STATUS_URL, d
  * 默认用户列表查询参数
  */
 export const defaultParams: Types.SearchActiveParams = {
-  orgId: undefined,
+  // orgId: ,
   activeName: '',
   activeStatus: 0,
 };
