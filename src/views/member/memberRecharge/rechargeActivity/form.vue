@@ -11,19 +11,7 @@
       <!-- 关联门店 -->
       <template v-if="userStore.isAdmin">
         <el-form-item label="关联门店" prop="orgIds">
-          <el-select
-            v-model="store.formData.orgIds"
-            placeholder="关联门店"
-            class="w-240"
-            value-key="id"
-            clearable
-            multiple
-            collapse-tags
-            collapse-tags-tooltip
-            :max-collapse-tags="1"
-          >
-            <el-option v-for="item in dataEnumStore.orgList" :key="item.id" :label="item.orgName" :value="item.id" />
-          </el-select>
+          <OrgSelect v-model="store.formData.orgIds" />
         </el-form-item>
       </template>
 
@@ -58,63 +46,62 @@
         </el-select>
       </el-form-item>
 
-      <!-- 本金设置 -->
-      <div>
-        <h1 class="title">本金设置</h1>
+      <!-- #region 本金设置 -->
+      <h1 class="title">本金设置</h1>
 
-        <!-- 充值本金 -->
-        <el-form-item label="充值本金" prop="activeCapital">
-          <el-input-number
-            v-model="store.formData.activeCapital"
-            :min="0"
-            :controls="false"
-            placeholder="请输入充值本金"
-            class="w-120"
-          >
-            <template #suffix>元</template>
-          </el-input-number>
-        </el-form-item>
+      <!-- 充值本金 -->
+      <el-form-item label="充值本金" prop="activeCapital">
+        <el-input-number
+          v-model="store.formData.activeCapital"
+          :min="0"
+          :controls="false"
+          placeholder="充值本金"
+          class="w-120"
+        >
+          <template #suffix>元</template>
+        </el-input-number>
+      </el-form-item>
 
-        <!-- 消费折扣 -->
-        <el-form-item label="消费折扣" prop="activeDiscount">
-          <el-input-number
-            v-model="store.formData.activeDiscount"
-            :min="0"
-            :max="100"
-            :controls="false"
-            placeholder="请输入消费折扣"
-            class="w-120"
-          >
-            <template #suffix>%</template>
-          </el-input-number>
-        </el-form-item>
+      <!-- 消费折扣 -->
+      <el-form-item label="消费折扣" prop="activeDiscount">
+        <el-input-number
+          v-model="store.formData.activeDiscount"
+          :min="0"
+          :max="100"
+          :controls="false"
+          placeholder="请输入消费折扣"
+          class="w-120"
+        >
+          <template #suffix>%</template>
+        </el-input-number>
+      </el-form-item>
 
-        <!-- 折扣基础 -->
-        <el-form-item label="折扣基础" prop="activeBase">
-          <el-radio-group v-model="store.formData.activeBase">
-            <el-radio
-              v-for="item in discountTypeOptions"
-              :key="item.value"
-              :value="item.value"
-              :label="item.label"
-              :border="true"
-            />
-          </el-radio-group>
-        </el-form-item>
-
-        <!-- 跨店结算 -->
-        <el-form-item label="跨店结算" prop="isCrossStore">
-          <el-switch
-            v-model="store.formData.isCrossStore"
-            :active-value="IsCrossStore.YES"
-            :inactive-value="IsCrossStore.NO"
+      <!-- 折扣基础 -->
+      <el-form-item label="折扣基础" prop="activeBase">
+        <el-radio-group v-model="store.formData.activeBase">
+          <el-radio
+            v-for="item in discountTypeOptions"
+            :key="item.value"
+            :value="item.value"
+            :label="item.label"
+            :border="true"
           />
-        </el-form-item>
-      </div>
+        </el-radio-group>
+      </el-form-item>
 
-      <!-- 赠送储值金 -->
-      <div
-        v-show="
+      <!-- 跨店结算 -->
+      <el-form-item label="跨店结算" prop="isCrossStore">
+        <el-switch
+          v-model="store.formData.isCrossStore"
+          :active-value="IsCrossStore.YES"
+          :inactive-value="IsCrossStore.NO"
+        />
+      </el-form-item>
+      <!-- #endregion 本金设置 -->
+
+      <!-- #region 赠送储值金 -->
+      <template
+        v-if="
           store.formData.activeType === ActivityType.PresentValue ||
           store.formData.activeType === ActivityType.PresentValueAndCoupon
         "
@@ -127,7 +114,7 @@
             v-model="store.formData.presentValue"
             :min="0"
             :controls="false"
-            placeholder="请输入赠送金额"
+            placeholder="赠送金额"
             class="w-120"
           >
             <template #suffix>元</template>
@@ -186,11 +173,12 @@
             </span>
           </el-alert>
         </el-form-item> -->
-      </div>
+      </template>
+      <!-- #endregion 赠送储值金 -->
 
-      <!-- 赠送优惠券 -->
-      <div
-        v-show="
+      <!-- #region 赠送优惠券 -->
+      <template
+        v-if="
           store.formData.activeType === ActivityType.PresentCoupon ||
           store.formData.activeType === ActivityType.PresentValueAndCoupon
         "
@@ -212,39 +200,44 @@
             />
           </MultipleSelect>
         </el-form-item>
-      </div>
+      </template>
+      <!-- #endregion 赠送优惠券 -->
 
-      <!-- 提成设置 -->
-      <div>
-        <h1 class="title">提成设置</h1>
+      <!-- #region 提成设置 -->
+      <h1 class="title">提成设置</h1>
 
-        <!-- 提成类型 -->
-        <el-form-item label="提成类型" prop="commissionType">
-          <el-radio-group v-model.number="store.formData.commissionType">
-            <el-radio v-for="item in commissionTypeOptions" :value="item.value" :border="true">
-              {{ item.label }}
-            </el-radio>
-          </el-radio-group>
+      <!-- 提成类型 -->
+      <el-form-item label="提成类型" prop="commissionType">
+        <el-radio-group v-model.number="store.formData.commissionType">
+          <el-radio v-for="item in commissionTypeOptions" :value="item.value" :border="true">
+            {{ item.label }}
+          </el-radio>
+        </el-radio-group>
+      </el-form-item>
+
+      <!-- 固定金额 -->
+      <template v-if="store.formData.commissionType === CommissionType.FixedAmount">
+        <el-form-item label="提成值" prop="commissionValue">
+          <el-input-number
+            v-model="store.formData.commissionValue"
+            :controls="false"
+            class="w-120"
+            placeholder="提成值"
+          >
+            <template #suffix>元</template>
+          </el-input-number>
         </el-form-item>
+      </template>
 
-        <!-- 固定金额 -->
-        <template v-if="store.formData.commissionType === CommissionType.FixedAmount">
-          <el-form-item label="提成值" prop="commissionValue">
-            <el-input-number v-model="store.formData.commissionValue" :controls="false" class="w-120">
-              <template #suffix>元</template>
-            </el-input-number>
-          </el-form-item>
-        </template>
-
-        <!-- 比例提成 -->
-        <template v-if="store.formData.commissionType === CommissionType.Proportion">
-          <el-form-item label="提成比例" prop="commissionValue">
-            <el-input-number v-model="store.formData.commissionValue" :controls="false" class="w-120">
-              <template #suffix>%</template>
-            </el-input-number>
-          </el-form-item>
-        </template>
-      </div>
+      <!-- 比例提成 -->
+      <template v-if="store.formData.commissionType === CommissionType.Proportion">
+        <el-form-item label="提成比例" prop="commissionValue">
+          <el-input-number v-model="store.formData.commissionValue" :controls="false" class="w-120">
+            <template #suffix>%</template>
+          </el-input-number>
+        </el-form-item>
+      </template>
+      <!-- #endregion 提成设置 -->
 
       <!-- 其他描述 -->
       <el-form-item label="其他描述">
@@ -274,10 +267,8 @@ import {
 import { useRechargeActivityStore } from '@/store/modules/member/rechargeActivity';
 import { useCouponStore } from '@/store/modules/member/memberCoupon';
 import useUserStore from '@/store/modules/acl/user';
-import { useDataEnumStore } from '@/store/modules/enums/index';
 const store = useRechargeActivityStore();
 const couponStore = useCouponStore();
-const dataEnumStore = useDataEnumStore();
 const userStore = useUserStore();
 
 // 定义组件触发的事件 - 关闭抽屉
@@ -337,6 +328,7 @@ defineExpose({
 
 // 表单验证规则
 const formRules = {
+  orgIds: [{ required: true, message: '请选择关联门店', trigger: 'change' }],
   activeName: [{ required: true, message: '请输入活动名称', trigger: 'blur' }],
   activeTime: [{ required: true, message: '请选择活动时间', trigger: 'blur' }],
   activeType: [{ required: true, message: '请选择活动类型', trigger: 'change' }],
@@ -353,6 +345,11 @@ const formRules = {
   activePresent: [
     { required: true, message: '请输入赠送金额', trigger: 'blur' },
     { type: 'number', message: '请输入有效金额', trigger: 'blur' },
+  ],
+  commissionType: [{ required: true, message: '请选择提成类型', trigger: 'change' }],
+  commissionValue: [
+    { required: true, message: '请输入提成值', trigger: 'blur' },
+    { type: 'number', message: '请输入有效提成值', trigger: 'blur' },
   ],
 };
 
