@@ -59,20 +59,13 @@
       <div class="bottom-left">
         <label>
           <span>销售：</span>
-          <el-select
+          <UserSelect
             v-model="data.technicians"
-            value-key="userId"
-            @change="handleChangeUser"
-            clearable
-            multiple
-            collapse-tags
-            collapse-tags-tooltip
-            :max-collapse-tags="0"
+            emitObject
             placeholder="销售人"
-            style="width: 90px"
-          >
-            <el-option v-for="item in dataEnumStore.staffList" :key="item.id" :label="item.userName" :value="item" />
-          </el-select>
+            class="w-90"
+            @change="handleChangeUser"
+          />
         </label>
         <template v-if="data.detailType !== OrderDetailType.Service">
           <label class="m-l-10">

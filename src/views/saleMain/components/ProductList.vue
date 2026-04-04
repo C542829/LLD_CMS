@@ -1,9 +1,10 @@
 <template>
   <div class="product-list">
-    <template v-if="enumStore.productList && enumStore.productList.length > 0">
-      <el-scrollbar>
+    <DictRadio :dictCode="DictCode.PRODUCT_CATEGORY" class="dict-radio" @change="handleChange" />
+    <template v-if="productList && productList.length > 0">
+      <el-scrollbar v-loading="loading" :element-loading-text="LOADING_MSG">
         <ItemCard
-          v-for="item in enumStore.productList"
+          v-for="item in productList"
           :key="item.id"
           :data="item"
           :config="customConfig"
@@ -20,18 +21,36 @@
 
 <script setup lang="ts">
 import ItemCard from './ItemCard.vue';
-import { OrderDetailType, ServiceType } from '@/enums/index';
+import DictRadio from '@/components/FormComponents/DictRadio.vue';
 import { ref, onMounted } from 'vue';
-import { useDataEnumStore } from '@/store/modules/enums/index';
 import { cloneDeep } from 'lodash';
+import { LOADING_MSG } from '@/utils/constant';
+import { OrderDetailType, DictCode } from '@/enums/index';
+import { reqProductList, type Types } from '@/api/setGroup/product';
 
 const emit = defineEmits(['addItem']);
 
-const enumStore = useDataEnumStore();
-
 onMounted(async () => {
-  await enumStore.getProductList();
+  getProductList('');
 });
+
+const loading = ref(false);
+const productList = ref<Types.ProductInfoVO[]>([]);
+
+const handleChange = (val: string | number | boolean | undefined) => {
+  getProductList(val as string);
+};
+
+const getProductList = async (category: string) => {
+  try {
+    loading.value = true;
+    const res = await reqProductList({ category, productStatus: 0 });
+    productList.value = res.data || [];
+  } catch (error) {
+  } finally {
+    loading.value = false;
+  }
+};
 
 const handleAddItem = (item: any) => {
   item = cloneDeep(item);
@@ -45,7 +64,6 @@ const handleAddItem = (item: any) => {
   item.truePrice = item.productPrice;
 
   delete item.id;
-  // orderStore.addOrderItem(item);
   emit('addItem', item);
 };
 
@@ -55,18 +73,24 @@ const customConfig = ref({
   retailPriceKey: 'productPrice',
   memberPriceKey: 'vipProductPrice',
   isDiscountKey: 'isDiscount',
+  categoryKey: 'category',
 });
 </script>
 
 <style lang="scss" scoped>
 .product-list {
   height: 100%;
-  // overflow: hidden;
-  :deep(.el-scrollbar__wrap) {
-    height: 100%;
-    > div {
-      overflow: auto;
+  .dict-radio {
+    margin-bottom: 8px;
+  }
+  > :deep(.el-scrollbar) {
+    height: calc(100% - 40px);
+    .el-scrollbar__wrap {
       height: 100%;
+      > div {
+        overflow: auto;
+        height: 100%;
+      }
     }
   }
 }

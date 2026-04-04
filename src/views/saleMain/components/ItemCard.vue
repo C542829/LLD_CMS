@@ -25,6 +25,12 @@
       <span class="member">¥{{ getItemValue(data, config.memberPriceKey || 'memberPrice', 0) }}</span>
     </div>
     <div class="item btn-item">
+      <template v-if="config.categoryKey">
+        <div class="category text-overflow" :title="getItemValue(data, config.categoryKey || 'category', '')">
+          {{ getItemValue(data, config.categoryKey || 'category', '') }}
+        </div>
+      </template>
+      <div></div>
       <el-button type="primary" link @click="handleAdd" :disabled="disabled">添加</el-button>
     </div>
   </div>
@@ -42,6 +48,7 @@ interface ItemCardConfig {
   retailPriceKey?: string; // 散客价属性键
   memberPriceKey?: string; // 会员价属性键
   isDiscountKey?: string; // 是否打折属性键
+  categoryKey?: string; // 分类属性键
 }
 
 /**
@@ -182,7 +189,15 @@ const getItemValue = (data: Record<string, any>, key: string, defaultValue: any 
   }
   .btn-item {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
+    align-items: center;
+    .category {
+      max-width: 100px;
+      font-size: 12px;
+      height: 100%;
+      line-height: 22px;
+      color: var(--el-text-color-secondary);
+    }
   }
 }
 </style>

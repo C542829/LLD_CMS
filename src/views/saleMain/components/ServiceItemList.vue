@@ -1,9 +1,10 @@
 <template>
   <div class="product-list">
-    <template v-if="enumStore.serviceItemList && enumStore.serviceItemList.length > 0">
-      <el-scrollbar>
+    <DictRadio :dictCode="DictCode.ITEM_CATEGORY" class="dict-radio" @change="handleChange" />
+    <template v-if="serviceItemList && serviceItemList.length > 0">
+      <el-scrollbar v-loading="loading" :element-loading-text="LOADING_MSG">
         <ItemCard
-          v-for="item in enumStore.serviceItemList"
+          v-for="item in serviceItemList"
           :key="item.id"
           :data="item"
           :config="customConfig"
@@ -20,18 +21,36 @@
 
 <script setup lang="ts">
 import ItemCard from './ItemCard.vue';
-import { OrderDetailType, ServiceType } from '@/enums/index';
-import { ref, watch, onMounted } from 'vue';
-import { useDataEnumStore } from '@/store/modules/enums/index';
+import DictRadio from '@/components/FormComponents/DictRadio.vue';
+import { ref, onMounted } from 'vue';
 import { cloneDeep } from 'lodash';
+import { LOADING_MSG } from '@/utils/constant';
+import { DictCode, OrderDetailType, ServiceType } from '@/enums/index';
+import { reqServiceItemList, type Types } from '@/api/setGroup/serviceItem';
 
 const emit = defineEmits(['addItem']);
 
-const enumStore = useDataEnumStore();
-
 onMounted(async () => {
-  await enumStore.getServiceItemList(true);
+  getServiceItemList('');
 });
+
+const loading = ref(false);
+const serviceItemList = ref<Types.ServerItemVO[]>([]);
+
+const handleChange = (val: string | number | boolean | undefined) => {
+  getServiceItemList(val as string);
+};
+
+const getServiceItemList = async (category: string) => {
+  try {
+    loading.value = true;
+    const res = await reqServiceItemList({ category, itemStatus: 0 });
+    serviceItemList.value = res.data || [];
+  } catch (error) {
+  } finally {
+    loading.value = false;
+  }
+};
 
 const handleAddItem = (item: any) => {
   item = cloneDeep(item);
@@ -54,18 +73,24 @@ const customConfig = ref({
   retailPriceKey: 'itemPrice',
   memberPriceKey: 'vipItemPrice',
   isDiscountKey: 'isDiscounts',
+  categoryKey: 'category',
 });
 </script>
 
 <style lang="scss" scoped>
 .product-list {
   height: 100%;
-  // overflow: hidden;
-  :deep(.el-scrollbar__wrap) {
-    height: 100%;
-    > div {
-      overflow: auto;
+  .dict-radio {
+    margin-bottom: 8px;
+  }
+  > :deep(.el-scrollbar) {
+    height: calc(100% - 40px);
+    .el-scrollbar__wrap {
       height: 100%;
+      > div {
+        overflow: auto;
+        height: 100%;
+      }
     }
   }
 }
