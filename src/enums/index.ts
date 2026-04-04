@@ -25,6 +25,20 @@ export enum Enums {
   PRODUCT_CATEGORY = 'product_category',
 }
 
+/**
+ * 字典编码
+ */
+export enum DictCode {
+  BED_STATUS = 'bed_status',
+  UNIT = 'unit',
+  POSITION = 'position',
+  DEPARTMENT = 'department',
+  PERF_TYPE = 'item_type',
+  SERVICE_TYPE = 'service_type',
+  ITEM_CATEGORY = 'item_category',
+  PRODUCT_CATEGORY = 'product_category',
+}
+
 export enum Status {
   enabled = 0,
   disabled = 1,
