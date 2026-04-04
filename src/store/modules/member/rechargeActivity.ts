@@ -113,7 +113,7 @@ export const useRechargeActivityStore = defineStore('RechargeActivity', () => {
       activeBeginTime: '',
       activeFinalTime: '',
       activeType: 0,
-      activeCapital: 0,
+      activeCapital: undefined,
       activeDiscount: 100,
       activeBase: 0,
       isCrossStore: 1,
@@ -126,7 +126,7 @@ export const useRechargeActivityStore = defineStore('RechargeActivity', () => {
       ticketIds: [],
       remark: '',
       commissionType: CommissionType.FixedAmount,
-      commissionValue: 0,
+      commissionValue: undefined,
       orgIds: [],
     };
   };
