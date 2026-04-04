@@ -29,7 +29,7 @@ export const DEFAULT_FORMDATA = {
   userEdu: '未知',
   userHealth: '',
   roleId: null,
-  orgId: null,
+  orgId: undefined,
   orgIds: [],
 };
 

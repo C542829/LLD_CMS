@@ -27,6 +27,17 @@
         <el-input v-model="formdata.userCode" clearable class="w-240" placeholder="请输入账号" />
       </el-form-item>
 
+      <!--人员密码 -->
+      <el-form-item label="密码" prop="userPassword">
+        <el-input
+          type="password"
+          v-model="formdata.userPassword"
+          show-password
+          class="w-240"
+          placeholder="请输入密码"
+        />
+      </el-form-item>
+
       <!-- 姓名 -->
       <el-form-item label="姓名" prop="userName">
         <el-input v-model="formdata.userName" clearable class="w-240" placeholder="请输入姓名" />
@@ -168,13 +179,12 @@ import { type Types } from '@/api/acl/role';
 import { type Types as UserTypes, reqAddUser, reqUpdateUser } from '@/api/user/index';
 import { DEFAULT_FORMDATA } from '../utils/index';
 import { sexOptions, employedOptions, maritalStatusOptions, educationOptions } from '@/enums/index';
-import { useEnumStore, Enums, useDataEnumStore } from '@/store/modules/enums/index';
+import { useEnumStore, Enums } from '@/store/modules/enums/index';
 import useUserStore from '@/store/modules/acl/user';
 import Message from '@/components/Message';
 
 const userStore = useUserStore();
 const enumStore = useEnumStore();
-const dataEnumStore = useDataEnumStore();
 
 //#region 父子组件交互
 interface Props {
@@ -329,6 +339,7 @@ const formRules = {
   orgIds: [{ required: true, message: '请选择关联门店', trigger: 'blur' }],
   orgId: [{ required: true, message: '请选择默认门店', trigger: 'blur' }],
   userCode: [{ required: true, message: '人员账号为必填项', trigger: 'blur' }],
+  userPassword: [{ required: true, message: '密码为必填项', trigger: 'blur' }],
   userName: [
     { required: true, message: '姓名为必填项', trigger: 'blur' },
     { min: 2, max: 20, message: '姓名长度在2到20个字符之间', trigger: 'blur' },
