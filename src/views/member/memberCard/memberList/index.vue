@@ -45,40 +45,48 @@
         <el-table-column prop="remark" label="备注" min-width="80" />
         <el-table-column label="操作" min-width="100">
           <template #default="{ row }">
-            <el-button link type="warning" v-has="`member:memberCard:memberList:update`" @click="showDrawer(1, row)">
-              修改资料
-            </el-button>
-            <el-button link type="primary" v-has="`member:memberCard:memberList:updatePwd`" @click="showDrawer(2, row)">
-              修改密码
-            </el-button>
-            <el-button
-              link
-              type="success"
-              v-has="`member:memberCard:memberList:PresentCoupon`"
-              :disabled="false"
-              @click="showDrawer(3, row)"
-            >
-              赠送优惠券
-            </el-button>
-            <el-button
-              link
-              type="warning"
-              v-has="`member:memberCard:memberList:CancelCoupon`"
-              :disabled="true"
-              @click="showDialog(4, row)"
-            >
-              取消优惠券
-            </el-button>
-            <el-button
-              link
-              type="success"
-              v-has="`member:memberCard:memberList:PresentAmount`"
-              :disabled="false"
-              @click="showDrawer(5, row)"
-            >
-              赠送卡金
-            </el-button>
-            <el-button link type="info" :disabled="false" @click="showDialog(6, row)">更多</el-button>
+            <div style="white-space: normal">
+              <el-button link type="warning" v-has="`member:memberCard:memberList:update`" @click="showDrawer(1, row)">
+                修改资料
+              </el-button>
+              <el-button
+                link
+                type="primary"
+                v-has="`member:memberCard:memberList:updatePwd`"
+                @click="showDrawer(2, row)"
+              >
+                修改密码
+              </el-button>
+              <el-button
+                link
+                type="success"
+                v-has="`member:memberCard:memberList:PresentCoupon`"
+                :disabled="false"
+                @click="showDrawer(3, row)"
+              >
+                赠送优惠券
+              </el-button>
+              <!-- <br /> -->
+              <el-button
+                link
+                type="warning"
+                v-has="`member:memberCard:memberList:CancelCoupon`"
+                :disabled="true"
+                @click="showDialog(4, row)"
+              >
+                取消优惠券
+              </el-button>
+              <el-button
+                link
+                type="success"
+                v-has="`member:memberCard:memberList:PresentAmount`"
+                :disabled="false"
+                @click="showDrawer(5, row)"
+              >
+                赠送卡金
+              </el-button>
+              <el-button link type="info" :disabled="false" @click="showDialog(6, row)">更多</el-button>
+            </div>
           </template>
         </el-table-column>
       </PaginationTable>
