@@ -9,7 +9,6 @@ import { ResponseCode } from '@/enums/response';
 import useUserStore from '@/store/modules/acl/user';
 // 引入配置相关的仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
-import { RoleCode } from '@/enums';
 
 // 扩展config自定义参数
 declare module 'axios' {
@@ -34,6 +33,9 @@ export enum ContentType {
 const request = axios.create({
   baseURL: import.meta.env.VITE_APP_BASE_API, // 基础路径
   timeout: 1000 * 10, // 超时时间
+  paramsSerializer: (params: any) => {
+    return new URLSearchParams(params).toString();
+  },
 });
 
 // 添加请求拦截器
