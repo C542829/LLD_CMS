@@ -22,6 +22,21 @@ declare global {
   /** 弹窗类型 */
   type DialogType = 'add' | 'view' | 'edit';
 
+  /** 弹出框位置 */
+  type PlacementType =
+    | 'top'
+    | 'top-start'
+    | 'top-end'
+    | 'bottom'
+    | 'bottom-start'
+    | 'bottom-end'
+    | 'left'
+    | 'left-start'
+    | 'left-end'
+    | 'right'
+    | 'right-start'
+    | 'right-end';
+
   /** 所有 api 接口的响应数据都应该准守该格式 */
   interface ApiResponseData<T> {
     code: number;
