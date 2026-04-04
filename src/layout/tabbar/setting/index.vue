@@ -1,4 +1,5 @@
 <template>
+  <el-text type="info" style="margin-right: 12px">{{ getOrgName }}</el-text>
   <el-tooltip effect="light" content="刷新" placement="bottom">
     <el-button size="small" icon="Refresh" circle @click="updateRefresh"></el-button>
   </el-tooltip>
@@ -18,6 +19,7 @@
       <el-dropdown-menu>
         <!-- <el-dropdown-item @click="printDesign">打印设计</el-dropdown-item> -->
         <!-- <el-dropdown-item @click="printSetup">打印维护</el-dropdown-item> -->
+        <!-- <el-dropdown-item @click="changeInfo">修改资料</el-dropdown-item> -->
         <el-dropdown-item @click="visible = true">修改密码</el-dropdown-item>
         <el-dropdown-item @click="logout">退出登录</el-dropdown-item>
       </el-dropdown-menu>
@@ -30,7 +32,8 @@
 
 <script setup lang="ts">
 import PwdForm from './PwdForm.vue';
-import { ref } from 'vue';
+// import UserDrawerForm from '@/views/acl/user/components/DrawerForm.vue';
+import { computed, ref } from 'vue';
 import { printer } from '@/utils/lodop';
 import { useRouter, useRoute } from 'vue-router';
 // 获取用户相关的小仓库
@@ -69,6 +72,19 @@ const logout = async () => {
   $router.push({ path: '/login', query: { redirect: $route.path } });
 };
 
+const getOrgName = computed(() => {
+  if (userStore.user.orgs) {
+    const org = userStore.user.orgs.find((item) => item.id === userStore.user.orgId);
+    return org?.orgName || '';
+  }
+  return '';
+});
+
+// 修改资料点击回调
+const changeInfo = () => {
+  // $router.push({ path: '/user/info' });
+};
+
 /** 打开打印设计窗口 */
 const printDesign = () => {
   printer.printDesign();
@@ -84,4 +100,6 @@ export default {
   name: 'Setting',
 };
 </script>
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+// .text
+</style>
