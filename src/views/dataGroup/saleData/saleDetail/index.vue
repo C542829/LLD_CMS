@@ -28,16 +28,14 @@
         <div class="search-item">
           <label>
             销售员：
-            <el-select
+            <UserSelect
               v-model="store.searchParams.userId"
-              clearable
-              filterable
-              placeholder="选择销售员"
-              style="width: 140px"
-            >
-              <el-option label="未指定" value="" />
-              <el-option v-for="item in staffList" :key="item.id" :label="item.userName" :value="item.id" />
-            </el-select>
+              placeholder="销售员"
+              class="w-100"
+              :multiple="false"
+              @change="search"
+              @clear="search"
+            />
           </label>
         </div>
         <div class="search-item">

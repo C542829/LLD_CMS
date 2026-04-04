@@ -44,7 +44,15 @@
         <div class="search-item">
           <label>
             选择技师：
-            <el-select
+            <UserSelect
+              v-model="store.searchParams.userId"
+              placeholder="技师"
+              class="w-100"
+              :multiple="false"
+              @change="search"
+              @clear="search"
+            />
+            <!-- <el-select
               v-model="store.searchParams.userId"
               clearable
               placeholder="选择技师"
@@ -54,7 +62,7 @@
             >
               <el-option label="全部" value="" />
               <el-option v-for="item in staffList" :key="item.id" :label="item.userName" :value="item.id" />
-            </el-select>
+            </el-select> -->
           </label>
         </div>
         <div class="search-item">

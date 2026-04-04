@@ -23,7 +23,7 @@
         </div>
         <div class="search-item">
           <label for="saleStaff">收银员：</label>
-          <el-select
+          <!-- <el-select
             v-model="store.searchParams.userId"
             clearable
             id="saleStaff"
@@ -32,7 +32,15 @@
           >
             <el-option label="未指定" value="null" />
             <el-option v-for="item in staffList" :key="item.id" :label="item.userName" :value="item.id" />
-          </el-select>
+          </el-select> -->
+          <UserSelect
+            v-model="store.searchParams.userId"
+            placeholder="收银员"
+            class="w-100"
+            :multiple="false"
+            @change="search"
+            @clear="search"
+          />
         </div>
         <div class="search-item">
           <el-switch v-model="store.searchParams.payZero" :active-value="0" :inactive-value="1" id="payZero" />

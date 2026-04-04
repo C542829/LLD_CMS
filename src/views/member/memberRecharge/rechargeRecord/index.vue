@@ -50,10 +50,18 @@
         <div class="search-item">
           <label>
             <span>销售人员：</span>
-            <el-select v-model="recordSearch.userId" @change="search" @clear="search" clearable style="width: 120px">
+            <!-- <el-select v-model="recordSearch.userId" @change="search" @clear="search" clearable style="width: 120px">
               <el-option key="未指定" label="未指定" :value="''" />
               <el-option v-for="item in staffList" :key="item.id" :label="item.userName" :value="item.id" />
-            </el-select>
+            </el-select> -->
+            <UserSelect
+              v-model="recordSearch.userId"
+              placeholder="销售人员"
+              class="w-100"
+              :multiple="false"
+              @change="search"
+              @clear="search"
+            />
           </label>
         </div>
         <div class="search-item">

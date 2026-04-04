@@ -60,19 +60,27 @@
             </el-select>
           </label>
         </div>
-        <div class="search-item">
+        <!-- <div class="search-item">
           <label>
             提成技师：
-            <el-select
-              v-model="store.searchParams.username"
-              placeholder="请选择技师"
-              clearable
-              filterable
-              style="width: 200px"
-            >
-              <el-option v-for="item in staffList" :key="item.userId" :label="item.userName" :value="item.userName" />
-            </el-select>
+            <UserSelect
+              v-model="store.searchParams.userId"
+              placeholder="技师"
+              class="w-100"
+              :multiple="false"
+              @change="search"
+              @clear="search"
+            />
           </label>
+        </div> -->
+        <div class="search-item">
+          <el-input
+            v-model="store.searchParams.username"
+            clearable
+            @clear="search"
+            placeholder="技师姓名"
+            class="w-100"
+          />
         </div>
         <div class="search-item">
           <el-button type="primary" @click="search">搜索</el-button>
