@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { OrderDetailTypeMap, OrderDetailType, ServiceType, ServiceTypeMap } from '@/enums/index';
+import { OrderDetailTypeMap, OrderDetailType } from '@/enums/index';
 interface Props {
   type: OrderDetailType;
 }
