@@ -55,7 +55,7 @@ export function getRemainingDays(createTime: string, validDays: number) {
  * @returns 指定格式的时间字符串
  */
 export const formatDateTime = (date: Date | number | string, format = 'YYYY-MM-DD HH:mm:ss') => {
-  if (isEmpty(date)) {
+  if (!(date instanceof Date) && isEmpty(date)) {
     return date;
   }
 
@@ -89,7 +89,7 @@ export const formatDateTime = (date: Date | number | string, format = 'YYYY-MM-D
  * @returns 指定格式的日期字符串
  */
 export const formatDate = (date: Date | number | string, format = 'YYYY-MM-DD') => {
-  if (isEmpty(date)) {
+  if (!(date instanceof Date) && isEmpty(date)) {
     return date;
   }
 
