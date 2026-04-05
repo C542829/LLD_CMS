@@ -1,3 +1,5 @@
+import { isEmpty } from 'lodash';
+
 //封装一个函数:获取一个结果:当前早上|上午|下午|晚上
 export const getTime = () => {
   let message = '';
@@ -52,15 +54,21 @@ export function getRemainingDays(createTime: string, validDays: number) {
  * @param {String} format 时间格式
  * @returns 指定格式的时间字符串
  */
-export const formatDateTime = (date: Date, format = 'YYYY-MM-DD HH:mm:ss') => {
-  // 验证传入的 date 是否为有效的 Date 对象
-  if (!(date instanceof Date) || isNaN(date.getTime())) {
-    throw new Error('传入的参数 date 不是有效的 Date 对象');
+export const formatDateTime = (date: Date | number | string, format = 'YYYY-MM-DD HH:mm:ss') => {
+  if (isEmpty(date)) {
+    return date;
   }
-  // 验证传入的 format 是否为有效的字符串
-  if (typeof format !== 'string') {
-    throw new Error('传入的参数 format 不是有效的字符串');
+
+  // 传入的参数不是 Date 对象时，尝试转换为 Date 对象
+  if (!(date instanceof Date)) {
+    date = new Date(date);
+    // 验证转换后的 Date 对象是否有效
+    if (isNaN(date.getTime())) {
+      return date;
+      // throw new Error('传入的参数 date 不是有效的 Date 对象');
+    }
   }
+
   // 创建 replacements 对象，把占位符和对应的值关联起来。
   const replacements: any = {
     YYYY: date.getFullYear(),
@@ -80,15 +88,21 @@ export const formatDateTime = (date: Date, format = 'YYYY-MM-DD HH:mm:ss') => {
  * @param {String} format 日期格式
  * @returns 指定格式的日期字符串
  */
-export const formatDate = (date: Date, format = 'YYYY-MM-DD') => {
-  // 验证传入的 date 是否为有效的 Date 对象
-  if (!(date instanceof Date) || isNaN(date.getTime())) {
-    throw new Error('传入的参数 date 不是有效的 Date 对象');
+export const formatDate = (date: Date | number | string, format = 'YYYY-MM-DD') => {
+  if (isEmpty(date)) {
+    return date;
   }
-  // 验证传入的 format 是否为有效的字符串
-  if (typeof format !== 'string') {
-    throw new Error('传入的参数 format 不是有效的字符串');
+
+  // 传入的参数不是 Date 对象时，尝试转换为 Date 对象
+  if (!(date instanceof Date)) {
+    date = new Date(date);
+    // 验证转换后的 Date 对象是否有效
+    if (isNaN(date.getTime())) {
+      return date;
+      // throw new Error('传入的参数 date 不是有效的 Date 对象');
+    }
   }
+
   // 创建 replacements 对象，把占位符和对应的值关联起来。
   const replacements: any = {
     YYYY: date.getFullYear(),
