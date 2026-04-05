@@ -13,6 +13,7 @@ import DatePicker from './DatePicker/index.vue';
 import MultipleSelect from './MultipleSelect/index.vue';
 import OrgSelect from './FormComponents/OrgSelect.vue';
 import UserSelect from './FormComponents/UserSelect.vue';
+import DictSelect from './FormComponents/DictSelect.vue';
 import EllipsisText from './EllipsisText/index.vue';
 import Empty from './Empty/index.vue';
 import Message from './Message';
@@ -39,6 +40,7 @@ const allGlobalComponent: any = {
   DynamicInput,
   DatePicker,
   UserSelect,
+  DictSelect,
   MultipleSelect,
   OrgSelect,
   EllipsisText,
