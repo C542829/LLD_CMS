@@ -1,11 +1,16 @@
 import type { ElPagination, TableInstance, FormInstance, ButtonInstance, TagInstance } from 'element-plus';
 import { Component } from 'vue';
+import { RoleLevel } from '@/utils/constant';
+
 declare global {
   type ButtonType = ButtonInstance['type'];
   type SizeType = ButtonInstance['size'];
   type ElTagType = TagInstance['type'];
   type ElTableProps = TableInstance['$props'];
   type ElFormInstance = FormInstance;
+
+  /** 角色编码 */
+  type RoleCode = keyof typeof RoleLevel;
 
   /** 路由子项 */
   interface RouteItem {
