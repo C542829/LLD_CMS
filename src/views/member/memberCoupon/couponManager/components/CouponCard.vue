@@ -2,7 +2,7 @@
   <div :class="couponCardClass">
     <div class="coupon-card-box">
       <div class="card-title">
-        <div class="card-title-vertical">{{ props.coupon.ticketType ? '体验券' : '代金券' }}</div>
+        <div class="card-title-vertical">{{ props.coupon.ticketType ? '项目券' : '代金券' }}</div>
       </div>
       <div class="card-content">
         <div class="card-top-content">
@@ -37,7 +37,7 @@
                     </el-button>
                     <el-button v-else @click="handleDisable" type="success" link size="small">启用</el-button>
                     <el-button
-                      :disabled="props.coupon.ticketStatus"
+                      :disabled="!!props.coupon.ticketStatus"
                       @click="handleEdit"
                       type="primary"
                       link
@@ -55,7 +55,7 @@
             <span>{{ props.coupon.ticketName }}</span>
           </div>
         </div>
-        <div class="card-bottom-content">{{ props.coupon.ticketType ? '体验券' : '代金券' }}</div>
+        <div class="card-bottom-content">{{ props.coupon.ticketType ? '项目券' : '代金券' }}</div>
       </div>
     </div>
   </div>

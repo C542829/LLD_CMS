@@ -37,17 +37,19 @@
 
     <!-- 表格组件 -->
     <Card v-loading="settingStore.loading" :element-loading-text="settingStore.loadingMsg" flex="row" :gap="7">
-      <CouponCard
-        v-for="item in store.tableData"
-        :coupon="item"
-        @disable="handleDisable"
-        @edit="handleEdit"
-        @more="handleMore"
-      ></CouponCard>
       <template v-if="store.tableData.length === 0">
         <div class="el-full el-center">
           <el-empty></el-empty>
         </div>
+      </template>
+      <template v-else>
+        <CouponCard
+          v-for="item in store.tableData"
+          :coupon="item"
+          @disable="handleDisable"
+          @edit="handleEdit"
+          @more="handleMore"
+        />
       </template>
     </Card>
   </div>
@@ -63,14 +65,12 @@
 </template>
 
 <script setup lang="ts">
+import CouponForm from './form.vue';
+import CouponCard from './components/CouponCard.vue';
 import { Search } from '@element-plus/icons-vue';
 import { onMounted, inject, reactive } from 'vue';
-import CouponForm from './form.vue';
-import CouponCard from '@/components/CouponCard/index.vue';
-
 // 导入枚举数据
 import { statusOptions } from '@/enums/index';
-
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useCouponStore } from '@/store/modules/member/memberCoupon';
