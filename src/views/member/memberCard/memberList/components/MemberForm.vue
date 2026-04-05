@@ -4,46 +4,59 @@
     <Form :model="store.formData" :rules="formRules" @submit="handleFormSubmit" @reset="handleFormReset">
       <!-- 姓名 -->
       <el-form-item label="姓名" prop="name">
-        <el-input v-model="store.formData.name" placeholder="请输入姓名" clearable />
+        <el-input v-model="store.formData.name" clearable class="w-240" placeholder="请输入姓名" />
       </el-form-item>
 
       <!-- 性别 -->
       <el-form-item label="性别" prop="gender">
         <el-radio-group v-model="store.formData.gender">
-          <el-radio :value="0" size="small" :border="true">男</el-radio>
-          <el-radio :value="1" size="small" :border="true">女</el-radio>
+          <el-radio :value="0" :border="true">男</el-radio>
+          <el-radio :value="1" :border="true">女</el-radio>
         </el-radio-group>
       </el-form-item>
 
       <!-- 电话号码 -->
       <el-form-item label="电话号码" prop="phoneNumber">
-        <el-input v-model="store.formData.phoneNumber" placeholder="请输入电话号码" clearable />
+        <el-input v-model="store.formData.phoneNumber" clearable class="w-240" placeholder="请输入电话号码" />
       </el-form-item>
 
       <!-- 会员密码 -->
       <el-form-item label="会员密码" prop="pwd">
-        <el-input v-model="store.formData.pwd" placeholder="请输入会员密码" clearable show-password />
+        <el-input v-model="store.formData.pwd" show-password clearable class="w-240" placeholder="请输入会员密码" />
       </el-form-item>
 
       <!-- 会员生日 -->
       <el-form-item label="会员生日" prop="birthday">
         <el-date-picker
           v-model="store.formData.birthday"
+          clearable
           type="date"
           placeholder="选择会员生日"
           value-format="YYYY-MM-DD"
-          clearable
+          class="w-240"
         />
       </el-form-item>
 
       <!-- 会员地址 -->
       <el-form-item label="会员地址" prop="address">
-        <el-input v-model="store.formData.address" type="textarea" placeholder="请输入会员地址" clearable />
+        <el-input
+          v-model="store.formData.address"
+          clearable
+          type="textarea"
+          class="w-240"
+          placeholder="请输入会员地址"
+        />
       </el-form-item>
 
       <!-- 备注信息 -->
       <el-form-item label="备注信息" prop="remark">
-        <el-input v-model="store.formData.remark" type="textarea" placeholder="请输入备注信息" clearable />
+        <el-input
+          v-model="store.formData.remark"
+          clearable
+          type="textarea"
+          class="w-240"
+          placeholder="请输入备注信息"
+        />
       </el-form-item>
     </Form>
   </div>

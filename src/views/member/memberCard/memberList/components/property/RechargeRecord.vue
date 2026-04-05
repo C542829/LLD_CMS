@@ -1,139 +1,99 @@
 <template>
   <div class="container">
-    <el-table :data="arr" :border="true" height="100%" stripe class="table-container">
-      <el-table-column prop="rechargeTime" label="充值时间" width="170" />
-      <el-table-column label="充值金额及资产编号" min-width="100">
-        <template #default="scope">
-          <p>
-            <span>赠送：￥{{ scope.row.rechargeAwardedAmount || scope.row.rechargeAmount }}</span>
-            <span>&nbsp;({{ JSON.parse(scope.row.finInfos)[0].finNo }})</span>
-          </p>
+    <PaginationTable
+      v-loading="loading"
+      element-loading-text="加载中..."
+      :data="rechargeRecords"
+      :total="pagination.total"
+      v-model:currentPage="pagination.pageNum"
+      v-model:pageSize="pagination.pageSize"
+      @size-change="handleSizeChange"
+      @pagination-current-change="handleCurrentChange"
+      :border="true"
+      height="100%"
+      stripe
+      class="table-container"
+    >
+      <el-table-column prop="orgName" label="充值门店" min-width="80" />
+      <el-table-column prop="rechargeTime" label="充值时间" min-width="80">
+        <template #default="{ row }">
+          {{ formatDateTime(row.rechargeTime) }}
         </template>
       </el-table-column>
-      <el-table-column label="门店余额变化">
-        <template #default="scope">
-          <p>充值前：￥{{ scope.row.beforeRechargeOrgBanlance }}</p>
-          <p>充值前：￥{{ scope.row.afterRechargeOrgBanlance }}</p>
+      <el-table-column label="充值金额" min-width="100">
+        <template #default="{ row }">
+          <div v-if="row.rechargeValue" class="text">充值：￥{{ row.rechargeValue }} &nbsp;({{ row.assetCode }})</div>
+          <div v-if="row.presentValue" class="text">
+            赠送：￥{{ row.presentValue }}&nbsp;({{ row.presentAssetCode }})
+          </div>
+          <!-- <span v-if="row.assetCode">&nbsp;({{ row.assetCode }})</span> -->
+          <!-- <span v-if="row.presentAssetCode">&nbsp;({{ row.presentAssetCode }})</span> -->
         </template>
       </el-table-column>
-      <el-table-column prop="orgName" label="充值机构" />
-    </el-table>
+      <el-table-column label="充值状态" width="100">
+        <template #default="{ row }">
+          <el-tag :type="row.rechargeStatus === 0 ? 'success' : 'danger'">
+            {{ row.rechargeStatus === 0 ? '充值成功' : '已冲正' }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column prop="activeName" label="充值活动" min-width="80" />
+      <el-table-column prop="userName" label="操作员" width="80" />
+      <el-table-column prop="remark" label="备注" min-width="80" />
+    </PaginationTable>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
+import { formatDateTime } from '@/utils/time';
 
-// 导入数据仓库
+import { reqRechargeHistoryList, Types } from '@/api/member/recharge/index';
+import { parseResObj } from '@/utils/parseResponse';
+
 import { useMemberStore } from '@/store/modules/member/member';
 const store = useMemberStore();
 
-const consumptions = ref([
-  {
-    id: 2007451,
-    rechargeNo: '225052514590004',
-    memberId: 1182953,
-    orgId: 1459,
-    rechStatusType: 1,
-    rechargeType: 169,
-    rechargeTime: '2025-05-25 18:25:51',
-    promotionId: 0,
-    rechargeAmount: 0,
-    rechargeAwardedAmount: 353,
-    beforeRechargeBanlance: 216.3,
-    afterRechargeBanlance: 569.3,
-    beforeRechargeOrgBanlance: 182.3,
-    afterRechargeOrgBanlance: 535.3,
-    finInfos: '[{"awardedFin":true,"finId":5238215,"finNo":"004FEDC7"}]',
-    moreSaleMan: 0,
-    firstRecharge: 0,
-    wxPay: 0,
-    aliPay: 0,
-    cashPay: 0,
-    bankPay: 0,
-    meiTuanPay: 0,
-    kouBeiPay: 0,
-    douYinPay: 0,
-    otherPay: 0,
-    discountBaseType: 0,
-    discountRate: 79,
-    allowCrossStore: 0,
-    awardedDiscountBaseType: 0,
-    awardedDiscountRate: 79,
-    awardedAllowCrossStore: 0,
-    diffPromDiscount: 0,
-    cardNo: '',
-    manualGift: 1,
-    operator: 46713,
-    updateTime: '2025-05-25 18:25:51',
-    updateUser: 46713,
-    shortDate: 250525,
-    onlinePay: 0,
-    onlinePayAmount: 0,
-    payState: 0,
-    orgName: '郑州棉纺路店',
-    memName: '毛先生',
-    memCode: '019501380',
-    levelCode: 'N',
-    cellPhoneNo: '19913140198',
-    rechargeTypeName: '门店充值',
-    operatorName: '刘',
-  },
-  {
-    id: 1994553,
-    rechargeNo: '225051314590001',
-    memberId: 1182953,
-    orgId: 1459,
-    rechStatusType: 1,
-    rechargeType: 169,
-    rechargeTime: '2025-05-13 18:14:59',
-    promotionId: 105923,
-    rechargeAmount: 680,
-    rechargeAwardedAmount: 0,
-    beforeRechargeBanlance: 34,
-    afterRechargeBanlance: 714,
-    beforeRechargeOrgBanlance: 0,
-    afterRechargeOrgBanlance: 680,
-    finInfos: '[{"awardedFin":false,"finId":5217365,"finNo":"004F9C55"}]',
-    moreSaleMan: 0,
-    firstRecharge: 1,
-    wxPay: 680,
-    aliPay: 0,
-    cashPay: 0,
-    bankPay: 0,
-    meiTuanPay: 0,
-    kouBeiPay: 0,
-    douYinPay: 0,
-    otherPay: 0,
-    discountBaseType: 0,
-    discountRate: 79,
-    allowCrossStore: 0,
-    awardedDiscountBaseType: 0,
-    awardedDiscountRate: 79,
-    awardedAllowCrossStore: 0,
-    diffPromDiscount: 0,
-    cardNo: '',
-    manualGift: 0,
-    operator: 46713,
-    updateTime: '2025-05-13 18:14:59',
-    updateUser: 46713,
-    shortDate: 250513,
-    onlinePay: 0,
-    onlinePayAmount: 0,
-    payState: 0,
-    orgName: '郑州棉纺路店',
-    memName: '毛先生',
-    memCode: '019501380',
-    levelCode: 'N',
-    cellPhoneNo: '19913140198',
-    rechargeTypeName: '门店充值',
-    salesManNames: '胡娅妮',
-    operatorName: '刘',
-    promTitle: '680送88项目一次',
-  },
-]);
+const loading = ref(false);
+const rechargeRecords = ref<Types.RechargeHistoryVO[]>([]);
 
-const arr = ref(new Array(20).fill(consumptions.value[0]));
+const pagination = reactive({
+  pageNum: 1,
+  pageSize: 10,
+  total: 0,
+});
+
+const handleSizeChange = (val: number) => {
+  pagination.pageSize = val;
+  loadRechargeRecords();
+};
+
+const handleCurrentChange = (val: number) => {
+  pagination.pageNum = val;
+  loadRechargeRecords();
+};
+
+const loadRechargeRecords = async () => {
+  loading.value = true;
+  try {
+    const cardNumber = store.formData.cardNumber;
+    const params: Types.RechargeRecordRequest = {
+      pageNum: pagination.pageNum,
+      pageSize: pagination.pageSize,
+      vipInfoFiled: cardNumber,
+    };
+    const res = await reqRechargeHistoryList(params);
+    const pageData = parseResObj(res);
+    rechargeRecords.value = pageData.rows || [];
+    pagination.total = pageData.total || 0;
+  } finally {
+    loading.value = false;
+  }
+};
+
+onMounted(() => {
+  loadRechargeRecords();
+});
 </script>
 
 <style lang="scss" scoped>
@@ -141,8 +101,7 @@ const arr = ref(new Array(20).fill(consumptions.value[0]));
   height: 100%;
 }
 
-/* 使用深度选择器修改表格表头样式 */
 :deep(.table-container .el-table__header-wrapper th) {
-  background-color: $base-child-nav-bg; // 使用自定义颜色变量
+  background-color: $base-child-nav-bg;
 }
 </style>

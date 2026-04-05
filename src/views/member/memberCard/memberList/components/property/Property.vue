@@ -1,149 +1,169 @@
 <template>
-  <div class="container">
-    <el-table :data="properties" :border="true" stripe class="table-container">
-      <el-table-column prop="orgName" label="门店" />
-      <el-table-column prop="currOrgBalance" label="余额" />
-      <el-table-column prop="currOrgCouponNum" label="优惠券" />
-      <el-table-column label="操作">
-        <template #default>
-          <el-button type="primary" link>资产明细</el-button>
+  <div class="container" v-loading="loading" element-loading-text="加载中...">
+    <div class="section-title">会员卡资产</div>
+    <PaginationTable
+      :data="assetList"
+      :border="true"
+      stripe
+      height="auto"
+      containerHeight="auto"
+      size="small"
+      :showPagination="false"
+      class="table-container"
+    >
+      <el-table-column prop="assetNum" label="资产编号" min-width="100" />
+      <el-table-column prop="createTime" label="创建时间" min-width="80" />
+      <el-table-column prop="assetBalance" label="余额" width="80">
+        <template #default="{ row }">￥{{ row.assetBalance }}</template>
+      </el-table-column>
+      <el-table-column prop="assetType" label="资产类型" width="80">
+        <template #default="{ row }">
+          <el-tag :type="row.assetType === 0 ? 'success' : 'primary'" size="small">
+            {{ row.assetType === 0 ? '充值' : '赠送' }}
+          </el-tag>
         </template>
       </el-table-column>
-    </el-table>
+      <el-table-column prop="assetDiscountBase" label="折扣基础" width="80">
+        <template #default="{ row }">
+          <el-tag :type="row.assetDiscountBase === 0 ? 'success' : 'primary'" size="small">
+            {{ row.assetDiscountBase === 0 ? '标准价' : '会员价' }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column prop="assetDiscountRate" label="折扣率" width="80">
+        <template #default="{ row }">
+          {{ row.assetDiscountRate ? `${row.assetDiscountRate}%` : '-' }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="assetIsCrossStore" label="跨店消费" width="80">
+        <template #default="{ row }">
+          <el-tag :type="row.assetIsCrossStore === 1 ? 'success' : 'info'" size="small">
+            {{ row.assetIsCrossStore === 1 ? '允许' : '不允许' }}
+          </el-tag>
+        </template>
+      </el-table-column>
+    </PaginationTable>
 
-    <div class="property-detail">
-      <el-table :data="memberOrgFinInfos" :border="true" stripe class="table-container">
-        <el-table-column prop="finNo" label="资产编号" />
-        <el-table-column prop="totalBalance" label="余额" />
-        <el-table-column prop="awardedFin" label="资产类型" />
-        <el-table-column prop="discountBaseType" label="折扣基础" />
-        <el-table-column prop="discountRate" label="折扣率" />
-        <el-table-column prop="allowCrossStore" label="跨店消费" />
-        <el-table-column label="操作">
-          <template #default>
-            <el-button type="primary" link>修改</el-button>
+    <div class="section-title">优惠券资产</div>
+    <PaginationTable
+      :data="ticketList"
+      :border="true"
+      stripe
+      size="small"
+      height="auto"
+      containerHeight="auto"
+      :showPagination="false"
+      class="table-container"
+    >
+      <el-table-column prop="ticketName" label="优惠券名称" min-width="100" />
+      <el-table-column prop="ticketInfo.ticketType" label="类型" width="80">
+        <template #default="{ row }">
+          <el-tag :type="getTicketTypeTagType(row.ticketInfo.ticketType)" size="small">
+            {{ couponTypeMap[row.ticketInfo.ticketType as CouponType] || '未知' }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column prop="ticketInfo.ticketValue" label="面值" width="80">
+        <template #default="{ row }">
+          <template v-if="row.ticketInfo.ticketType === CouponType.voucher">
+            ￥{{ row.ticketInfo.ticketValue }}
           </template>
-        </el-table-column>
-      </el-table>
-
-      <el-table :data="memberOrgFinInfos" :border="true" stripe class="table-container">
-        <el-table-column prop="finNo" label="资产编号" />
-        <el-table-column prop="totalBalance" label="余额" />
-        <el-table-column prop="awardedFin" label="资产类型" />
-        <el-table-column prop="discountBaseType" label="折扣基础" />
-        <el-table-column prop="discountRate" label="折扣率" />
-        <el-table-column prop="allowCrossStore" label="跨店消费" />
-        <el-table-column label="操作">
-          <template #default>
-            <el-button type="primary" link>修改</el-button>
+        </template>
+      </el-table-column>
+      <el-table-column prop="ticketInfo.ticketFullPayment" label="使用门槛" min-width="100">
+        <template #default="{ row }">
+          <template v-if="row.ticketInfo.ticketType === CouponType.voucher">
+            {{ row.ticketInfo.ticketFullPayment ? `满${row.ticketInfo.ticketFullPayment}元可用` : '无门槛' }}
           </template>
-        </el-table-column>
-      </el-table>
-    </div>
+          <template v-else>
+            可用项目：{{ row.ticketInfo.serverItems.map((item: any) => item.itemName).join('、') }}
+          </template>
+        </template>
+      </el-table-column>
+      <el-table-column prop="expiryDate" label="有效期" width="80">
+        <template #default="{ row }">
+          {{ row.expiryDate === -1 || row.expiryDate === null ? '永久有效' : `${row.expiryDate}` }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="status" label="使用状态" width="80">
+        <template #default="{ row }">
+          <el-tag :type="getStatusTagType(row.status)" size="small">
+            {{ CouponStatusMap[row.status as CouponStatus] || '未知' }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column prop="remark" label="备注" min-width="100" />
+    </PaginationTable>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { CouponType, couponTypeMap, CouponStatus, CouponStatusMap } from '@/enums/index';
+import { reqVipAssetList, Types } from '@/api/member/member/index';
+import { parseResObj } from '@/utils/parseResponse';
 
-// 导入数据仓库
 import { useMemberStore } from '@/store/modules/member/member';
 const store = useMemberStore();
 
-const properties = ref([
-  {
-    memberId: 866407,
-    orgName: '郑州棉纺路店',
-    currOrgBalance: 499.43,
-    currOrgCouponNum: 0,
-    availBalance: 499.43,
-  },
-]);
+const loading = ref(false);
+const assetList = ref<Types.VipAssetVO[]>([]);
+const ticketList = ref<Types.VipTicketVO[]>([]);
 
-const memberOrgFinInfos = ref([
-  {
-    finId: 3539123,
-    finNo: '003600B3',
-    linkMemId: 926639,
-    memberId: 866407,
-    totalBalance: 34.0,
-    cardType: '',
-    entityCardNo: '',
-    rechargeAmount: 0.0,
-    awardedAmount: 2200.0,
-    discountBaseType: 0,
-    discountRate: 100,
-    allowCrossStore: 0,
-    awardedFin: 1,
-    finStatus: 1,
-    createTime: '2023-02-17',
-    orgId: 1459,
-    orgName: '郑州棉纺路店',
-    brandId: 0,
-    memCouponNum: 0,
-  },
-  {
-    finId: 4716441,
-    finNo: '0047F799',
-    linkMemId: 926639,
-    memberId: 866407,
-    totalBalance: 13.0,
-    cardType: '',
-    entityCardNo: '',
-    rechargeAmount: 1380.0,
-    awardedAmount: 0.0,
-    discountBaseType: 0,
-    discountRate: 50,
-    allowCrossStore: 0,
-    awardedFin: 0,
-    finStatus: 1,
-    createTime: '2024-07-31',
-    orgId: 1459,
-    orgName: '郑州棉纺路店',
-    brandId: 0,
-    memCouponNum: 0,
-  },
-  {
-    finId: 5089845,
-    finNo: '004DAA35',
-    linkMemId: 926639,
-    memberId: 866407,
-    totalBalance: 452.43,
-    cardType: '',
-    entityCardNo: '',
-    rechargeAmount: 1380.0,
-    awardedAmount: 0.0,
-    discountBaseType: 0,
-    discountRate: 59,
-    allowCrossStore: 1,
-    awardedFin: 0,
-    finStatus: 1,
-    createTime: '2025-03-01',
-    orgId: 1459,
-    orgName: '郑州棉纺路店',
-    brandId: 0,
-    memCouponNum: 0,
-  },
-]);
+const getTicketTypeTagType = (type?: number): ElTagType => {
+  const typeMap: Record<number, ElTagType> = {
+    [CouponType.voucher]: 'success',
+    [CouponType.experience]: 'primary',
+  };
+  return typeMap[type!] || 'info';
+};
+
+const getStatusTagType = (status?: CouponStatus): ElTagType => {
+  const statusMap: Record<number, ElTagType> = {
+    [CouponStatus.UnUsed]: 'success',
+    [CouponStatus.Used]: 'info',
+    [CouponStatus.Canceled]: 'danger',
+  };
+  return statusMap[status!] || 'info';
+};
+
+const loadPropertyData = async () => {
+  loading.value = true;
+  try {
+    const vipId = store.formData.id;
+    const res = await reqVipAssetList(vipId);
+    const data = parseResObj(res);
+    assetList.value = data.vipAssetVOList || [];
+    ticketList.value = data.vipTicketVOList || [];
+  } finally {
+    loading.value = false;
+  }
+};
+
+onMounted(() => {
+  loadPropertyData();
+});
 </script>
+
 <style lang="scss" scoped>
 .container {
   height: 100%;
-  border: 1px $base-header-color solid;
-  padding-bottom: 20px;
+  padding: $main-padding;
+  overflow: auto;
+}
 
-  .property-detail {
-    display: flex;
-    flex-direction: column;
-    gap: $main-padding;
-    width: 90%;
-    margin: 0 auto;
-    margin-top: $main-padding;
+.section-title {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  padding-left: 10px;
+
+  &:not(:first-child) {
+    margin-top: 20px;
   }
 }
 
-/* 使用深度选择器修改表格表头样式 */
-:deep(.table-container .el-table__header-wrapper th) {
-  background-color: $base-child-nav-bg; // 使用自定义颜色变量
+.table-container {
+  margin-bottom: 10px;
 }
 </style>

@@ -88,7 +88,7 @@
                 link
                 type="warning"
                 v-has="`member:memberCard:memberList:CancelCoupon`"
-                :disabled="true"
+                :disabled="false"
                 @click="showDialog(4, row)"
               >
                 取消优惠券
@@ -149,7 +149,9 @@ const settingStore = useSettingStore();
 const store = useMemberStore();
 
 // 初始化
-onMounted(() => {});
+onMounted(() => {
+  search();
+});
 
 // 搜索
 const search = () => {

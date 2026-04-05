@@ -9,10 +9,12 @@
       @size-change="handleSizeChange"
       @pagination-current-change="handleCurrentChange"
     >
-      <el-table-column prop="settleTime" label="消费时间" width="155" />
-      <el-table-column prop="actualAmount" label="消费金额" />
-      <el-table-column prop="orderCode" label="关联单号" />
-      <el-table-column prop="orgName" label="消费门店" />
+      <el-table-column prop="orgName" label="消费门店" min-width="40" />
+      <el-table-column prop="orderCode" label="关联单号" min-width="50" />
+      <el-table-column prop="settleTime" label="消费时间" min-width="60" />
+      <el-table-column prop="actualAmount" label="消费金额" min-width="50" />
+      <el-table-column prop="orderStatusName" label="订单状态" min-width="50" />
+      <!-- <el-table-column prop="orgName" label="消费门店" min-width="50" /> -->
       <!-- <el-table-column label="操作">
         <template #default>
           <el-button type="primary" link @click="visible = true">查看消费明细</el-button>

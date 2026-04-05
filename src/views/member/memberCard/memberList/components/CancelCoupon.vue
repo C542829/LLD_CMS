@@ -1,93 +1,165 @@
 <template>
   <div class="coupon-list-container">
-    <el-table :data="coupons" @select="selectRow" @select-all="selectAll" :border="true" stripe class="table-container">
-      <el-table-column type="selection" width="55" />
-      <el-table-column prop="couponDefInfo.couponName" label="优惠券名称" />
-      <el-table-column prop="couponDefInfo.content" label="优惠券描述" />
-      <el-table-column prop="fromType" label="领取来源" />
-      <el-table-column prop="getTime" label="领取时间" :formatter="dateFormatter" />
-      <el-table-column prop="limitTime" label="到期时间" :formatter="dateFormatter" />
-    </el-table>
+    <PaginationTable
+      v-loading="loading"
+      element-loading-text="加载中..."
+      :data="coupons"
+      :total="pagination.total"
+      v-model:currentPage="pagination.pageNum"
+      v-model:pageSize="pagination.pageSize"
+      @size-change="handleSizeChange"
+      @pagination-current-change="handleCurrentChange"
+      @selection-change="handleSelectionChange"
+      :border="true"
+      stripe
+      class="table-container"
+    >
+      <el-table-column type="selection" width="50" :selectable="checkSelectable" />
+      <el-table-column prop="vipName" label="会员" min-width="50" />
+      <el-table-column prop="ticketName" label="优惠券名称" min-width="80" />
+      <el-table-column prop="ticketCode" label="优惠券编码" min-width="60" />
+      <el-table-column prop="claimTime" label="领取时间" width="100" />
+      <el-table-column prop="expiryDate" label="到期时间" width="100">
+        <template #default="{ row }">
+          {{ row.expiryDate || '长期有效' }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="status" label="状态" width="90">
+        <template #default="{ row }">
+          <el-tag :type="getStatusTagType(row.status)">{{ getStatusLabel(row.status) }}</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column prop="remark" label="备注" min-width="80" />
+    </PaginationTable>
     <div>
-      <el-button :disabled="selectedCoupons.length === 0" type="primary">取消优惠券</el-button>
+      <el-button :disabled="selectedCoupons.length === 0" type="primary" @click="handleCancelCoupon">
+        取消优惠券
+      </el-button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
+import { ElMessageBox, ElMessage } from 'element-plus';
 
-import { dateFormatter } from '@/utils/formatter';
+import { reqCountTicket, Types } from '@/api/member/coupon/index';
+import { reqCancelTicket } from '@/api/member/member/index';
+import { parseResObj, parseResMsg } from '@/utils/parseResponse';
+import { CouponStatus, CouponStatusMap } from '@/enums/index';
 
-// 导入数据仓库
 import { useMemberStore } from '@/store/modules/member/member';
 const store = useMemberStore();
 
-const coupons = ref(
-  new Array(20)
-    .fill({
-      id: 2445739,
-      orgId: 1459,
-      couponId: 7179,
-      couponNo: '145900000559',
-      getTime: '2025-07-04 00:28:16',
-      limitTime: '2028-03-29',
-      memberId: 1223597,
-      status: 0,
-      promotionId: 0,
-      expandStaffId: 46713,
-      fromType: 3,
-      fromBusId: 204801,
-      transOutBusId: 0,
-      updateUser: 46713,
-      updateTime: '2025-07-04 00:28:15',
-      shortDate: 250704,
-      couponDefInfo: {
-        id: 7179,
-        orgId: 1459,
-        isEntityTicket: 1,
-        couponType: 151,
-        couponName: '88元代金券',
-        content: '88元代金券',
-        quantityLimit: 1,
-        useLimitRule: '{"value":88,"limitBuy":0}',
-        shouldPay: 0.0,
-        timeLimit: 999,
-        isValid: 1,
-        creator: 19149,
-        createTime: '2024-07-05 23:55:58',
-        updateUser: 19149,
-        updateTime: '2024-07-05 23:55:58',
-        remark: '',
-        ruleDis: '优惠88.0元',
-      },
-    })
-    .map((item, index) => ({
-      ...item,
-      id: index,
-    })),
-);
+const loading = ref(false);
+const coupons = ref<Types.TicketCountVO[]>([]);
+const selectedCoupons = ref<Types.TicketCountVO[]>([]);
 
-const selectedCoupons: any = ref([]);
+const pagination = reactive({
+  pageNum: 1,
+  pageSize: 10,
+  total: 0,
+});
 
-const selectRow = <T = any>(selection: T[], row: T) => {
-  if (selectedCoupons.value.includes(row)) {
-    selectedCoupons.value.splice(row);
-  } else {
-    selectedCoupons.value.push(row);
-  }
-  console.log('selectedCoupons = ', selectedCoupons.value);
+const fromTypeMap: Record<number, string> = {
+  1: '实体券',
+  2: '线上领取',
+  3: '地推活动领取',
+  4: '手动赠送',
+  5: '充值活动获赠',
+  7: '疗程项目获得',
 };
 
-const selectAll = <T = any>(selection: T[]) => {
-  if (selectedCoupons.value.length === coupons.value.length) {
-    selectedCoupons.value = [];
-  } else {
-    selectedCoupons.value = selection;
-  }
-  console.log('selectedCoupons = ', selectedCoupons.value);
+const formatFromType = (type: number) => {
+  return fromTypeMap[type] || '未知';
 };
+
+const getStatusTagType = (status: CouponStatus): '' | 'success' | 'warning' | 'info' | 'danger' => {
+  const statusMap: Record<number, '' | 'success' | 'warning' | 'info' | 'danger'> = {
+    [CouponStatus.UnUsed]: 'success',
+    [CouponStatus.Used]: 'info',
+    [CouponStatus.Canceled]: 'danger',
+  };
+  return statusMap[status] || 'info';
+};
+
+const getStatusLabel = (status: CouponStatus) => {
+  return CouponStatusMap[status] || status;
+};
+
+const checkSelectable = (row: Types.TicketCountVO) => {
+  return row.status === CouponStatus.UnUsed;
+};
+
+const handleSelectionChange = (selection: Types.TicketCountVO[]) => {
+  selectedCoupons.value = selection;
+};
+
+const handleSizeChange = (val: number) => {
+  pagination.pageSize = val;
+  loadCoupons();
+};
+
+const handleCurrentChange = (val: number) => {
+  pagination.pageNum = val;
+  loadCoupons();
+};
+
+const loadCoupons = async () => {
+  loading.value = true;
+  try {
+    const cardNumber = store.formData.cardNumber;
+    const params: Types.TicketListRequest = {
+      pageNum: pagination.pageNum,
+      pageSize: pagination.pageSize,
+      vipInfoFiled: cardNumber,
+      status: CouponStatus.UnUsed,
+    };
+    const res = await reqCountTicket(params);
+    const pageData = parseResObj(res);
+    coupons.value = pageData.rows || [];
+    pagination.total = pageData.total || 0;
+  } finally {
+    loading.value = false;
+  }
+};
+
+const handleCancelCoupon = async () => {
+  if (selectedCoupons.value.length === 0) {
+    ElMessage.warning('请选择要取消的优惠券');
+    return;
+  }
+
+  try {
+    await ElMessageBox.confirm(`确定要取消选中的 ${selectedCoupons.value.length} 张优惠券吗？`, '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
+
+    loading.value = true;
+    const vipId = store.formData.id;
+    const ticketIds = selectedCoupons.value.map((item) => item.id!);
+    const res = await reqCancelTicket(vipId, ticketIds);
+    const success = parseResMsg(res, '取消优惠券成功');
+    if (success) {
+      await loadCoupons();
+      selectedCoupons.value = [];
+    }
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('取消优惠券失败:', error);
+    }
+  } finally {
+    loading.value = false;
+  }
+};
+
+onMounted(() => {
+  loadCoupons();
+});
 </script>
+
 <style lang="scss" scoped>
 .coupon-list-container {
   height: 500px;
@@ -98,6 +170,7 @@ const selectAll = <T = any>(selection: T[]) => {
 
   > div:first-child {
     flex: 1;
+    overflow: auto;
   }
 
   > div:last-child {
@@ -106,8 +179,7 @@ const selectAll = <T = any>(selection: T[]) => {
   }
 }
 
-/* 使用深度选择器修改表格表头样式 */
 :deep(.table-container .el-table__header-wrapper th) {
-  background-color: $base-child-nav-bg; // 使用自定义颜色变量
+  background-color: $base-child-nav-bg;
 }
 </style>

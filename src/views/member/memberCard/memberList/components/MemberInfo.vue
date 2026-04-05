@@ -59,10 +59,10 @@
 
       <!-- 标签 -->
       <div class="item-card">
-        <h1 class="tab-list-title">郑州棉纺路店</h1>
+        <h1 class="tab-list-title">{{ store.formData.orgName }}</h1>
         <div class="tag-list-container">
-          <el-tag v-for="tag in 30" :key="tag" closable :disable-transitions="false" @close="">标签{{ tag }}</el-tag>
-          <el-button size="small" plain icon="Plus">标签</el-button>
+          <!-- <el-tag v-for="tag in 30" :key="tag" closable :disable-transitions="false" @close="">标签{{ tag }}</el-tag>
+          <el-button size="small" plain icon="Plus">标签</el-button> -->
         </div>
       </div>
     </div>
@@ -110,6 +110,7 @@ const handleRecharge = () => {
   // 左侧-会员信息
   .left-content {
     width: 350px;
+    flex-shrink: 0;
 
     // 卡片项
     .item-card {
@@ -149,6 +150,8 @@ const handleRecharge = () => {
   // 右侧-资产信息
   .right-content {
     flex: 1;
+    overflow: hidden;
+    // border: 1px solid red;
   }
 }
 

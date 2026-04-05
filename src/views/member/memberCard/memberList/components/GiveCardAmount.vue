@@ -3,29 +3,32 @@
     <!-- 表单 -->
     <Form :model="formData" :rules="formRules" :loading="loading" @submit="handleFormSubmit" @reset="handleFormReset">
       <el-form-item label="赠送金额：" prop="presentAmount">
-        <el-input-number v-model="formData.presentAmount" :controls="false" />
+        <el-input-number v-model="formData.presentAmount" :controls="false" :min="0" class="w-120" />
       </el-form-item>
       <el-form-item label="折扣率：" prop="discountRate">
-        <el-input-number v-model="formData.discountRate" :min="0" :max="100" controls-position="right" />
+        <el-input-number v-model="formData.discountRate" :min="0" :max="100" controls-position="right" class="w-120" />
         <span>&nbsp;&nbsp;%</span>
       </el-form-item>
       <el-form-item label="折扣基础：" prop="discountBase">
-        <el-select v-model="formData.discountBase" style="width: 150px">
+        <el-select v-model="formData.discountBase" class="w-120">
           <el-option v-for="item in discountTypeOptions" :value="item.value" :label="item.label" :key="item.value" />
         </el-select>
       </el-form-item>
       <el-form-item label="跨店结算：" prop="isCrossStore">
-        <el-select v-model="formData.isCrossStore" style="width: 150px">
-          <el-option v-for="item in isCrossStoreOptions" :value="item.value" :label="item.label" :key="item.value" />
-        </el-select>
+        <el-switch
+          v-model="store.formData.isCrossStore"
+          :active-value="IsCrossStore.YES"
+          :inactive-value="IsCrossStore.NO"
+        />
       </el-form-item>
       <el-form-item label="备注：" prop="remark">
         <el-input
           type="textarea"
           v-model="formData.remark"
-          :autosize="{ minRows: 3, maxRows: 3 }"
+          :autosize="{ minRows: 2, maxRows: 3 }"
           :maxlength="500"
           show-word-limit
+          class="w-240"
         />
       </el-form-item>
     </Form>
@@ -37,7 +40,7 @@ import { ref, watch } from 'vue';
 import { reqPresentAsset } from '@/api/member/member';
 import { cloneDeep } from 'lodash';
 import { parseResMsg } from '@/utils/parseResponse';
-import { discountTypeOptions, isCrossStoreOptions } from '@/enums/index';
+import { discountTypeOptions, IsCrossStore } from '@/enums/index';
 
 // 导入数据仓库
 import { useMemberStore } from '@/store/modules/member/member';

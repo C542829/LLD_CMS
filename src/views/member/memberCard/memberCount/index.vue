@@ -97,7 +97,9 @@ const settingStore = useSettingStore();
 const store = useMemberCountStore();
 
 // 初始化
-onMounted(() => {});
+onMounted(() => {
+  search();
+});
 
 // 搜索
 const search = () => {
