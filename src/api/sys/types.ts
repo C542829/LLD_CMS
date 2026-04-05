@@ -26,7 +26,7 @@ export interface SearchOperLogParams {
   /**
    * 操作状态（0成功 1失败）
    */
-  status?: number;
+  status?: number | string;
   [property: string]: any;
 }
 
