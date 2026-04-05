@@ -6,6 +6,7 @@
         <el-button type="primary" @click="showDrawer('add')">添加人员</el-button>
       </div>
       <div class="search-container">
+        <!-- 门店 -->
         <template v-if="userStore.isAdmin || userStore.isAreaManager">
           <div class="search-item">
             <label>
@@ -25,7 +26,7 @@
         <div class="search-item">
           <label>
             <span>在职状态：</span>
-            <el-select v-model="searchParams.userStatus" clearable @change="search" style="width: 120px">
+            <el-select v-model="searchParams.userStatus" clearable @change="search" class="w-120">
               <el-option
                 v-for="item in searchEmployedOptions"
                 :key="item.value"
@@ -39,7 +40,7 @@
         <div class="search-item">
           <label>
             <span>角色：</span>
-            <el-select v-model="searchParams.roleId" clearable @change="search" style="width: 120px">
+            <el-select v-model="searchParams.roleId" clearable @change="search" class="w-120">
               <el-option v-for="item in roles" :label="item.roleName" :value="item.id" :key="item.id" />
             </el-select>
           </label>
@@ -124,12 +125,13 @@ import { ref, onMounted, reactive, computed } from 'vue';
 import { cloneDeep, isEmpty } from 'lodash';
 import { DEFAULT_SEARCH_PARAMS, RoleCodeFilterMap } from './utils/index';
 import { isRoleHigherOrEqual } from '@/utils/index';
-import { RoleCode, searchEmployedOptions } from '@/enums/index';
+import { RoleCode, Enums, searchEmployedOptions } from '@/enums/index';
 import { sexMap } from '@/utils/formatter';
 import { reqRoleList, Types as RoleTypes } from '@/api/acl/role';
 import { reqUserList, Types as UserTypes } from '@/api/user/index';
 import { useDataEnumStore } from '@/store/modules/enums/index';
 import useUserStore from '@/store/modules/acl/user';
+import UserSelectRemote from '@/components/FormComponents/UserSelectRemote.vue';
 
 const userStore = useUserStore();
 const dataEnumStore = useDataEnumStore();
