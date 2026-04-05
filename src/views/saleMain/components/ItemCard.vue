@@ -1,7 +1,11 @@
 <template>
   <div class="item-card">
     <div class="item item-title">
-      <div class="title"><EllipsisText :content="getItemValue(data, config.nameKey || 'name')" /></div>
+      <div class="title text-overflow">
+        <el-tooltip :content="getItemValue(data, config.nameKey || '')" placement="top" class="text-overflow">
+          {{ getItemValue(data, config.nameKey || '') }}
+        </el-tooltip>
+      </div>
       <template v-if="config.isDiscountKey">
         <span
           v-if="getItemValue(data, config.isDiscountKey || 'isDiscount') == IsDiscount.Yes"
@@ -149,6 +153,14 @@ const getItemValue = (data: Record<string, any>, key: string, defaultValue: any 
     .title {
       width: 70%;
       display: inline-block;
+      > :deep(.el-tooltip__trigger) {
+        width: 100%;
+        display: inline-block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        cursor: pointer;
+      }
     }
 
     .discount-tag {
