@@ -10,19 +10,7 @@
     <!-- 关联门店 -->
     <template v-if="userStore.isAdmin">
       <el-form-item label="关联门店" prop="orgIds">
-        <el-select
-          v-model="store.formData.orgIds"
-          placeholder="关联门店"
-          class="w-240"
-          value-key="id"
-          clearable
-          multiple
-          collapse-tags
-          collapse-tags-tooltip
-          :max-collapse-tags="1"
-        >
-          <el-option v-for="item in dataEnumStore.orgList" :key="item.id" :label="item.orgName" :value="item.id" />
-        </el-select>
+        <OrgSelect v-model="store.formData.orgIds" placeholder="关联门店" class="w-240" />
       </el-form-item>
     </template>
 
@@ -83,16 +71,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
-import { CouponType, couponTypeOptions, RoleCode } from '@/enums/index';
+import { ref, onMounted } from 'vue';
+import { CouponType, couponTypeOptions } from '@/enums/index';
 
 import { useCouponStore } from '@/store/modules/member/memberCoupon';
 import { useServiceItemStore } from '@/store/modules/setGroup/serviceItem';
 import useUserStore from '@/store/modules/acl/user';
-import { useDataEnumStore } from '@/store/modules/enums/index';
 const serviceItemStore = useServiceItemStore();
 const store = useCouponStore();
-const dataEnumStore = useDataEnumStore();
 const userStore = useUserStore();
 
 const $emit = defineEmits(['close-drawer']);
