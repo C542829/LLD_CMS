@@ -97,8 +97,10 @@
         <el-table-column prop="userStatus" label="在职状态" width="90" />
         <el-table-column label="操作" min-width="100">
           <template #default="{ row }">
-            <el-button link type="info" @click="showDrawer('view', row)">更多</el-button>
-            <el-button link type="primary" @click="showDrawer('edit', row)">编辑</el-button>
+            <el-button link type="info" :disabled="isDisableOper(row)" @click="showDrawer('view', row)">更多</el-button>
+            <el-button link type="primary" :disabled="isDisableOper(row)" @click="showDrawer('edit', row)">
+              编辑
+            </el-button>
           </template>
         </el-table-column>
       </PaginationTable>
@@ -121,6 +123,7 @@ import { Search } from '@element-plus/icons-vue';
 import { ref, onMounted, reactive, computed } from 'vue';
 import { cloneDeep, isEmpty } from 'lodash';
 import { DEFAULT_SEARCH_PARAMS, RoleCodeFilterMap } from './utils/index';
+import { isRoleHigherOrEqual } from '@/utils/index';
 import { RoleCode, searchEmployedOptions } from '@/enums/index';
 import { sexMap } from '@/utils/formatter';
 import { reqRoleList, Types as RoleTypes } from '@/api/acl/role';
@@ -160,13 +163,13 @@ const tableData = reactive<{ list: UserInfo[]; total: number }>({
 
 // 搜索
 const search = () => {
-  // if (isEmpty(searchParams.roleId)) {
-  //   searchParams.roleId = '';
-  // }
-  // if (isEmpty(searchParams.userName) || searchParams.userName == undefined) {
-  //   searchParams.userName = '';
-  // }
-  // handleOrgIds();
+  if (searchParams.roleId == undefined) {
+    searchParams.roleId = '';
+  }
+  if (searchParams.userStatus == undefined) {
+    searchParams.userStatus = '';
+  }
+
   setTableData();
 };
 
@@ -212,6 +215,16 @@ const handleSizeChange = (val: number) => {
 const handleCurrentChange = (val: number) => {
   searchParams.pageNum = val;
   search();
+};
+
+const isDisableOper = (row: UserInfo) => {
+  if (row.id === userStore.user.id) {
+    return false;
+  }
+  if (userStore.user.role && row.role) {
+    return isRoleHigherOrEqual(row.role.roleCode as RoleCode, userStore.user?.role?.roleCode as RoleCode);
+  }
+  return false;
 };
 
 // 设置行样式

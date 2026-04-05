@@ -22,21 +22,23 @@
         </el-form-item>
       </template>
 
-      <!-- 人员编号 -->
+      <!-- 人员账号 -->
       <el-form-item label="账号" prop="userCode">
         <el-input v-model="formdata.userCode" clearable class="w-240" placeholder="请输入账号" />
       </el-form-item>
 
-      <!--人员密码 -->
-      <el-form-item label="密码" prop="userPassword">
-        <el-input
-          type="password"
-          v-model="formdata.userPassword"
-          show-password
-          class="w-240"
-          placeholder="请输入密码"
-        />
-      </el-form-item>
+      <!--密码 -->
+      <template v-if="userStore.isAdmin">
+        <el-form-item label="密码" prop="userPassword">
+          <el-input
+            type="password"
+            v-model="formdata.userPassword"
+            show-password
+            class="w-240"
+            placeholder="请输入密码"
+          />
+        </el-form-item>
+      </template>
 
       <!-- 姓名 -->
       <el-form-item label="姓名" prop="userName">
@@ -56,7 +58,13 @@
       <!-- 分配角色 -->
       <el-form-item label="人员角色" prop="roleId">
         <el-select v-model="formdata.roleId" class="w-120" placeholder="选择角色">
-          <el-option v-for="item in roleList" :key="item.id" :label="item.roleName" :value="item.id" />
+          <el-option
+            v-for="item in roleList"
+            :key="item.id"
+            :label="item.roleName"
+            :value="item.id"
+            :disabled="isDisableRole(item.roleCode as RoleCode)"
+          />
         </el-select>
       </el-form-item>
 
@@ -182,6 +190,7 @@ import { sexOptions, employedOptions, maritalStatusOptions, educationOptions } f
 import { useEnumStore, Enums } from '@/store/modules/enums/index';
 import useUserStore from '@/store/modules/acl/user';
 import Message from '@/components/Message';
+import { isRoleHigherOrEqual } from '@/utils';
 
 const userStore = useUserStore();
 const enumStore = useEnumStore();
@@ -253,6 +262,18 @@ const handleFormReset = () => {
   formdata.value = cloneDeep(DEFAULT_FORMDATA);
 };
 
+/**
+ * 检查角色是否禁用
+ * @param roleCode 角色编码
+ * @returns 是否禁用
+ */
+const isDisableRole = (roleCode: RoleCode) => {
+  if (userStore.user.role) {
+    return isRoleHigherOrEqual(roleCode, userStore.user?.role?.roleCode as RoleCode);
+  }
+  return false;
+};
+
 // 表单提交
 const handleFormSubmit = async (model: any) => {
   if (!formdata.value.orgId) {
@@ -292,7 +313,7 @@ const updateUser = async (data: UserTypes.UserDTO) => {
     loading.value = true;
     const res = await reqUpdateUser(data);
     // console.log('更新用户成功：', res);
-    Message.success('添加用户成功');
+    Message.success('更新用户成功');
     drawerVisible.value = false;
   } catch (error) {
     console.error('更新用户失败：', error);
