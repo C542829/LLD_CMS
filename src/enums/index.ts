@@ -354,13 +354,27 @@ export const RechargeTypeOptions = [
 // #endregion 充值类型
 
 // #region 优惠券记录查询状态
+// 使用状态（0 未使用，1 已使用，2 已取消）
+export enum CouponStatus {
+  UnUsed = 0,
+  Used = 1,
+  Canceled = 2,
+}
+
+export const CouponStatusMap = {
+  [CouponStatus.UnUsed]: '未使用',
+  [CouponStatus.Used]: '已使用',
+  [CouponStatus.Canceled]: '已取消',
+};
+
 /**
- * 优惠券记录查询状态
+ * 使用状态
  */
-export const couponRecordStatusOptions = [
+export const CouponStatusOptions = [
   { value: '', label: '全部状态' },
-  { value: '未使用', label: '未使用' },
-  { value: '已使用', label: '已使用' },
+  { value: CouponStatus.UnUsed, label: '未使用' },
+  { value: CouponStatus.Used, label: '已使用' },
+  { value: CouponStatus.Canceled, label: '已取消' },
 ];
 // #endregion 优惠券记录查询状态
 
