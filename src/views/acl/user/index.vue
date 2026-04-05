@@ -131,7 +131,6 @@ import { reqRoleList, Types as RoleTypes } from '@/api/acl/role';
 import { reqUserList, Types as UserTypes } from '@/api/user/index';
 import { useDataEnumStore } from '@/store/modules/enums/index';
 import useUserStore from '@/store/modules/acl/user';
-import UserSelectRemote from '@/components/FormComponents/UserSelectRemote.vue';
 
 const userStore = useUserStore();
 const dataEnumStore = useDataEnumStore();
