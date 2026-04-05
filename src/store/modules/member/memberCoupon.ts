@@ -121,105 +121,6 @@ export const useCouponStore = defineStore('CouponStore', () => {
   };
   //#endregion
 
-  // #region 优惠券统计
-  // 优惠券发放记录
-  const recordParams = reactive<any>({
-    activeId: null,
-    vipTicketId: null,
-    status: null,
-    vipInfoFiled: '',
-    pageNum: 1,
-    pageSize: 50,
-    total: 0,
-  });
-  const couponRecords: any = ref([]);
-  const getCouponRecords = async (params: {}) => {
-    const res = await reqCountTicket(params);
-    const pageData = parseResObj(res);
-    return pageData;
-  };
-
-  const setCouponRecords = async () => {
-    settingStore.loading = true;
-    const { rows, total } = await getCouponRecords(recordParams);
-    // 处理数据
-    couponRecords.value = rows;
-    recordParams.total = total;
-    settingStore.loading = false;
-  };
-
-  // #endregion
-
-  // #region 优惠券汇总
-  const summaryParams = reactive({ dateRange: [new Date(), new Date()] });
-
-  const couponSummary: any = ref([]);
-  const setCouponSummary = async () => {
-    settingStore.loading = true;
-    const start = formatDate(summaryParams.dateRange[0]);
-    const end = formatDate(summaryParams.dateRange[1]);
-    // const res = await reqTicketList(searchParams.value);
-    // let data = parseReqList(res);
-
-    // 处理数据
-    // tableData.value = data;
-    couponSummary.value = [
-      {
-        couponStatType: 1,
-        numOfSend: 0,
-        amountOfSend: 0,
-        numOfUse: 0,
-        amountOfUse: 0,
-        numOfCancel: 0,
-        amountOfCancel: 0,
-      },
-      {
-        couponStatType: 2,
-        numOfSend: 0,
-        amountOfSend: 0,
-        numOfUse: 0,
-        amountOfUse: 0,
-        numOfCancel: 0,
-        amountOfCancel: 0,
-      },
-      {
-        couponStatType: 3,
-        numOfSend: 1,
-        amountOfSend: 88,
-        numOfUse: 1,
-        amountOfUse: 88,
-        numOfCancel: 0,
-        amountOfCancel: 0,
-      },
-      {
-        couponStatType: 4,
-        numOfSend: 8,
-        amountOfSend: 704,
-        numOfUse: 4,
-        amountOfUse: 352,
-        numOfCancel: 0,
-        amountOfCancel: 0,
-      },
-      {
-        couponStatType: 7,
-        numOfSend: 0,
-        amountOfSend: 0,
-        numOfUse: 0,
-        amountOfUse: 0,
-        numOfCancel: 0,
-        amountOfCancel: 0,
-      },
-      {
-        couponStatType: 0,
-        amountOfUse: 225,
-      },
-    ];
-
-    settingStore.loading = false;
-  };
-
-  // #endregion
-
   return {
     searchParams,
     tableData,
@@ -230,14 +131,5 @@ export const useCouponStore = defineStore('CouponStore', () => {
     update,
     updateStatus,
     resetFormData,
-
-    recordParams,
-    couponRecords,
-    getCouponRecords,
-    setCouponRecords,
-
-    couponSummary,
-    summaryParams,
-    setCouponSummary,
   };
 });

@@ -7,7 +7,7 @@
         <div class="search-item">
           <label>
             <span>查询时段：</span>
-            <DatePicker v-model="store.summaryParams.dateRange" @change="search"></DatePicker>
+            <DatePicker v-model="summaryParams.dateRange" @change="search"></DatePicker>
           </label>
         </div>
 
@@ -20,11 +20,7 @@
 
     <!-- 数据列表 -->
     <Card class="table-card">
-      <Table
-        v-loading="settingStore.loading"
-        :element-loading-text="settingStore.loadingMsg"
-        :data="store.couponSummary"
-      >
+      <Table v-loading="loading" element-loading-text="加载中..." :data="couponSummary">
         <el-table-column prop="couponStatType" label="优惠券统计类型" :formatter="couponTypeMap" />
         <el-table-column label="赠送数量/金额">
           <template #default="{ row }">
@@ -50,24 +46,101 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 
-// 导入枚举数据
 import { couponTypeMap } from '@/utils/formatter';
+import { formatDate } from '@/utils/time';
 
-// 引入数据仓库
-import { useSettingStore } from '@/store/modules/acl/setting';
-import { useCouponStore } from '@/store/modules/member/memberCoupon';
-const settingStore = useSettingStore();
-const store = useCouponStore();
+const loading = ref(false);
+
+const summaryParams = reactive({ dateRange: [new Date(), new Date()] as [Date, Date] });
+
+interface CouponSummaryItem {
+  couponStatType: number;
+  numOfSend: number;
+  amountOfSend: number;
+  numOfUse: number;
+  amountOfUse: number;
+  numOfCancel: number;
+  amountOfCancel: number;
+}
+
+const couponSummary = ref<CouponSummaryItem[]>([]);
 
 onMounted(() => {
-  store.setCouponSummary();
+  loadCouponSummary();
 });
 
-// 搜索
 const search = () => {
-  store.setCouponSummary();
+  loadCouponSummary();
+};
+
+const loadCouponSummary = async () => {
+  loading.value = true;
+  try {
+    const start = formatDate(summaryParams.dateRange[0]);
+    const end = formatDate(summaryParams.dateRange[1]);
+    console.log('查询时段:', start, '-', end);
+
+    couponSummary.value = [
+      {
+        couponStatType: 0,
+        numOfSend: 0,
+        amountOfSend: 0,
+        numOfUse: 0,
+        amountOfUse: 0,
+        numOfCancel: 0,
+        amountOfCancel: 0,
+      },
+      {
+        couponStatType: 0,
+        numOfSend: 0,
+        amountOfSend: 0,
+        numOfUse: 0,
+        amountOfUse: 0,
+        numOfCancel: 0,
+        amountOfCancel: 0,
+      },
+      {
+        couponStatType: 0,
+        numOfSend: 0,
+        amountOfSend: 0,
+        numOfUse: 0,
+        amountOfUse: 0,
+        numOfCancel: 0,
+        amountOfCancel: 0,
+      },
+      {
+        couponStatType: 0,
+        numOfSend: 0,
+        amountOfSend: 0,
+        numOfUse: 0,
+        amountOfUse: 0,
+        numOfCancel: 0,
+        amountOfCancel: 0,
+      },
+      {
+        couponStatType: 0,
+        numOfSend: 0,
+        amountOfSend: 0,
+        numOfUse: 0,
+        amountOfUse: 0,
+        numOfCancel: 0,
+        amountOfCancel: 0,
+      },
+      {
+        couponStatType: 0,
+        numOfSend: 0,
+        amountOfSend: 0,
+        numOfUse: 0,
+        amountOfUse: 0,
+        numOfCancel: 0,
+        amountOfCancel: 0,
+      },
+    ];
+  } finally {
+    loading.value = false;
+  }
 };
 </script>
 

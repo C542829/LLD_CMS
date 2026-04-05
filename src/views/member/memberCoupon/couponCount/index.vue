@@ -7,9 +7,9 @@
         <div class="search-item">
           <label>
             <span>优惠券状态：</span>
-            <el-select v-model="store.recordParams.status" @change="search" clearable style="width: 120px">
+            <el-select v-model="recordParams.status" @change="search" clearable style="width: 120px">
               <el-option
-                v-for="item in couponRecordStatusOptions"
+                v-for="item in CouponStatusOptions"
                 :key="item.value"
                 :label="item.label"
                 :value="item.value"
@@ -22,7 +22,7 @@
         <div class="search-item">
           <label>
             <span>优惠券：</span>
-            <el-select v-model="store.recordParams.vipTicketId" @change="search" clearable style="width: 120px">
+            <el-select v-model="recordParams.vipTicketId" @change="search" clearable style="width: 120px">
               <el-option v-for="item in coupons" :key="item.id" :label="item.ticketName" :value="item.id" />
             </el-select>
           </label>
@@ -32,7 +32,7 @@
         <div class="search-item">
           <label>
             <span>活动：</span>
-            <el-select v-model="store.recordParams.activeId" @change="search" clearable style="width: 120px">
+            <el-select v-model="recordParams.activeId" @change="search" clearable style="width: 120px">
               <el-option v-for="item in activities" :key="item.id" :label="item.activeName" :value="item.id" />
             </el-select>
           </label>
@@ -42,14 +42,14 @@
         <!-- <div class="search-item">
           <label>
             <span>发放员：</span>
-            <el-select v-model="store.recordParams.ticketStatus" @change="search" style="width: 120px">
+            <el-select v-model="recordParams.ticketStatus" @change="search" style="width: 120px">
               <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </label>
         </div> -->
         <div class="search-item">
           <el-input
-            v-model="store.recordParams.vipInfoFiled"
+            v-model="recordParams.vipInfoFiled"
             @keydown.enter="search"
             @clear="search"
             :prefix-icon="Search"
@@ -67,12 +67,12 @@
     <!-- 数据列表 -->
     <Card padding="0">
       <PaginationTable
-        v-loading="settingStore.loading"
-        :element-loading-text="settingStore.loadingMsg"
-        :data="store.couponRecords"
-        :total="store.recordParams.total"
-        v-model:currentPage="store.recordParams.pageNum"
-        v-model:pageSize="store.recordParams.pageSize"
+        v-loading="loading"
+        element-loading-text="加载中..."
+        :data="couponRecords"
+        :total="recordParams.total"
+        v-model:currentPage="recordParams.pageNum"
+        v-model:pageSize="recordParams.pageSize"
         @size-change="handleSizeChange"
         @pagination-current-change="handleCurrentChange"
       >
@@ -86,7 +86,7 @@
         </el-table-column>
         <el-table-column prop="status" label="使用状态" min-width="60">
           <template #default="{ row }">
-            <el-tag :type="row.status === '未使用' ? 'success' : 'danger'">{{ row.status }}</el-tag>
+            <el-tag :type="getStatusTagType(row.status)">{{ getStatusLabel(row.status) }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="时间" min-width="60">
@@ -110,18 +110,27 @@
 
 <script setup lang="ts">
 import { Search } from '@element-plus/icons-vue';
-import { ref, onMounted } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 
-// 导入枚举数据
-import { couponRecordStatusOptions } from '@/enums/index';
+import { CouponStatusOptions, CouponStatus, CouponStatusMap } from '@/enums/index';
 
-// 引入数据仓库
-import { useSettingStore } from '@/store/modules/acl/setting';
-import { useRechargeActivityStore } from '@/store/modules/member/rechargeActivity';
-import { useCouponStore } from '@/store/modules/member/memberCoupon';
-const settingStore = useSettingStore();
-const activityStore = useRechargeActivityStore();
-const store = useCouponStore();
+import { reqCountTicket, reqTicketList } from '@/api/member/coupon/index';
+import { reqActiveList } from '@/api/member/rechargeActivity/index';
+import { parseResObj, parseResList } from '@/utils/parseResponse';
+
+const loading = ref(false);
+
+const recordParams = reactive({
+  activeId: '',
+  vipTicketId: '',
+  status: '',
+  vipInfoFiled: '',
+  pageNum: 1,
+  pageSize: 50,
+  total: 0,
+});
+
+const couponRecords = ref<any[]>([]);
 
 onMounted(() => {
   search();
@@ -129,32 +138,70 @@ onMounted(() => {
   getCoupons();
 });
 
-// 搜索
 const search = () => {
-  store.setCouponRecords();
+  if (recordParams.status == undefined) {
+    recordParams.status = '';
+  }
+  if (recordParams.vipInfoFiled == undefined) {
+    recordParams.vipInfoFiled = '';
+  }
+  if (recordParams.activeId == undefined) {
+    recordParams.activeId = '';
+  }
+  if (recordParams.vipTicketId == undefined) {
+    recordParams.vipTicketId = '';
+  }
+  loadCouponRecords();
 };
 
-// 处理分页变化
 const handleSizeChange = (val: number) => {
-  store.recordParams.pageSize = val;
-  store.setCouponRecords();
+  recordParams.pageSize = val;
+  loadCouponRecords();
 };
 
 const handleCurrentChange = (val: number) => {
-  store.recordParams.pageNum = val;
-  store.setCouponRecords();
+  recordParams.pageNum = val;
+  loadCouponRecords();
+};
+
+const loadCouponRecords = async () => {
+  loading.value = true;
+  try {
+    const res = await reqCountTicket(recordParams);
+    const pageData = parseResObj(res);
+    couponRecords.value = pageData.rows || [];
+    recordParams.total = pageData.total || 0;
+  } finally {
+    loading.value = false;
+  }
 };
 
 const activities = ref<any[]>([]);
 const getActivities = async () => {
-  const data = await activityStore.getActivities();
-  activities.value = data;
+  const res = await reqActiveList({ activeStatus: 0 });
+  activities.value = parseResList(res);
 };
 
 const coupons = ref<any[]>([]);
 const getCoupons = async () => {
-  const data = await store.getCoupons();
-  coupons.value = data;
+  const res = await reqTicketList({ ticketStatus: 0 });
+  coupons.value = parseResList(res);
+};
+
+const getStatusTagType = (status: CouponStatus): ElTagType => {
+  const statusMap: Record<number | string, string> = {
+    [CouponStatus.UnUsed]: 'success',
+    [CouponStatus.Used]: 'info',
+    [CouponStatus.Canceled]: 'danger',
+  };
+  return (statusMap[status] || 'info') as ElTagType;
+};
+
+const getStatusLabel = (status: CouponStatus) => {
+  if (typeof status === 'number') {
+    return CouponStatusMap[status] || status;
+  }
+  return status;
 };
 </script>
 
