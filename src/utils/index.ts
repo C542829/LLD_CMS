@@ -11,7 +11,7 @@ export { formatDateTime, formatDate };
  */
 export function isRoleHigherOrEqual(roleA: RoleCode, roleB: RoleCode) {
   // 超级管理员大于等于所有角色
-  if (RoleLevel[roleA] === RoleLevel.SUPER_ADMIN) {
+  if (RoleLevel[roleB] === RoleLevel.SUPER_ADMIN) {
     return false;
   }
   // 角色B为空时，默认返回false
