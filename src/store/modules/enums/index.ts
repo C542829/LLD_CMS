@@ -24,11 +24,11 @@ import { reqList as reqOrgList } from '@/api/acl/org/index';
 import { reqRoleList } from '@/api/acl/role';
 
 import { parseResList, parseResMsg, parseResObj } from '@/utils/parseResponse';
-import { Enums } from '@/enums/index';
+import { DictCode } from '@/enums/index';
 
 import { useSettingStore } from '@/store/modules/acl/setting';
 
-export { Enums };
+export { DictCode };
 
 export const useEnumStore = defineStore('Enum', () => {
   const settingStore = useSettingStore();
@@ -120,7 +120,7 @@ export const useEnumStore = defineStore('Enum', () => {
    * @returns 单位列表
    */
   const getUnits = async () => {
-    return await getEnumItemList(Enums.UNIT);
+    return await getEnumItemList(DictCode.UNIT);
   };
 
   /**
@@ -128,7 +128,7 @@ export const useEnumStore = defineStore('Enum', () => {
    * @returns 岗位列表
    */
   const getPositionList = async () => {
-    return await getEnumItemList(Enums.POSITION);
+    return await getEnumItemList(DictCode.POSITION);
   };
 
   /**
@@ -136,7 +136,7 @@ export const useEnumStore = defineStore('Enum', () => {
    * @returns 部门列表
    */
   const getDeptList = async () => {
-    return await getEnumItemList(Enums.DEPARTMENT);
+    return await getEnumItemList(DictCode.DEPARTMENT);
   };
 
   /**
@@ -144,7 +144,7 @@ export const useEnumStore = defineStore('Enum', () => {
    * @returns 上钟类型列表
    */
   const getPerfTypeList = async () => {
-    return await getEnumItemList(Enums.PERF_TYPE);
+    return await getEnumItemList(DictCode.PERF_TYPE);
   };
 
   /**
@@ -152,7 +152,7 @@ export const useEnumStore = defineStore('Enum', () => {
    * @returns 服务类型列表
    */
   const getServiceTypeList = async () => {
-    return await getEnumItemList(Enums.SERVICE_TYPE);
+    return await getEnumItemList(DictCode.SERVICE_TYPE);
   };
 
   /**
@@ -160,14 +160,14 @@ export const useEnumStore = defineStore('Enum', () => {
    * @returns 服务项目分类列表
    */
   const getServiceItemCategoryList = async () => {
-    return await getEnumItemList(Enums.ITEM_CATEGORY);
+    return await getEnumItemList(DictCode.ITEM_CATEGORY);
   };
   /**
    * 获取产品分类列表
    * @returns 产品分类列表
    */
   const getProductCategoryList = async () => {
-    return await getEnumItemList(Enums.PRODUCT_CATEGORY);
+    return await getEnumItemList(DictCode.PRODUCT_CATEGORY);
   };
 
   return {

@@ -125,7 +125,7 @@ import { ref, onMounted, reactive, computed } from 'vue';
 import { cloneDeep, isEmpty } from 'lodash';
 import { DEFAULT_SEARCH_PARAMS, RoleCodeFilterMap } from './utils/index';
 import { isRoleHigherOrEqual } from '@/utils/index';
-import { RoleCode, Enums, searchEmployedOptions } from '@/enums/index';
+import { RoleCode, searchEmployedOptions } from '@/enums/index';
 import { sexMap } from '@/utils/formatter';
 import { reqRoleList, Types as RoleTypes } from '@/api/acl/role';
 import { reqUserList, Types as UserTypes } from '@/api/user/index';

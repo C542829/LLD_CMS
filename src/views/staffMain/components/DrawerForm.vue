@@ -139,7 +139,7 @@ import { type Types, reqRoleList } from '@/api/acl/role';
 import { sexOptions, employedOptions, maritalStatusOptions, educationOptions, RoleCode } from '@/enums/index';
 // 引入数据仓库
 import { useStaffStore } from '@/store/modules/staffMain/staff';
-import { useEnumStore, Enums } from '@/store/modules/enums/index';
+import { useEnumStore, DictCode } from '@/store/modules/enums/index';
 
 interface Props {
   type: DialogType;
@@ -233,13 +233,13 @@ const goRoleMgr = () => {
 const deptMgr = () => {
   enumHandler.title = '部门管理';
   enumHandler.visible = true;
-  enumHandler.dictCode = deptList?.value?.[0]?.dictCode || Enums.DEPARTMENT;
+  enumHandler.dictCode = deptList?.value?.[0]?.dictCode || DictCode.DEPARTMENT;
 };
 
 const positionMgr = () => {
   enumHandler.title = '职位管理';
   enumHandler.visible = true;
-  enumHandler.dictCode = positionList?.value?.[0]?.dictCode || Enums.POSITION;
+  enumHandler.dictCode = positionList?.value?.[0]?.dictCode || DictCode.POSITION;
 };
 
 // 表单验证规则

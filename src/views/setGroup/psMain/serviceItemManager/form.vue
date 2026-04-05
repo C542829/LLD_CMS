@@ -166,7 +166,7 @@
 <script setup lang="ts">
 import EnumHandler from '@/components/EnumHandler/index.vue';
 import { ref, onMounted, reactive } from 'vue';
-import { CommissionType, IsDiscount, commissionTypeOptions, commissionOptions, Enums } from '@/enums';
+import { CommissionType, IsDiscount, commissionTypeOptions, commissionOptions, DictCode } from '@/enums';
 // 引入数据仓库
 import { useServiceItemStore } from '@/store/modules/setGroup/serviceItem';
 import { useEnumStore } from '@/store/modules/enums/index';
@@ -225,14 +225,14 @@ const initEnum = async () => {
 const enumHandler = reactive({
   title: '项目分类管理',
   visible: false,
-  dictCode: Enums.ITEM_CATEGORY,
+  dictCode: DictCode.ITEM_CATEGORY,
   defaultData: <any>[],
 });
 
 const serviceItemsCategoryMgr = () => {
   enumHandler.visible = true;
   enumHandler.title = '项目分类管理';
-  enumHandler.dictCode = Enums.ITEM_CATEGORY;
+  enumHandler.dictCode = DictCode.ITEM_CATEGORY;
   enumHandler.visible = true;
 };
 

@@ -135,10 +135,9 @@ import { commissionOptions, CommissionType, IsDiscount, commissionTypeOptions } 
 // 引入数据仓库
 import { useProductStore } from '@/store/modules/setGroup/product';
 import useUserStore from '@/store/modules/acl/user';
-import { useEnumStore, Enums, useDataEnumStore } from '@/store/modules/enums/index';
+import { useEnumStore, DictCode } from '@/store/modules/enums/index';
 const store = useProductStore();
 const enumStore = useEnumStore();
-const dataEnumStore = useDataEnumStore();
 const userStore = useUserStore();
 
 // 定义组件触发的事件 - 关闭抽屉
@@ -189,13 +188,13 @@ const enumDialog = reactive({
 
 const unitMgr = () => {
   enumDialog.title = '单位管理';
-  enumDialog.dictCode = Enums.UNIT;
+  enumDialog.dictCode = DictCode.UNIT;
   enumDialog.visible = true;
 };
 
 const productCategoryMgr = () => {
   enumDialog.title = '产品分类管理';
-  enumDialog.dictCode = Enums.PRODUCT_CATEGORY;
+  enumDialog.dictCode = DictCode.PRODUCT_CATEGORY;
   enumDialog.visible = true;
 };
 

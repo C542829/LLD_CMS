@@ -2,7 +2,8 @@ import { ResponseCode, ResponseCodeMeaning } from '@/enums/response';
 
 export { ResponseCode, ResponseCodeMeaning };
 
-// #region 状态选项
+// #region 枚举值
+
 /** 角色状态码 */
 export const RoleCode = {
   Admin: 'ADMIN',
@@ -10,20 +11,6 @@ export const RoleCode = {
   AreaManager: 'AREA_MANAGER',
   StoreManager: 'STORE_MANAGER',
 };
-
-/**
- * 枚举编码
- */
-export enum Enums {
-  BED_STATUS = 'bed_status',
-  UNIT = 'unit',
-  POSITION = 'position',
-  DEPARTMENT = 'department',
-  PERF_TYPE = 'item_type',
-  SERVICE_TYPE = 'service_type',
-  ITEM_CATEGORY = 'item_category',
-  PRODUCT_CATEGORY = 'product_category',
-}
 
 /**
  * 字典编码
@@ -39,15 +26,81 @@ export enum DictCode {
   PRODUCT_CATEGORY = 'product_category',
 }
 
-export enum Status {
-  enabled = 0,
-  disabled = 1,
-}
-
 /** 跳转收银路由标识 */
 export enum CashierRouteSign {
   Create = 'Create',
   Settle = 'Settle',
+}
+
+// #endregion 枚举值
+
+// #region 表单选项
+
+/**
+ * 提成类型
+ */
+export const commissionOptions = [
+  { value: 0, label: '标准价提成' },
+  { value: 1, label: '实收价提成' },
+];
+
+/**
+ * 性别
+ */
+export const sexOptions = [
+  { value: 0, label: '男' },
+  { value: 1, label: '女' },
+];
+
+/**
+ * 婚姻状态
+ */
+export const maritalStatusOptions = [
+  { label: '未知', value: '未知' },
+  { label: '未婚', value: '未婚' },
+  { label: '已婚', value: '已婚' },
+  { label: '离异', value: '离异' },
+  { label: '丧偶', value: '丧偶' },
+];
+
+/**
+ * 学历
+ */
+export const educationOptions = [
+  { label: '未知', value: '未知' },
+  { label: '小学', value: '小学' },
+  { label: '初中', value: '初中' },
+  { label: '高中', value: '高中' },
+  { label: '中专', value: '中专' },
+  { label: '大专', value: '大专' },
+  { label: '本科', value: '本科' },
+  { label: '硕士', value: '硕士' },
+  { label: '博士', value: '博士' },
+  { label: '技校', value: '技校' },
+];
+
+/**
+ * 在职状态
+ */
+export const employedOptions = [
+  { value: '在职', label: '在职' },
+  { value: '离职', label: '离职' },
+  { value: '试用期', label: '试用期' },
+  { value: '停薪留职', label: '停薪留职' },
+];
+
+/**
+ * 过滤框的在职状态
+ */
+export const searchEmployedOptions = [{ value: '', label: '全部状态' }, ...employedOptions];
+
+// #endregion 表单选项
+
+// #region 状态选项
+
+export enum Status {
+  enabled = 0,
+  disabled = 1,
 }
 
 export const StatusMap = {
@@ -64,16 +117,6 @@ export const statusOptions = [
   { value: Status.disabled, label: StatusMap[Status.disabled] },
 ];
 // #endregion 状态选项
-
-// #region 提成类型
-/**
- * 提成类型
- */
-export const commissionOptions = [
-  { value: 0, label: '标准价提成' },
-  { value: 1, label: '实收价提成' },
-];
-// #endregion 提成类型
 
 // #region 提成类型
 /**
@@ -141,64 +184,6 @@ export const vipLevelOptions = [
  */
 export const vipLevelMap = new Map(vipLevelOptions.map((item) => [item.value, item.label]));
 // #endregion 会员等级
-
-// #region 性别
-/**
- * 性别
- */
-export const sexOptions = [
-  { value: 0, label: '男' },
-  { value: 1, label: '女' },
-];
-// #endregion 性别
-
-// #region 婚姻状态
-/**
- * 婚姻状态
- */
-export const maritalStatusOptions = [
-  { label: '未知', value: '未知' },
-  { label: '未婚', value: '未婚' },
-  { label: '已婚', value: '已婚' },
-  { label: '离异', value: '离异' },
-  { label: '丧偶', value: '丧偶' },
-];
-// #endregion 婚姻状态
-
-// #region 学历
-/**
- * 学历
- */
-export const educationOptions = [
-  { label: '未知', value: '未知' },
-  { label: '小学', value: '小学' },
-  { label: '初中', value: '初中' },
-  { label: '高中', value: '高中' },
-  { label: '中专', value: '中专' },
-  { label: '大专', value: '大专' },
-  { label: '本科', value: '本科' },
-  { label: '硕士', value: '硕士' },
-  { label: '博士', value: '博士' },
-  { label: '技校', value: '技校' },
-];
-// #endregion 学历
-
-// #region 在职状态
-/**
- * 在职状态
- */
-export const employedOptions = [
-  { value: '在职', label: '在职' },
-  { value: '离职', label: '离职' },
-  { value: '试用期', label: '试用期' },
-  { value: '停薪留职', label: '停薪留职' },
-];
-
-/**
- * 过滤框的在职状态
- */
-export const searchEmployedOptions = [{ value: '', label: '全部状态' }, ...employedOptions];
-// #endregion 在职状态
 
 // #region 活动类型
 /**

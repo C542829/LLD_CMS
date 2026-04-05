@@ -187,7 +187,7 @@ import { type Types } from '@/api/acl/role';
 import { type Types as UserTypes, reqAddUser, reqUpdateUser } from '@/api/user/index';
 import { DEFAULT_FORMDATA } from '../utils/index';
 import { sexOptions, employedOptions, maritalStatusOptions, educationOptions } from '@/enums/index';
-import { useEnumStore, Enums } from '@/store/modules/enums/index';
+import { useEnumStore, DictCode } from '@/store/modules/enums/index';
 import useUserStore from '@/store/modules/acl/user';
 import Message from '@/components/Message';
 import { isRoleHigherOrEqual } from '@/utils';
@@ -343,13 +343,13 @@ const enumHandler = reactive({
 
 const deptMgr = () => {
   enumHandler.title = '部门管理';
-  enumHandler.dictCode = Enums.DEPARTMENT;
+  enumHandler.dictCode = DictCode.DEPARTMENT;
   enumHandler.visible = true;
 };
 
 const positionMgr = () => {
   enumHandler.title = '职位管理';
-  enumHandler.dictCode = Enums.POSITION;
+  enumHandler.dictCode = DictCode.POSITION;
   enumHandler.visible = true;
 };
 
