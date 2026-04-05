@@ -44,7 +44,12 @@
         :showPagination="false"
       >
         <el-table-column type="index" label="序号" width="60" />
-        <el-table-column prop="activeName" label="活动名称" :center="true" min-width="100" />
+        <el-table-column prop="orgs" label="关联门店" min-width="50">
+          <template #default="{ row }">
+            {{ row.orgs.map((org: OrgInfo) => org.orgName).join('、') }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="activeName" label="活动名称" min-width="100" />
         <el-table-column prop="activeBeginTime" label="活动开始" :formatter="dateFormatter" min-width="40" />
         <el-table-column prop="activeFinalTime" label="活动结束" :formatter="dateFormatter" min-width="40" />
         <el-table-column prop="createTime" label="创建时间" :formatter="dateFormatter" min-width="40" />
