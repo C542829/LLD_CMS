@@ -1,6 +1,8 @@
 import { get, post, put } from '@/utils/request';
 import * as Types from './type';
 
+export { Types };
+
 enum API {
   /** 获取会员列表 */
   LIST_URL = '/vip/query-list',
@@ -71,7 +73,8 @@ export const reqVipAsset = (vipId: number) => get(API.ASSET_URL.replace(IdStr, v
  * @param vipId 会员id
  * @returns 会员资产列表
  */
-export const reqVipAssetList = (vipId: number) => get(API.ASSET_LIST_URL.replace(IdStr, vipId.toString()));
+export const reqVipAssetList = (vipId: number): ApiResponse<Types.VipPropertyVO> =>
+  get(API.ASSET_LIST_URL.replace(IdStr, vipId.toString()));
 
 /**
  * 更新会员备注
@@ -110,7 +113,7 @@ export const reqPresentTicket = (id: number, data: Types.ReqPresentTicket) => {
  */
 export const reqCancelTicket = (id: number, ticketIds: number[]) => {
   const url = API.CANCEL_TICKET.replace(IdStr, id.toString());
-  return post(url, ticketIds);
+  return post(url, { ticketIds });
 };
 
 /**
