@@ -84,6 +84,19 @@
         <span>修改日期：</span>
         <span>{{ org.updateTime }}</span>
       </li>
+      <li>
+        <span>谷歌浏览器：</span>
+        <span>
+          <a href="https://caihao.lanzouu.com/imwZf3miidrc" target="_blank">点击下载</a>
+          提取码：gk8j
+        </span>
+      </li>
+      <li>
+        <span>UU远程：</span>
+        <span>
+          <a href="https://uuyc.163.com/" target="_blank">点击下载</a>
+        </span>
+      </li>
     </ul>
   </div>
   <!-- 抽屉表单 -->
