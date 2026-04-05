@@ -121,15 +121,36 @@
         </el-table-column>
         <el-table-column prop="description" label="操作描述" min-width="100"></el-table-column>
         <el-table-column prop="createTime" label="操作时间" min-width="80"></el-table-column>
+        <!-- <el-table-column label="实收金额" min-width="80">
+          <template #default="scope">实收：￥{{ scope.row.actualAmount }}</template>
+        </el-table-column>
+        <el-table-column label="优惠金额" min-width="60">
+          <template #default="scope">￥{{ scope.row.discountAmount }}</template>
+        </el-table-column>
+        <el-table-column label="付款方式" min-width="100">
+          <template #default="scope">
+            <p v-for="item in scope.row.payments" :key="item.paymentType">
+              {{ item.paymentName }}：￥{{ item.totalAmount }}
+            </p>
+          </template>
+        </el-table-column>
+        <el-table-column label="状态" min-width="80">
+          <template #default="scope">
+            <p>状态：{{ scope.row.orderStatusName }}</p>
+            <p>收银：{{ scope.row.userName }}</p>
+          </template>
+        </el-table-column> -->
       </PaginationTable>
     </Card>
   </div>
 </template>
 
 <script setup lang="ts">
+import Message from '@/components/Message';
 import { reactive, onMounted, ref } from 'vue';
 import { type Types, reqOperLogList } from '@/api/sys/index';
-import { shortcuts } from '@/utils/time';
+import { formatDateTime, shortcuts } from '@/utils/time';
+import { OrderStatus, orderStatusOptions, paymentTypeOptions } from '@/enums';
 import { cloneDeep } from 'lodash';
 import { useDataEnumStore } from '@/store/modules/enums/index';
 
@@ -146,7 +167,7 @@ const DEFAULT_SEARCH_PARAMS = {
   module: '',
   operatorName: '',
   startTime: '',
-  status: '',
+  status: undefined,
 };
 
 const operModuleOptions = [
@@ -215,14 +236,6 @@ const search = () => {
     searchParams.startTime = dateRange.value[0];
     searchParams.endTime = dateRange.value[1];
   }
-
-  if (searchParams.status == undefined) {
-    searchParams.status = '';
-  }
-  if (searchParams.module == undefined) {
-    searchParams.module = '';
-  }
-
   setTableData();
 };
 

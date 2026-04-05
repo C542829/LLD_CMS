@@ -99,6 +99,9 @@ onMounted(async () => {
 
 // 搜索
 const search = () => {
+  if (store.search.orgStatus == undefined) {
+    store.search.orgStatus = '';
+  }
   store.setTableData();
 };
 

@@ -10,7 +10,7 @@
         <div class="search-item">
           <label>
             <span>服务项目状态：</span>
-            <el-select v-model="store.searchParams.itemStatus" @change="search" style="width: 120px">
+            <el-select v-model="store.searchParams.itemStatus" @change="search" class="w-120">
               <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </label>
@@ -20,7 +20,7 @@
         <div class="search-item">
           <label>
             <span>服务项目分类：</span>
-            <el-select v-model="store.searchParams.category" clearable @change="search" style="width: 120px">
+            <el-select v-model="store.searchParams.category" clearable @change="search" class="w-120">
               <el-option
                 v-for="item in categoryList"
                 :key="item.itemValue"
@@ -39,6 +39,7 @@
             @clear="search"
             :prefix-icon="Search"
             placeholder="编码 | 服务名称"
+            class="w-240"
             clearable
           >
             <template #append>
@@ -128,6 +129,12 @@ getEnumList();
 
 // 搜索
 const search = () => {
+  if (store.searchParams.category == undefined) {
+    store.searchParams.category = '';
+  }
+  if (store.searchParams.itemStatus == undefined) {
+    store.searchParams.itemStatus = '';
+  }
   store.setDataList();
 };
 

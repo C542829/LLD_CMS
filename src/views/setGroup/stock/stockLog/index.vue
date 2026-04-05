@@ -73,8 +73,8 @@ const searchParams = ref<any>({
 const search = async () => {
   settingStore.loading = true;
   const data: any = await store.getStockLogList(searchParams.value);
-  tableData.total = data.total;
-  tableData.list = data.rows;
+  tableData.total = data.total || 0;
+  tableData.list = data.rows || [];
   settingStore.loading = false;
 };
 
