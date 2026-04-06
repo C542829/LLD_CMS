@@ -1,24 +1,15 @@
 <template>
   <div class="main-container">
-    <!-- 数据筛选 -->
     <Card class="operation-card">
-      <!-- 第一行 -->
-      <!-- <div class="search-container">
-
-      </div> -->
-
-      <!-- 第二行 -->
       <div class="search-container">
         <div class="search-item">
           <label>
-            时间段：
-            <!-- <DatePicker v-model="dateRange" @change="search" style="width: 240px" /> -->
+            开单时段：
             <el-date-picker
               v-model="dateRange"
               :shortcuts="shortcuts"
               unlinkPanels
               clearable
-              @change="search"
               type="daterange"
               class="w-240"
               rangeSeparator="至"
@@ -29,59 +20,55 @@
             />
           </label>
         </div>
-
+        <!-- <div class="search-item">
+          <label for="billno">单据编号：</label>
+          <el-input
+            v-model="searchParams.billno"
+            id="billno"
+            class="w-120"
+            placeholder="单据编号"
+            clearable
+            @clear="search"
+          />
+        </div>
         <div class="search-item">
-          <label for="status">状态：</label>
+          <label for="name">顾客姓名：</label>
+          <el-input
+            v-model="searchParams.name"
+            id="name"
+            class="w-100"
+            placeholder="顾客姓名"
+            clearable
+            @clear="search"
+          />
+        </div>
+        <div class="search-item">
+          <label for="billtype">账单类型：</label>
           <el-select
-            v-model="searchParams.status"
+            v-model="searchParams.billtype"
             clearable
             @change="search"
-            id="status"
-            class="w-80"
-            placeholder="状态"
+            id="billtype"
+            class="w-100"
+            placeholder="账单类型"
           >
-            <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
+            <el-option v-for="item in BILL_TYPE_OPTIONS" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </div>
-
-        <!-- <div class="search-item">
-          <label for="orgId">门店：</label>
-          <el-select v-model="searchParams.orgId" id="orgId" placeholder="门店" class="w-80" value-key="id" clearable>
-            <el-option v-for="item in dataEnumStore.orgList" :key="item.id" :label="item.orgName" :value="item.id" />
+        <div class="search-item">
+          <label for="billstatus">账单状态：</label>
+          <el-select
+            v-model="searchParams.billstatus"
+            clearable
+            @change="search"
+            id="billstatus"
+            class="w-100"
+            placeholder="账单状态"
+          >
+            <el-option v-for="item in BILL_STATUS_OPTIONS" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </div> -->
 
-        <!-- 操作模块 -->
-        <div class="search-item">
-          <label for="module">操作模块：</label>
-          <el-select
-            v-model="searchParams.module"
-            clearable
-            @change="search"
-            id="module"
-            class="w-100"
-            placeholder="操作模块"
-          >
-            <el-option v-for="item in operModuleOptions" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
-        </div>
-
-        <!-- 操作人 -->
-        <div class="search-item">
-          <label for="operatorName">操作人：</label>
-          <div>
-            <el-input
-              v-model="searchParams.operatorName"
-              id="operatorName"
-              class="w-100"
-              placeholder="操作人姓名"
-              clearable
-              @clear="search"
-            />
-          </div>
-        </div>
-
-        <!-- 搜索按钮 -->
         <div class="search-item">
           <el-button type="primary" @click="search">搜索</el-button>
         </div>
@@ -91,7 +78,6 @@
       </div>
     </Card>
 
-    <!-- 数据列表 -->
     <Card padding="0">
       <PaginationTable
         v-loading="loading"
@@ -104,111 +90,116 @@
         @pagination-current-change="handleCurrentChange"
       >
         <el-table-column type="index" label="序号" width="60" />
-        <el-table-column prop="module" label="操作模块" min-width="50">
+        <el-table-column prop="billno" label="单据编号" min-width="80" />
+        <el-table-column label="账单类型" min-width="60">
           <template #default="{ row }">
-            {{ operModuleMap[row.module] || '未知' }}
+            {{ BILL_TYPE_MAP[row.billtype] || '未知' }}
           </template>
         </el-table-column>
-        <el-table-column prop="requestUrl" label="HTTP方法" min-width="100" />
-        <el-table-column prop="operatorName" label="操作人" min-width="50" />
-        <el-table-column prop="orgId" label="门店" min-width="50" />
-        <el-table-column prop="ip" label="操作IP" min-width="60" />
-        <el-table-column label="状态" min-width="30">
+        <el-table-column label="顾客信息" min-width="120">
           <template #default="{ row }">
-            <el-tag v-if="row.status === 0" type="success">成功</el-tag>
-            <el-tag v-else type="danger">失败</el-tag>
+            <p>姓名：{{ row.name || '-' }}</p>
+            <p>性别：{{ SEX_MAP[row.sex] || '-' }}</p>
           </template>
         </el-table-column>
-        <el-table-column prop="description" label="操作描述" min-width="100"></el-table-column>
-        <el-table-column prop="createTime" label="操作时间" min-width="80"></el-table-column>
-        <!-- <el-table-column label="实收金额" min-width="80">
-          <template #default="scope">实收：￥{{ scope.row.actualAmount }}</template>
-        </el-table-column>
-        <el-table-column label="优惠金额" min-width="60">
-          <template #default="scope">￥{{ scope.row.discountAmount }}</template>
-        </el-table-column>
-        <el-table-column label="付款方式" min-width="100">
-          <template #default="scope">
-            <p v-for="item in scope.row.payments" :key="item.paymentType">
-              {{ item.paymentName }}：￥{{ item.totalAmount }}
-            </p>
+        <el-table-column label="消费金额" min-width="80">
+          <template #default="{ row }">
+            <span class="text-primary">￥{{ row.consumefee || '0' }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="状态" min-width="80">
-          <template #default="scope">
-            <p>状态：{{ scope.row.orderStatusName }}</p>
-            <p>收银：{{ scope.row.userName }}</p>
+        <el-table-column label="实收金额" min-width="80">
+          <template #default="{ row }">
+            <span class="text-success">￥{{ row.eafee || '0' }}</span>
           </template>
-        </el-table-column> -->
+        </el-table-column>
+        <el-table-column label="支付方式" min-width="100">
+          <template #default="{ row }">
+            <div v-if="row.cashs && row.cashs.length > 0">
+              <p v-for="(cash, index) in row.cashs" :key="index">
+                <span v-if="cash.cash > 0">现金：￥{{ cash.cash }}</span>
+                <span v-if="cash.weixin > 0">微信：￥{{ cash.weixin }}</span>
+                <span v-if="cash.dianpin > 0">点评：￥{{ cash.dianpin }}</span>
+              </p>
+            </div>
+            <div v-if="row.cards && row.cards.length > 0">
+              <p v-for="(card, index) in row.cards" :key="index">
+                <span v-if="card.cardFee > 0">会员卡：￥{{ card.cardFee }}</span>
+                <span v-if="card.treatFee > 0">疗程：￥{{ card.treatFee }}</span>
+              </p>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="消费项目" min-width="120">
+          <template #default="{ row }">
+            <div v-if="row.items && row.items.length > 0">
+              <p v-for="(item, index) in row.items.slice(0, 2)" :key="index">
+                {{ item.serviceItemName }}
+                <span v-if="item.num > 1">x{{ item.num }}</span>
+              </p>
+              <p v-if="row.items.length > 2" class="text-info">共{{ row.items.length }}项</p>
+            </div>
+            <span v-else>-</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="账单状态" min-width="60">
+          <template #default="{ row }">
+            <el-tag :type="row.billstatus === 0 ? 'success' : 'danger'">
+              {{ BILL_STATUS_MAP[row.billstatus] || '未知' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="开单时间" min-width="100">
+          <template #default="{ row }">
+            {{ formatTimestamp(row.createDate) }}
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="80" fixed="right">
+          <template #default="{ row }">
+            <el-button @click="showDetailDialog(row)" link type="primary">详情</el-button>
+          </template>
+        </el-table-column>
       </PaginationTable>
     </Card>
   </div>
+  <DetailDialog v-model="dialogVisible" :billData="currentBill" />
 </template>
 
 <script setup lang="ts">
-import Message from '@/components/Message';
+import DetailDialog from './components/DetailDialog.vue';
 import { reactive, onMounted, ref } from 'vue';
-import { type Types, reqOperLogList } from '@/api/sys/index';
-import { formatDateTime, shortcuts } from '@/utils/time';
-import { OrderStatus, orderStatusOptions, paymentTypeOptions } from '@/enums';
+import { reqConsumeBillList } from './utils/api';
+import type { ConsumeBill, ConsumeBillQuery } from './utils/types';
+import { BILL_TYPE_OPTIONS, BILL_STATUS_OPTIONS, BILL_TYPE_MAP, BILL_STATUS_MAP, SEX_MAP } from './utils/types';
+import { shortcuts } from '@/utils/time';
 import { cloneDeep } from 'lodash';
-import { useDataEnumStore } from '@/store/modules/enums/index';
-
-const dataEnumStore = useDataEnumStore();
 
 const loading = ref(false);
 
-const dateRange = ref<any[]>([]);
+const dateRange = ref<string[]>([]);
 
-const DEFAULT_SEARCH_PARAMS = {
+const DEFAULT_SEARCH_PARAMS: ConsumeBillQuery = {
   pageNum: 1,
   pageSize: 50,
-  endTime: '',
-  module: '',
-  operatorName: '',
   startTime: '',
-  status: undefined,
+  endTime: '',
+  billno: '',
+  name: '',
+  billtype: undefined,
+  billstatus: undefined,
 };
 
-const operModuleOptions = [
-  { value: '', label: '全部模块' },
-  { value: 'system', label: '系统管理' },
-  { value: 'order', label: '订单管理' },
-  { value: 'vip', label: '会员管理' },
-  { value: 'stock', label: '库存管理' },
-  { value: 'payment', label: '支付管理' },
-  { value: 'server', label: '服务管理' },
-  { value: 'room', label: '房间管理' },
-  { value: 'kpi', label: '绩效管理' },
-];
+const searchParams = reactive<ConsumeBillQuery>(cloneDeep(DEFAULT_SEARCH_PARAMS));
 
-const operModuleMap = {
-  system: '系统管理',
-  order: '订单管理',
-  vip: '会员管理',
-  stock: '库存管理',
-  payment: '支付管理',
-  server: '服务管理',
-  room: '房间管理',
-  kpi: '绩效管理',
-};
-const statusOptions = [
-  { value: '', label: '全部' },
-  { value: 0, label: '成功' },
-  { value: 1, label: '失败' },
-];
-
-const searchParams = reactive<Types.SearchOperLogParams>(cloneDeep(DEFAULT_SEARCH_PARAMS));
-
-const tableData = reactive<{ list: Types.OperLogVO[]; total: number }>({
+const tableData = reactive<{ list: ConsumeBill[]; total: number }>({
   list: [],
   total: 0,
 });
 
-// 初始化
-onMounted(async () => {
+const dialogVisible = ref(false);
+const currentBill = ref<ConsumeBill | null>(null);
+
+onMounted(() => {
   search();
-  dataEnumStore.getOrgList();
 });
 
 const resetSearchParams = () => {
@@ -217,37 +208,52 @@ const resetSearchParams = () => {
   search();
 };
 
-const setTableData = async () => {
+const fetchTableData = async () => {
   loading.value = true;
   try {
-    const { data } = await reqOperLogList(searchParams);
-    tableData.total = data.total;
-    tableData.list = data.rows;
+    const params = { ...searchParams };
+    if (Array.isArray(dateRange.value) && dateRange.value.length === 2) {
+      params.startTime = dateRange.value[0];
+      params.endTime = dateRange.value[1];
+    }
+    const res = await reqConsumeBillList(params);
+    tableData.total = res.data.total;
+    tableData.list = res.data.rows;
   } catch (error) {
-    console.error('获取操作日志失败：', error);
+    console.error('获取消费账单列表失败：', error);
   } finally {
     loading.value = false;
   }
 };
 
-// 搜索
 const search = () => {
-  if (Array.isArray(dateRange.value) && dateRange.value.length === 2) {
-    searchParams.startTime = dateRange.value[0];
-    searchParams.endTime = dateRange.value[1];
-  }
-  setTableData();
+  searchParams.pageNum = 1;
+  fetchTableData();
 };
 
-// 处理分页变化
-const handleSizeChange = (val: number) => {
-  searchParams.pageSize = val;
-  search();
+const handleSizeChange = () => {
+  fetchTableData();
 };
 
-const handleCurrentChange = (val: number) => {
-  searchParams.pageNum = val;
-  search();
+const handleCurrentChange = () => {
+  fetchTableData();
+};
+
+const formatTimestamp = (timestamp: number): string => {
+  if (!timestamp) return '-';
+  const date = new Date(timestamp);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
+
+const showDetailDialog = (row: ConsumeBill) => {
+  currentBill.value = cloneDeep(row);
+  dialogVisible.value = true;
 };
 </script>
 

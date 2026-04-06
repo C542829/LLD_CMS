@@ -251,6 +251,15 @@ export const asyncRoute = [
           tabs: ['业绩明细', '业绩汇总'],
         },
       },
+      {
+        path: '/dataGroup/MGJSaleData',
+        component: () => import('@/views/dataGroup/MGJSaleData/index.vue'),
+        name: 'MGJSaleData',
+        meta: {
+          title: '美管家',
+          icon: 'ScaleToOriginal',
+        },
+      },
     ],
   },
 
