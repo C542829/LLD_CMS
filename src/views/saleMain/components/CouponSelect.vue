@@ -6,7 +6,14 @@
       </el-option>
     </el-select>
     <template #reference>
-      <el-button type="primary" link size="large" icon="Ticket" style="transform: scale(1.3)" />
+      <el-button
+        type="primary"
+        link
+        size="large"
+        icon="Ticket"
+        :disabled="!store.isCreated"
+        style="transform: scale(1.3)"
+      />
     </template>
   </el-popover>
 </template>

@@ -66,6 +66,15 @@ onMounted(() => {
 const loading = ref(false);
 
 watch(
+  () => store.order.id,
+  (newVal) => {
+    if (newVal) {
+      checkedList.value = [];
+    }
+  },
+);
+
+watch(
   () => store.order.vipId,
   (newVal) => {
     if (newVal) {
@@ -106,6 +115,8 @@ const getMemberAsset = async (id: number) => {
       // });
     }
     store.member = { ...asset.vipInfoVO, ...asset };
+    // 重置选中资产
+    checkedList.value = [];
   } catch (error) {
   } finally {
     loading.value = false;

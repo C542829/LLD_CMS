@@ -5,6 +5,7 @@ import { OrderSettleDTO } from '@/api/order/types';
  * 默认订单表单数据
  */
 export const DEFAULT_ORDER_FORM: OrderSettleDTO = {
+  id: 0,
   orderId: 0,
   vipId: 0,
   bedId: 0,

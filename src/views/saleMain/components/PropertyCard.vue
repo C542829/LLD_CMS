@@ -6,7 +6,11 @@
         <span class="fin-row-amount">应付: {{ amount }}</span>
       </div>
       <div class="row-item">
-        <el-checkbox :label="discountLabel" :value="data?.discountValue" :disabled="data?.disabled" />
+        <el-checkbox
+          :label="discountLabel"
+          :value="data?.discountValue"
+          :disabled="data?.disabled || !orderStore.isCreated"
+        />
         <span class="fin-row-balance">余额：{{ data?.assetBalance }} 元</span>
       </div>
       <div class="row-item fin-row-org">
@@ -31,6 +35,8 @@ import { computed, onMounted } from 'vue';
 import { DiscountType, discountTypeMap } from '@/enums/index';
 import { reqUpdateAssetRemark } from '@/api/member/member/index';
 import { useDataEnumStore } from '@/store/modules/enums';
+import { useOrderStore } from '@/store/modules/order/index';
+const orderStore = useOrderStore();
 const enumsStore = useDataEnumStore();
 
 interface Props {

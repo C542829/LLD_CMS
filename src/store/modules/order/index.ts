@@ -57,7 +57,10 @@ export const useOrderStore = defineStore('Order', () => {
 
   /** 是否开单 */
   const isCreated = computed(() => {
-    return !!order.value.orderId && order.value.orderId != 0;
+    // if (order.value.id == 0) {
+    //   return false;
+    // }
+    return !!order.value.id && order.value.id != 0;
   });
 
   /** 是否是会员 */

@@ -55,6 +55,9 @@ let currentCoupon: any | null = null;
 
 /** 选择优惠券 */
 const selectCoupon = (item: any) => {
+  if (!store.isCreated) {
+    return;
+  }
   if (item.ticketInfo.ticketType === CouponType.experience) {
     return;
   }

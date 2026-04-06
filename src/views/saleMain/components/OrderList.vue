@@ -8,7 +8,7 @@
         <!-- <el-button type="warning" link size="large" @click="handleApplyModifyAuth">申请改价</el-button> -->
         <EditDiscountPrice @confirm="handleDiscountConfirm">
           <template #reference>
-            <el-button type="success" plain round size="small">打折优惠</el-button>
+            <el-button type="success" plain round size="small" :disabled="!orderStore.isCreated">打折优惠</el-button>
           </template>
         </EditDiscountPrice>
       </div>
@@ -102,7 +102,6 @@ import { isEmpty } from 'lodash';
 import { CouponType, PaymentType, paymentTypeMap, CustomerType } from '@/enums/index';
 import { type Types, reqAddOrder, reqCancelOrder, reqDeleteOrderDetail } from '@/api/order/index';
 import { useOrderStore } from '@/store/modules/order/index';
-import { storeOrgInfo } from '@/store/index';
 import { verifyOrder } from '../utils';
 import { getOrgInfo } from '@/utils/localStorageTools';
 
