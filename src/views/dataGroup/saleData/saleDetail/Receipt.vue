@@ -31,22 +31,20 @@
             <el-table-column prop="quantity" label="数量" />
             <el-table-column prop="truePrice" label="实收金额" :formatter="priceFormatter" />
             <el-table-column label="类型">
-              <template #default="scope">
-                <el-tag :type="getDetailTypeTagType(scope.row.detailType)">
-                  {{ OrderDetailTypeMap[scope.row.detailType] || '未知' }}
-                </el-tag>
+              <template #default="{ row }">
+                <ServiceTypeTag :type="row.detailType" />
               </template>
             </el-table-column>
             <el-table-column label="技师/销售">
-              <template #default="scope">
-                {{ scope.row.userName }}
-                <el-text
-                  v-if="scope.row.detailType === 1 && scope.row.serverType !== null"
-                  type="primary"
-                  style="font-weight: bold; margin-left: 8px"
-                >
-                  [{{ ServiceTypeMap[scope.row.serverType] || scope.row.serverType }}]
-                </el-text>
+              <template #default="{ row }">
+                <template v-if="row.technicians">
+                  {{ row.technicians.map((item: any) => item.userName).join('、') }}
+                  <ClockInTypeTag :type="row.serverType" />
+                </template>
+                <template v-else>
+                  {{ row.userName }}
+                  <ClockInTypeTag :type="row.serverType" />
+                </template>
               </template>
             </el-table-column>
             <el-table-column prop="remark" label="备注" />

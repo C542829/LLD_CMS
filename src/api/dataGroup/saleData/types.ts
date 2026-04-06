@@ -344,3 +344,265 @@ export interface PaymentVO {
 }
 
 // #endregion 销售数据
+
+// #region 销售汇总
+/**
+ * 销售汇总查询参数
+ */
+export interface SaleSummaryQuery {
+  /**
+   * 日期查询范围
+   */
+  date?: string[];
+  /**
+   * 门店ID列表，不传则查全部关联门店
+   */
+  orgIds?: number[];
+  [property: string]: any;
+}
+
+/**
+ * 销售汇总响应VO
+ *
+ * OrderSummaryVO
+ */
+export interface OrderSummaryVO {
+  /**
+   * 现金支付金额
+   */
+  cashPayment?: number;
+  /**
+   * 现金充值金额
+   */
+  cashRecharge?: number;
+  /**
+   * 销售数据创建时间
+   */
+  createTime?: string;
+  /**
+   * 抖音支付金额
+   */
+  douyinPayment?: number;
+  /**
+   * 主键
+   */
+  id?: number;
+  /**
+   * 美团支付金额
+   */
+  meituanPayment?: number;
+  /**
+   * 会员卡支付金额
+   */
+  memberCardPayment?: number;
+  /**
+   * 门店编码
+   */
+  orgCode?: string;
+  /**
+   * 机构id
+   */
+  orgId?: number;
+  /**
+   * 门店名称
+   */
+  orgName?: string;
+  /**
+   * 其他方式充值
+   */
+  otherRecharge?: number;
+  /**
+   * POS支付金额
+   */
+  posPayment?: number;
+  /**
+   * 扫码支付金额
+   */
+  qrPayment?: number;
+  /**
+   * 销售日期
+   */
+  statsDate?: string;
+  /**
+   * 总实收金额
+   */
+  totalActualReceipt?: number;
+  /**
+   * 总人次
+   */
+  totalPeopleTime?: number;
+  /**
+   * 总项目数
+   */
+  totalProjectCount?: number;
+  /**
+   * 总单次数量
+   */
+  totalSingleTime?: number;
+  /**
+   * 总营业额
+   */
+  totalTurnover?: number;
+  /**
+   * 微信充值金额
+   */
+  wechatRecharge?: number;
+  [property: string]: any;
+}
+
+// #endregion 销售汇总
+
+// #region 销售明细
+
+/**
+ * OrderDetailPageQuery
+ */
+export interface OrderDetailPageQuery {
+  /**
+   * 业务编码
+   */
+  businessCode?: string;
+  /**
+   * 搜索日期范围
+   */
+  date?: string[];
+  /**
+   * 门店ID列表，不传则查全部关联门店
+   */
+  orgIds?: number[];
+  /**
+   * 当前页码
+   */
+  pageNum: number;
+  /**
+   * 每页大小
+   */
+  pageSize: number;
+  /**
+   * 销售员id
+   */
+  userId?: number;
+  [property: string]: any;
+}
+
+/**
+ * 订单明细响应VO
+ *
+ * OrderDetailVO
+ */
+export interface OrderDetailVO {
+  /**
+   * 订单业务ID
+   */
+  bid?: number;
+  /**
+   * 业务编码
+   */
+  businessCode?: string;
+  /**
+   * 业务名称（产品名称、服务名称或疗程券名称）
+   */
+  businessName?: string;
+  /**
+   * 创建时间
+   */
+  createTime?: string;
+  /**
+   * 明细编号
+   */
+  detailCode?: string;
+  /**
+   * 业务类型（0 产品，1 服务，2 疗程券）
+   */
+  detailType?: number;
+  /**
+   * 主键ID
+   */
+  id?: number;
+  /**
+   * 订单编号
+   */
+  orderCode?: string;
+  /**
+   * 订单ID
+   */
+  orderId?: number;
+  /**
+   * 订单状态
+   */
+  orderStatus?: number;
+  /**
+   * 门店编码
+   */
+  orgCode?: string;
+  /**
+   * 门店ID
+   */
+  orgId?: number;
+  /**
+   * 门店名称
+   */
+  orgName?: string;
+  /**
+   * 销售数量
+   */
+  quantity?: number;
+  /**
+   * 备注信息
+   */
+  remark?: string;
+  /**
+   * 上钟类型（0 点钟，1 加钟，2 轮牌）
+   */
+  serverType?: number;
+  /**
+   * 结算时间
+   */
+  settledTime?: string;
+  /**
+   * 标准价格
+   */
+  stdPrice?: number;
+  /**
+   * 技师列表
+   */
+  technicians?: OrderDetailTechnicianDTO[];
+  /**
+   * 实际单价
+   */
+  truePrice?: number;
+  /**
+   * 更新时间
+   */
+  updateTime?: string;
+  /**
+   * 员工ID
+   */
+  userId?: number;
+  /**
+   * 员工名称
+   */
+  userName?: string;
+  /**
+   * VIP价格
+   */
+  vipPrice?: number;
+}
+
+/**
+ * org.haut.common.domain.dto.order.OrderDetailTechnicianDTO
+ *
+ * OrderDetailTechnicianDTO
+ */
+export interface OrderDetailTechnicianDTO {
+  /**
+   * 技师ID
+   */
+  userId: number;
+  /**
+   * 技师姓名
+   */
+  userName?: string;
+}
+
+// #endregion 销售明细

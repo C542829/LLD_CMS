@@ -2,26 +2,21 @@
   <div class="main-container">
     <!-- 数据筛选 -->
     <Card class="operation-card">
-      <!-- 第一行 -->
       <div class="search-container">
         <div class="search-item">
           <label>
             开单时段：
-            <DatePicker v-model="store.searchParams.date" style="width: 260px" />
+            <DatePicker v-model="searchParams.date" class="w-240" @change="search" />
           </label>
         </div>
-      </div>
-
-      <!-- 第二行 -->
-      <div class="search-container">
         <template v-if="userStore.isAdmin || userStore.isAreaManager">
           <div class="search-item">
             <label>
               门店：
               <OrgSelect
-                v-model="store.searchParams.orgIds"
+                v-model="searchParams.orgIds"
                 placeholder="门店"
-                class="w-120"
+                class="w-100"
                 :multiple="true"
                 @change="search"
                 @clear="search"
@@ -33,7 +28,7 @@
           <label>
             销售员：
             <UserSelect
-              v-model="store.searchParams.userId"
+              v-model="searchParams.userId"
               placeholder="销售员"
               class="w-100"
               :multiple="false"
@@ -42,7 +37,7 @@
             />
           </label>
         </div>
-        <div class="search-item">
+        <!-- <div class="search-item">
           <label>
             产品：
             <ProductSelect
@@ -54,8 +49,8 @@
               @clear="search"
             />
           </label>
-        </div>
-        <div class="search-item">
+        </div> -->
+        <!-- <div class="search-item">
           <label>
             项目：
             <ServiceItemSelect
@@ -67,25 +62,25 @@
               @clear="search"
             />
           </label>
-        </div>
+        </div> -->
         <div class="search-item">
           <el-button type="primary" @click="search">搜索</el-button>
         </div>
-        <div class="search-item">
+        <!-- <div class="search-item">
           <el-button type="primary" @click="">导出表格</el-button>
-        </div>
+        </div> -->
       </div>
     </Card>
 
     <!-- 数据列表 -->
     <Card padding="0">
       <PaginationTable
-        v-loading="settingStore.loading && !dialog.visible"
-        :element-loading-text="settingStore.loadingMsg"
-        :data="store.saleDetail.data"
-        :total="store.saleDetail.total"
-        v-model:currentPage="store.searchParams.pageNum"
-        v-model:pageSize="store.searchParams.pageSize"
+        v-loading="loading"
+        :element-loading-text="LOADING_MSG"
+        :data="saleDetail.data"
+        :total="saleDetail.total"
+        v-model:currentPage="searchParams.pageNum"
+        v-model:pageSize="searchParams.pageSize"
         @size-change="handleSizeChange"
         @pagination-current-change="handleCurrentChange"
       >
@@ -99,28 +94,27 @@
             <p>标准价：¥{{ scope.row.stdPrice }}</p>
           </template>
         </el-table-column>
-
         <el-table-column label="实收单价/销售数量">
           <template #default="scope">
             <p>实收单价：¥{{ scope.row.truePrice }}</p>
             <p>销售数量：{{ scope.row.quantity }}</p>
           </template>
         </el-table-column>
-
         <el-table-column label="类型">
-          <template #default="scope">
-            <el-tag :type="getDetailTypeTagType(scope.row.detailType)">
-              {{ OrderDetailTypeMap[scope.row.detailType as keyof typeof OrderDetailTypeMap] || '未知' }}
-            </el-tag>
+          <template #default="{ row }">
+            <ServiceTypeTag :type="row.detailType" />
           </template>
         </el-table-column>
-
         <el-table-column label="技师/销售">
-          <template #default="scope">
-            技师：{{ scope.row.userId }}({{ scope.row.userName }})
-            <el-text v-if="scope.row.detailType === 1" type="primary" style="font-weight: bold">
-              [{{ ServiceTypeMap[scope.row.serverType] || scope.row.serverType }}]
-            </el-text>
+          <template #default="{ row }">
+            <template v-if="row.technicians">
+              {{ row.technicians.map((item: any) => item.userName).join('、') }}
+              <ClockInTypeTag :type="row.serverType" />
+            </template>
+            <template v-else>
+              {{ row.userName }}
+              <ClockInTypeTag :type="row.serverType" />
+            </template>
           </template>
         </el-table-column>
         <el-table-column prop="settledTime" label="结算时间" :formatter="datetimeFormatter" />
@@ -140,7 +134,7 @@
     </Card>
   </div>
 
-  <el-dialog v-model="dialog.visible" title="收银单据" width="80%" :close-on-click-modal="false">
+  <el-dialog v-model="dialog.visible" title="销售单据" width="800px">
     <Receipt :orderData="currentOrderData" />
   </el-dialog>
 </template>
@@ -148,86 +142,78 @@
 <script setup lang="ts">
 import ProductSelect from '@/components/FormComponents/ProductSelect.vue';
 import ServiceItemSelect from '@/components/FormComponents/ServiceItemSelect.vue';
-import { reactive, inject, onMounted, ref } from 'vue';
+import { reactive, onMounted, ref } from 'vue';
 import { datetimeFormatter } from '@/utils/formatter';
-import { OrderDetailTypeMap, ServiceTypeMap } from '@/enums';
 import Receipt from './Receipt.vue';
 import { ElMessage } from 'element-plus';
-// 引入数据仓库
-import { useSettingStore } from '@/store/modules/acl/setting';
-import { useSaleStore } from '@/store/modules/dataGroup/saleData';
-import { useDataEnumStore } from '@/store/modules/enums/index';
+import { reqSaleDetail, reqOrderInfo } from '@/api/dataGroup/saleData';
+import { parseResObj } from '@/utils/parseResponse';
+import { LOADING_MSG } from '@/utils/constant';
 import useUserStore from '@/store/modules/acl/user';
 
 const userStore = useUserStore();
-const settingStore = useSettingStore();
-const store = useSaleStore();
-const dataEnumStore = useDataEnumStore();
 
-// 销售员列表
-const staffList: any = ref([]);
-const getStaffList = async () => {
-  try {
-    staffList.value = await dataEnumStore.getStaffList();
-  } catch (error) {
-    console.error('加载销售员列表失败:', error);
-  }
-};
-
-// 初始化
 onMounted(() => {
-  getStaffList();
-  store.setSaleDetail();
+  search();
 });
 
-// 搜索
 const search = () => {
-  store.setSaleDetail();
+  setSaleDetail();
 };
 
-// 处理分页变化
 const handleSizeChange = (val: number) => {
-  store.searchParams.pageSize = val;
-  store.setSaleDetail();
+  searchParams.pageSize = val;
+  search();
 };
 
 const handleCurrentChange = (val: number) => {
-  store.searchParams.pageNum = val;
-  store.setSaleDetail();
+  searchParams.pageNum = val;
+  search();
 };
 
-// 模态框
-const dialog: any = reactive({
-  title: '修改单据',
+const loading = ref(false);
+
+const searchParams = reactive({
+  pageNum: 1,
+  pageSize: 50,
+  date: [] as string[],
+  orgIds: [] as number[],
+  userId: undefined as number | undefined,
+  businessCode: '',
+});
+
+const saleDetail = reactive({
+  total: 0,
+  data: [] as any[],
+});
+
+const setSaleDetail = async () => {
+  loading.value = true;
+  try {
+    const params = { ...searchParams };
+    const res = await reqSaleDetail(params);
+    const data: any = parseResObj(res) || {};
+    saleDetail.total = data.total;
+    saleDetail.data = data.rows;
+  } catch (error) {
+    console.error('获取订单详情失败:', error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const dialog = reactive({
   visible: false,
 });
 
-// 当前订单数据
 const currentOrderData = ref(null);
 const loadingOrderCode = ref('');
-
-// 获取明细类型标签颜色
-const getDetailTypeTagType = (detailType: number) => {
-  switch (detailType) {
-    case 0:
-      return 'success'; // 产品
-    case 1:
-      return 'primary'; // 项目
-    case 2:
-      return 'warning'; // 疗程
-    case 3:
-      return 'info'; // 套餐
-    default:
-      return '';
-  }
-};
 
 const showDialog = async (row: any) => {
   try {
     loadingOrderCode.value = row.orderCode;
-
-    // 获取订单详情
-    const orderData = await store.getOrderInfo(row.orderCode);
+    const res = await reqOrderInfo(row.orderCode);
+    const orderData = parseResObj(res);
 
     if (orderData) {
       currentOrderData.value = orderData;

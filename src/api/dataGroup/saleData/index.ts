@@ -35,14 +35,15 @@ export const reqSaleRecord = (
  * @param data
  * @returns
  */
-export const reqSaleDetail = (data = {}) => post(API.SALE_DETAIL, data);
+export const reqSaleDetail = (data: Types.OrderDetailPageQuery): ApiResponse<PageListInfo<Types.OrderDetailVO[]>> =>
+  post(API.SALE_DETAIL, data);
 
 /**
  * 获取销售汇总
  * @param data
  * @returns
  */
-export const reqSaleSummary = (data = {}) => post(API.SALE_SUMMARY, data);
+export const reqSaleSummary = (data = {}): ApiResponse<Types.OrderSummaryVO[]> => post(API.SALE_SUMMARY, data);
 
 /**
  * 根据订单编号查询订单信息

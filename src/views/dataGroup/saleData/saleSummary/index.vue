@@ -4,21 +4,10 @@
     <Card class="operation-card">
       <!-- 第一行 -->
       <div class="search-container">
-        <div class="search-item" v-if="false">
-          <label for="staffStatus">选择店铺：</label>
-          <el-select v-model="store.searchParams.storeId" id="staffStatus" style="width: 120px" placeholder="选择店铺">
-            <el-option
-              v-for="item in [{ value: 1, label: '' }]"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
-        </div>
         <div class="search-item">
           <label>
             销售时段：
-            <DatePicker v-model="store.searchParams.date" style="width: 260px" />
+            <DatePicker v-model="searchParams.date" class="w-240" @change="search" />
           </label>
         </div>
         <template v-if="userStore.isAdmin || userStore.isAreaManager">
@@ -26,7 +15,7 @@
             <label>
               门店：
               <OrgSelect
-                v-model="store.searchParams.orgIds"
+                v-model="searchParams.orgIds"
                 placeholder="门店"
                 class="w-120"
                 :multiple="true"
@@ -39,18 +28,18 @@
         <div class="search-item">
           <el-button type="primary" @click="search">搜索</el-button>
         </div>
-        <div class="search-item">
+        <!-- <div class="search-item">
           <el-button type="primary" @click="">导出表格</el-button>
-        </div>
+        </div> -->
       </div>
     </Card>
 
     <!-- 数据列表 -->
     <Card padding="0">
       <PaginationTable
-        v-loading="settingStore.loading"
-        :element-loading-text="settingStore.loadingMsg"
-        :data="store.saleSummary.data"
+        v-loading="loading"
+        :element-loading-text="LOADING_MSG"
+        :data="saleSummary.data"
         :showPagination="false"
         show-summary
       >
@@ -62,47 +51,66 @@
         <el-table-column prop="totalSingleTime" label="总单次" width="80" />
         <el-table-column prop="totalPeopleTime" label="总人次" width="80" />
         <el-table-column prop="totalProjectCount" label="总项目数" width="85" />
-        <el-table-column prop="refundAmount" label="退卡金额" width="85" />
-        <el-table-column prop="managerSignAmount" label="经理签单金额" width="110" />
-        <el-table-column prop="alipayRecharge" label="支付宝充值" width="95" />
-        <el-table-column prop="bankCardRecharge" label="银行卡充值" width="95" />
-        <el-table-column prop="cashRecharge" label="现金充值" width="85" />
-        <el-table-column prop="wechatRecharge" label="微信充值" width="85" />
-        <el-table-column prop="otherRecharge" label="其他方式充值" width="110" />
-        <el-table-column prop="alipayPayment" label="支付宝支付" width="95" />
-        <el-table-column prop="bankCardPayment" label="银行卡支付" width="95" />
+        <el-table-column prop="qrPayment" label="扫码支付" width="85" />
         <el-table-column prop="cashPayment" label="现金支付" width="85" />
-        <el-table-column prop="wechatPayment" label="微信支付" width="85" />
-        <el-table-column prop="electronicCouponPayment" label="电子优惠券支付" width="125" />
-        <el-table-column prop="physicalCouponPayment" label="实体优惠券支付" width="125" />
-        <el-table-column prop="membershipCardPayment" label="会员卡支付" width="95" />
-        <el-table-column prop="otherPayment" label="其他方式支付" width="110" />
+        <el-table-column prop="memberCardPayment" label="会员卡支付" width="95" />
+        <el-table-column prop="posPayment" label="POS" width="85" />
+        <el-table-column prop="meituanPayment" label="美团支付" width="85" />
+        <el-table-column prop="douyinPayment" label="抖音支付" width="85" />
+        <el-table-column prop="cashRecharge" label="现金充值" width="85" />
+        <!-- <el-table-column prop="wechatRecharge" label="微信充值" width="85" /> -->
+        <el-table-column prop="otherRecharge" label="其他方式充值" width="110" />
       </PaginationTable>
     </Card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
+import { isEmpty } from 'lodash';
+import { reqSaleSummary } from '@/api/dataGroup/saleData';
+import { OrderSummaryVO } from '@/api/dataGroup/saleData/types';
 import { dateFormatter } from '@/utils/formatter';
-
-// 引入数据仓库
-import { useSettingStore } from '@/store/modules/acl/setting';
-import { useSaleStore } from '@/store/modules/dataGroup/saleData';
+import { LOADING_MSG } from '@/utils/constant';
 import useUserStore from '@/store/modules/acl/user';
 
 const userStore = useUserStore();
-const settingStore = useSettingStore();
-const store = useSaleStore();
 
 // 初始化
 onMounted(() => {
-  store.setSaleSummary();
+  search();
 });
 
 // 搜索
 const search = () => {
-  store.setSaleSummary();
+  setSaleSummary();
+};
+
+const loading = ref(false);
+
+const searchParams = reactive({
+  date: [],
+  orgIds: [],
+});
+
+const saleSummary = reactive<{
+  total: number;
+  data: OrderSummaryVO[];
+}>({
+  total: 0,
+  data: [],
+});
+
+const setSaleSummary = async () => {
+  loading.value = true;
+  try {
+    const res = await reqSaleSummary(searchParams);
+    saleSummary.data = res.data || [];
+  } catch (error) {
+    console.error('获取订单汇总失败:', error);
+  } finally {
+    loading.value = false;
+  }
 };
 </script>
 
