@@ -27,8 +27,8 @@ const store = useOrderStore();
 // 添加支付方式
 const addPaymentMethod = () => {
   store.order.paymentInfoList.push({
-    paymentType: PaymentType.WeChat,
-    paymentName: paymentTypeMap[PaymentType.WeChat],
+    paymentType: PaymentType.QR,
+    paymentName: paymentTypeMap[PaymentType.QR],
     paymentAmount: 0,
     assetCode: '',
   });

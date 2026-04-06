@@ -298,8 +298,8 @@ const handleSettle = () => {
     );
     if (totalTruePayment < orderStore.truePayAmount) {
       orderStore.order.paymentInfoList.push({
-        paymentType: PaymentType.WeChat,
-        paymentName: paymentTypeMap[PaymentType.WeChat],
+        paymentType: PaymentType.QR,
+        paymentName: paymentTypeMap[PaymentType.QR],
         paymentAmount: orderStore.truePayAmount - totalTruePayment,
         assetCode: '',
       });
@@ -307,8 +307,8 @@ const handleSettle = () => {
     settleDialogVisible.value = true;
   } else {
     orderStore.order.paymentInfoList.push({
-      paymentType: PaymentType.WeChat,
-      paymentName: paymentTypeMap[PaymentType.WeChat],
+      paymentType: PaymentType.QR,
+      paymentName: paymentTypeMap[PaymentType.QR],
       paymentAmount: orderStore.truePayAmount,
       assetCode: '',
     });

@@ -258,40 +258,35 @@ export const couponTypeOptions = [
  * 支付类型枚举
  */
 export enum PaymentType {
-  WeChat = 0,
-  Alipay = 1,
-  Cash = 2,
-  MemberCard = 3,
-  BankCard = 4,
+  QR = 0, // 扫码
+  Cash = 1, // 现金
+  POS = 2, // POS
+  DouYi = 3, // 抖音
+  MeiTuan = 4, // 美团
+  MemberCard = 5, // 会员卡
 }
-// export enum PaymentType {
-//   QR = 0,
-//   Cash = 1,
-//   POS = 2,
-//   DouYi = 3,
-//   MeiTuan = 4,
-//   MemberCard = 5,
-// }
-/**
- * 支付类型
- */
-export const paymentTypeOptions = [
-  { value: PaymentType.WeChat, label: '微信' },
-  { value: PaymentType.Alipay, label: '支付宝' },
-  { value: PaymentType.Cash, label: '现金' },
-  { value: PaymentType.MemberCard, label: '会员卡' },
-  { value: PaymentType.BankCard, label: '银行卡' },
-];
 /**
  * 支付类型映射
  */
 export const paymentTypeMap = {
-  [PaymentType.WeChat]: '微信',
-  [PaymentType.Alipay]: '支付宝',
+  [PaymentType.QR]: '扫码',
   [PaymentType.Cash]: '现金',
+  [PaymentType.POS]: 'POS',
+  [PaymentType.DouYi]: '抖音',
+  [PaymentType.MeiTuan]: '美团',
   [PaymentType.MemberCard]: '会员卡',
-  [PaymentType.BankCard]: '银行卡',
 };
+/**
+ * 支付类型
+ */
+export const paymentTypeOptions = [
+  { value: PaymentType.QR, label: '扫码' },
+  { value: PaymentType.Cash, label: '现金' },
+  { value: PaymentType.MemberCard, label: '会员卡' },
+  { value: PaymentType.DouYi, label: '抖音' },
+  { value: PaymentType.MeiTuan, label: '美团' },
+  { value: PaymentType.POS, label: 'POS' },
+];
 // #endregion 支付类型
 
 // #region 充值状态
@@ -397,13 +392,14 @@ export enum OrderDetailType {
   Product = 0,
   Service = 1,
   TreatmentCoupon = 2,
-  Package = 3,
+  Recharge = 3,
+  // Package = 3,
 }
 export const OrderDetailTypeMap = {
   [OrderDetailType.Product]: '产品',
   [OrderDetailType.Service]: '项目',
   [OrderDetailType.TreatmentCoupon]: '疗程',
-  [OrderDetailType.Package]: '套餐',
+  [OrderDetailType.Recharge]: '充值',
 };
 /**
  * 订单明细类型
