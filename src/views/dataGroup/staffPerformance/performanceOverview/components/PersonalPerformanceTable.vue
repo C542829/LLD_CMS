@@ -1,8 +1,8 @@
 <template>
-  <div style="width: 85%; height: 500px; margin: 12px auto">
+  <div style="width: 85%; height: 400px; margin: 12px auto">
     <PaginationTable
       v-loading="loading"
-      :element-loading-text="settingStore.loadingMsg"
+      :element-loading-text="LOADING_MSG"
       :data="performanceRecord"
       :total="pageInfo.total"
       v-model:currentPage="pageInfo.pageNum"
@@ -33,11 +33,6 @@
       <el-table-column prop="userName" label="提成技师" />
       <el-table-column prop="performance" label="业绩金额" />
       <el-table-column prop="commission" label="提成金额" />
-      <!-- <el-table-column label="操作" width="100">
-                  <template #default="scope">
-                    <el-button @click="showDialog(scope.row)" link type="primary">查看原单</el-button>
-                  </template>
-                </el-table-column> -->
     </PaginationTable>
   </div>
 </template>
@@ -45,9 +40,9 @@
 <script setup lang="ts">
 import { ref, reactive, withDefaults, watch } from 'vue';
 import { reqPerformanceRecord } from '@/api/dataGroup/staffPerformance/index';
-import { dateFormatter } from '@/utils/time';
+import { dateFormatter } from '@/utils/formatter';
+import { LOADING_MSG } from '@/utils/constant';
 import { OrderDetailType, ServiceType } from '@/enums/index';
-import { useSettingStore } from '@/store/modules/acl/setting';
 
 interface Props {
   data: any;
@@ -56,8 +51,6 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   data: () => ({}),
 });
-
-const settingStore = useSettingStore();
 
 const loading = ref(false);
 const performanceRecord = ref<any>([]);

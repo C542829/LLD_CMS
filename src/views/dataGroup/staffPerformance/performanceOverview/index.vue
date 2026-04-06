@@ -7,7 +7,7 @@
         <div class="search-item">
           <label>
             销售时段：
-            <DatePicker v-model="store.searchParams.date" @change="search" style="width: 260px" />
+            <DatePicker v-model="searchParams.date" @change="search" style="width: 260px" />
           </label>
         </div>
       </div>
@@ -19,7 +19,7 @@
             <label>
               门店：
               <OrgSelect
-                v-model="store.searchParams.orgIds"
+                v-model="searchParams.orgIds"
                 placeholder="门店"
                 class="w-120"
                 :multiple="true"
@@ -33,7 +33,7 @@
           <label>
             技师：
             <UserSelect
-              v-model="store.searchParams.userId"
+              v-model="searchParams.userId"
               placeholder="技师"
               class="w-100"
               :multiple="false"
@@ -54,11 +54,11 @@
       <PaginationTable
         v-loading="settingStore.loading"
         :element-loading-text="settingStore.loadingMsg"
-        :data="store.performanceSummary"
+        :data="performanceSummary"
         :showPagination="false"
         show-summary
         style="width: 100%"
-        row-key="userName"
+        row-key="userId"
       >
         <el-table-column type="expand" width="60" fixed>
           <template #default="{ row }">
@@ -88,18 +88,30 @@
 </template>
 
 <script setup lang="ts">
-import PersonalPerformanceTable from '../components/PersonalPerformanceTable.vue';
-import { ref, reactive, onMounted } from 'vue';
+import PersonalPerformanceTable from './components/PersonalPerformanceTable.vue';
+import { ref, onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
-import { useStaffPerformanceStore } from '@/store/modules/dataGroup/staffPerformance';
 import { useDataEnumStore } from '@/store/modules/enums/index';
 import useUserStore from '@/store/modules/acl/user';
+import { reqPerformanceSummary } from '@/api/dataGroup/staffPerformance/index';
+import type { KpiSummaryQuery, KpiSummaryVO } from '@/api/dataGroup/staffPerformance/types';
+import { parseResList } from '@/utils/parseResponse';
 
 const userStore = useUserStore();
 const settingStore = useSettingStore();
-const store = useStaffPerformanceStore();
 const dataEnumStore = useDataEnumStore();
+
+// 搜索参数
+const searchParams = ref<KpiSummaryQuery>({
+  date: [],
+  orgIds: [],
+  userId: undefined,
+});
+
+// 绩效汇总数据
+const performanceSummary = ref<KpiSummaryVO[]>([]);
 
 // 技师列表
 const staffList: any = ref([]);
@@ -111,15 +123,33 @@ const loadStaffList = async () => {
   }
 };
 
+/**
+ * 获取绩效汇总数据
+ */
+const setPerformanceSummary = async () => {
+  try {
+    settingStore.loading = true;
+    const params = { ...searchParams.value };
+    const res = await reqPerformanceSummary(params);
+    const data: any = parseResList(res);
+    performanceSummary.value = data || [];
+  } catch (error) {
+    console.error('获取绩效汇总失败:', error);
+    ElMessage.error('获取绩效汇总失败');
+  } finally {
+    settingStore.loading = false;
+  }
+};
+
 // 初始化
 onMounted(() => {
   loadStaffList();
-  store.setPerformanceSummary();
+  setPerformanceSummary();
 });
 
 // 搜索
 const search = () => {
-  store.setPerformanceSummary();
+  setPerformanceSummary();
 };
 </script>
 

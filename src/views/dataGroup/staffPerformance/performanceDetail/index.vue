@@ -4,23 +4,10 @@
     <Card class="operation-card">
       <!-- 第一行 -->
       <div class="search-container">
-        <div class="search-item" v-if="false">
-          <label>
-            选择门店：
-            <el-select v-model="store.searchParams.storeId" clearable style="width: 120px" placeholder="选择门店">
-              <el-option
-                v-for="item in [{ value: 1, label: '' }]"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </label>
-        </div>
         <div class="search-item">
           <label>
             开单时段：
-            <DatePicker v-model="store.searchParams.date" style="width: 260px" />
+            <DatePicker v-model="searchParams.date" style="width: 260px" />
           </label>
         </div>
       </div>
@@ -32,7 +19,7 @@
             <label>
               门店：
               <OrgSelect
-                v-model="store.searchParams.orgIds"
+                v-model="searchParams.orgIds"
                 placeholder="门店"
                 class="w-120"
                 :multiple="true"
@@ -42,11 +29,11 @@
             </label>
           </div>
         </template>
-        <div class="search-item">
+        <!-- <div class="search-item">
           <label>
             产品：
             <ProductSelect
-              v-model="store.searchParams.serviceCode"
+              v-model="searchParams.serviceCode"
               placeholder="选择产品"
               class="w-100"
               :multiple="false"
@@ -54,12 +41,12 @@
               @clear="search"
             />
           </label>
-        </div>
+        </div> -->
         <div class="search-item">
           <label>
             项目：
             <ServiceItemSelect
-              v-model="store.searchParams.serviceCode"
+              v-model="searchParams.serviceCode"
               placeholder="选择项目"
               class="w-100"
               :multiple="false"
@@ -72,7 +59,7 @@
           <label>
             提成技师：
             <UserSelect
-              v-model="store.searchParams.userId"
+              v-model="searchParams.userId"
               placeholder="技师"
               class="w-100"
               :multiple="false"
@@ -82,13 +69,7 @@
           </label>
         </div> -->
         <div class="search-item">
-          <el-input
-            v-model="store.searchParams.username"
-            clearable
-            @clear="search"
-            placeholder="技师姓名"
-            class="w-100"
-          />
+          <el-input v-model="searchParams.username" clearable @clear="search" placeholder="技师姓名" class="w-100" />
         </div>
         <div class="search-item">
           <el-button type="primary" @click="search">搜索</el-button>
@@ -99,185 +80,211 @@
     <!-- 数据列表 -->
     <Card padding="0">
       <PaginationTable
-        v-loading="settingStore.loading"
-        :element-loading-text="settingStore.loadingMsg"
-        :data="store.performanceRecord.data"
-        :total="store.performanceRecord.total"
-        v-model:currentPage="store.searchParams.pageNum"
-        v-model:pageSize="store.searchParams.pageSize"
+        v-loading="loading"
+        :element-loading-text="LOADING_MSG"
+        :data="performanceRecord.data"
+        :total="performanceRecord.total"
+        v-model:currentPage="searchParams.pageNum"
+        v-model:pageSize="searchParams.pageSize"
         @size-change="handleSizeChange"
         @pagination-current-change="handleCurrentChange"
         show-summary
       >
-        <el-table-column type="index" label="序号" width="60" />
-        <el-table-column prop="orgName" label="门店" min-width="40" />
-        <el-table-column prop="createTime" label="业绩日期" :formatter="dateFormatter" />
-        <el-table-column label="订单编号" width="200">
-          <template #default="scope">
-            {{ scope.row.orderCode }}
-          </template>
-        </el-table-column>
+        <el-table-column type="index" label="序号" align="center" width="60" />
+        <el-table-column prop="orgName" label="门店" min-width="50" />
+        <el-table-column prop="createTime" label="业绩日期" min-width="60" />
+        <el-table-column label="订单编号" prop="orderCode" min-width="60" />
         <el-table-column prop="serviceName" label="项目/产品/疗程名称" width="155" />
-        <el-table-column label="类型">
-          <template #default="scope">
-            {{ formatServiceType(scope.row.serviceType) }}
+        <el-table-column label="类型" align="center" width="70">
+          <template #default="{ row }">
+            <ServiceTypeTag :type="row.serviceType" />
           </template>
         </el-table-column>
-        <el-table-column label="上钟类型">
-          <template #default="scope">
-            {{ formatPerfType(scope.row.itemType) }}
+        <el-table-column label="上钟类型" align="center" width="90">
+          <template #default="{ row }">
+            <ClockInTypeTag :type="row.itemType as ServiceType" />
           </template>
         </el-table-column>
-        <el-table-column prop="quantity" label="数量" />
-        <el-table-column prop="userName" label="提成技师" />
-        <el-table-column prop="performance" label="业绩金额" />
-        <el-table-column prop="commission" label="提成金额" />
-        <el-table-column label="操作" width="100">
-          <template #default="scope">
-            <el-button @click="showDialog(scope.row)" link type="primary">查看原单</el-button>
+        <el-table-column prop="quantity" label="数量" align="center" width="70" />
+        <el-table-column prop="userName" label="提成技师" align="center" min-width="50" />
+        <el-table-column prop="performance" label="业绩金额" align="center" min-width="50" />
+        <el-table-column prop="commission" label="提成金额" align="center" min-width="50" />
+        <el-table-column label="操作" min-width="50">
+          <template #default="{ row }">
+            <el-button @click="showDialog(row)" link type="primary">查看原单</el-button>
           </template>
         </el-table-column>
       </PaginationTable>
     </Card>
   </div>
 
-  <el-dialog v-model="dialog.visible" title="收银单据" width="800px">
-    <Receipt :receiptInfo="receiptInfo" />
-  </el-dialog>
+  <ReceiptDialog v-model="dialog.visible" :data="dialog.data" />
 </template>
 
 <script setup lang="ts">
 import ProductSelect from '@/components/FormComponents/ProductSelect.vue';
 import ServiceItemSelect from '@/components/FormComponents/ServiceItemSelect.vue';
-import Receipt from './Receipt.vue';
+import ReceiptDialog from './components/ReceiptDialog.vue';
 import { ref, reactive, onMounted, computed } from 'vue';
 import { ElMessage } from 'element-plus';
-import { dateFormatter } from '@/utils/time';
-import { useSettingStore } from '@/store/modules/acl/setting';
-import { useStaffPerformanceStore } from '@/store/modules/dataGroup/staffPerformance';
-import { useEnumStore, useDataEnumStore } from '@/store/modules/enums/index';
+import { reqPerformanceRecord } from '@/api/dataGroup/staffPerformance/index';
+import type { KpiListQuery, KpiListVO } from '@/api/dataGroup/staffPerformance/types';
+import { parseResObj } from '@/utils/parseResponse';
+import { OrderDetailType, ServiceType } from '@/enums';
+import { LOADING_MSG } from '@/utils/constant';
+// import { useEnumStore, useDataEnumStore } from '@/store/modules/enums/index';
 import useUserStore from '@/store/modules/acl/user';
+
 const userStore = useUserStore();
-const settingStore = useSettingStore();
-const store = useStaffPerformanceStore();
-const enumStore = useEnumStore();
-const dataEnumStore = useDataEnumStore();
+// const enumStore = useEnumStore();
+// const dataEnumStore = useDataEnumStore();
 
-// 上钟类型字典数据
-const perfTypeList = ref<any[]>([]);
-// 服务类型字典数据
-const serviceTypeList = ref<any[]>([]);
+const loading = ref<boolean>(false);
 
-// 获取上钟类型字典数据
-const loadPerfTypeList = async () => {
-  try {
-    perfTypeList.value = await enumStore.getPerfTypeList();
-  } catch (error) {
-    console.error('获取上钟类型字典失败:', error);
-    perfTypeList.value = [];
-  }
-};
-
-// 获取服务类型字典数据
-const loadServiceTypeList = async () => {
-  try {
-    serviceTypeList.value = await enumStore.getServiceTypeList();
-  } catch (error) {
-    console.error('获取服务类型字典失败:', error);
-    serviceTypeList.value = [];
-  }
-};
-
-// 技师列表
-const staffList: any = ref([]);
-const loadStaffList = async () => {
-  try {
-    staffList.value = await dataEnumStore.getStaffList();
-  } catch (error) {
-    console.error('加载技师列表失败:', error);
-  }
-};
-
-// 上钟类型映射计算属性
-const perfTypeMap = computed(() => {
-  const map = new Map();
-  perfTypeList.value.forEach((item: any) => {
-    map.set(item.itemValue, item.itemLabel);
-  });
-  return map;
+// 搜索参数
+const searchParams = ref<KpiListQuery>({
+  pageNum: 1,
+  pageSize: 50,
+  userId: null,
+  date: [],
+  orgIds: [],
+  serviceCode: '',
+  username: '',
 });
 
-// 服务类型映射计算属性
-const serviceTypeMap = computed(() => {
-  const map = new Map();
-  serviceTypeList.value.forEach((item: any) => {
-    map.set(item.itemValue, item.itemLabel);
-  });
-  return map;
+// 绩效记录数据
+const performanceRecord = reactive<{
+  total: number;
+  data: KpiListVO[];
+}>({
+  total: 0,
+  data: [],
 });
 
-// 格式化上钟类型显示
-const formatPerfType = (perfType: any) => {
-  return perfTypeMap.value.get(String(perfType)) || perfType || '';
-};
-
-// 格式化服务类型显示
-const formatServiceType = (serviceType: any) => {
-  return serviceTypeMap.value.get(String(serviceType)) || serviceType || '';
+/**
+ * 获取绩效记录列表
+ */
+const setPerformanceRecord = async () => {
+  try {
+    loading.value = true;
+    const params = { ...searchParams.value };
+    const res = await reqPerformanceRecord(params);
+    const data: any = parseResObj(res);
+    performanceRecord.total = data.total;
+    performanceRecord.data = data.rows;
+  } catch (error) {
+    console.error('获取绩效记录失败:', error);
+    ElMessage.error('获取绩效记录失败');
+  } finally {
+    loading.value = false;
+  }
 };
 
 // 初始化
 onMounted(() => {
-  loadPerfTypeList();
-  loadServiceTypeList();
-  loadStaffList();
-  store.setPerformanceRecord();
+  // loadPerfTypeList();
+  // loadServiceTypeList();
+  // loadStaffList();
+  search();
 });
 
 // 搜索
 const search = () => {
-  store.setPerformanceRecord();
+  setPerformanceRecord();
 };
 
 // 处理分页变化
 const handleSizeChange = (val: number) => {
-  store.searchParams.pageSize = val;
-  store.setPerformanceRecord();
+  searchParams.value.pageSize = val;
+  setPerformanceRecord();
 };
 
 const handleCurrentChange = (val: number) => {
-  store.searchParams.pageNum = val;
-  store.setPerformanceRecord();
+  searchParams.value.pageNum = val;
+  setPerformanceRecord();
 };
 
 // 模态框
 const dialog: any = reactive({
-  title: '修改单据',
   visible: false,
+  data: {},
 });
 
-const receiptInfo: any = ref({});
-
 const showDialog = async (row: any) => {
-  if (row.serviceType === 3) {
+  if (row.serviceType === OrderDetailType.Recharge) {
     ElMessage.info('充值订单暂不能查看原单');
     return;
   }
+  dialog.data = {
+    id: row.id,
+    orderCode: row.orderCode,
+  };
 
-  try {
-    // 使用store中的方法查询订单详情
-    const orderDetail = await store.queryOrderDetail(row.orderCode);
-    console.log(orderDetail);
-
-    if (orderDetail) {
-      receiptInfo.value = orderDetail;
-      dialog.visible = true;
-    }
-  } catch (error) {
-    console.error('查看原单失败:', error);
-    // 错误处理已在store中统一处理，这里只需要记录日志
-  }
+  dialog.visible = true;
 };
+
+// 上钟类型字典数据
+// const perfTypeList = ref<any[]>([]);
+// // 服务类型字典数据
+// const serviceTypeList = ref<any[]>([]);
+
+// // 获取上钟类型字典数据
+// const loadPerfTypeList = async () => {
+//   try {
+//     perfTypeList.value = await enumStore.getPerfTypeList();
+//   } catch (error) {
+//     console.error('获取上钟类型字典失败:', error);
+//     perfTypeList.value = [];
+//   }
+// };
+
+// // 获取服务类型字典数据
+// const loadServiceTypeList = async () => {
+//   try {
+//     serviceTypeList.value = await enumStore.getServiceTypeList();
+//   } catch (error) {
+//     console.error('获取服务类型字典失败:', error);
+//     serviceTypeList.value = [];
+//   }
+// };
+
+// // 技师列表
+// const staffList: any = ref([]);
+// const loadStaffList = async () => {
+//   try {
+//     staffList.value = await dataEnumStore.getStaffList();
+//   } catch (error) {
+//     console.error('加载技师列表失败:', error);
+//   }
+// };
+
+// // 上钟类型映射计算属性
+// const perfTypeMap = computed(() => {
+//   const map = new Map();
+//   perfTypeList.value.forEach((item: any) => {
+//     map.set(item.itemValue, item.itemLabel);
+//   });
+//   return map;
+// });
+
+// // 服务类型映射计算属性
+// const serviceTypeMap = computed(() => {
+//   const map = new Map();
+//   serviceTypeList.value.forEach((item: any) => {
+//     map.set(item.itemValue, item.itemLabel);
+//   });
+//   return map;
+// });
+
+// // 格式化上钟类型显示
+// const formatPerfType = (perfType: any) => {
+//   return perfTypeMap.value.get(String(perfType)) || perfType || '';
+// };
+
+// // 格式化服务类型显示
+// const formatServiceType = (serviceType: any) => {
+//   return serviceTypeMap.value.get(String(serviceType)) || serviceType || '';
+// };
 </script>
 
 <style scoped lang="scss"></style>
