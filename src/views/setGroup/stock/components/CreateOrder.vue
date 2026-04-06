@@ -1,10 +1,21 @@
 <template>
   <div class="create-container">
     <div class="container-left">
-      <el-button type="primary" @click="getProductList" :disabled="formData.items.length > 0">获取产品数据</el-button>
-      <div class="left-content">
+      <div class="search-container">
+        <el-input v-model="searchKeyword" placeholder="产品名称" class="w-p-100">
+          <template #append>
+            <el-button
+              :icon="Search"
+              :disabled="formData.items.length > 0 || searchKeyword !== ''"
+              @click="getProductList"
+            />
+          </template>
+        </el-input>
+        <!-- <el-button type="primary" @click="getProductList" :disabled="formData.items.length > 0">获取产品数据</el-button> -->
+      </div>
+      <div class="left-content" v-loading="loading">
         <div
-          v-for="item in productList"
+          v-for="item in renderProductList"
           @click="addItem(item)"
           :type="parseInt(item.quantity!) < 10 ? 'danger' : 'primary'"
           :key="item.productId"
@@ -79,7 +90,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch, inject } from 'vue';
+import { ref, reactive, onMounted, watch, inject, computed } from 'vue';
+import { Search } from '@element-plus/icons-vue';
 import { getUserInfo } from '@/utils/localStorageTools';
 
 import { useStockStore } from '@/store/modules/setGroup/stock';
@@ -101,13 +113,27 @@ const props = defineProps({
 
 const emit = defineEmits(['submit']);
 
+const loading = ref(true);
+
+const searchKeyword = ref('');
+const renderProductList = computed(() => {
+  if (searchKeyword.value === '') {
+    return productList.value;
+  }
+  return productList.value.filter((item: any) =>
+    item.productName.toLowerCase().includes(searchKeyword.value.toLowerCase()),
+  );
+});
+
 const productList = ref<any>();
 const getProductList = async () => {
   if (formData.items.length > 0) {
     return;
   }
   const params = { productStatus: 0 };
+  loading.value = true;
   productList.value = await productStore.getProductList(params);
+  loading.value = false;
 };
 
 onMounted(async () => {
@@ -250,6 +276,11 @@ const summaryMethod = (data: { columns: any[]; data: any[] }) => {
     display: flex;
     flex-direction: column;
     gap: 10px;
+
+    .search-container {
+      width: 100%;
+      padding: 5px 10px 0 10px;
+    }
 
     .left-content {
       flex: 1;
