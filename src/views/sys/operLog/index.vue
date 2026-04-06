@@ -2,12 +2,6 @@
   <div class="main-container">
     <!-- 数据筛选 -->
     <Card class="operation-card">
-      <!-- 第一行 -->
-      <!-- <div class="search-container">
-
-      </div> -->
-
-      <!-- 第二行 -->
       <div class="search-container">
         <div class="search-item">
           <label>
@@ -44,12 +38,12 @@
           </el-select>
         </div>
 
-        <!-- <div class="search-item">
-          <label for="orgId">门店：</label>
-          <el-select v-model="searchParams.orgId" id="orgId" placeholder="门店" class="w-80" value-key="id" clearable>
-            <el-option v-for="item in dataEnumStore.orgList" :key="item.id" :label="item.orgName" :value="item.id" />
-          </el-select>
-        </div> -->
+        <div class="search-item">
+          <label>
+            门店：
+            <OrgSelect v-model="searchParams.orgId" :multiple="false" class="w-120" @clear="search" @change="search" />
+          </label>
+        </div>
 
         <!-- 操作模块 -->
         <div class="search-item">
@@ -111,7 +105,11 @@
         </el-table-column>
         <el-table-column prop="requestUrl" label="HTTP方法" min-width="100" />
         <el-table-column prop="operatorName" label="操作人" min-width="50" />
-        <el-table-column prop="orgId" label="门店" min-width="50" />
+        <el-table-column prop="orgId" label="门店" min-width="50">
+          <template #default="{ row }">
+            {{ formatOrgId(row.orgId) || '未知' }}
+          </template>
+        </el-table-column>
         <el-table-column prop="ip" label="操作IP" min-width="60" />
         <el-table-column label="状态" min-width="30">
           <template #default="{ row }">
@@ -127,13 +125,11 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, onMounted, ref } from 'vue';
+import { reactive, onMounted, ref, computed } from 'vue';
+import { reqList as reqOrgList } from '@/api/acl/org/index';
 import { type Types, reqOperLogList } from '@/api/sys/index';
 import { shortcuts } from '@/utils/time';
 import { cloneDeep } from 'lodash';
-import { useDataEnumStore } from '@/store/modules/enums/index';
-
-const dataEnumStore = useDataEnumStore();
 
 const loading = ref(false);
 
@@ -186,8 +182,8 @@ const tableData = reactive<{ list: Types.OperLogVO[]; total: number }>({
 
 // 初始化
 onMounted(async () => {
+  await getOrgList();
   search();
-  dataEnumStore.getOrgList();
 });
 
 const resetSearchParams = () => {
@@ -235,6 +231,38 @@ const handleSizeChange = (val: number) => {
 const handleCurrentChange = (val: number) => {
   searchParams.pageNum = val;
   search();
+};
+
+/** 门店列表 */
+const orgList = ref<OrgInfo[]>([]);
+
+/**
+ * 获取门店列表
+ */
+const getOrgList = async () => {
+  loading.value = true;
+  try {
+    const res = await reqOrgList();
+    const data = res.data;
+    orgList.value = data.filter((item) => !item?.orgCode.includes('Test'));
+  } catch (error) {
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 门店映射计算属性
+const orgMap = computed(() => {
+  const map = new Map();
+  orgList.value.forEach((item: any) => {
+    map.set(item.id, item.orgName);
+  });
+  return map;
+});
+
+// 格式化门店显示
+const formatOrgId = (orgId: any) => {
+  return orgMap.value.get(String(orgId)) || orgId || '';
 };
 </script>
 
