@@ -7,7 +7,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 interface Props {
   bed: {};
@@ -38,8 +38,8 @@ const calcPercentage = (total: number, current: number) => {
   return (current / total) * 100;
 };
 
-const percentage = ref(calcPercentage(140, 0));
-// const percentage = ref(140);
+// const percentage = ref(calcPercentage(140, 0));
+const percentage = computed(() => calcPercentage(140, 0));
 
 const colors = [
   { color: '#e74c3c', percentage: 100 },
