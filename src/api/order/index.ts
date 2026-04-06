@@ -17,7 +17,7 @@ enum API {
   /** 取消订单 */
   CANCEL_ORDER_URL = '/order/cancel-order/{orderId}',
   /** 查询订单 */
-  QUERY_ORDER_URL = '/order/query-by-order-code/{orderCode}',
+  QUERY_ORDER_BY_CODE_URL = '/order/query-by-order-code/{orderCode}',
   /** 根据床位ID查询订单详情 */
   QUERY_ORDER_BY_BED_ID_URL = '/order/query-by-bed-id/{bedId}',
   /** 订单冲正 */
@@ -101,7 +101,7 @@ export const reqCancelOrder = (orderId: number): ApiResponse<any> => {
  * @returns 订单详情
  */
 export const reqQueryOrder = (orderCode: string): ApiResponse<Types.OrderInfoVO> => {
-  return get(API.QUERY_ORDER_URL.replace(PathStr.orderCode, orderCode));
+  return get(API.QUERY_ORDER_BY_CODE_URL.replace(PathStr.orderCode, orderCode));
 };
 
 /**
