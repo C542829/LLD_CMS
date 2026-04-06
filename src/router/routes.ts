@@ -317,15 +317,15 @@ export const asyncRoute = [
           icon: 'Shop',
         },
       },
-      {
-        path: '/acl/user',
-        component: () => import('@/views/acl/user/index.vue'),
-        name: 'User',
-        meta: {
-          title: '用户管理',
-          icon: 'User',
-        },
-      },
+      // {
+      //   path: '/acl/user',
+      //   component: () => import('@/views/acl/user/index.vue'),
+      //   name: 'User',
+      //   meta: {
+      //     title: '用户管理',
+      //     icon: 'User',
+      //   },
+      // },
       {
         path: '/acl/role',
         component: () => import('@/views/acl/role/index.vue'),
