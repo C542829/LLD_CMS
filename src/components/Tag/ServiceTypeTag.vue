@@ -13,16 +13,16 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const serviceTypeColor = {
-  [OrderDetailType.Product]: 'primary',
-  [OrderDetailType.Service]: 'success',
+  [OrderDetailType.Product]: 'success',
+  [OrderDetailType.Service]: 'primary',
   [OrderDetailType.TreatmentCoupon]: 'warning',
-  [OrderDetailType.Package]: 'info',
+  [OrderDetailType.Recharge]: 'info',
 };
 
 const serviceType = computed(() => {
   return {
     name: OrderDetailTypeMap[props.type] || '未知',
-    type: (serviceTypeColor[props.type] || 'primary') as ElTagType,
+    type: (serviceTypeColor[props.type] || 'danger') as ElTagType,
   };
 });
 </script>

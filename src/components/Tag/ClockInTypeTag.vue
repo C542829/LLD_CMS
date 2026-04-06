@@ -13,15 +13,15 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const clockInTypeColor = {
-  [ServiceType.Point]: 'primary',
+  [ServiceType.Point]: 'warning',
   [ServiceType.Add]: 'success',
-  [ServiceType.Round]: 'warning',
+  [ServiceType.Round]: 'primary',
 };
 
 const clockInType = computed(() => {
   return {
     name: ServiceTypeMap[props.type] || '未知',
-    type: (clockInTypeColor[props.type] || 'primary') as ElTagType,
+    type: (clockInTypeColor[props.type] || 'info') as ElTagType,
   };
 });
 </script>
