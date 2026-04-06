@@ -92,6 +92,12 @@
         </span>
       </li>
       <li>
+        <span>Lodop：</span>
+        <span>
+          <a href="https://www.lodop.net/download.html" target="_blank">点击下载</a>
+        </span>
+      </li>
+      <li>
         <span>UU远程：</span>
         <span>
           <a href="https://uuyc.163.com/" target="_blank">点击下载</a>
