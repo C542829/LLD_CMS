@@ -11,15 +11,11 @@ export const reqConsumeBillList = async (params: ConsumeBillQuery): Promise<ApiR
   let filteredData = [...data];
 
   if (params.billno) {
-    filteredData = filteredData.filter((item) =>
-      item.billno.toLowerCase().includes(params.billno!.toLowerCase()),
-    );
+    filteredData = filteredData.filter((item) => item.billno.toLowerCase().includes(params.billno!.toLowerCase()));
   }
 
   if (params.name) {
-    filteredData = filteredData.filter((item) =>
-      item.name.toLowerCase().includes(params.name!.toLowerCase()),
-    );
+    filteredData = filteredData.filter((item) => item.name.toLowerCase().includes(params.name!.toLowerCase()));
   }
 
   if (params.billtype !== undefined && params.billtype !== null) {
