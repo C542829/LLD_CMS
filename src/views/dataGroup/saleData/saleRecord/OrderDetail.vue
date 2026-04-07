@@ -1,95 +1,104 @@
 <template>
-  <div class="detail-container">
+  <div class="detail-container" v-loading="loading" :element-loading-text="LOADING_MSG">
     <!-- 上方信息区域 -->
     <div class="info-section">
       <div class="detail-item">
         <span>销售门店：</span>
-        <span>{{ orgInfo.orgName || order.orgId }}</span>
+        <span>{{ orderData.orgName || orgInfo.orgName }}</span>
       </div>
       <div class="detail-item">
         <span>销售单号：</span>
-        <span>{{ order.orderCode }}</span>
+        <span>{{ orderData.orderCode }}</span>
       </div>
       <div class="detail-item">
-        <span>会员姓名：</span>
-        <span>{{ order.vipName }}</span>
+        <span>客户姓名：</span>
+        <span>{{ orderData.vipName || orderData.customerName }}</span>
       </div>
       <div class="detail-item">
-        <span>门店余额：</span>
-        <span>{{ order.afterBalance }} 元</span>
+        <span>消费前余额：</span>
+        <span>{{ orderData.beforeBalance }} 元</span>
       </div>
       <div class="detail-item">
-        <span>联盟余额：</span>
-        <span>{{ order.afterBalance }} 元</span>
-      </div>
-      <div class="detail-item">
-        <span>开单时间：</span>
-        <span>{{ order.orderTime }}</span>
-      </div>
-      <div class="detail-item">
-        <span>结算时间：</span>
-        <span>{{ order.settleTime }}</span>
+        <span>消费后余额：</span>
+        <span>{{ orderData.afterBalance }} 元</span>
       </div>
       <div class="detail-item">
         <span>实收总额：</span>
-        <span>{{ order.actualAmount }} 元</span>
+        <span>{{ orderData.actualAmount }} 元</span>
+      </div>
+      <div class="detail-item">
+        <span>开单时间：</span>
+        <span>{{ orderData.orderTime }}</span>
+      </div>
+      <div class="detail-item">
+        <span>结算时间：</span>
+        <span>{{ orderData.settleTime }}</span>
       </div>
       <div class="detail-item">
         <span>支付方式：</span>
-        <span class="highlight" v-for="(item, index) in order.payments" :key="index">
+        <span class="highlight" v-for="(item, index) in orderData.payments" :key="index">
           {{ item.paymentName }} ￥{{ item.totalAmount }}&nbsp;&nbsp;
         </span>
       </div>
       <!-- <div class="detail-item">
         <span>使用的优惠券：</span>
-        <span>{{ order.discountAmount }}</span>
+        <span>{{ orderData.discountAmount }}</span>
       </div> -->
       <div class="detail-item">
         <span>消费资产明细：</span>
         <div class="asset-tag">
-          <el-tag v-for="(item, index) in order.payments" :key="index">
-            <span>{{ item.assetCode }}: ￥{{ item.totalAmount }}</span>
+          <el-tag v-for="(item, index) in orderData.payments" :key="index">
+            <span>{{ item.assetCode || item.paymentName }}: ￥{{ item.totalAmount }}</span>
           </el-tag>
         </div>
       </div>
     </div>
     <!-- 下方表格区域 -->
     <div class="table-area">
-      <el-table :data="order.orderDetails" :border="true" height="100%" size="small" stripe>
-        <el-table-column prop="businessName" label="名称/标准价" min-width="120">
+      <PaginationTable :data="orderData.orderDetails" height="100%" size="small" :showPagination="false">
+        <el-table-column prop="businessName" label="名称/标准价" min-width="80">
           <template #default="scope">
             <div>{{ scope.row.businessName }}</div>
             <div>标准价：{{ scope.row.stdPrice }}</div>
           </template>
         </el-table-column>
-        <el-table-column prop="truePrice" label="价格/数量" min-width="120">
+        <el-table-column prop="truePrice" label="价格/数量" min-width="80">
           <template #default="scope">
-            <div>单价：{{ scope.row.truePrice }} 元</div>
+            <div>单价：{{ scope.row.trueUnitPrice }} 元</div>
             <div>数量：{{ scope.row.quantity }}</div>
           </template>
         </el-table-column>
-        <el-table-column prop="bedName" label="床位" min-width="80">
-          <template #default="scope">
-            <div>{{ order.bedName }}</div>
+        <el-table-column prop="bedName" label="床位" min-width="50">
+          <template #default="{ row }">
+            <div>{{ orderData.bedName }}</div>
           </template>
         </el-table-column>
-        <el-table-column prop="userName" label="技师/销售" min-width="120">
-          <template #default="scope">
-            <div>
-              {{ scope.row.userName }}
-              <span v-if="scope.row.detailType === 1" class="tag" :style="{ color: scope.row.tagColor }">
-                [{{ ServiceTypeMap[scope.row.serverType] || scope.row.serverType }}]
-              </span>
-            </div>
+        <el-table-column prop="userName" label="技师/销售" min-width="100">
+          <template #default="{ row }">
+            <template v-if="row.technicians">
+              <div v-for="(item, index) in row.technicians" :key="index" class="text-overflow">
+                {{ item.userName }}({{ item.userCode }})
+              </div>
+            </template>
+            <template v-else>
+              {{ row.userName }}
+            </template>
           </template>
         </el-table-column>
-      </el-table>
+        <el-table-column prop="serverType" label="类型" min-width="60">
+          <template #default="{ row }">
+            <template v-if="row.detailType === OrderDetailType.Service">
+              <ClockInTypeTag :type="row.serverType" />
+            </template>
+          </template>
+        </el-table-column>
+      </PaginationTable>
     </div>
     <div class="btn-area">
       <el-button
         type="primary"
         :disabled="orderData.orderStatus !== OrderStatus.SETTLED"
-        :loading="loading"
+        :loading="btnLoading"
         @click="reconcileOrder"
       >
         对单
@@ -99,18 +108,46 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue';
-import { ServiceTypeMap } from '@/enums';
-import { useOrgStore } from '@/store/modules/acl/org';
-import { reqReconcileOrder } from '@/api/order/index';
-import { parseResMsg } from '@/utils/parseResponse';
-import { OrderStatus } from '@/enums';
 import MessageBox from '@/components/MessageBox';
+import Message from '@/components/Message';
+import { ref, onMounted, computed, watch } from 'vue';
+import { OrderDetailType, ServiceTypeMap } from '@/enums';
+import { useOrgStore } from '@/store/modules/acl/org';
+import { reqReconcileOrder, reqQueryOrder } from '@/api/order/index';
+import { OrderStatus } from '@/enums';
+import { LOADING_MSG } from '@/utils/constant';
 
 // 定义 props 接收父组件传递的数据
 const props = defineProps<{
-  orderData?: any;
+  order?: any;
 }>();
+
+const orderData = ref<any>({});
+const loading = ref(false);
+/** 获取订单信息 */
+const getOrder = async (orderCode: string) => {
+  try {
+    loading.value = true;
+    const { data } = await reqQueryOrder(orderCode);
+    orderData.value = data;
+  } catch (error) {
+    console.error(error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+watch(
+  () => props.order.orderCode,
+  (val) => {
+    if (val) {
+      if (val) {
+        getOrder(val);
+      }
+    }
+  },
+  { immediate: true },
+);
 
 // 门店store
 const orgStore = useOrgStore();
@@ -131,13 +168,13 @@ const getOrgDetail = async (orgId: number) => {
 };
 
 // 使用计算属性，优先使用传入的数据，否则使用默认数据
-const order = computed(() => {
-  return props.orderData || {};
-});
+// const order = computed(() => {
+//   return props.orderData || {};
+// });
 
 // 监听订单数据变化，获取门店详情
 watch(
-  () => order.value.orgId,
+  () => orderData.value.orgId,
   (newOrgId) => {
     if (newOrgId) {
       getOrgDetail(newOrgId);
@@ -147,13 +184,13 @@ watch(
 
 // 组件挂载时获取门店详情
 onMounted(() => {
-  if (order.value.orgId) {
-    getOrgDetail(order.value.orgId);
+  if (orderData.value.orgId) {
+    getOrgDetail(orderData.value.orgId);
   }
 });
 
 // 对单按钮 loading
-const loading = ref(false);
+const btnLoading = ref(false);
 /** 对单 */
 const reconcileOrder = async () => {
   try {
@@ -164,12 +201,16 @@ const reconcileOrder = async () => {
       inputType: 'textarea',
     });
 
-    loading.value = true;
-    const res = await reqReconcileOrder(props.orderData.id, prompt.value);
-    const result = parseResMsg(res);
+    btnLoading.value = true;
+    const res = await reqReconcileOrder(orderData.value.id, prompt.value);
+    // const result = parseResMsg(res);
+    Message.success('对单成功');
     // console.log('对单结果：', res);
-  } catch (error) {}
-  loading.value = false;
+  } catch (error) {
+    console.error(error);
+  } finally {
+    btnLoading.value = false;
+  }
 };
 </script>
 
