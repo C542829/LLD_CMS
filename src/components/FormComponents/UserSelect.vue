@@ -12,15 +12,18 @@
     :placement="placement"
     :loading="loading"
     :filterable="filterable"
+    :filter-method="filterMethod"
     @change="handleChange"
     @clear="handleClear"
   >
     <el-option
-      v-for="item in options"
+      v-for="item in filterOptions"
       :key="item[defaultProps.value]"
       :label="item[defaultProps.label]"
       :value="emitObject ? item : item[defaultProps.value]"
-    />
+    >
+      {{ item[defaultProps.label] }}({{ item[defaultProps.code] }})
+    </el-option>
 
     <template #header>
       <div class="el-align-center">
@@ -67,6 +70,7 @@ const props = withDefaults(defineProps<Props>(), {
   defaultProps: () => ({
     label: 'userName',
     value: 'userId',
+    code: 'userCode',
   }),
 });
 
@@ -124,6 +128,8 @@ const options = computed(() => {
   return userList.value;
 });
 
+const filterOptions = ref<UserInfo[]>([]);
+
 /** 门店列表 */
 const userList = ref<UserInfo[]>([]);
 
@@ -146,6 +152,22 @@ const orgIds = computed(() => {
 });
 
 /**
+ * 过滤用户 根据用户名和编码进行匹配
+ */
+const filterMethod = (query: string) => {
+  if (!query.trim()) {
+    // return true;
+    filterOptions.value = userList.value;
+  }
+  // console.log(99999, item);
+  filterOptions.value = userList.value.filter(
+    (item) =>
+      item[props.defaultProps.label].toLowerCase().includes(query.toLowerCase()) ||
+      item[props.defaultProps.code].toLowerCase().includes(query.toLowerCase()),
+  );
+};
+
+/**
  * 获取用户列表
  */
 const getUserList = async () => {
@@ -158,9 +180,11 @@ const getUserList = async () => {
         id: item.id,
         userId: item.id,
         userName: item.userName,
+        userCode: item.userCode,
       };
     });
     userList.value = data || [];
+    filterOptions.value = data || [];
   } catch (error) {
   } finally {
     loading.value = false;
