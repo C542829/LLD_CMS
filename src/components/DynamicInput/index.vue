@@ -2,8 +2,8 @@
   <div class="dynamic-input-container" :style="{ maxWidth: `${width}px` }">
     <!-- 查看状态 -->
     <template v-if="!isEditing">
-      <div class="view-text">
-        <span class="text-overflow" :title="inputValue">{{ inputValue || '- ' }}</span>
+      <div class="view-text" :style="{ fontSize: fontSize }">
+        <span class="text-overflow" :title="inputValue!">{{ inputValue || '- ' }}</span>
         <el-button type="primary" :color="btnColor ? btnColor : ''" :size="size" link @click="isEditing = true">
           编辑
         </el-button>
@@ -33,12 +33,14 @@ interface DynamicInputProps {
   btnColor?: string;
   width?: number;
   size?: '' | 'default' | 'small' | 'large';
+  fontSize?: string;
 }
 
 const props = withDefaults(defineProps<DynamicInputProps>(), {
   value: '',
   size: 'default',
   width: 300,
+  fontSize: '14px',
 });
 
 const $emit = defineEmits(['update']);
