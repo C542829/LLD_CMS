@@ -126,7 +126,7 @@
 
 <script setup lang="ts">
 import { reactive, onMounted, ref, computed } from 'vue';
-import { reqList as reqOrgList } from '@/api/acl/org/index';
+import { reqOrgList } from '@/api/acl/org/index';
 import { type Types, reqOperLogList } from '@/api/sys/index';
 import { shortcuts } from '@/utils/time';
 import { cloneDeep } from 'lodash';

@@ -29,7 +29,7 @@ enum API {
  * @param params 搜索参数
  * @returns
  */
-export const reqList = (params: Types.SearchListParams = { orgStatus: 0 }): ApiResponse<OrgInfo[]> => {
+export const reqOrgList = (params: Types.SearchListParams = { orgStatus: 0 }): ApiResponse<OrgInfo[]> => {
   return get(API.LIST_URL, params);
 };
 
@@ -38,7 +38,7 @@ export const reqList = (params: Types.SearchListParams = { orgStatus: 0 }): ApiR
  * @param id 门店ID
  * @returns
  */
-export const reqListOne = (id: number): ApiResponse<OrgInfo> => {
+export const reqOrgInfo = (id: number): ApiResponse<OrgInfo> => {
   return get(API.LIST_ONE_URL, { id });
 };
 
@@ -47,21 +47,21 @@ export const reqListOne = (id: number): ApiResponse<OrgInfo> => {
  * @param data 门店信息
  * @returns
  */
-export const reqAdd = (data: Types.Org): ApiResponse<any> => post(API.ADD_URL, data);
+export const reqAddOrg = (data: Types.Org): ApiResponse<any> => post(API.ADD_URL, data);
 
 /**
  * 更新门店
  * @param data 门店信息
  * @returns
  */
-export const reqUpdate = (data: Types.Org): ApiResponse<any> => put(API.UPDATE_URL, data);
+export const reqUpdateOrg = (data: Types.Org): ApiResponse<any> => put(API.UPDATE_URL, data);
 
 /**
  * 更新门店状态
  * @param params 参数
  * @returns
  */
-export const reqUpdateStatus = (params: any): ApiResponse<any> =>
+export const reqUpdateOrgStatus = (params: any): ApiResponse<any> =>
   put(API.UPDATE_STATUS_URL, params, { form_urlencoded: true });
 
 /**
@@ -90,7 +90,7 @@ export const reqSetPrintWidth = (data: { id: number; printWidth: number }): ApiR
  */
 export const storageOrgInfo = async (id: number) => {
   try {
-    const res = await reqListOne(id);
+    const res = await reqOrgInfo(id);
     const orgInfo = res.data;
     orgInfo.orgArea && (orgInfo.orgArea = JSON.parse(orgInfo.orgArea as string));
     setStoreOrgInfo(orgInfo);

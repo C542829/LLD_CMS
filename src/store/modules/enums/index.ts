@@ -20,7 +20,7 @@ import { reqServiceItemList } from '@/api/setGroup/serviceItem/index';
 import { reqPackageList } from '@/api/setGroup/package/index';
 import { reqBedListAll } from '@/api/setGroup/room/index';
 import { reqTreatmentCouponList } from '@/api/setGroup/treatmentCoupon/index';
-import { reqList as reqOrgList } from '@/api/acl/org/index';
+import { reqOrgList } from '@/api/acl/org/index';
 import { reqRoleList } from '@/api/acl/role';
 
 import { parseResList, parseResMsg, parseResObj } from '@/utils/parseResponse';

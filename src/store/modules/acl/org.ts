@@ -1,10 +1,9 @@
 import { defineStore } from 'pinia';
 import { reactive, ref } from 'vue';
-import { type Types, reqList, reqListOne, reqAdd, reqUpdate, reqUpdateStatus } from '@/api/acl/org';
+import { type Types, reqOrgList, reqOrgInfo, reqAddOrg, reqUpdateOrg, reqUpdateOrgStatus } from '@/api/acl/org';
 import { parseResList, parseResMsg, parseResObj } from '@/utils/parseResponse';
 import { getUserInfo } from '@/utils/localStorageTools';
 import { isEmpty, cloneDeep } from 'lodash';
-import { setStoreOrgInfo } from '@/store/index';
 
 import { useSettingStore } from '@/store/modules/acl/setting';
 
@@ -18,7 +17,7 @@ export const useOrgStore = defineStore('Org', () => {
    */
   const getOrgInfo = async (id: number): Promise<OrgInfo | {}> => {
     try {
-      const res = await reqListOne(id);
+      const res = await reqOrgInfo(id);
       const orgInfo = parseResObj(res);
       orgInfo.orgArea && (orgInfo.orgArea = JSON.parse(orgInfo.orgArea as string));
       return orgInfo;
@@ -74,7 +73,7 @@ export const useOrgStore = defineStore('Org', () => {
    */
   const setTableData = async () => {
     settingStore.loading = true;
-    const res = await reqList(search);
+    const res = await reqOrgList(search);
     const data: Types.Org[] = parseResList(res);
     for (const item of data) {
       item.orgArea && (item.orgArea = JSON.parse(item.orgArea as string));
@@ -92,7 +91,7 @@ export const useOrgStore = defineStore('Org', () => {
   const update = async (data: Types.Org) => {
     data = { ...data };
     data.orgArea && (data.orgArea = JSON.stringify(data.orgArea));
-    const res = await (data?.id ? reqUpdate(data) : reqAdd(data));
+    const res = await (data?.id ? reqUpdateOrg(data) : reqAddOrg(data));
     const result = parseResMsg(res);
     // 刷新数据
     result && setTableData();
@@ -109,7 +108,7 @@ export const useOrgStore = defineStore('Org', () => {
       id: data.id,
       status: data.orgState ? 0 : 1,
     };
-    const res = await reqUpdateStatus(params);
+    const res = await reqUpdateOrgStatus(params);
     const result = parseResMsg(res);
     // 刷新数据
     result && setTableData();

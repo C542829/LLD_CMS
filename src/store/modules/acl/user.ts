@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { isEmpty } from 'lodash';
 // 引入接口
 import { reqLogin, reqUserInfo, reqLogout, reqUpdate } from '@/api/user';
-import { reqListOne } from '@/api/acl/org/index';
+import { reqOrgInfo } from '@/api/acl/org/index';
 // 引入操作本地存储的工具方法
 import {
   setUserInfo,
@@ -129,7 +129,7 @@ const useUserStore = defineStore('User', {
     /** 存储门店信息 */
     async storageOrgInfo(orgId: number) {
       try {
-        const res = await reqListOne(orgId);
+        const res = await reqOrgInfo(orgId);
         const orgInfo = res.data;
         orgInfo.orgArea && (orgInfo.orgArea = JSON.parse(orgInfo.orgArea as string));
         this.org = orgInfo;

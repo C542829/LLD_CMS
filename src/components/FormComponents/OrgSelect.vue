@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { reqList as reqOrgList } from '@/api/acl/org/index';
+import { reqOrgList } from '@/api/acl/org/index';
 import { computed, onMounted, ref, watch } from 'vue';
 import { SelectInstance } from 'element-plus';
 import useUserStore from '@/store/modules/acl/user';
