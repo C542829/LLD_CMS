@@ -20,3 +20,13 @@ export function isRoleHigherOrEqual(roleA: RoleCode, roleB: RoleCode) {
   }
   return RoleLevel[roleA] >= RoleLevel[roleB];
 }
+
+/**
+ * 隐藏手机号中间四位
+ * @param phone 手机号
+ * @returns 隐藏后的手机号
+ */
+export function hidePhone(phone: string) {
+  if (!phone) return '';
+  return phone.toString().replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+}
