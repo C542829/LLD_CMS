@@ -7,7 +7,7 @@
         <div class="search-item">
           <label>
             开单时段：
-            <DatePicker v-model="store.searchParams.date" style="width: 260px" />
+            <DatePicker v-model="searchParams.date" class="w-240" />
           </label>
         </div>
         <template v-if="userStore.isAdmin || userStore.isAreaManager">
@@ -15,7 +15,7 @@
             <label>
               门店：
               <OrgSelect
-                v-model="store.searchParams.orgIds"
+                v-model="searchParams.orgIds"
                 placeholder="门店"
                 class="w-120"
                 :multiple="true"
@@ -28,7 +28,7 @@
         <div class="search-item">
           <label for="saleStaff">收银员：</label>
           <UserSelect
-            v-model="store.searchParams.userId"
+            v-model="searchParams.userId"
             placeholder="收银员"
             class="w-100"
             :multiple="false"
@@ -37,7 +37,7 @@
           />
         </div>
         <div class="search-item">
-          <el-switch v-model="store.searchParams.payZero" :active-value="0" :inactive-value="1" id="payZero" />
+          <el-switch v-model="searchParams.payZero" :active-value="0" :inactive-value="1" id="payZero" />
           <label for="payZero">&nbsp;仅查看支付为0的订单</label>
         </div>
       </div>
@@ -46,14 +46,14 @@
       <div class="search-container">
         <div class="search-item">
           <label for="orderStatus">订单状态：</label>
-          <el-select v-model="store.searchParams.status" clearable id="orderStatus" style="width: 120px">
+          <el-select v-model="searchParams.status" clearable id="orderStatus" style="width: 120px">
             <el-option v-for="item in orderStatusOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </div>
         <div class="search-item">
           <label for="payType">支付类型：</label>
           <el-select
-            v-model="store.searchParams.paymentType"
+            v-model="searchParams.paymentType"
             clearable
             id="payType"
             placeholder="选择支付类型"
@@ -66,8 +66,9 @@
           <label for="memberInfo">会员信息：</label>
           <div>
             <el-input
-              v-model="store.searchParams.vipInfoFiled"
+              v-model="searchParams.vipInfoFiled"
               id="memberInfo"
+              class="w-160"
               placeholder="会员卡号 | 手机号"
               clearable
             />
@@ -76,7 +77,13 @@
         <div class="search-item">
           <label for="orderID">订单号：</label>
           <div>
-            <el-input v-model="store.searchParams.orderCode" id="orderID" placeholder="请输入销售单号" clearable />
+            <el-input
+              v-model="searchParams.orderCode"
+              id="orderID"
+              class="w-160"
+              placeholder="请输入销售单号"
+              clearable
+            />
           </div>
         </div>
         <div class="search-item">
@@ -88,12 +95,12 @@
     <!-- 数据列表 -->
     <Card padding="0">
       <PaginationTable
-        v-loading="settingStore.loading"
-        :element-loading-text="settingStore.loadingMsg"
-        :data="store.saleRecord.data"
-        :total="store.saleRecord.total"
-        v-model:pageNum="store.searchParams.pageNum"
-        v-model:pageSize="store.searchParams.pageSize"
+        v-loading="loading"
+        :element-loading-text="LOADING_MSG"
+        :data="saleRecord.data"
+        :total="saleRecord.total"
+        v-model:pageNum="searchParams.pageNum"
+        v-model:pageSize="searchParams.pageSize"
         @size-change="handleSizeChange"
         @pagination-current-change="handleCurrentChange"
       >
@@ -105,7 +112,7 @@
         <el-table-column prop="orderCode" label="销售单号" min-width="80" />
         <el-table-column label="顾客信息" width="160">
           <template #default="{ row }">
-            <p>姓名：{{ row.customerName || row.vipName }}</p>
+            <p>姓名：{{ row.vipName || row.customerName }}</p>
             <p v-if="row.vipCardNumber">卡号：{{ row.vipCardNumber }}</p>
             <p v-if="row.vipPhoneNumber">电话：{{ row.vipPhoneNumber }}</p>
             <p v-if="row.vipName">余额：{{ row.afterBalance }}元</p>
@@ -140,11 +147,11 @@
               冲正
             </el-button>
             <br />
-            <!-- <el-button :disabled="row.orderStatus !== OrderStatus.SETTLED" @click="showDialog(row)" link type="warning"> -->
-            <el-button :disabled="false" @click="showDialog(row)" link type="warning">修改销售单据</el-button>
+            <el-button :disabled="true" @click="showDialog(row)" link type="warning">修改销售单据</el-button>
             <br />
             <el-button
               :disabled="row.orderStatus !== OrderStatus.SETTLED"
+              :loading="row.loading"
               @click="printReceipt(row)"
               link
               type="primary"
@@ -158,7 +165,7 @@
   </div>
 
   <Drawer v-model="drawer.visible" :title="drawer.title">
-    <OrderDetail :orderData="drawer.orderData" />
+    <OrderDetail :order="drawer.orderData" />
   </Drawer>
   <OrderModify v-model:visible="dialog.visible" :data="dialog.data" />
 </template>
@@ -167,56 +174,83 @@
 import OrderDetail from './OrderDetail.vue';
 import OrderModify from './OrderModify.vue';
 import Message from '@/components/Message';
-import { reactive, inject, onMounted, ref } from 'vue';
-import { dateFormatter, timeFormatter } from '@/utils/formatter';
-import { OrderStatus, OrderStatusMap, orderStatusOptions, paymentTypeOptions } from '@/enums';
+import MessageBox from '@/components/MessageBox';
+import { reactive, onMounted, ref } from 'vue';
+import { cloneDeep, isEmpty } from 'lodash';
 import { printer } from '@/utils/lodop';
-import { isFullDaysSince } from '@/utils/time';
-import { reqRollBackOrder } from '@/api/order';
+import { dateFormatter, timeFormatter } from '@/utils/formatter';
 import { parseResMsg } from '@/utils/parseResponse';
-import { cloneDeep } from 'lodash';
-
-// 引入数据仓库
-import { useSettingStore } from '@/store/modules/acl/setting';
-import { useSaleStore } from '@/store/modules/dataGroup/saleData';
-import { useDataEnumStore } from '@/store/modules/enums';
-import { useOrgStore } from '@/store/modules/acl/org';
+import { OrderStatus, orderStatusOptions, paymentTypeOptions, ResponseCode } from '@/enums';
+import { isFullDaysSince } from '@/utils/time';
+import { reqQueryOrder, reqRollBackOrder } from '@/api/order';
+import { reqOrgInfo } from '@/api/acl/org';
+import { reqSaleRecord } from '@/api/dataGroup/saleData';
+import { LOADING_MSG } from '@/utils/constant';
 import useUserStore from '@/store/modules/acl/user';
+
 const userStore = useUserStore();
-const orgStore = useOrgStore();
-const settingStore = useSettingStore();
-const store = useSaleStore();
-const dataEnumStore = useDataEnumStore();
 
-// 收银员列表
-const staffList = ref([]);
+const loading = ref(false);
 
-// 引入消息弹框
-const MessageBox: any = inject('$MessageBox');
-
-// 初始化
-onMounted(async () => {
-  // 获取收银员列表
-  staffList.value = await dataEnumStore.getStaffList();
-  store.setSaleRecord();
+const searchParams = reactive({
+  pageNum: 1,
+  pageSize: 50,
+  date: [] as string[],
+  orgIds: [] as number[],
+  userId: undefined as number | undefined,
+  payZero: 1,
+  status: OrderStatus.SETTLED,
+  paymentType: undefined as number | undefined,
+  vipInfoFiled: '',
+  orderCode: '',
 });
 
-// 搜索
-const search = () => {
-  store.setSaleRecord();
+const saleRecord = reactive({
+  total: 0,
+  data: [] as any[],
+});
+
+const setSaleRecord = async () => {
+  loading.value = true;
+  try {
+    // const params = { ...searchParams };
+    const { data } = await reqSaleRecord(searchParams);
+    saleRecord.total = data.total;
+    saleRecord.data = data.rows;
+  } catch (error) {
+    console.error('获取销售记录失败:', error);
+  } finally {
+    loading.value = false;
+  }
 };
 
-// 处理分页变化
+onMounted(() => {
+  if (isEmpty(searchParams.date)) {
+    // searchParams.date = [];
+    delete searchParams.date;
+  }
+  search();
+});
+
+const search = () => {
+  // searchParams.pageNum = 1;
+  setSaleRecord();
+};
+
 const handleSizeChange = (val: number) => {
-  store.searchParams.pageSize = val;
-  store.setSaleRecord();
+  searchParams.pageSize = val;
+  setSaleRecord();
 };
 
 const handleCurrentChange = (val: number) => {
-  store.searchParams.pageNum = val;
-  store.setSaleRecord();
+  searchParams.pageNum = val;
+  setSaleRecord();
 };
 
+/**
+ * 冲正
+ * @param row 销售订单
+ */
 const reversal = async (row: any) => {
   if (isFullDaysSince(row.settleTime, 2)) {
     Message.warning('只能对两天以内的记录进行修改或冲正');
@@ -226,7 +260,7 @@ const reversal = async (row: any) => {
   try {
     const prompt = await MessageBox.prompt({
       title: '销售订单-冲正',
-      message: '冲正后，订单将退还“会员卡支付”的金额, 同时将不计算此单业绩，你确定要对此订单进行冲正吗？',
+      message: '冲正后，订单将退还"会员卡支付"的金额, 同时将不计算此单业绩，你确定要对此订单进行冲正吗？',
       inputValue: '',
       inputPlaceholder: '输入冲正原因',
       inputType: 'textarea',
@@ -237,33 +271,64 @@ const reversal = async (row: any) => {
   } catch (error) {}
 };
 
+/**
+ * 重打小票
+ * @param row 销售订单
+ */
 const printReceipt = async (row: any) => {
-  // 打印小票
   if (row.orderStatus !== OrderStatus.SETTLED) {
     Message.warning('订单未结算，无法打印小票！');
     return;
   }
-  const org = await orgStore.getOrg();
-  const data = { ...row, ...org };
-  // printer.printReceipt(data, true);
-  printer.printOrderByHTML(data, false);
+  try {
+    row.loading = true;
+
+    const res = await reqOrgInfo(row.orgId);
+    const org = res.data || {};
+    const order = await getOrder(row.orderCode);
+    if (isEmpty(order)) {
+      return;
+    }
+    const data: any = { ...order, ...org };
+    printer.printOrderByHTML(data, false);
+  } catch (error) {
+  } finally {
+    row.loading = false;
+  }
 };
 
-// 抽屉
+/**
+ * 获取订单信息
+ * @param orderCode 订单号
+ * @returns 订单信息
+ */
+const getOrder = async (orderCode: string) => {
+  try {
+    const res = await reqQueryOrder(orderCode);
+    if (res.code === ResponseCode.SUCCESS) {
+      return res.data;
+    } else {
+      Message.error('请求订单信息错误');
+      return {};
+    }
+  } catch (error) {
+    console.error(error);
+    Message.error('请求订单信息错误');
+    return {};
+  }
+};
+
 const drawer: any = reactive({
   title: '销售明细',
   visible: false,
-  orderData: null, // 存储当前选中的订单数据
+  orderData: null,
 });
 
 const showDrawer = (row: any) => {
-  // 显示模态框
-  drawer.visible = true;
-  // 传递订单数据
   drawer.orderData = cloneDeep(row);
+  drawer.visible = true;
 };
 
-// 模态框
 const dialog: any = reactive({
   visible: false,
   data: {},
@@ -275,11 +340,8 @@ const showDialog = (row: any) => {
     return;
   }
 
-  // 显示模态框
   dialog.data = cloneDeep(row);
   dialog.visible = true;
-  // 表单数据回显
-  // store = row;
 };
 </script>
 
