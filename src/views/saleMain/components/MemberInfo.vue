@@ -29,7 +29,7 @@
                 v-for="(item, index) in assetList"
                 :key="item.id"
                 :data="item"
-                :index="index + 1"
+                :index="index"
                 :amount="store.payAmount"
               />
             </el-checkbox-group>
@@ -50,7 +50,7 @@ import CouponList from './CouponList.vue';
 
 import { ref, watch, computed, onMounted } from 'vue';
 import { isEmpty } from 'lodash';
-import { CouponType, CustomerType, DiscountType, discountTypeMap } from '@/enums/index';
+import { CustomerType, DiscountType, discountTypeMap } from '@/enums/index';
 
 import { useOrderStore } from '@/store/modules/order/index';
 import { useMemberStore } from '@/store/modules/member/member';
@@ -65,6 +65,7 @@ onMounted(() => {
 
 const loading = ref(false);
 
+// 监听订单ID变化
 watch(
   () => store.order.id,
   (newVal) => {
@@ -74,6 +75,7 @@ watch(
   },
 );
 
+// 监听会员ID变化
 watch(
   () => store.order.vipId,
   (newVal) => {
@@ -89,6 +91,7 @@ const getMemberAsset = async (id: number) => {
   loading.value = true;
   try {
     const asset = await memberStore.getMemberAssetList(id);
+    // 处理资产列表
     if (asset && asset?.vipAssetVOList) {
       asset.vipAssetVOList = asset.vipAssetVOList.map((item: any, index: number) => ({
         ...item,
@@ -96,24 +99,15 @@ const getMemberAsset = async (id: number) => {
         discountValue: `${item.id}-${item?.assetDiscountBase}-${item?.assetDiscountRate}`,
       }));
     }
+
+    // 处理优惠券列表
     if (asset && asset?.vipTicketVOList) {
       asset.vipTicketVOList = asset.vipTicketVOList.filter((item: any) => {
         return item.status != '已使用';
       });
-      // asset.vipTicketVOList.sort((a: any, b: any) => {
-      //   if (!a.expiryDate && a.expiryDate === -1) {
-      //     a.expiryDate = new Date('2060-12-31');
-      //   } else {
-      //     a.expiryDate = new Date(a.expiryDate);
-      //   }
-      //   if (!b.expiryDate && b.expiryDate === -1) {
-      //     b.expiryDate = new Date('2060-12-31');
-      //   } else {
-      //     b.expiryDate = new Date(b.expiryDate);
-      //   }
-      //   return a.expiryDate - b.expiryDate;
-      // });
     }
+
+    // 存储会员资产信息
     store.member = { ...asset.vipInfoVO, ...asset };
     // 重置选中资产
     checkedList.value = [];
@@ -123,6 +117,7 @@ const getMemberAsset = async (id: number) => {
   }
 };
 
+// 渲染会员资产列表
 const assetList: any = computed(() => {
   if (!store.member.vipAssetVOList && isEmpty(store.member.vipAssetVOList)) {
     return [];
@@ -151,10 +146,12 @@ const checkedList = ref<any>([]);
 watch(
   () => checkedList.value,
   (newVal) => {
+    if (isEmpty(newVal)) {
+      store.resetCheckedAssetInfo();
+      return;
+    }
     const assetIds = newVal.map((e: string) => parseInt(e.split('-')[0]));
     store.checkedAssetInfo.assetIds = assetIds;
-    // console.log('checkedList = ', newVal);
-    // console.log('assetIds = ', assetIds);
 
     let assetTitle = '';
     let assetAmount = 0;
@@ -163,6 +160,10 @@ watch(
       if (asset) {
         assetTitle = getDiscountLabel(asset);
         assetAmount += asset.assetBalance;
+
+        // 更新选中资产信息
+        store.checkedAssetInfo.assetDiscountBase = asset.assetDiscountBase;
+        store.checkedAssetInfo.assetDiscountRate = asset.assetDiscountRate;
       }
     }
     store.checkedAssetInfo.assetTitle = assetTitle;
@@ -181,10 +182,6 @@ const handleChange = (val: any) => {
     return;
   } else {
     // 更新明细价格
-    // const assetId = val[0].split('-')[0];
-    // const asset = store.member.vipAssetVOList.find((item: any) => item.id == assetId);
-    // console.log('当前选择资产：', asset);
-    // updateOrderItemPrice(asset);
     store.updateOrderDetailPrice();
   }
 

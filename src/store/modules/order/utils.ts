@@ -27,10 +27,16 @@ export const DEFAULT_ORDER_FORM: OrderSettleDTO = {
  * 默认选中资产信息
  */
 export const DEFAULT_CHECKED_ASSET_INFO = {
-  assetIds: [], // 资产ID
-  assetTitle: '', // 资产类型
-  assetAmount: 0, // 资产金额
-  assetDiscountRate: 0, // 资产折扣率
+  /** 选中的资产ID列表 */
+  assetIds: [],
+  /** 资产 title */
+  assetTitle: '',
+  /** 选中的资产总金额 */
+  assetAmount: 0,
+  /** 资产折扣率 */
+  assetDiscountRate: 100,
+  /** 资产折扣基准 （折扣基础（0 标准价，1 会员价）） */
+  assetDiscountBase: 0,
 };
 
 /**

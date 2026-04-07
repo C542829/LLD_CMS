@@ -91,11 +91,9 @@ import { DEFAULT_ORDER_FORM } from '@/views/saleMain/utils/index';
 import { CustomerType, BedStatus, BedStatusMap, CashierRouteSign } from '@/enums/index';
 import { useRoomStore } from '@/store/modules/setGroup/room';
 import { useOrderStore } from '@/store/modules/order/index';
-import { useDataEnumStore } from '@/store/modules/enums/index';
 
 const orderStore = useOrderStore();
 const roomStore = useRoomStore();
-const dataEnumStore = useDataEnumStore();
 const router = useRouter();
 
 /** 订单列表 Ref */
@@ -108,10 +106,6 @@ const tabSwitch = ref(0);
 onMounted(async () => {
   initByBedId();
   getBedList();
-  await dataEnumStore.getStaffList();
-  setTimeout(() => {
-    orderStore.initServiceMap();
-  }, 500);
 });
 
 onUnmounted(() => {
@@ -286,6 +280,7 @@ const inputValue = ref('');
 // 选中会员
 const handleSelect = (item: Record<string, any>) => {
   orderStore.order.vipId = item.id;
+  orderStore.order.vipName = item.name;
   orderStore.order.customerType = CustomerType.Member;
   tabSwitch.value = 1;
 };

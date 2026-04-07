@@ -1,20 +1,25 @@
 <template>
   <div class="coupon-container">
-    <el-divider>
+    <!-- <el-divider>
       <el-radio-group v-model="tabSwitch">
         <el-radio-button :value="0" :border="false" size="small">代金券</el-radio-button>
         <el-radio-button :value="1" :border="false" size="small">项目券</el-radio-button>
       </el-radio-group>
-    </el-divider>
+    </el-divider> -->
     <el-scrollbar class="coupon-list">
-      <template v-if="coupons && coupons.length > 0">
+      <template v-if="isRender">
+        <!-- <template v-if="tabSwitch === 0"> -->
         <CouponCard
-          v-for="(item, index) in coupons"
+          v-for="(item, index) in voucherCoupons"
           :key="item.id"
           :coupon="item"
           @cancelSelect="cancelSelect(item)"
           @select="selectCoupon(item)"
         />
+        <!-- </template>
+        <template v-else> -->
+        <ProjectCouponCard v-for="(item, index) in projectCoupons" :key="item.id" :coupon="item" />
+        <!-- </template> -->
         <div style="height: 12px"></div>
       </template>
       <template v-else>
@@ -26,6 +31,7 @@
 
 <script setup lang="ts">
 import CouponCard from './CouponCard.vue';
+import ProjectCouponCard from './ProjectCouponCard.vue';
 import { ref, watch, computed, onMounted } from 'vue';
 import { CouponType, CustomerType, DiscountType, discountTypeMap } from '@/enums/index';
 import { useOrderStore } from '@/store/modules/order/index';
@@ -35,6 +41,10 @@ const store = useOrderStore();
 
 const tabSwitch = ref(0);
 
+// 是否渲染优惠券列表
+const isRender = computed(() => {
+  return !(!store.member.vipTicketVOList || store.member.vipTicketVOList.length === 0);
+});
 /** 优惠券列表(tabSwitch = 0 返回代金券;1 返回项目券) */
 const coupons = computed(() => {
   if (!store.member.vipTicketVOList || store.member.vipTicketVOList.length === 0) {
@@ -49,6 +59,42 @@ const coupons = computed(() => {
       return item.ticketInfo.ticketType === CouponType.experience;
     });
   }
+});
+
+// 代金券
+const voucherCoupons = computed(() => {
+  if (!store.member.vipTicketVOList || store.member.vipTicketVOList.length === 0) {
+    return [];
+  }
+  return store.member.vipTicketVOList.filter((item: any) => {
+    return item.ticketInfo.ticketType === CouponType.voucher;
+  });
+});
+
+// 项目券
+const projectCoupons = computed(() => {
+  if (!store.member.vipTicketVOList || store.member.vipTicketVOList.length === 0) {
+    return [];
+  }
+  const coupons = store.member.vipTicketVOList.filter((item: any) => {
+    return item.ticketInfo.ticketType === CouponType.experience;
+  });
+
+  // 根据 ticketName 聚合数量，其余优惠券参数信息也需要展示
+  const projectCoupons = coupons.reduce((acc: any, cur: any) => {
+    const item = acc.find((item: any) => item.ticketName === cur.ticketName);
+    if (item) {
+      item.count++;
+    } else {
+      acc.push({
+        ticketName: cur.ticketName,
+        count: 1,
+        ...cur,
+      });
+    }
+    return acc;
+  }, []);
+  return projectCoupons;
 });
 
 let currentCoupon: any | null = null;

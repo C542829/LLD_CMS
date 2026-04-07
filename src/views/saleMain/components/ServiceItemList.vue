@@ -56,12 +56,15 @@ const handleAddItem = (item: any) => {
   item = cloneDeep(item);
   item.detailType = OrderDetailType.Service;
   item.serverType = ServiceType.Round;
+  item.isDiscount = item.isDiscounts;
   item.quantity = 1;
   item.bid = item.id;
   item.businessName = item.itemName;
   item.businessCode = item.itemEncode;
   item.stdPrice = item.itemPrice;
+  item.vipPrice = item.vipItemPrice;
   item.truePrice = item.itemPrice;
+  item.trueUnitPrice = item.itemPrice;
 
   delete item.id;
   emit('addItem', item);

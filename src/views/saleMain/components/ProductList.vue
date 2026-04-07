@@ -55,13 +55,15 @@ const getProductList = async (category: string) => {
 const handleAddItem = (item: any) => {
   item = cloneDeep(item);
   item.detailType = OrderDetailType.Product;
-  // item.serverType = ServiceType.Round;
+  item.isDiscount = item.isDiscount;
   item.quantity = 1;
   item.bid = item.id;
   item.businessName = item.productName;
   item.businessCode = item.productEncode;
   item.stdPrice = item.productPrice;
+  item.vipPrice = item.vipProductPrice;
   item.truePrice = item.productPrice;
+  item.trueUnitPrice = item.productPrice;
 
   delete item.id;
   emit('addItem', item);

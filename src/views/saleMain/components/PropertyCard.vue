@@ -2,10 +2,12 @@
   <div class="fin-row">
     <div>
       <div class="row-item fin-row-index">
-        <span>序号: {{ index }}</span>
-        <span class="fin-row-amount">应付: {{ amount }}</span>
+        <div class="asset-name text-overflow" :title="`${index + 1}. ${data?.assetName || ''}`">
+          {{ index + 1 }}. {{ data?.assetName || '' }}
+        </div>
+        <div class="fin-row-amount text-overflow" :title="`应付: ${amount}`">应付: {{ amount }}</div>
       </div>
-      <div class="row-item">
+      <div class="row-item fin-row-discount-info">
         <el-checkbox
           :label="discountLabel"
           :value="data?.discountValue"
@@ -21,8 +23,8 @@
       </div>
       <div class="row-item fin-row-remark">
         <!-- <EllipsisText :content="`备注：${data.remark || '-'}`" placement="left" /> -->
-        <span>备注：</span>
-        <DynamicInput :value="data.remark" :params="data || {}" size="small" @update="updateRemark" />
+        <span style="font-size: 12px">备注：</span>
+        <DynamicInput :value="data.remark" :params="data || {}" size="small" fontSize="12px" @update="updateRemark" />
       </div>
     </div>
     <div v-if="isGiving" class="is-giving">赠 送</div>
@@ -49,6 +51,7 @@ interface Props {
  */
 const props = withDefaults(defineProps<Props>(), {
   amount: 0,
+  index: 0,
 });
 
 const payAmount = computed(() => {});
@@ -198,6 +201,24 @@ const orgName = computed(() => {
 
 .fin-row-index {
   font-size: 14px;
+  width: 100%;
+  display: flex;
+  gap: 10px;
+  .asset-name {
+    width: calc(100% - 80px);
+  }
+  .fin-row-amount {
+    text-align: right;
+    width: 80px;
+    font-size: 13px;
+    color: var(--el-color-success);
+  }
+}
+
+.fin-row-discount-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .fin-row-balance,
@@ -210,13 +231,6 @@ const orgName = computed(() => {
 .fin-row-balance {
   margin-left: 10px;
   color: var(--el-color-danger);
-}
-
-.fin-row-amount {
-  display: inline-block;
-  margin-left: 10px;
-  font-size: 13px;
-  color: var(--el-color-success);
 }
 
 .fin-row-org {
@@ -235,12 +249,12 @@ const orgName = computed(() => {
 
 .fin-row-remark {
   color: var(--el-text-color-regular);
-  font-size: 14px;
+  font-size: 12px;
   > span:first-child {
-    width: 42px;
+    width: 36px;
   }
   > div {
-    width: calc(100% - 42px);
+    width: calc(100% - 36px);
   }
 }
 </style>

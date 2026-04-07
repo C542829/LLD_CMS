@@ -22,7 +22,7 @@
 
 <script setup lang="ts">
 import ItemCard from './ItemCard.vue';
-import { ref, watch, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { OrderDetailType } from '@/enums/index';
 import { IsDiscount } from '@/enums';
 import { useDataEnumStore } from '@/store/modules/enums/index';
@@ -45,10 +45,11 @@ const handleAddItem = (item: any) => {
   item.businessName = item.name;
   item.businessCode = item.encode;
   item.stdPrice = item.price;
+  item.vipPrice = item.price;
   item.truePrice = item.price;
+  item.trueUnitPrice = item.price;
 
   delete item.id;
-  // orderStore.addOrderItem(item);
   emit('addItem', item);
 };
 

@@ -30,16 +30,17 @@
 import Message from '@/components/Message';
 import PayMethod from './PayMethod.vue';
 
+import { isEmpty } from 'lodash';
 import { ref, watch, onMounted } from 'vue';
-import { CustomerType, ResponseCode } from '@/enums/index';
+import { paymentTypeMap, PaymentType } from '@/enums';
+import { CustomerType } from '@/enums/index';
 import { printer } from '@/utils/lodop';
 import { type Types, reqQueryOrder, reqSettleOrder } from '@/api/order/index';
-import { isEmpty } from 'lodash';
 
 import { useOrderStore } from '@/store/modules/order/index';
-import { useOrgStore } from '@/store/modules/acl/org';
+import useUserStore from '@/store/modules/acl/user';
 
-const orgStore = useOrgStore();
+const userStore = useUserStore();
 const orderStore = useOrderStore();
 
 interface Props {
@@ -64,6 +65,18 @@ const dialogVisible = ref(false);
 const title = ref('结算确认单');
 const loading = ref(false);
 
+/**
+ * 更新支付方式信息
+ */
+const updatePayment = (payments: Types.PaymentInfoDTO[]) => {
+  for (const payment of payments) {
+    payment.paymentName = paymentTypeMap[payment.paymentType as PaymentType];
+    if (payment.paymentType !== PaymentType.MemberCard) {
+      payment.assetCode = '';
+    }
+  }
+};
+
 /** 结算操作 */
 const handleSubmit = async () => {
   // const payMethods = orderStore.order.paymentInfoList.filter((item: any) => item.paymentType !== '');
@@ -71,6 +84,20 @@ const handleSubmit = async () => {
   //   Message.warning('请选择支付方式');
   //   return;
   // }
+
+  // 更新支付方式信息
+  updatePayment(orderStore.order.paymentInfoList);
+
+  // 更新会员信息
+  if (orderStore.order.vipId) {
+    orderStore.order.customerName = orderStore.order.vipName;
+  }
+
+  // 同步订单信息
+  orderStore.order.assetIds = orderStore.checkedAssetInfo.assetIds;
+  orderStore.order.totalAmount = orderStore.payAmount;
+  orderStore.order.actualAmount = orderStore.truePayAmount;
+  orderStore.order.discountAmount = orderStore.discountAmount;
 
   settleOrder();
 };
@@ -81,11 +108,6 @@ const handleSubmit = async () => {
 const settleOrder = async () => {
   loading.value = true;
 
-  // 同步订单信息
-  orderStore.order.assetIds = orderStore.checkedAssetInfo.assetIds;
-  orderStore.order.totalAmount = orderStore.payAmount;
-  orderStore.order.actualAmount = orderStore.truePayAmount;
-  orderStore.order.discountAmount = orderStore.discountAmount;
   // console.log('结算订单:', orderStore.order);
   try {
     const res = await reqSettleOrder(orderStore.order);
@@ -113,25 +135,29 @@ const printReceipt = async (orderCode: string) => {
     console.log('打印参数缺失：缺少订单编码');
   }
 
-  const org = await orgStore.getOrg();
-  const order = await getOrder(orderCode);
-  const data = { ...order, ...org };
-  printer.printOrderByHTML(data, false);
+  try {
+    // 获取门店详情
+    const org = userStore.org || {};
+    // 获取订单详情
+    const order = await getOrder(orderCode);
+    if (isEmpty(order)) {
+      return;
+    }
+    // 合并订单详情和门店详情
+    const data: any = { ...order, ...org };
+    // 打印小票
+    printer.printOrderByHTML(data, false);
+  } catch (error) {}
 };
 
 /** 获取订单信息 */
 const getOrder = async (orderCode: string) => {
   try {
     const res = await reqQueryOrder(orderCode);
-    if (res.code === ResponseCode.SUCCESS) {
-      return res.data;
-    } else {
-      Message.error('请求订单信息错误');
-      return {};
-    }
+    return res.data;
   } catch (error) {
     console.error(error);
-    Message.error('请求订单信息错误');
+    Message.error('获取订单信息失败,无法打印小票');
     return {};
   }
 };

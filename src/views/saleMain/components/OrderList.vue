@@ -34,7 +34,6 @@
             :data="item"
             @delete="handleDeleteItem"
           />
-          <!-- <div style="height: 110px"></div> -->
         </el-scrollbar>
       </template>
       <template v-else>
@@ -44,6 +43,7 @@
 
     <!-- 结算栏 -->
     <footer class="order-list-footer">
+      <!-- 结算信息 -->
       <div class="left-footer">
         <!-- 待付款 -->
         <div class="pay-info">
@@ -70,6 +70,8 @@
           </template>
         </div>
       </div>
+
+      <!-- 底部操作按钮栏 -->
       <div class="right-footer">
         <!-- <template v-if="orderStore.order && orderStore.order.ticketUseList.length > 0">
           <el-button type="primary" link @click="handleCancelCoupon">取消所选优惠券</el-button>
