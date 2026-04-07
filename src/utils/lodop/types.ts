@@ -14,7 +14,15 @@ export interface OrderDetail {
   stdPrice: number;
   quantity: number;
   truePrice: number;
+  trueUnitPrice: number;
   serverType: number; // 0-主项目 1-加项
+  technicians: Technician[];
+}
+
+export interface Technician {
+  userId: number;
+  userName: string;
+  userCode: string;
 }
 
 export interface Payment {
@@ -31,6 +39,9 @@ export interface OrderData {
   discountAmount: number;
   bedName: string;
   userName: string; // 收银员
+  vipName: string;
+  customerName: string;
+  vipPhoneNumber: string;
   orderDetails: OrderDetail[];
   payments: Payment[];
   orgName: string; // 门店名称，需补充到data中

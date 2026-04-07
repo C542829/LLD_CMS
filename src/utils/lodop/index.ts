@@ -2,9 +2,10 @@
 // @ts-expect-error 忽略js文件检查
 import { getLodop } from './LodopFuncs.js';
 import { OrderData, RechargeData, Config, PrintType } from './types';
+import { calculateOrderPrintHeight, calculateRechargePrintHeight, getOrgInfo } from './utils';
+import { OrderInfoVO } from '@/api/order/types';
 import { generateOrderHtmlTemplate, generateRechargeHtmlTemplate } from './GenerateTemplate';
 import { orderTemplate } from './GenerateLodopTemplate';
-import { getOrgInfo } from '@/utils/localStorageTools';
 import ElMessage from '@/components/Message'; // 若使用Element Plus，可用于提示
 
 export class LodopPrinter {
@@ -79,58 +80,14 @@ export class LodopPrinter {
       height: 0,
     };
 
-    // 从门店信息里获取默认打印宽度
-    const org = getOrgInfo();
-    if (org) {
-      config.width = org.printWidth || 58;
-    }
-
     // 计算打印高度
     if (type === PrintType.ORDER) {
-      config.height = this.calculateOrderPrintHeight(data as OrderData) || 0;
+      config.height = calculateOrderPrintHeight(data as OrderData) || 0;
     } else if (type === PrintType.RECHARGE) {
-      config.height = this.calculateRechargePrintHeight(data as RechargeData) || 0;
+      config.height = calculateRechargePrintHeight(data as RechargeData) || 0;
     }
 
     return config;
-  }
-
-  /**
-   * 计算订单打印所需的高度（单位：毫米）
-   * @param data 订单数据
-   * @returns 估算的打印高度（毫米）
-   */
-  private calculateOrderPrintHeight(data: OrderData): number {
-    const baseHeight = 120; // 基础内容高度（固定部分）
-    const detailRowHeight = 6; // 每行订单明细的高度（毫米）
-    const paymentRowHeight = 6; // 每行支付明细的高度（毫米）
-    const faultTolerance = 30; // 容错空间
-
-    // 动态部分高度
-    const detailHeight = data.orderDetails.length * detailRowHeight;
-    const paymentHeight = data.payments.length * paymentRowHeight;
-
-    // 总高度 = 基础高度 + 动态部分高度 + 容错空间
-    return baseHeight + detailHeight + paymentHeight + faultTolerance;
-  }
-
-  /**
-   * 计算充值单打印所需的高度（单位：毫米）
-   * @param data 充值数据
-   * @returns 估算的打印高度（毫米）
-   */
-  private calculateRechargePrintHeight(data: RechargeData): number {
-    const baseHeight = 140; // 基础内容高度（固定部分）
-    const paymentRowHeight = 6; // 每行支付明细的高度（毫米）
-    const kpiRowHeight = 6; // 每行业绩归属的高度（毫米）
-    const faultTolerance = 30; // 容错空间
-
-    // 动态部分高度
-    const paymentHeight = data.paymentInfoList.length * paymentRowHeight;
-    const kpiHeight = data.userKpiList.length * kpiRowHeight;
-
-    // 总高度 = 基础高度 + 动态部分高度 + 容错空间
-    return baseHeight + paymentHeight + kpiHeight + faultTolerance;
   }
 
   /**
@@ -145,17 +102,16 @@ export class LodopPrinter {
     }
 
     // 开启预览打印
-    preview = true;
+    // preview = true;
 
     // 获取打印配置（单位：毫米）
     const { width, height } = this.getPrintConfig(data, PrintType.ORDER);
     // LODOP的打印页面宽度
     const printWidth = `${width - 10}mm`;
     // LODOP的打印页面高度
-    // const printHeight = `${height ? height - 20 : height}mm`;
     const printHeight = `${height}mm`;
 
-    console.log('打印尺寸：', { printWidth, printHeight });
+    console.log('订单打印尺寸：', { printWidth, printHeight });
 
     // LODOP的打印任务名称
     const taskName = `${data.orderCode}-${data.orgName}消费单`;
@@ -195,7 +151,6 @@ export class LodopPrinter {
     // LODOP的打印页面宽度
     const printWidth = `${width - 10}mm`;
     // LODOP的打印页面高度
-    // const printHeight = `${height ? height - 10 : height}mm`;
     const printHeight = `${height}mm`;
 
     // console.log('打印尺寸：', { printWidth, printHeight });
