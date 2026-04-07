@@ -269,7 +269,7 @@ export enum PaymentType {
  * 支付类型映射
  */
 export const paymentTypeMap = {
-  [PaymentType.QR]: '扫码',
+  [PaymentType.QR]: '收款码',
   [PaymentType.Cash]: '现金',
   [PaymentType.POS]: 'POS',
   [PaymentType.DouYi]: '抖音',
@@ -280,12 +280,12 @@ export const paymentTypeMap = {
  * 支付类型
  */
 export const paymentTypeOptions = [
-  { value: PaymentType.QR, label: '扫码' },
-  { value: PaymentType.Cash, label: '现金' },
-  { value: PaymentType.MemberCard, label: '会员卡' },
-  { value: PaymentType.DouYi, label: '抖音' },
-  { value: PaymentType.MeiTuan, label: '美团' },
-  { value: PaymentType.POS, label: 'POS' },
+  { value: PaymentType.QR, label: paymentTypeMap[PaymentType.QR] },
+  { value: PaymentType.Cash, label: paymentTypeMap[PaymentType.Cash] },
+  { value: PaymentType.MemberCard, label: paymentTypeMap[PaymentType.MemberCard] },
+  { value: PaymentType.DouYi, label: paymentTypeMap[PaymentType.DouYi] },
+  { value: PaymentType.MeiTuan, label: paymentTypeMap[PaymentType.MeiTuan] },
+  { value: PaymentType.POS, label: paymentTypeMap[PaymentType.POS] },
 ];
 // #endregion 支付类型
 
