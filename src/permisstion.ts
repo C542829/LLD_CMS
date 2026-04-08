@@ -13,55 +13,47 @@ import useUserStore from './store/modules/acl/user';
 import pinia from './store';
 const userStore = useUserStore(pinia);
 
-// 初始化注册路由，避免白屏
-(async () => {
-  const routes = router.getRoutes();
-  if (userStore.token && routes.length <= 5) {
-    await userStore.userInfo();
-  }
-})();
-
 // 全局前置守卫
-router.beforeEach(async (to: any, from: any, next: any) => {
+router.beforeEach(async (to: any, _from: any, next: any) => {
   // 设置页面标题
   document.title = `${setting.title} - ${to.meta.title}`;
   // 开启进度条
   nprogress.start();
-
-  // 白屏处理
-  if (!from.name && to.path === '/404' && to.redirectedFrom) {
-    if (userStore.userId) {
-      await userStore.userInfo();
-      next({ path: to.redirectedFrom.path });
-      return;
-    }
-  }
 
   // 获取用户信息
   const user = getUserInfo();
   // 获取token
   const token = userStore.token;
 
-  if (user || token || userStore.menuRoutes.length === 0) {
-    // 获取用户信息
-    if (userStore.userId || userStore.menuRoutes.length === 0) {
-      await userStore.userInfo();
-      next();
-      return;
-    }
-    // 错误处理
-    if (to.path === '/500' || to.path === '/404') {
-      // 如果错误跳转对应页面
-      next();
-      return; // 添加return语句，防止后续代码继续执行
+  // 判断是否登录
+  if (user || token) {
+    // 已登录
+    if (to.path === '/login') {
+      // 已登录访问登录页，重定向到首页
+      next({ path: '/' });
+    } else {
+      // 判断是否已获取用户信息和动态路由
+      // 刷新页面时 menuRoutes 会被重置为空数组
+      // 或者路由匹配失败（to.matched.length === 0）说明动态路由未加载
+      if (userStore.menuRoutes.length === 0 || to.matched.length === 0) {
+        // 获取用户信息和动态路由
+        await userStore.userInfo();
+        // 重新触发导航，确保动态路由已注册
+        next({ ...to, replace: true });
+      } else {
+        // 已有路由信息，直接放行
+        next();
+      }
     }
   } else {
-    // 用户未登录判断
-    // if (to.path === '/login') {
-    // next();
-    // } else {
-    next({ path: '/login', query: { redirect: to.path } });
-    // }
+    // 未登录
+    if (to.path === '/login') {
+      // 未登录访问登录页，直接放行
+      next();
+    } else {
+      // 未登录访问其他页面，重定向到登录页
+      next({ path: '/login', query: { redirect: to.path } });
+    }
   }
 });
 

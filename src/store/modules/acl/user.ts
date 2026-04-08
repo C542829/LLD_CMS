@@ -64,7 +64,6 @@ const useUserStore = defineStore('User', {
     async login(data: any) {
       try {
         const res = await reqLogin(data);
-        console.log('登录成功：', res);
         const result = res.data;
         this.setStoreUserInfo(result);
         setUserInfo(result);
@@ -95,10 +94,6 @@ const useUserStore = defineStore('User', {
         }
         // 同步用户信息
         this.setStoreUserInfo(user);
-        // 获取门店信息
-        this.storageOrgInfo(user.orgId);
-        // 获取用户信息
-        this.storageUserInfo(user.userId);
 
         // this.buttons = result.data.buttons;
         if (this.menuRoutes.length === 0) {
@@ -121,6 +116,11 @@ const useUserStore = defineStore('User', {
         this.menuRoutes.forEach((route: any) => {
           router.addRoute(route);
         });
+
+        // 获取门店信息
+        this.storageOrgInfo(user.orgId);
+        // 获取用户信息
+        this.storageUserInfo(user.userId);
       } catch (error) {
         console.error(`获取用户信息出错：${error}`);
       }
@@ -152,9 +152,9 @@ const useUserStore = defineStore('User', {
       const params = { username: this.username };
       const res: any = await reqLogout(params);
       if (res.code === ResponseCode.SUCCESS) {
+        this.clearUserInfo();
         router.push({ path: '/login' });
         // $Message.success('退出登录成功');
-        this.clearUserInfo();
       } else {
         $Message.error('退出登录失败');
       }

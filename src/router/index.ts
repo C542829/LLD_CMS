@@ -1,12 +1,12 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
-import { constantRoute, anyRoute } from '@/router/routes';
+import { constantRoute } from '@/router/routes';
 
 const router = createRouter({
   // 路由模式hash
   history: createWebHashHistory(),
 
-  // 暂时使用全部路由
-  routes: [...constantRoute, anyRoute],
+  // 初始化时只注册常量路由，动态路由在权限守卫中注册
+  routes: [...constantRoute],
   // 滚动行为
   scrollBehavior() {
     return {
