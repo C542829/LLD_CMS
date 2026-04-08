@@ -6,7 +6,7 @@
         <div class="search-item">
           <label>
             时间：
-            <DatePicker v-model="store.search.date" style="width: 260px" />
+            <DatePicker v-model="searchParams.date" style="width: 260px" />
           </label>
         </div>
         <template v-if="userStore.isAdmin || userStore.isAreaManager">
@@ -14,7 +14,7 @@
             <label>
               门店：
               <OrgSelect
-                v-model="store.search.orgIds"
+                v-model="searchParams.orgIds"
                 placeholder="门店"
                 class="w-120"
                 :multiple="true"
@@ -27,8 +27,8 @@
         <div class="search-item">
           范围：
           <el-input
-            v-model="store.search.fullAmount"
-            :disabled="!!store.search.moreAmount"
+            v-model="searchParams.fullAmount"
+            :disabled="!!searchParams.moreAmount"
             style="max-width: 180px"
             placeholder="输入金额"
             clearable
@@ -37,8 +37,8 @@
           </el-input>
           &nbsp;
           <el-input
-            v-model="store.search.moreAmount"
-            :disabled="!!store.search.fullAmount"
+            v-model="searchParams.moreAmount"
+            :disabled="!!searchParams.fullAmount"
             style="max-width: 210px"
             placeholder="输入金额"
             clearable
@@ -50,7 +50,7 @@
           <el-button type="primary" @click="search">搜索</el-button>
         </div>
         <div class="search-item">
-          <el-button type="info" @click="store.resetSearch">重置</el-button>
+          <el-button type="info" @click="resetSearch">重置</el-button>
         </div>
         <div class="search-item">
           <el-button type="success" disabled @click="">导出所有会员</el-button>
@@ -63,10 +63,10 @@
       <PaginationTable
         v-loading="settingStore.loading && !dialog.visible"
         :element-loading-text="settingStore.loadingMsg"
-        :data="store.tableData.list"
-        :total="store.tableData.total"
-        v-model:currentPage="store.search.currentPage"
-        v-model:pageSize="store.search.pageSize"
+        :data="tableData.list"
+        :total="tableData.total"
+        v-model:currentPage="searchParams.currentPage"
+        v-model:pageSize="searchParams.pageSize"
         @size-change="handleSizeChange"
         @pagination-current-change="handleCurrentChange"
       >
@@ -96,16 +96,75 @@
 <script setup lang="ts">
 import { reactive, onMounted } from 'vue';
 import { sexMap, amountFormatter } from '@/utils/formatter';
+import { formatDate } from '@/utils/time';
+import { parseResObj } from '@/utils/parseResponse';
+import { reqVipList } from '@/api/member/member';
 import PropertyDetail from '../components/PropertyDetail.vue';
 
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
-import { useMemberActiveAnalysisStore } from '@/store/modules/member/activeAnalysis';
 import useUserStore from '@/store/modules/acl/user';
 
 const userStore = useUserStore();
 const settingStore = useSettingStore();
-const store = useMemberActiveAnalysisStore();
+
+// 搜索参数
+const searchParams = reactive<any>({
+  moreAmount: null,
+  fullAmount: null,
+  date: [],
+  orgIds: [],
+  pageSize: 50,
+  currentPage: 1,
+});
+
+// 表格数据
+const tableData = reactive({
+  total: 0,
+  list: [],
+});
+
+/**
+ * 处理请求参数
+ */
+const handleParams = () => {
+  const params: any = { ...searchParams };
+  // 处理参数
+  if (params.date && params.date.length !== 0) {
+    params.startTime = formatDate(params.date[0]);
+    params.endTime = formatDate(params.date[1]);
+  }
+  !params.moreAmount && delete params.moreAmount;
+  !params.fullAmount && delete params.fullAmount;
+
+  // 移除多余参数
+  delete params.date;
+
+  return params || {};
+};
+
+/**
+ * 获取表格数据
+ */
+const setTableData = async () => {
+  settingStore.loading = true;
+  const params = handleParams();
+  const res = await reqVipList(params);
+  const { total, rows } = parseResObj(res);
+  tableData.total = total;
+  tableData.list = rows;
+  settingStore.loading = false;
+};
+
+/**
+ * 重置搜索条件
+ */
+const resetSearch = () => {
+  searchParams.moreAmount = null;
+  searchParams.fullAmount = null;
+  searchParams.date = [];
+  setTableData();
+};
 
 // 初始化
 onMounted(() => {
@@ -114,18 +173,18 @@ onMounted(() => {
 
 // 搜索
 const search = () => {
-  store.setTableData();
+  setTableData();
 };
 
 // 处理分页变化
 const handleSizeChange = (val: number) => {
-  store.search.pageSize = val;
-  store.setTableData();
+  searchParams.pageSize = val;
+  setTableData();
 };
 
 const handleCurrentChange = (val: number) => {
-  store.search.currentPage = val;
-  store.setTableData();
+  searchParams.currentPage = val;
+  setTableData();
 };
 
 // 模态框
