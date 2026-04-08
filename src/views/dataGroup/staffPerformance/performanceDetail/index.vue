@@ -102,7 +102,9 @@
         </el-table-column>
         <el-table-column label="上钟类型" align="center" width="90">
           <template #default="{ row }">
-            <ClockInTypeTag :type="row.itemType as ServiceType" />
+            <template v-if="row.serviceType === OrderDetailType.Service">
+              <ClockInTypeTag :type="row.itemType" />
+            </template>
           </template>
         </el-table-column>
         <el-table-column prop="quantity" label="数量" align="center" width="70" />

@@ -36,7 +36,9 @@
               </el-table-column>
               <el-table-column label="上钟类型">
                 <template #default="{ row }">
-                  <ClockInTypeTag :type="row.serverType as ServiceType" />
+                  <template v-if="row.detailType === OrderDetailType.Service">
+                    <ClockInTypeTag :type="row.serverType" />
+                  </template>
                 </template>
               </el-table-column>
               <el-table-column prop="userName" label="技师/销售" />
@@ -69,7 +71,7 @@
 import { ref, watch } from 'vue';
 import { reqQueryOrder } from '@/api/order';
 import { OrderInfoVO } from '@/api/order/types';
-import { ServiceType } from '@/enums';
+import { OrderDetailType } from '@/enums';
 import { LOADING_MSG } from '@/utils/constant';
 
 interface Props {

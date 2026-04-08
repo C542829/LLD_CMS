@@ -21,12 +21,14 @@
       <el-table-column prop="serviceName" label="项目/产品/疗程名称" width="155" />
       <el-table-column label="类型">
         <template #default="{ row }">
-          <ServiceTypeTag :type="row.serviceType as OrderDetailType" />
+          <ServiceTypeTag :type="row.serviceType" />
         </template>
       </el-table-column>
       <el-table-column label="上钟类型">
         <template #default="{ row }">
-          <ClockInTypeTag :type="row.clockInType as ServiceType" />
+          <template v-if="row.serviceType === OrderDetailType.Service">
+            <ClockInTypeTag :type="row.itemType" />
+          </template>
         </template>
       </el-table-column>
       <el-table-column prop="quantity" label="数量" />
@@ -42,7 +44,7 @@ import { ref, reactive, withDefaults, watch } from 'vue';
 import { reqPerformanceRecord } from '@/api/dataGroup/staffPerformance/index';
 import { dateFormatter } from '@/utils/formatter';
 import { LOADING_MSG } from '@/utils/constant';
-import { OrderDetailType, ServiceType } from '@/enums/index';
+import { OrderDetailType } from '@/enums/index';
 
 interface Props {
   data: any;
