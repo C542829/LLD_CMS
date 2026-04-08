@@ -85,71 +85,67 @@
         @pagination-current-change="handleCurrentChange"
       >
         <el-table-column type="index" label="序号" width="60" />
-        <el-table-column prop="orgName" label="门店" min-width="30" />
-        <el-table-column prop="orderCode" label="订单编号" />
-        <el-table-column prop="detailCode" label="明细编号" />
-        <el-table-column label="名称/标准价">
+        <el-table-column prop="orgName" label="门店" min-width="60" />
+        <el-table-column prop="orderCode" label="订单编号" min-width="50" />
+        <el-table-column prop="detailCode" label="明细编号" min-width="50" />
+        <el-table-column label="名称/标准价" min-width="100">
           <template #default="scope">
             <p>{{ scope.row.businessName }}</p>
             <p>标准价：¥{{ scope.row.stdPrice }}</p>
           </template>
         </el-table-column>
-        <el-table-column label="实收单价/销售数量">
+        <el-table-column label="实收单价/销售数量" min-width="100">
           <template #default="scope">
-            <p>实收单价：¥{{ scope.row.truePrice }}</p>
+            <p>实收单价：¥{{ scope.row.trueUnitPrice }}</p>
             <p>销售数量：{{ scope.row.quantity }}</p>
           </template>
         </el-table-column>
-        <el-table-column label="类型">
+        <el-table-column label="服务类型" width="90">
           <template #default="{ row }">
             <ServiceTypeTag :type="row.detailType" />
           </template>
         </el-table-column>
-        <el-table-column label="技师/销售">
+        <el-table-column label="上钟类型" width="90">
           <template #default="{ row }">
-            <template v-if="row.technicians">
-              {{ row.technicians.map((item: any) => item.userName).join('、') }}
-              <ClockInTypeTag :type="row.serverType" />
-            </template>
-            <template v-else>
-              {{ row.userName }}
+            <template v-if="row.detailType === OrderDetailType.Service">
               <ClockInTypeTag :type="row.serverType" />
             </template>
           </template>
         </el-table-column>
-        <el-table-column prop="settledTime" label="结算时间" :formatter="datetimeFormatter" />
-        <el-table-column label="操作" width="100">
-          <template #default="scope">
-            <el-button
-              @click="showDialog(scope.row)"
-              link
-              type="primary"
-              :loading="loadingOrderCode === scope.row.orderCode"
-            >
-              查看原单
-            </el-button>
+        <el-table-column label="技师/销售" min-width="100">
+          <template #default="{ row }">
+            <template v-if="row.technicians">
+              {{ row.technicians.map((item: any) => item.userName).join('、') }}
+            </template>
+            <template v-else>
+              {{ row.userName }}
+            </template>
+          </template>
+        </el-table-column>
+        <el-table-column prop="settledTime" label="结算时间" min-width="80" :formatter="datetimeFormatter" />
+        <el-table-column label="操作" min-width="80">
+          <template #default="{ row }">
+            <el-button @click="showDialog(row)" link type="primary">查看原单</el-button>
           </template>
         </el-table-column>
       </PaginationTable>
     </Card>
   </div>
-
-  <el-dialog v-model="dialog.visible" title="销售单据" width="800px">
-    <Receipt :orderData="currentOrderData" />
-  </el-dialog>
+  <!-- 销售单据对话框 -->
+  <ReceiptDialog ref="receiptDialogRef" />
 </template>
 
 <script setup lang="ts">
+import ReceiptDialog from './components/ReceiptDialog.vue';
 import ProductSelect from '@/components/FormComponents/ProductSelect.vue';
 import ServiceItemSelect from '@/components/FormComponents/ServiceItemSelect.vue';
 import { reactive, onMounted, ref } from 'vue';
 import { datetimeFormatter } from '@/utils/formatter';
-import Receipt from './Receipt.vue';
-import { ElMessage } from 'element-plus';
-import { reqSaleDetail, reqOrderInfo } from '@/api/dataGroup/saleData';
+import { reqSaleDetail } from '@/api/dataGroup/saleData';
 import { parseResObj } from '@/utils/parseResponse';
 import { LOADING_MSG } from '@/utils/constant';
 import useUserStore from '@/store/modules/acl/user';
+import { OrderDetailType } from '@/enums';
 
 const userStore = useUserStore();
 
@@ -202,31 +198,15 @@ const setSaleDetail = async () => {
   }
 };
 
-const dialog = reactive({
-  visible: false,
-});
+/** 销售单据对话框组件引用 */
+const receiptDialogRef = ref<InstanceType<typeof ReceiptDialog>>();
 
-const currentOrderData = ref(null);
-const loadingOrderCode = ref('');
-
-const showDialog = async (row: any) => {
-  try {
-    loadingOrderCode.value = row.orderCode;
-    const res = await reqOrderInfo(row.orderCode);
-    const orderData = parseResObj(res);
-
-    if (orderData) {
-      currentOrderData.value = orderData;
-      dialog.visible = true;
-    } else {
-      ElMessage.error('获取订单详情失败');
-    }
-  } catch (error) {
-    console.error('获取订单详情失败:', error);
-    ElMessage.error('获取订单详情失败，请稍后重试');
-  } finally {
-    loadingOrderCode.value = '';
-  }
+/**
+ * 显示销售单据对话框
+ * @param row 当前行数据
+ */
+const showDialog = (row: any) => {
+  receiptDialogRef.value?.show(row.orderCode);
 };
 </script>
 

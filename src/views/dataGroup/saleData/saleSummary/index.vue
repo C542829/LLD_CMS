@@ -51,15 +51,15 @@
         <el-table-column prop="totalSingleTime" label="总单次" width="80" />
         <el-table-column prop="totalPeopleTime" label="总人次" width="80" />
         <el-table-column prop="totalProjectCount" label="总项目数" width="85" />
-        <el-table-column prop="qrPayment" label="扫码支付" width="85" />
-        <el-table-column prop="cashPayment" label="现金支付" width="85" />
-        <el-table-column prop="memberCardPayment" label="会员卡支付" width="95" />
+        <el-table-column prop="qrPayment" label="收款码" width="85" />
+        <el-table-column prop="cashPayment" label="现金" width="85" />
+        <el-table-column prop="memberCardPayment" label="会员卡" width="95" />
         <el-table-column prop="posPayment" label="POS" width="85" />
-        <el-table-column prop="meituanPayment" label="美团支付" width="85" />
-        <el-table-column prop="douyinPayment" label="抖音支付" width="85" />
+        <el-table-column prop="meituanPayment" label="美团" width="85" />
+        <el-table-column prop="douyinPayment" label="抖音" width="85" />
         <el-table-column prop="cashRecharge" label="现金充值" width="85" />
         <!-- <el-table-column prop="wechatRecharge" label="微信充值" width="85" /> -->
-        <el-table-column prop="otherRecharge" label="其他方式充值" width="110" />
+        <el-table-column prop="otherRecharge" label="其他方式充值" min-width="110" />
       </PaginationTable>
     </Card>
   </div>
