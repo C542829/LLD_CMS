@@ -51,7 +51,8 @@ const visible = ref(false);
 
 // 刷新按钮点击回调
 const updateRefresh = () => {
-  settingStore.refresh = !settingStore.refresh;
+  window.location.reload();
+  // settingStore.refresh = !settingStore.refresh;
 };
 
 // 全屏按钮点击的回调
