@@ -71,12 +71,11 @@ const shortcuts = [
   {
     text: '今天',
     value: () => {
-      // 起始时间：00:00:00.000
+      // 起始时间：今天 00:00:00.000
       const start = new Date();
       start.setHours(0, 0, 0, 0);
-      // 结束时间：23:59:59.999
-      const tomorrow = new Date(start.getTime() + 24 * 60 * 60 * 1000);
-      const end = new Date(tomorrow);
+      // 结束时间：今天 23:59:59.999
+      const end = new Date();
       end.setHours(23, 59, 59, 999);
       return [start, end];
     },
@@ -84,15 +83,13 @@ const shortcuts = [
   {
     text: '昨天',
     value: () => {
-      // 获取当前时间
-      const now = new Date();
-      // 计算昨天的时间（当前时间减去一天的毫秒数）
-      const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-      // 起始时间：00:00:00.000
-      const start = new Date(yesterday);
-      start.setHours(0, 0, 0, 0);
-      // 结束时间：23:59:59.999
-      const end = new Date();
+      // 获取今天的时间
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      // 起始时间：昨天 00:00:00.000
+      const start = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+      // 结束时间：昨天 23:59:59.999
+      const end = new Date(today.getTime() - 1);
       return [start, end];
     },
   },
@@ -113,6 +110,20 @@ const shortcuts = [
       const start = new Date();
       const offset = start.getDate() - 1;
       start.setTime(start.getTime() - 3600 * 1000 * 24 * offset);
+      return [start, end];
+    },
+  },
+  {
+    text: '上月',
+    value: () => {
+      // 获取当前日期
+      const now = new Date();
+      // 上个月的第一天
+      const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      start.setHours(0, 0, 0, 0);
+      // 上个月的最后一天（本月第0天即为上月最后一天）
+      const end = new Date(now.getFullYear(), now.getMonth(), 0);
+      end.setHours(23, 59, 59, 999);
       return [start, end];
     },
   },
