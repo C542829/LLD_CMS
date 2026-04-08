@@ -1,7 +1,7 @@
 <template>
   <el-progress type="circle" :percentage="percentage" :color="colors" :striped-flow="true" :width="71">
     <template #default>
-      <span style="color: #fff">140分钟</span>
+      <span style="color: #fff">{{ percentage }}分钟</span>
     </template>
   </el-progress>
 </template>
@@ -39,7 +39,7 @@ const calcPercentage = (total: number, current: number) => {
 };
 
 // const percentage = ref(calcPercentage(140, 0));
-const percentage = computed(() => calcPercentage(140, 0));
+const percentage = computed(() => calcPercentage(100, 0));
 
 const colors = [
   { color: '#e74c3c', percentage: 100 },

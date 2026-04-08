@@ -43,10 +43,10 @@
           <div v-if="item.status === 1" class="card-bottom bed-status-svr">
             <div class="card-info">
               <div class="card-info-left">
-                <span>即将上钟：</span>
+                <span>服务中...</span>
               </div>
               <div class="card-progress">
-                <Progress :bed="item"></Progress>
+                <!-- <Progress :bed="item"></Progress> -->
               </div>
             </div>
             <div class="card-option">
