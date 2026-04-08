@@ -1,8 +1,16 @@
 <template>
   <div class="create-container">
-    <div class="container-left">
+    <div class="container-left" v-loading="loading">
       <div class="search-container">
-        <el-input v-model="searchKeyword" placeholder="产品名称" class="w-p-100">
+        <el-input v-model="searchKeyword" placeholder="名称/编码" class="w-p-100">
+          <template #prepend>
+            <DictSelect
+              v-model="category"
+              :dictCode="DictCode.PRODUCT_CATEGORY"
+              placeholder="分类"
+              style="width: 75px !important"
+            />
+          </template>
           <template #append>
             <el-button
               :icon="Search"
@@ -11,9 +19,8 @@
             />
           </template>
         </el-input>
-        <!-- <el-button type="primary" @click="getProductList" :disabled="formData.items.length > 0">获取产品数据</el-button> -->
       </div>
-      <div class="left-content" v-loading="loading">
+      <div class="left-content">
         <div
           v-for="item in renderProductList"
           @click="addItem(item)"
@@ -41,12 +48,7 @@
           </label>
         </div>
         <div class="header-item">
-          <el-button
-            type="primary"
-            @click="createOrder"
-            :loading="settingStore.loading"
-            :disabled="formData.items.length === 0"
-          >
+          <el-button type="primary" @click="createOrder" :loading="btnLoading" :disabled="formData.items.length === 0">
             提交
           </el-button>
         </div>
@@ -96,11 +98,10 @@ import { getUserInfo } from '@/utils/localStorageTools';
 
 import { useStockStore } from '@/store/modules/setGroup/stock';
 import { useProductStore } from '@/store/modules/setGroup/product';
-import { useSettingStore } from '@/store/modules/acl/setting';
+import { DictCode } from '@/enums';
 
 const store = useStockStore();
 const productStore = useProductStore();
-const settingStore = useSettingStore();
 
 const $Message: any = inject('$Message');
 
@@ -114,15 +115,29 @@ const props = defineProps({
 const emit = defineEmits(['submit']);
 
 const loading = ref(true);
+const btnLoading = ref(false);
+
+const category = ref('');
 
 const searchKeyword = ref('');
 const renderProductList = computed(() => {
-  if (searchKeyword.value === '') {
-    return productList.value;
+  if (!productList.value) {
+    return [];
   }
-  return productList.value.filter((item: any) =>
-    item.productName.toLowerCase().includes(searchKeyword.value.toLowerCase()),
-  );
+  return productList.value.filter((item: any) => {
+    // 分类筛选：如果选择了分类，必须匹配分类
+    const categoryMatch = !category.value || item.category === category.value;
+
+    // 关键词筛选：如果输入了关键词，必须匹配名称或编码
+    const keyword = searchKeyword.value.toLowerCase();
+    const keywordMatch =
+      !keyword ||
+      item.productName.toLowerCase().includes(keyword) ||
+      item.productEncode.toLowerCase().includes(keyword);
+
+    // 组合筛选：必须同时满足分类和关键词条件
+    return categoryMatch && keywordMatch;
+  });
 });
 
 const productList = ref<any>();
@@ -158,19 +173,22 @@ const createOrder = async () => {
     $Message.warning('请输入操作人');
     return;
   }
-  settingStore.loading = true;
-  let result = false;
-  if (props.handle === 'in') {
-    result = await store.addInStock(formData);
-  } else {
-    result = await store.addOutStock(formData);
-  }
-  if (result) {
+  btnLoading.value = true;
+  try {
+    let result = false;
+    if (props.handle === 'in') {
+      result = await store.addInStock(formData);
+    } else {
+      result = await store.addOutStock(formData);
+    }
     resetFormData();
     await getProductList();
     emit('submit');
+  } catch (error) {
+    console.error('创建出入库单失败:', error);
+  } finally {
+    btnLoading.value = false;
   }
-  settingStore.loading = false;
 };
 
 const addItem = (item: any) => {
