@@ -15,14 +15,16 @@
       <el-table-column prop="actualAmount" label="消费金额" min-width="50" />
       <el-table-column prop="orderStatusName" label="订单状态" min-width="50" />
       <!-- <el-table-column prop="orgName" label="消费门店" min-width="50" /> -->
-      <!-- <el-table-column label="操作">
-        <template #default>
-          <el-button type="primary" link @click="visible = true">查看消费明细</el-button>
+      <el-table-column label="操作">
+        <template #default="scope">
+          <el-button type="primary" link @click="showDrawer(scope.row)">明细</el-button>
         </template>
-      </el-table-column> -->
+      </el-table-column>
     </PaginationTable>
   </div>
+  <OrderDetailDrawer v-model="drawer.visible" :order="drawer.orderData" />
 
+  <!-- 
   <Dialog v-model="visible" title="消费明细" width="60%">
     <div class="dialog-container">
       <article class="consumption-detail">
@@ -69,15 +71,15 @@
         </el-tabs>
       </div>
     </div>
-  </Dialog>
+  </Dialog> -->
 </template>
 
 <script setup lang="ts">
+import OrderDetailDrawer from '@/views/dataGroup/saleData/saleRecord/components/OrderDetailDrawer.vue';
 import { onMounted, reactive, ref } from 'vue';
 import { isEmpty } from 'lodash';
 import { reqSaleRecord } from '@/api/dataGroup/saleData/index';
 import { OrderStatus } from '@/enums/index';
-
 interface IProps {
   params: any;
 }
@@ -89,6 +91,16 @@ const props = withDefaults(defineProps<IProps>(), {
 onMounted(() => {
   getConsumptionRecord();
 });
+
+const drawer = reactive({
+  visible: false,
+  orderData: null,
+});
+
+const showDrawer = (row: any) => {
+  drawer.orderData = row;
+  drawer.visible = true;
+};
 
 const visible = ref(false);
 const loading = ref(false);

@@ -243,6 +243,16 @@ const handleParams = () => {
     params.startDate = formatDate(params.date[0]);
     params.endDate = formatDate(params.date[1]);
   }
+
+  if (params.rechargeStatus === undefined) {
+    params.rechargeStatus = '';
+  }
+  if (params.paymentType === undefined) {
+    params.paymentType = '';
+  }
+  if (params.userId === undefined) {
+    params.userId = '';
+  }
   // 移除多余参数
   delete params.date;
   return params || {};

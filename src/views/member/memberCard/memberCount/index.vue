@@ -6,7 +6,7 @@
         <div class="search-item">
           <label>
             时间：
-            <DatePicker v-model="store.search.date" style="width: 260px" />
+            <DatePicker v-model="store.search.date" class="w-240" @change="search" />
           </label>
         </div>
         <template v-if="userStore.isAdmin || userStore.isAreaManager">
