@@ -1,25 +1,22 @@
 <template>
   <component
-    v-model="value"
-    :shortcuts="shortcuts"
+    ref="datePickerRef"
     :is="h(ElDatePicker, { ...$attrs, ...props, ref: changeRef }, $slots)"
-    @clear="reset"
+    :shortcuts="shortcuts"
     type="daterange"
-    unlink-panels
     range-separator="至"
     start-placeholder="开始日期"
     end-placeholder="结束日期"
     value-format="YYYY-MM-DD"
     format="YYYY-MM-DD"
     clearable
-    ref="datePickerRef"
+    unlink-panels
   />
 </template>
 
 <script lang="ts" setup>
-import { formatDate } from '@/utils/time';
 import { ElDatePicker, type DatePickerProps } from 'element-plus';
-import { ref, h, getCurrentInstance, watch } from 'vue';
+import { ref, h, getCurrentInstance } from 'vue';
 
 /**
  * 组件属性接口定义
@@ -46,18 +43,18 @@ const emit: any = defineEmits();
 const value = ref<Array<Date>>([]);
 
 // 当值发生变化时，调用自定义事件
-watch(
-  () => value.value,
-  (newValue: Array<Date>, oldValue) => {
-    if (newValue.length === 0) {
-      return;
-    }
+// watch(
+//   () => value.value,
+//   (newValue: Array<Date>, oldValue) => {
+//     if (newValue.length === 0) {
+//       return;
+//     }
 
-    const start: string = formatDate(newValue[0]);
-    const end: string = formatDate(newValue[1]);
-    emit('selectDate', start, end);
-  },
-);
+//     const start: string = formatDate(newValue[0]);
+//     const end: string = formatDate(newValue[1]);
+//     emit('selectDate', start, end);
+//   },
+// );
 
 props.default && (value.value = props.default);
 
