@@ -51,8 +51,8 @@
     <!-- 表格组件 -->
     <Card padding="0px">
       <PaginationTable
-        :data="store.tableData"
         v-loading="settingStore.loading"
+        :data="store.tableData"
         :element-loading-text="settingStore.loadingMsg"
         :row-class-name="getRowClassName"
         :showPagination="false"
