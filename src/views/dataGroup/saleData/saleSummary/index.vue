@@ -44,22 +44,21 @@
         show-summary
       >
         <el-table-column type="index" label="序号" width="60" fixed />
-        <el-table-column prop="orgName" label="门店" width="60" fixed />
+        <el-table-column prop="orgName" label="门店" min-width="60" fixed />
         <el-table-column prop="statsDate" label="日期" width="105" :formatter="dateFormatter" fixed />
-        <el-table-column prop="totalTurnover" label="总营业额" width="85" fixed />
-        <el-table-column prop="totalActualReceipt" label="总实收" width="85" fixed />
-        <el-table-column prop="totalSingleTime" label="总单次" width="80" />
-        <el-table-column prop="totalPeopleTime" label="总人次" width="80" />
-        <el-table-column prop="totalProjectCount" label="总项目数" width="85" />
-        <el-table-column prop="qrPayment" label="收款码" width="85" />
-        <el-table-column prop="cashPayment" label="现金" width="85" />
-        <el-table-column prop="memberCardPayment" label="会员卡" width="95" />
-        <el-table-column prop="posPayment" label="POS" width="85" />
-        <el-table-column prop="meituanPayment" label="美团" width="85" />
-        <el-table-column prop="douyinPayment" label="抖音" width="85" />
-        <el-table-column prop="cashRecharge" label="现金充值" width="85" />
-        <!-- <el-table-column prop="wechatRecharge" label="微信充值" width="85" /> -->
-        <el-table-column prop="otherRecharge" label="其他方式充值" min-width="110" />
+        <el-table-column prop="totalTurnover" label="总营业额" min-width="85" fixed />
+        <el-table-column prop="totalActualReceipt" label="总实收" min-width="85" fixed />
+        <el-table-column prop="totalSingleTime" label="总单次" min-width="80" />
+        <el-table-column prop="totalPeopleTime" label="总人次" min-width="80" />
+        <el-table-column prop="totalProjectCount" label="总项目数" min-width="85" />
+        <el-table-column prop="qrPayment" label="收款码" min-width="85" />
+        <el-table-column prop="cashPayment" label="现金" min-width="85" />
+        <el-table-column prop="memberCardPayment" label="会员卡" min-width="95" />
+        <el-table-column prop="posPayment" label="POS" min-width="85" />
+        <el-table-column prop="meituanPayment" label="美团" min-width="85" />
+        <el-table-column prop="douyinPayment" label="抖音" min-width="85" />
+        <el-table-column prop="ticketItemPayment" label="项目券" min-width="85" />
+        <el-table-column prop="ticketConsumerPayment" label="代金券" min-width="80" />
       </PaginationTable>
     </Card>
   </div>
@@ -67,7 +66,6 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue';
-import { isEmpty } from 'lodash';
 import { reqSaleSummary } from '@/api/dataGroup/saleData';
 import { OrderSummaryVO } from '@/api/dataGroup/saleData/types';
 import { dateFormatter } from '@/utils/formatter';
