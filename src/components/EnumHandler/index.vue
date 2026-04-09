@@ -70,7 +70,7 @@ const $MessageBox: any = inject('$MessageBox');
  */
 interface CustomProps extends Partial<DialogProps> {
   modelValue: boolean;
-  title: string;
+  title?: string;
   dictCode: string;
   defaultData?: Array<any>;
 }
