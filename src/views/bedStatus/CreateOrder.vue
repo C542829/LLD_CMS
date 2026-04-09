@@ -45,20 +45,30 @@
           <el-table-column prop="truePrice" label="价格">
             <template #default="{ row }">
               <p>标准价￥{{ row.stdPrice }}</p>
-              <p>实收价￥{{ row.truePrice }}</p>
+              <p>实收价￥{{ row.trueUnitPrice }}</p>
             </template>
           </el-table-column>
-          <el-table-column prop="userName" label="技师/销售">
+          <el-table-column prop="userName" label="技师/销售" min-width="100">
             <template #default="{ row }">
-              <span>{{ row.userName }}</span>
-              <span style="color: var(--el-color-primary); font-weight: 600">
-                [{{ ServiceTypeMap[row.serverType as ServiceType] }}]
-              </span>
+              <template v-if="row.technicians">
+                <div v-for="(item, index) in row.technicians" :key="index" class="text-overflow">
+                  {{ item.userName }}({{ item.userCode }})
+                </div>
+              </template>
+              <template v-else>
+                {{ row.userName }}
+              </template>
+            </template>
+          </el-table-column>
+          <el-table-column prop="serverType" label="上钟类型" width="85">
+            <template #default="{ row }">
+              <template v-if="row.detailType === OrderDetailType.Service">
+                <ClockInTypeTag :type="row.serverType" />
+              </template>
             </template>
           </el-table-column>
           <el-table-column label="操作">
             <template #default="{ row }">
-              <!-- <el-button @click="showDialog(true, row)" link type="primary">编辑</el-button> -->
               <el-button @click="deleteOrderDetail(row)" link type="danger">删除</el-button>
             </template>
           </el-table-column>
@@ -85,7 +95,7 @@ import SearchMember from '@/components/Input/SearchMember.vue';
 import { ref, onMounted, watch } from 'vue';
 import { cloneDeep } from 'lodash';
 import { reqCancelOrder, reqDeleteOrderDetail, reqQueryOrderByBedId, Types } from '@/api/order';
-import { CashierRouteSign, CustomerType, CustomerTypeOptions, ServiceType, ServiceTypeMap } from '@/enums/index';
+import { CashierRouteSign, CustomerType, CustomerTypeOptions, OrderDetailType } from '@/enums/index';
 import { useOrderStore } from '@/store/modules/order/index';
 
 const orderStore = useOrderStore();
