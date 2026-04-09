@@ -77,6 +77,18 @@
         </span>
       </li>
       <li>
+        <span>项目分类：</span>
+        <span>
+          <el-button type="primary" link @click="customCategory(DictCode.ITEM_CATEGORY)">管理项目分类</el-button>
+        </span>
+      </li>
+      <li>
+        <span>产品分类：</span>
+        <span>
+          <el-button type="primary" link @click="customCategory(DictCode.PRODUCT_CATEGORY)">管理产品分类</el-button>
+        </span>
+      </li>
+      <li>
         <span>创建日期：</span>
         <span>{{ org.createTime }}</span>
       </li>
@@ -110,14 +122,18 @@
     <!-- 表单 -->
     <OrgForm @close-drawer="closeDrawer" />
   </Drawer>
+
+  <!-- 自定义分类 -->
+  <CustomCategoryTab v-model="dialog.visible" :dict-code="dialog.category" :title="dialog.title" />
 </template>
 
 <script setup lang="ts">
+import CustomCategoryTab from './components/CustomCategoryTab.vue';
 import Message from '@/components/Message';
 import { ref, reactive, onMounted } from 'vue';
 import { getUserInfo } from '@/utils/localStorageTools';
 import { reqSetPrintWidth } from '@/api/acl/org/index';
-import { IsCrossStoreMap, discountTypeMap, IsCrossStore, DiscountType } from '@/enums/index';
+import { IsCrossStoreMap, discountTypeMap, IsCrossStore, DiscountType, DictCode } from '@/enums/index';
 
 import OrgForm from '@/views/acl/orgMgr/form.vue';
 
@@ -134,6 +150,17 @@ const init = async () => {
   const userInfo = getUserInfo();
   org.value = await store.getOrgInfo(userInfo.orgId);
   org.value.orgAreaStr = org.value.orgArea.join('/');
+};
+
+const dialog = reactive({
+  visible: false,
+  title: '',
+  category: '',
+});
+const customCategory = (category: DictCode) => {
+  dialog.title = category === DictCode.ITEM_CATEGORY ? `管理项目分类` : `管理产品分类`;
+  dialog.category = category;
+  dialog.visible = true;
 };
 
 // 更新打印宽度
