@@ -77,6 +77,7 @@
         <MultipleSelect
           v-model="store.formData.vipTicketList"
           :displayProps="defaultProps"
+          :multiple-limit="1"
           @visible-change="visibleChange"
           value-key="vipTicketId"
           class="w-240"
@@ -115,7 +116,6 @@ defineProps(['disabled']);
 // 组件挂载后执行的生命周期钩子
 onMounted(() => {
   // 可在此处添加组件初始化逻辑
-  // store.resetFormData();
   dataEnumStore.getTicketList();
   getCouponList();
 });
@@ -196,6 +196,32 @@ const formRules = {
 .form-item-m-l-0 {
   :deep(.el-form-item__label-wrap) {
     margin-left: 0 !important;
+  }
+}
+
+.selected-item {
+  height: 70px;
+  line-height: 30px;
+  margin: 10px;
+  padding: 5px 0;
+  border: 1px solid var(--el-border-color);
+  border-radius: 5px;
+  &:first-child {
+    margin-top: 0;
+  }
+
+  > div {
+    display: flex;
+    > span:first-child {
+      width: 60px;
+      text-align: right;
+    }
+    .selected-item-label {
+      width: calc(100% - 70px);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 }
 </style>
