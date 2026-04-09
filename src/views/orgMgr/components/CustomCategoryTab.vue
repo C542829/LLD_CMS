@@ -2,14 +2,16 @@
   <Dialog v-model="dialogVisible" :title="title" :width="width" @close="handleClose">
     <div class="dict-select-container">
       <PaginationTable
+        ref="tableRef"
         v-loading="loading"
         element-loading-text="加载中..."
         :data="dictItemList"
         @selection-change="handleSelectionChange"
         :showPagination="false"
+        row-key="dictItemId"
         class="table-container"
       >
-        <el-table-column type="selection" width="50" />
+        <el-table-column type="selection" width="50" reserve-selection />
         <el-table-column prop="itemLabel" label="字典项标签" min-width="120" />
         <el-table-column prop="itemValue" label="字典项值" min-width="120" />
         <el-table-column prop="sort" label="排序" width="80" />
@@ -26,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch, computed } from 'vue';
+import { ref, watch, computed, nextTick } from 'vue';
 import { ElMessage } from 'element-plus';
 import { reqDictItemList, Types } from '@/api/acl/dict';
 
@@ -46,9 +48,9 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  'update:modelValue': [value: boolean];
-  confirm: [selectedItems: Types.DictItemVO[]];
-  cancel: [];
+  (e: 'update:modelValue', value: boolean): void;
+  (e: 'confirm', selectedItems: Types.DictItemVO[]): void;
+  (e: 'cancel'): void;
 }>();
 
 // dialog 显示状态
@@ -60,6 +62,7 @@ const dialogVisible = computed({
 const loading = ref(false);
 const dictItemList = ref<Types.DictItemVO[]>([]);
 const selectedItems = ref<Types.DictItemVO[]>([]);
+const tableRef = ref();
 
 /**
  * 获取字典项列表
@@ -88,12 +91,25 @@ const getDictItemList = async () => {
 /**
  * 从本地缓存恢复选中状态
  */
-const restoreSelection = () => {
+const restoreSelection = async () => {
   try {
     const cachedData = localStorage.getItem(props.dictCode);
     if (cachedData) {
       const cachedItems: Types.DictItemVO[] = JSON.parse(cachedData);
       selectedItems.value = cachedItems;
+
+      // 使用 nextTick 确保表格已渲染
+      await nextTick();
+
+      // 使用 toggleRowSelection 恢复选中状态
+      if (tableRef.value?.tableRef) {
+        cachedItems.forEach((item) => {
+          const row = dictItemList.value.find((r) => r.dictItemId === item.dictItemId);
+          if (row) {
+            tableRef.value.tableRef.toggleRowSelection(row, true);
+          }
+        });
+      }
     }
   } catch (error) {
     console.error('恢复选中状态失败:', error);
@@ -101,13 +117,10 @@ const restoreSelection = () => {
 };
 
 /**
- * 处理选择变化
+ * 处理选择变化（reserve-selection 会自动保留跨页选择）
  */
 const handleSelectionChange = (selection: Types.DictItemVO[]) => {
-  // 合并当前页的选择和之前已选择的数据
-  const currentPageIds = dictItemList.value.map((item) => item.dictItemId);
-  const previousSelections = selectedItems.value.filter((item) => !currentPageIds.includes(item.dictItemId));
-  selectedItems.value = [...previousSelections, ...selection];
+  selectedItems.value = selection;
 };
 
 /**
@@ -156,6 +169,10 @@ const handleClose = () => {
 const resetState = () => {
   selectedItems.value = [];
   dictItemList.value = [];
+  // 清空表格选中状态
+  if (tableRef.value?.tableRef) {
+    tableRef.value.tableRef.clearSelection();
+  }
 };
 
 // 监听 dictCode 变化，重新加载数据
