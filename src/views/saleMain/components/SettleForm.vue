@@ -6,17 +6,50 @@
           <el-descriptions-item label="会员姓名:">{{ orderStore.member.name }}</el-descriptions-item>
           <el-descriptions-item label="会员卡号:">{{ orderStore.member.cardNumber }}</el-descriptions-item>
           <el-descriptions-item label="会员电话:">{{ orderStore.member.phoneNumber }}</el-descriptions-item>
-          <el-descriptions-item label="可用余额:">
+          <el-descriptions-item label="可用余额:" v-show="orderStore.checkedAssetInfo.assetIds.length > 0">
             <span class="amount">{{ orderStore.checkedAssetInfo.assetAmount }} 元</span>
           </el-descriptions-item>
+          <!-- <template v-if="orderStore.checkedAssetInfo.assetIds.length > 0">
+            <el-descriptions-item label="可用余额:">
+              <span class="amount">{{ orderStore.checkedAssetInfo.assetAmount }} 元</span>
+            </el-descriptions-item>
+          </template> -->
         </template>
         <template v-else>
           <el-descriptions-item label="客户姓名:">{{ orderStore.order.customerName }}</el-descriptions-item>
         </template>
-        <el-descriptions-item label="应付总额:">
-          <span class="price-text">{{ orderStore.truePayAmount }} 元</span>
+        <el-descriptions-item label="订单总额:">
+          <span class="order-total">{{ orderStore.payAmount }} 元</span>
         </el-descriptions-item>
+        <el-descriptions-item label="应付总额:">
+          <span class="pay-total">{{ orderStore.truePayAmount }} 元</span>
+        </el-descriptions-item>
+        <template v-if="orderStore.discountAmount > 0">
+          <el-descriptions-item label="折扣优惠:">
+            <span class="discount-total">{{ orderStore.discountAmount }} 元</span>
+          </el-descriptions-item>
+        </template>
+        <template v-if="orderStore.couponDiscountAmount > 0">
+          <el-descriptions-item label="优惠券优惠:">
+            <span class="discount-total">{{ orderStore.couponDiscountAmount }} 元</span>
+          </el-descriptions-item>
+        </template>
       </el-descriptions>
+
+      <template v-if="orderStore.couponDiscountAmount > 0">
+        <div class="used-coupon-info">
+          <PaginationTable :data="orderStore.order.ticketUseList" :showPagination="false" size="small">
+            <el-table-column prop="orgs" label="类型" width="60">
+              <template #default="{ row }">
+                {{ getCouponType(row.ticketType) }}
+              </template>
+            </el-table-column>
+            <el-table-column prop="amount" label="抵扣金额" width="80" />
+            <el-table-column prop="detailName" label="描述" min-width="100" />
+          </PaginationTable>
+        </div>
+      </template>
+
       <PayMethod />
     </div>
     <template #footer>
@@ -30,15 +63,16 @@
 import Message from '@/components/Message';
 import PayMethod from './PayMethod.vue';
 
-import { isEmpty } from 'lodash';
+import { cloneDeep, isEmpty } from 'lodash';
 import { ref, watch, onMounted } from 'vue';
-import { paymentTypeMap, PaymentType } from '@/enums';
+import { paymentTypeMap, PaymentType, couponTypeMap, CouponType } from '@/enums';
 import { CustomerType } from '@/enums/index';
 import { printer } from '@/utils/lodop';
 import { type Types, reqQueryOrder, reqSettleOrder } from '@/api/order/index';
 
 import { useOrderStore } from '@/store/modules/order/index';
 import useUserStore from '@/store/modules/acl/user';
+import { add } from '@/utils/bigMethods';
 
 const userStore = useUserStore();
 const orderStore = useOrderStore();
@@ -77,6 +111,22 @@ const updatePayment = (payments: Types.PaymentInfoDTO[]) => {
   }
 };
 
+/**
+ * 券转换为支付方式
+ */
+const ticketToPayment = (tickets: Types.OrderTicketUseDTO[]) => {
+  return tickets.map((ticket) => {
+    const isVoucher = ticket.ticketType === CouponType.voucher;
+    const paymentType = isVoucher ? PaymentType.Voucher : PaymentType.ItemCoupon;
+    return {
+      paymentType: paymentType,
+      paymentName: paymentTypeMap[paymentType],
+      paymentAmount: ticket.amount,
+      assetCode: ticket.ticketId,
+    };
+  });
+};
+
 /** 结算操作 */
 const handleSubmit = async () => {
   // const payMethods = orderStore.order.paymentInfoList.filter((item: any) => item.paymentType !== '');
@@ -85,32 +135,37 @@ const handleSubmit = async () => {
   //   return;
   // }
 
+  const order = cloneDeep(orderStore.order);
+
   // 更新支付方式信息
-  updatePayment(orderStore.order.paymentInfoList);
+  updatePayment(order.paymentInfoList);
+  const ticketPayments = ticketToPayment(order.ticketUseList!);
+  order.paymentInfoList = [...order.paymentInfoList, ...ticketPayments];
 
   // 更新会员信息
-  if (orderStore.order.vipId) {
-    orderStore.order.customerName = orderStore.order.vipName;
+  if (order.vipId) {
+    order.customerName = order.vipName;
   }
 
   // 同步订单信息
-  orderStore.order.assetIds = orderStore.checkedAssetInfo.assetIds;
-  orderStore.order.totalAmount = orderStore.payAmount;
-  orderStore.order.actualAmount = orderStore.truePayAmount;
-  orderStore.order.discountAmount = orderStore.discountAmount;
+  order.assetIds = orderStore.checkedAssetInfo.assetIds;
+  order.totalAmount = orderStore.payAmount;
+  // 实收金额 = 真实支付金额 + 优惠券折扣金额
+  order.actualAmount = add(orderStore.truePayAmount, orderStore.couponDiscountAmount);
+  order.discountAmount = orderStore.discountAmount;
 
-  settleOrder();
+  settleOrder(order);
 };
 
 /**
  * 订单结算
  */
-const settleOrder = async () => {
+const settleOrder = async (order: any) => {
   loading.value = true;
 
-  // console.log('结算订单:', orderStore.order);
+  console.log('结算订单:', order);
   try {
-    const res = await reqSettleOrder(orderStore.order);
+    const res = await reqSettleOrder(order);
     console.log('结算订单成功：', res);
     Message.success('订单结算成功');
 
@@ -162,6 +217,10 @@ const getOrder = async (orderCode: string) => {
   }
 };
 
+const getCouponType = (type: CouponType) => {
+  return couponTypeMap[type] || '未知';
+};
+
 const closeDialog = () => {
   dialogVisible.value = false;
   emit('update:model-value', false);
@@ -176,10 +235,32 @@ const closeDialog = () => {
   }
 
   .amount {
-    color: var(--el-color-success);
+    color: var(--el-color-success) !important;
   }
-  .price-text {
-    color: red;
+  .order-total {
+    color: var(--el-color-primary) !important;
+  }
+  .discount-total {
+    color: var(--el-color-warning) !important;
+  }
+  .pay-total {
+    color: var(--el-color-danger) !important;
+    font-weight: 600;
+  }
+
+  .used-coupon-info {
+    margin-bottom: 12px;
+    // .coupon-info-title {
+    //   color: var(--el-text-color-secondary);
+    //   color: var(--el-text-color-primary);
+    //   > b {
+    //     margin: 0 3px;
+    //     color: var(--el-color-danger);
+    //   }
+    // }
+    // .coupon-list {
+    //   margin-top: 12px;
+    // }
   }
 }
 </style>

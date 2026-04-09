@@ -32,8 +32,8 @@
 <script setup lang="ts">
 import CouponCard from './CouponCard.vue';
 import ProjectCouponCard from './ProjectCouponCard.vue';
-import { ref, watch, computed, onMounted } from 'vue';
-import { CouponType, CustomerType, DiscountType, discountTypeMap } from '@/enums/index';
+import { ref, computed, onMounted } from 'vue';
+import { CouponType } from '@/enums/index';
 import { useOrderStore } from '@/store/modules/order/index';
 import { ElMessage } from 'element-plus';
 
@@ -44,21 +44,6 @@ const tabSwitch = ref(0);
 // 是否渲染优惠券列表
 const isRender = computed(() => {
   return !(!store.member.vipTicketVOList || store.member.vipTicketVOList.length === 0);
-});
-/** 优惠券列表(tabSwitch = 0 返回代金券;1 返回项目券) */
-const coupons = computed(() => {
-  if (!store.member.vipTicketVOList || store.member.vipTicketVOList.length === 0) {
-    return [];
-  }
-  if (tabSwitch.value === 0) {
-    return store.member.vipTicketVOList.filter((item: any) => {
-      return item.ticketInfo.ticketType === CouponType.voucher;
-    });
-  } else {
-    return store.member.vipTicketVOList.filter((item: any) => {
-      return item.ticketInfo.ticketType === CouponType.experience;
-    });
-  }
 });
 
 // 代金券
@@ -101,13 +86,12 @@ let currentCoupon: any | null = null;
 
 /** 选择优惠券 */
 const selectCoupon = (item: any) => {
+  // 订单未创建则停止操作
   if (!store.isCreated) {
     return;
   }
-  if (item.ticketInfo.ticketType === CouponType.experience) {
-    return;
-  }
-  if (!checkVoucherCondition(item.ticketInfo, store.payAmount)) {
+
+  if (!checkVoucherCondition(item.ticketInfo, store.truePayAmount)) {
     ElMessage.warning('订单金额不足，无法使用该优惠券');
     return;
   }
@@ -120,6 +104,8 @@ const selectCoupon = (item: any) => {
   store.order.ticketUseList.push({
     ticketId: item.id,
     ticketType: item.ticketInfo.ticketType,
+    amount: item.ticketInfo.ticketValue,
+    // detailName: item.ticketName,
   });
 };
 

@@ -85,7 +85,7 @@ const handleChange = (val: any) => {
     assetList.value.forEach((item: any) => {
       item.disabled = false;
     });
-    store.resetOrderDetailPrice();
+    store.updateOrderDetailPrice();
     return;
   } else {
     // 更新明细价格

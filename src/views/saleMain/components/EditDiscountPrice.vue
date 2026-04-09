@@ -4,22 +4,22 @@
       <main class="discount-content">
         <div class="discount-item">
           <span>待款总金额：</span>
-          <span class="price-text">¥ {{ store.payAmount }}</span>
+          <span class="price-text">¥ {{ store.truePayAmount }}</span>
         </div>
         <div class="discount-item">
           <span>优惠后金额：</span>
-          <span class="price-text">¥ {{ store.payAmount - discountAmount }}</span>
+          <span class="price-text">¥ {{ store.truePayAmount - discountAmount }}</span>
         </div>
         <div class="discount-item discount-input-wrapper">
           <span>优惠金额：</span>
-          <el-input
+          <el-input-number
             v-model.number="discountAmount"
             :min="0"
-            :max="store.payAmount"
-            type="number"
+            :max="store.truePayAmount"
+            controls-position="right"
             placeholder="请输入优惠金额"
             class="discount-input"
-          ></el-input>
+          />
           <span class="currency-unit">元</span>
         </div>
       </main>

@@ -282,6 +282,11 @@ export interface OrderTicketUseDTO {
    */
   detailId?: number;
   /**
+   * 订单详情ID，如果为代金券则设置为空
+   * 订单详情名称
+   */
+  detailName?: string;
+  /**
    * 订单明细在details数组中的索引位置（从0开始）
    * 用于体验券关联订单明细
    * 订单明细索引（从0开始）
@@ -295,6 +300,10 @@ export interface OrderTicketUseDTO {
    * 优惠券类型
    */
   ticketType?: number;
+  /**
+   * 优惠券金额
+   */
+  amount: number;
   [property: string]: any;
 }
 

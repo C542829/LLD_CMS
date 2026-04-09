@@ -192,11 +192,13 @@ const handleCloseTag = () => {
   if (index !== -1) {
     orderStore.order.ticketUseList.splice(index, 1);
   }
-  props.data.truePrice = props.data.stdPrice;
-  if (props.data.coupon) {
-    props.data.coupon.active = false;
-  }
+  // props.data.truePrice = props.data.stdPrice;
+  // if (props.data.coupon) {
+  //   props.data.coupon.active = false;
+  // }
   props.data.coupon = null;
+  props.data.disabled = false;
+  orderStore.updateOrderDetailPrice();
 };
 
 /**
@@ -210,12 +212,21 @@ const selectCoupon = (coupon: any) => {
 
   if (coupon?.ticketInfo?.ticketType === CouponType.experience) {
     // coupon.active = true;
-    props.data.truePrice = 0;
+    // 选择项目券时将价格重置为标准价
+    props.data.trueUnitPrice = props.data.stdPrice;
+    props.data.truePrice = props.data.stdPrice;
+
+    // 将优惠券挂载到当前明细用于UI展示
     props.data.coupon = coupon;
+    // 禁用当前修改单价的编辑框
+    props.data.disabled = true;
 
     const useCoupon: any = {
       ticketId: coupon.id,
       ticketType: coupon.ticketInfo.ticketType,
+      amount: props.data.truePrice,
+      detailName: props.data.businessName,
+      coupon: props.data.coupon,
     };
     if (props.data?.id) {
       useCoupon.detailId = props.data.id;

@@ -51,7 +51,7 @@
             待付款:
             <b>￥{{ orderStore.truePayAmount }}</b>
           </span>
-          <template v-if="orderStore.discountAmount > 0">
+          <template v-if="orderStore.payAmount !== orderStore.truePayAmount">
             <span class="original-amount">应付：￥{{ orderStore.payAmount }}</span>
           </template>
         </div>
@@ -59,7 +59,7 @@
         <div class="discount-info">
           <span class="coupon-amount" v-for="item in orderStore.order.ticketUseList" :key="item.ticketId">
             <template v-if="item.ticketType === CouponType.voucher">
-              已抵扣：{{ getCouponInfo(item.ticketId!) }}元
+              代金券抵扣：{{ getCouponInfo(item.ticketId!) }}元
             </template>
             <template v-else>
               {{ getCouponInfo(item.ticketId!) }}

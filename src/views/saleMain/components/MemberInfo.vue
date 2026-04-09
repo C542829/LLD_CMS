@@ -51,7 +51,6 @@ import CouponList from './CouponList.vue';
 import { ref, watch, computed, onMounted } from 'vue';
 import { isEmpty } from 'lodash';
 import { CustomerType, DiscountType, discountTypeMap } from '@/enums/index';
-
 import { useOrderStore } from '@/store/modules/order/index';
 import { useMemberStore } from '@/store/modules/member/member';
 import { useDataEnumStore } from '@/store/modules/enums';
@@ -60,6 +59,7 @@ const memberStore = useMemberStore();
 const store = useOrderStore();
 
 onMounted(() => {
+  // 获取门店列表用于更新折扣卡门店提示
   enumsStore.getOrgList();
 });
 
@@ -80,8 +80,8 @@ watch(
   () => store.order.vipId,
   (newVal) => {
     if (newVal) {
-      getMemberAsset(newVal);
       store.resetCheckedAssetInfo();
+      getMemberAsset(newVal);
     }
   },
 );
@@ -112,6 +112,7 @@ const getMemberAsset = async (id: number) => {
     // 重置选中资产
     checkedList.value = [];
   } catch (error) {
+    console.error('获取会员资产失败：', error);
   } finally {
     loading.value = false;
   }
@@ -140,57 +141,55 @@ const assetList: any = computed(() => {
   return assetList;
 });
 
+// 当前选择的资产列表
 const checkedList = ref<any>([]);
 
-// 更新 store 资产列表
-watch(
-  () => checkedList.value,
-  (newVal) => {
-    if (isEmpty(newVal)) {
-      store.resetCheckedAssetInfo();
-      return;
+/** 更新 pinia 中，当前选择的折扣卡参数 */
+const updateSelectedDiscountCard = (val: string[]) => {
+  const assetIds = val.map((e: string) => parseInt(e.split('-')[0]));
+  store.checkedAssetInfo.assetIds = assetIds;
+
+  let assetTitle = '';
+  let assetAmount = 0;
+  for (const id of assetIds) {
+    const asset = assetList.value.find((e: any) => e.id === id);
+    if (asset) {
+      assetTitle = getDiscountLabel(asset);
+      assetAmount += asset.assetBalance;
+
+      // 更新选中资产信息
+      store.checkedAssetInfo.assetDiscountBase = asset.assetDiscountBase;
+      store.checkedAssetInfo.assetDiscountRate = asset.assetDiscountRate;
     }
-    const assetIds = newVal.map((e: string) => parseInt(e.split('-')[0]));
-    store.checkedAssetInfo.assetIds = assetIds;
+  }
+  store.checkedAssetInfo.assetTitle = assetTitle;
+  store.checkedAssetInfo.assetAmount = assetAmount;
+};
 
-    let assetTitle = '';
-    let assetAmount = 0;
-    for (const id of assetIds) {
-      const asset = assetList.value.find((e: any) => e.id === id);
-      if (asset) {
-        assetTitle = getDiscountLabel(asset);
-        assetAmount += asset.assetBalance;
-
-        // 更新选中资产信息
-        store.checkedAssetInfo.assetDiscountBase = asset.assetDiscountBase;
-        store.checkedAssetInfo.assetDiscountRate = asset.assetDiscountRate;
-      }
-    }
-    store.checkedAssetInfo.assetTitle = assetTitle;
-    store.checkedAssetInfo.assetAmount = assetAmount;
-  },
-);
-
-// 选择会员卡时触发
+/** 选择会员卡时触发 */
 const handleChange = (val: any) => {
-  // 没有选择会员卡时，将所有会员卡状态重置
+  // 空数组处理
   if (val.length === 0) {
+    // 重置 pinia 中选择的折扣卡信息
+    store.resetCheckedAssetInfo();
+    // 更新订单明细价格
+    store.updateOrderDetailPrice();
+    // 没有选择会员卡时，将所有会员卡状态重置
     assetList.value.forEach((item: any) => {
       item.disabled = false;
     });
-    store.resetOrderDetailPrice();
     return;
-  } else {
-    // 更新明细价格
-    store.updateOrderDetailPrice();
   }
+
+  // 更新选中的折扣卡信息
+  updateSelectedDiscountCard(val);
+
+  // 更新订单明细价格
+  store.updateOrderDetailPrice();
 
   // 当值变化时，禁用值不同的复选款
   assetList.value.forEach((item: any) => {
     item.disabled = getDiscountValue(item.discountValue) !== getDiscountValue(val[0]);
-    if (item.disabled) {
-      // item.assetDiscountRate = 0;
-    }
   });
 };
 

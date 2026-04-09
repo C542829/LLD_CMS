@@ -264,6 +264,8 @@ export enum PaymentType {
   DouYi = 3, // 抖音
   MeiTuan = 4, // 美团
   MemberCard = 5, // 会员卡
+  ItemCoupon = 6, // 项目券
+  Voucher = 7, // 代金券
 }
 /**
  * 支付类型映射
@@ -275,6 +277,8 @@ export const paymentTypeMap = {
   [PaymentType.DouYi]: '抖音',
   [PaymentType.MeiTuan]: '美团',
   [PaymentType.MemberCard]: '会员卡',
+  [PaymentType.ItemCoupon]: '项目券',
+  [PaymentType.Voucher]: '代金券',
 };
 /**
  * 支付类型
