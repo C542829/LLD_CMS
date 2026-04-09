@@ -198,30 +198,4 @@ const formRules = {
     margin-left: 0 !important;
   }
 }
-
-.selected-item {
-  height: 70px;
-  line-height: 30px;
-  margin: 10px;
-  padding: 5px 0;
-  border: 1px solid var(--el-border-color);
-  border-radius: 5px;
-  &:first-child {
-    margin-top: 0;
-  }
-
-  > div {
-    display: flex;
-    > span:first-child {
-      width: 60px;
-      text-align: right;
-    }
-    .selected-item-label {
-      width: calc(100% - 70px);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-  }
-}
 </style>
