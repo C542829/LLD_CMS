@@ -61,19 +61,6 @@ const pagination = reactive({
   total: 0,
 });
 
-const fromTypeMap: Record<number, string> = {
-  1: '实体券',
-  2: '线上领取',
-  3: '地推活动领取',
-  4: '手动赠送',
-  5: '充值活动获赠',
-  7: '疗程项目获得',
-};
-
-const formatFromType = (type: number) => {
-  return fromTypeMap[type] || '未知';
-};
-
 const getStatusTagType = (status: CouponStatus): '' | 'success' | 'warning' | 'info' | 'danger' => {
   const statusMap: Record<number, '' | 'success' | 'warning' | 'info' | 'danger'> = {
     [CouponStatus.UnUsed]: 'success',
