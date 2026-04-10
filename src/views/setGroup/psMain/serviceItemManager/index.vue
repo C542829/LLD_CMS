@@ -9,17 +9,31 @@
         <!-- 服务项目状态 -->
         <div class="search-item">
           <label>
-            <span>服务项目状态：</span>
+            <span>状态：</span>
             <el-select v-model="store.searchParams.itemStatus" @change="search" class="w-120">
               <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </label>
         </div>
-
+        <template v-if="userStore.isAdmin || userStore.isAreaManager">
+          <div class="search-item">
+            <label>
+              门店：
+              <OrgSelect
+                v-model="store.searchParams.orgId"
+                placeholder="门店"
+                class="w-120"
+                :multiple="false"
+                @change="search"
+                @clear="search"
+              />
+            </label>
+          </div>
+        </template>
         <!-- 服务项目分类 -->
         <div class="search-item">
           <label>
-            <span>服务项目分类：</span>
+            <span>分类：</span>
             <el-select v-model="store.searchParams.category" clearable @change="search" class="w-120">
               <el-option
                 v-for="item in categoryList"
@@ -109,6 +123,8 @@ import { statusOptions } from '@/enums/index';
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useEnumStore } from '@/store/modules/enums/index';
 import { useServiceItemStore } from '@/store/modules/setGroup/serviceItem';
+import useUserStore from '@/store/modules/acl/user';
+const userStore = useUserStore();
 const settingStore = useSettingStore();
 const store = useServiceItemStore();
 const enumStore = useEnumStore();
@@ -134,6 +150,9 @@ const search = () => {
   }
   if (store.searchParams.itemStatus == undefined) {
     store.searchParams.itemStatus = '';
+  }
+  if (store.searchParams.orgId === undefined) {
+    store.searchParams.orgId = '';
   }
   store.setDataList();
 };

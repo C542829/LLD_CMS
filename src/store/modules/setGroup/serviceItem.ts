@@ -47,6 +47,7 @@ export const useServiceItemStore = defineStore('ServiceItem', () => {
     keyWord: '',
     category: '',
     itemStatus: 0,
+    orgId: '',
   });
 
   // 数据列表

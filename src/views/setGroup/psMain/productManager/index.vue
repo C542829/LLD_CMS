@@ -9,7 +9,7 @@
         <!-- 产品状态 -->
         <div class="search-item">
           <label>
-            <span>产品状态：</span>
+            <span>状态：</span>
             <el-select v-model="store.search.productStatus" @change="search" class="w-120">
               <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
@@ -18,7 +18,7 @@
         <!-- 产品分类 -->
         <div class="search-item">
           <label>
-            <span>产品分类：</span>
+            <span>分类：</span>
             <el-select v-model="store.search.category" clearable @change="search" class="w-120">
               <el-option
                 v-for="item in categoryList"
@@ -29,6 +29,21 @@
             </el-select>
           </label>
         </div>
+        <template v-if="userStore.isAdmin || userStore.isAreaManager">
+          <div class="search-item">
+            <label>
+              门店：
+              <OrgSelect
+                v-model="store.search.orgId"
+                placeholder="门店"
+                class="w-120"
+                :multiple="false"
+                @change="search"
+                @clear="search"
+              />
+            </label>
+          </div>
+        </template>
         <!-- 搜索框 -->
         <div class="search-item">
           <el-input
@@ -102,6 +117,7 @@
 import { Search } from '@element-plus/icons-vue';
 import { ref, onMounted, inject, reactive } from 'vue';
 import ProductForm from './form.vue';
+import OrgSelect from '@/components/FormComponents/OrgSelect.vue';
 
 // 导入枚举数据
 import { statusOptions } from '@/enums/index';
@@ -111,6 +127,8 @@ import { isDiscountMap } from '@/utils/formatter';
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useEnumStore } from '@/store/modules/enums/index';
 import { useProductStore } from '@/store/modules/setGroup/product';
+import useUserStore from '@/store/modules/acl/user';
+const userStore = useUserStore();
 const settingStore = useSettingStore();
 const enumStore = useEnumStore();
 const store = useProductStore();
@@ -129,6 +147,9 @@ const search = () => {
   }
   if (store.search.productStatus == undefined) {
     store.search.productStatus = '';
+  }
+  if (store.search.orgId === undefined) {
+    store.search.orgId = '';
   }
   store.setTableData();
 };

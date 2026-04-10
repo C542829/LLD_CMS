@@ -18,6 +18,7 @@ export const useTreatmentCouponStore = defineStore('TreatmentCoupon', () => {
   const searchParams = ref({
     cureTicketName: '',
     status: Status.enabled,
+    orgId: '',
   });
 
   // 数据列表

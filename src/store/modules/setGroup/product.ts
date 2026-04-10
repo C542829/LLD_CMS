@@ -46,6 +46,7 @@ export const useProductStore = defineStore('Product', () => {
     keyWord: '',
     category: '',
     productStatus: 0,
+    orgId: '',
   });
 
   /**

@@ -9,12 +9,27 @@
         <!-- 状态 -->
         <div class="search-item">
           <label>
-            <span>充值活动状态：</span>
+            <span>状态：</span>
             <el-select v-model="store.search.activeStatus" @change="search" style="width: 120px">
               <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </label>
         </div>
+        <template v-if="userStore.isAdmin || userStore.isAreaManager">
+          <div class="search-item">
+            <label>
+              门店：
+              <OrgSelect
+                v-model="store.search.orgId"
+                placeholder="门店"
+                class="w-120"
+                :multiple="false"
+                @change="search"
+                @clear="search"
+              />
+            </label>
+          </div>
+        </template>
         <!-- 搜索框 -->
         <div class="search-item">
           <el-input
@@ -94,6 +109,8 @@ import { statusOptions } from '@/enums/index';
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useRechargeActivityStore } from '@/store/modules/member/rechargeActivity';
+import useUserStore from '@/store/modules/acl/user';
+const userStore = useUserStore();
 const settingStore = useSettingStore();
 const store = useRechargeActivityStore();
 
@@ -106,6 +123,9 @@ onMounted(() => {
 
 // 搜索
 const search = () => {
+  if (store.search.orgId === undefined) {
+    store.search.orgId = '';
+  }
   store.setTableData();
 };
 

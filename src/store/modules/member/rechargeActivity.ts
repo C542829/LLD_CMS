@@ -51,6 +51,7 @@ export const useRechargeActivityStore = defineStore('RechargeActivity', () => {
   // 搜索参数
   const search = reactive({
     activeName: '',
+    orgId: '',
     activeStatus: 0,
   });
 

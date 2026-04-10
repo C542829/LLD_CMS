@@ -15,6 +15,21 @@
             </el-select>
           </label>
         </div>
+        <template v-if="userStore.isAdmin || userStore.isAreaManager">
+          <div class="search-item">
+            <label>
+              门店：
+              <OrgSelect
+                v-model="store.searchParams.orgId"
+                placeholder="门店"
+                class="w-120"
+                :multiple="false"
+                @change="search"
+                @clear="search"
+              />
+            </label>
+          </div>
+        </template>
 
         <!-- 搜索框 -->
         <div class="search-item">
@@ -74,6 +89,8 @@ import { statusOptions } from '@/enums/index';
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useCouponStore } from '@/store/modules/member/memberCoupon';
+import useUserStore from '@/store/modules/acl/user';
+const userStore = useUserStore();
 const settingStore = useSettingStore();
 const store = useCouponStore();
 
@@ -86,6 +103,9 @@ onMounted(() => {
 
 // 搜索
 const search = () => {
+  if (store.searchParams.orgId === undefined) {
+    store.searchParams.orgId = '';
+  }
   store.setTableData();
 };
 
