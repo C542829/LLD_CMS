@@ -16,7 +16,7 @@ const userStore = useUserStore(pinia);
 // 全局前置守卫
 router.beforeEach(async (to: any, _from: any, next: any) => {
   // 设置页面标题
-  document.title = `${setting.title} - ${to.meta.title}`;
+  document.title = `${setting.title} - ${to.meta.title || ''}`;
   // 开启进度条
   nprogress.start();
 
