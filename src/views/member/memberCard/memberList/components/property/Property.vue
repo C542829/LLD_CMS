@@ -11,9 +11,10 @@
       :showPagination="false"
       class="table-container"
     >
+      <el-table-column type="index" label="序号" width="45" />
       <el-table-column prop="assetNum" label="资产编号" min-width="100" />
       <el-table-column prop="createTime" label="创建时间" min-width="80" />
-      <el-table-column prop="assetBalance" label="余额" width="80">
+      <el-table-column prop="assetBalance" label="余额" sortable width="80">
         <template #default="{ row }">￥{{ row.assetBalance }}</template>
       </el-table-column>
       <el-table-column prop="assetType" label="资产类型" width="80">
@@ -55,8 +56,9 @@
       :showPagination="false"
       class="table-container"
     >
-      <el-table-column prop="ticketName" label="优惠券名称" min-width="100" />
-      <el-table-column prop="ticketInfo.ticketType" label="类型" width="80">
+      <el-table-column type="index" label="序号" width="45" />
+      <el-table-column prop="ticketName" label="优惠券名称" sortable min-width="100" />
+      <el-table-column prop="ticketInfo.ticketType" label="类型" sortable width="80">
         <template #default="{ row }">
           <el-tag :type="getTicketTypeTagType(row.ticketInfo.ticketType)" size="small">
             {{ couponTypeMap[row.ticketInfo.ticketType as CouponType] || '未知' }}
@@ -68,6 +70,7 @@
           <template v-if="row.ticketInfo.ticketType === CouponType.voucher">
             ￥{{ row.ticketInfo.ticketValue }}
           </template>
+          <template v-else>￥{{ row.amount || 0 }}</template>
         </template>
       </el-table-column>
       <el-table-column prop="ticketInfo.ticketFullPayment" label="使用门槛" min-width="100">
