@@ -191,6 +191,7 @@
             @visible-change="visibleChange"
             value-key="vipTicketId"
             class="w-240"
+            filterable
           >
             <el-option
               v-for="item in couponOptions"
