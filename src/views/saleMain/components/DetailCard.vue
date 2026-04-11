@@ -227,13 +227,18 @@ const selectCoupon = (coupon: any) => {
   }
 
   if (coupon?.ticketInfo?.ticketType === CouponType.experience) {
-    // coupon.active = true;
-    // 选择项目券时将价格重置为标准价
-    props.data.trueUnitPrice = props.data.stdPrice;
-    props.data.truePrice = props.data.stdPrice;
-
     // 将优惠券挂载到当前明细用于UI展示
     props.data.coupon = coupon;
+
+    // coupon.active = true;
+    // 选择项目券时将价格重置为标准价
+    // props.data.trueUnitPrice = props.data.stdPrice;
+    // props.data.truePrice = props.data.stdPrice;
+
+    // 选择项目券时将价格设置为券面值
+    props.data.trueUnitPrice = coupon.amount || coupon.ticketInfo.ticketValue || props.data.stdPrice;
+    props.data.truePrice = props.data.trueUnitPrice;
+
     // 禁用当前修改单价的编辑框
     // props.data.disabled = true;
 

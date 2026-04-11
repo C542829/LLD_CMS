@@ -56,6 +56,10 @@ export const useOrderStore = defineStore('Order', () => {
   const discountTotal = computed<number>(() => {
     let amount = 0;
     for (const item of order.value.orderDetails) {
+      // 如果绑定有优惠券，则跳过
+      if (item.coupon) {
+        continue;
+      }
       const discount = sub(mul(item.stdPrice!, item.quantity), item.truePrice!);
       amount = add(amount, discount);
     }
@@ -77,6 +81,11 @@ export const useOrderStore = defineStore('Order', () => {
   const payAmount = computed<number>(() => {
     let amount = 0;
     for (const item of order.value.orderDetails) {
+      // 如果绑定有优惠券，则使用 truePrice
+      if (item.coupon) {
+        amount = add(amount, item.truePrice!);
+        continue;
+      }
       amount = add(amount, mul(item.stdPrice!, item.quantity));
     }
     return amount;
