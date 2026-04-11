@@ -236,7 +236,7 @@ const selectCoupon = (coupon: any) => {
     // props.data.truePrice = props.data.stdPrice;
 
     // 选择项目券时将价格设置为券面值
-    props.data.trueUnitPrice = coupon.amount || coupon.ticketInfo.ticketValue || props.data.stdPrice;
+    props.data.trueUnitPrice = coupon.amount ?? coupon.ticketInfo?.ticketValue ?? props.data.stdPrice;
     props.data.truePrice = props.data.trueUnitPrice;
 
     // 禁用当前修改单价的编辑框
