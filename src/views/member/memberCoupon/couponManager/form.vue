@@ -54,7 +54,11 @@
         <el-input v-model.number="store.formData.ticketValue" placeholder="请输入代金券面值" class="w-160">
           <template #suffix>元</template>
         </el-input>
-        <el-alert title="规则结果：满 0 元，可使用优惠券抵扣元" type="warning" style="margin-top: 8px" />
+        <el-alert
+          :title="`规则：满 ${store.formData.ticketFullPayment} 元，可使用优惠券抵扣 ${store.formData.ticketValue} 元`"
+          type="warning"
+          style="margin-top: 8px"
+        />
       </el-form-item>
     </template>
 
@@ -67,13 +71,15 @@
           clearable
           multiple
           filterable
+          :filter-method="filterServiceItem"
           class="w-240"
           placeholder="请选择项目"
         >
-          <el-option v-for="item in serviceItemOptions" :key="item.id" :value="item.id" :label="item.itemName">
+          <el-option v-for="item in filteredServiceItemOptions" :key="item.id" :value="item.id" :label="item.itemName">
             {{ item.itemName }}({{ item.itemEncode }})
           </el-option>
         </el-select>
+        <el-alert title="支持名称和编码搜索过滤" type="warning" style="margin-top: 8px" />
       </el-form-item>
     </template>
   </Form>
@@ -100,9 +106,30 @@ onMounted(() => {
 
 // 项目列表
 const serviceItemOptions = ref<any[]>([]);
+const filteredServiceItemOptions = ref<any[]>([]);
+
+/**
+ * 获取项目选项
+ */
 const getServiceItemOptions = async () => {
   const data = await serviceItemStore.getServiceItems();
   serviceItemOptions.value = data;
+  filteredServiceItemOptions.value = data;
+};
+
+/**
+ * 自定义搜索过滤方法，同时支持 itemName 和 itemEncode
+ * @param query 搜索关键字
+ */
+const filterServiceItem = (query: string) => {
+  if (query) {
+    const lowerQuery = query.toLowerCase();
+    filteredServiceItemOptions.value = serviceItemOptions.value.filter((item) => {
+      return item.itemName.toLowerCase().includes(lowerQuery) || item.itemEncode.toLowerCase().includes(lowerQuery);
+    });
+  } else {
+    filteredServiceItemOptions.value = serviceItemOptions.value;
+  }
 };
 
 // 表单提交

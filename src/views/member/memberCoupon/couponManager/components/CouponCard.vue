@@ -24,7 +24,12 @@
                 <div class="popover-content">
                   <div>名称：{{ props.coupon.ticketName }}</div>
                   <div>描述：{{ props.coupon.ticketDescription }}</div>
-                  <div>使用条件：满{{ props.coupon.ticketFullPayment }}元，优惠{{ props.coupon.ticketValue }}元</div>
+                  <template v-if="props.coupon.ticketType === CouponType.voucher">
+                    <div>使用条件：满{{ props.coupon.ticketFullPayment }}元，优惠{{ props.coupon.ticketValue }}元</div>
+                  </template>
+                  <!-- <template v-else>
+                    <div class="text-overflow">{{ props.coupon.ticketDescription || '' }}</div>
+                  </template> -->
                   <div style="text-align: center">
                     <el-button
                       v-if="!props.coupon.ticketStatus"
@@ -36,15 +41,7 @@
                       禁用
                     </el-button>
                     <el-button v-else @click="handleDisable" type="success" link size="small">启用</el-button>
-                    <el-button
-                      :disabled="!!props.coupon.ticketStatus"
-                      @click="handleEdit"
-                      type="primary"
-                      link
-                      size="small"
-                    >
-                      修改
-                    </el-button>
+                    <el-button @click="handleEdit" type="primary" link size="small">修改</el-button>
                     <el-button @click="handleMore" type="info" link size="small">更多</el-button>
                   </div>
                 </div>
@@ -55,15 +52,18 @@
             <span>{{ props.coupon.ticketName }}</span>
           </div>
         </div>
-        <div class="card-bottom-content">{{ props.coupon.ticketType ? '项目券' : '代金券' }}</div>
+        <!-- <div class="card-bottom-content">{{ props.coupon.ticketType ? '项目券' : '代金券' }}</div> -->
+        <div class="card-bottom-content text-overflow">
+          <EllipsisText :content="props.coupon.ticketDescription || ''"></EllipsisText>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ElButton, ElPopover } from 'element-plus';
 import { ref, computed, withDefaults } from 'vue';
+import { CouponType } from '@/enums';
 
 interface CouponCard {
   coupon: any;
@@ -110,6 +110,7 @@ const couponCardClass = computed(() => {
   background-position: 60px -8px;
   transition: all 0.2s ease-in-out;
   color: #fff;
+  overflow: hidden;
 }
 
 .coupon-card-entity {
@@ -134,6 +135,7 @@ const couponCardClass = computed(() => {
 
 .coupon-card-box > div {
   background-color: transparent;
+  // border: 1px red solid;
 }
 
 .card-title {
@@ -197,6 +199,9 @@ const couponCardClass = computed(() => {
   color: #dedfe4;
   height: 30px;
   flex: none;
+  width: 100%;
+  overflow: hidden;
+  // border: 1px red solid;
 }
 
 .popover-content {
