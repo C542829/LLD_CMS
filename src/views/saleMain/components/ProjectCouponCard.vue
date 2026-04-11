@@ -8,10 +8,13 @@
     </div>
 
     <!-- 过期时间 -->
-    <div class="row coupon-tip text-overflow" :title="`${getExpiryDate(coupon.expiryDate)}`">
-      {{ getExpiryDate(coupon.expiryDate) }}
+    <div class="row">
+      <div class="coupon-tip text-overflow" :title="`${getExpiryDate(coupon.expiryDate)}`">
+        过期时间：{{ getExpiryDate(coupon.expiryDate) }}
+        <!-- {{ coupon.ticketName }} -->
+      </div>
+      <div class="amount text-overflow" :title="`面值 ￥${coupon.amount || 0}/张`">￥{{ coupon.amount || 0 }}/张</div>
     </div>
-
     <!-- 优惠券描述 -->
     <div class="row coupon-tip text-overflow" :title="coupon.remark">
       {{ coupon.remark }}
@@ -41,6 +44,7 @@ interface Props {
     ticketName: string;
     remark: string;
     count: number;
+    amount: number;
     ticketInfo: {
       ticketName: string;
       ticketDescription: string;
@@ -170,6 +174,13 @@ const getServerItems = (serverItems: any) => {
       text-align: right;
       font-weight: 500;
       color: var(--el-text-color-regular);
+    }
+    .amount {
+      font-size: 10px;
+      width: 100px;
+      text-align: right;
+      font-weight: 400;
+      color: var(--el-text-color-secondary);
     }
   }
 

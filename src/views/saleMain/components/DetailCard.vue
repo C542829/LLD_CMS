@@ -14,9 +14,25 @@
         <span class="total-price">总价:{{ data.truePrice }}</span>
         <!-- 优惠券 -->
         <template v-if="data.detailType === OrderDetailType.Service">
-          <span class="item-coupon-info">
-            <CouponSelect :detailItem="data" @change="selectCoupon"></CouponSelect>
-          </span>
+          <template v-if="!orderStore.isCreated">
+            <el-tooltip effect="dark" content="开单后才能选择优惠券" placement="top">
+              <span class="item-coupon-info">
+                <el-button
+                  type="primary"
+                  link
+                  size="large"
+                  icon="Ticket"
+                  :disabled="!orderStore.isCreated"
+                  style="transform: scale(1.3)"
+                />
+              </span>
+            </el-tooltip>
+          </template>
+          <template v-else>
+            <span class="item-coupon-info">
+              <CouponSelect :detailItem="data" @change="selectCoupon"></CouponSelect>
+            </span>
+          </template>
         </template>
         <!-- 自定义价格 -->
         <span class="edit-price">
@@ -197,7 +213,7 @@ const handleCloseTag = () => {
   //   props.data.coupon.active = false;
   // }
   props.data.coupon = null;
-  props.data.disabled = false;
+  // props.data.disabled = false;
   orderStore.updateOrderDetailPrice();
 };
 
@@ -219,7 +235,7 @@ const selectCoupon = (coupon: any) => {
     // 将优惠券挂载到当前明细用于UI展示
     props.data.coupon = coupon;
     // 禁用当前修改单价的编辑框
-    props.data.disabled = true;
+    // props.data.disabled = true;
 
     const useCoupon: any = {
       ticketId: coupon.id,

@@ -2,7 +2,9 @@
   <el-popover ref="popoverRef" trigger="click" effect="light" placement="left" title="请选择项目券" width="180">
     <el-select v-model="selected" placeholder="请选择项目券" filterable clearable value-key="id" @change="handleChange">
       <el-option v-for="(item, index) in coupons" :key="item.id" :label="item.ticketName" :value="item">
-        <span>{{ index + 1 }}、{{ item.ticketName }}</span>
+        <!-- <span>{{ index + 1 }}、{{ item.ticketName }}</span> -->
+        {{ index + 1 }}. {{ item.ticketName }}
+        <!-- ({{ item.remark }}) -->
       </el-option>
     </el-select>
     <template #reference>
