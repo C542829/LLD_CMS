@@ -181,7 +181,7 @@ const removePaymentMethod = (index: number) => {
   }
 };
 
-const activityDisabled = ref(false);
+const activityDisabled = ref(true);
 watch(
   () => store.rechargeActivity,
   (newVal, oldVal) => {
@@ -189,13 +189,13 @@ watch(
       store.rechargeFormData.assetDiscountRate = newVal.activeDiscount;
       store.rechargeFormData.assetDiscountBase = newVal.activeBase;
       store.rechargeFormData.assetIsCrossStore = newVal.isCrossStore;
-      activityDisabled.value = true;
+      // activityDisabled.value = true;
     } else {
       store.setDefaultDiscount();
       // store.rechargeFormData.assetDiscountRate = store.rcRule.defaultDiscountRate;
       // store.rechargeFormData.assetDiscountBase = store.rcRule.defaultDiscountBase;
       // store.rechargeFormData.assetIsCrossStore = store.rcRule.defaultIsCrossStore;
-      activityDisabled.value = false;
+      // activityDisabled.value = false;
     }
   },
 );
