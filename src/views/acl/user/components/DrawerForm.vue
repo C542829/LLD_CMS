@@ -242,6 +242,7 @@ const formDisabled = computed(() => {
 });
 
 const handleDrawerClose = () => {
+  handleFormReset();
   emit('update:model-value', false);
   emit('close');
 };
