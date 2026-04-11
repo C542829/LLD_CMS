@@ -62,8 +62,17 @@
     <template v-if="store.formData.ticketType === CouponType.experience">
       <!-- 可体验项目 -->
       <el-form-item label="选择项目" prop="serverItemIds">
-        <el-select v-model="store.formData.serverItemIds" clearable multiple class="w-240" placeholder="请选择项目">
-          <el-option v-for="item in serviceItemOptions" :key="item.id" :label="item.itemName" :value="item.id" />
+        <el-select
+          v-model="store.formData.serverItemIds"
+          clearable
+          multiple
+          filterable
+          class="w-240"
+          placeholder="请选择项目"
+        >
+          <el-option v-for="item in serviceItemOptions" :key="item.id" :value="item.id" :label="item.itemName">
+            {{ item.itemName }}({{ item.itemEncode }})
+          </el-option>
         </el-select>
       </el-form-item>
     </template>
