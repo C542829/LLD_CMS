@@ -9,6 +9,7 @@
     :collapse-tags-tooltip="multiple"
     :max-collapse-tags="multiple ? maxCollapseTags : undefined"
     :clearable="clearable"
+    :filterable="filterable"
     :placement="placement"
     :loading="loading"
     @change="handleChange"
@@ -45,6 +46,7 @@ interface Props extends Partial<ElSelectProps> {
   valueKey?: string;
   maxCollapseTags?: number;
   clearable?: boolean;
+  filterable?: boolean;
   multiple?: boolean;
   defaultProps?: any;
   placement?: PlacementType;
@@ -57,6 +59,7 @@ const props = withDefaults(defineProps<Props>(), {
   valueKey: 'id',
   maxCollapseTags: 1,
   clearable: true,
+  filterable: true,
   multiple: true,
   defaultProps: () => ({
     label: 'orgName',
