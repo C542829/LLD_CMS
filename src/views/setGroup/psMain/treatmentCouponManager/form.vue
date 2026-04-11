@@ -77,10 +77,10 @@
         <MultipleSelect
           v-model="store.formData.vipTicketList"
           :displayProps="defaultProps"
-          :multiple-limit="1"
           @visible-change="visibleChange"
           value-key="vipTicketId"
           class="w-240"
+          filterable
         >
           <el-option v-for="item in couponOptions" :key="item.vipTicketId" :label="item.vipTicketName" :value="item" />
         </MultipleSelect>
