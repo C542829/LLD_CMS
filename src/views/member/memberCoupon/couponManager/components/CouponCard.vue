@@ -131,11 +131,11 @@ const couponCardClass = computed(() => {
 .coupon-card-box {
   display: flex;
   height: 100%;
+  width: 100%;
 }
 
 .coupon-card-box > div {
   background-color: transparent;
-  // border: 1px red solid;
 }
 
 .card-title {
@@ -154,7 +154,7 @@ const couponCardClass = computed(() => {
 }
 
 .card-content {
-  width: 100%;
+  width: calc(100% - 59px);
   display: flex;
   flex-direction: column;
   clear: both;
