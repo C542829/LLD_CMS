@@ -18,43 +18,43 @@ export const useHomeStore = defineStore('Home', () => {
   };
 
   const projectPerformanceData = ref([
-    { name: '卡销业务', value: 170603.84 },
-    { name: '微信', value: 23066 },
-    { name: '支付宝', value: 6918 },
-    { name: '银行卡', value: 61746.23 },
-    { name: '现金', value: 2067 },
-    { name: '电子券', value: 17042.24 },
-    { name: '实体券', value: 5023 },
-    { name: '美团', value: 21807.4 },
-    { name: '抖音', value: 4791.7 },
+    { name: '卡销业务', value: 0 },
+    { name: '微信', value: 0 },
+    { name: '支付宝', value: 0 },
+    { name: '银行卡', value: 0 },
+    { name: '现金', value: 0 },
+    { name: '电子券', value: 0 },
+    { name: '实体券', value: 0 },
+    { name: '美团', value: 0 },
+    { name: '抖音', value: 0 },
   ]);
   const rechargeData = ref([
-    { name: '微信', value: 23066 },
-    { name: '支付宝', value: 6918 },
-    { name: '银行卡', value: 61746.23 },
-    { name: '现金', value: 2067 },
-    { name: '美团', value: 21807.4 },
-    { name: '抖音', value: 4791.7 },
+    { name: '微信', value: 0 },
+    { name: '支付宝', value: 0 },
+    { name: '银行卡', value: 0 },
+    { name: '现金', value: 0 },
+    { name: '美团', value: 0 },
+    { name: '抖音', value: 0 },
   ]);
 
   const incomeData = ref([
-    { name: '微信', value: 188407, itemStyle: { color: '#07C160' } },
-    { name: '银行卡', value: 61831.23, itemStyle: { color: '#1485EE' } },
-    { name: '支付宝', value: 6918, itemStyle: { color: '#1677FF' } },
-    { name: '现金', value: 5567, itemStyle: { color: '#FF9D2B' } },
+    { name: '微信', value: 0, itemStyle: { color: '#07C160' } },
+    { name: '银行卡', value: 0, itemStyle: { color: '#1485EE' } },
+    { name: '支付宝', value: 0, itemStyle: { color: '#1677FF' } },
+    { name: '现金', value: 0, itemStyle: { color: '#FF9D2B' } },
     { name: '其他', value: 0, itemStyle: { color: '#8C8C8C' } },
   ]);
 
   const performanceData = ref([
-    { name: '应收', value: 85200, itemStyle: { color: '#5B8FF9' } },
-    { name: '优惠', value: 67800, itemStyle: { color: '#5AD8A6' } },
-    { name: '优惠后金额', value: 42500, itemStyle: { color: '#5D7092' } },
+    { name: '应收', value: 0, itemStyle: { color: '#5B8FF9' } },
+    { name: '优惠', value: 0, itemStyle: { color: '#5AD8A6' } },
+    { name: '优惠后金额', value: 0, itemStyle: { color: '#5D7092' } },
   ]);
 
   const businessData = ref([
-    { name: '点钟', value: 1250, itemStyle: { color: '#C9C9C9' } },
-    { name: '加钟', value: 680, itemStyle: { color: '#C0C0C0' } },
-    { name: '轮牌', value: 320, itemStyle: { color: '#FFD700' } },
+    { name: '点钟', value: 0, itemStyle: { color: '#C9C9C9' } },
+    { name: '加钟', value: 0, itemStyle: { color: '#C0C0C0' } },
+    { name: '轮牌', value: 0, itemStyle: { color: '#FFD700' } },
   ]);
 
   const data = {

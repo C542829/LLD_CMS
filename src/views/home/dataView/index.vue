@@ -31,7 +31,7 @@
                 radius="[40%, 70%]"
                 height="100%"
                 unit="次"
-                :centerText="`总项目次\n${55}次`"
+                :centerText="`总项目次\n${0}次`"
               />
             </div>
           </div>
@@ -45,7 +45,7 @@
             />
             <BarChart
               :data="store.rechargeData"
-              :title="`充值/开卡，总额：￥${352525}`"
+              :title="`充值/开卡，总额：￥${0}`"
               xAxisName=""
               yAxisName="单位(元)"
               height="100%"
