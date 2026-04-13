@@ -65,13 +65,18 @@ const orderCache = new Map<number, any>();
 
 /** 获取床列表 */
 const getBedList = async () => {
-  loading.value = true;
-  bedList.value = await dataEnumStore.getAllBedList();
+  try {
+    loading.value = true;
+    bedList.value = await dataEnumStore.getAllBedList();
 
-  // 获取所有服务中的床位的订单数据
-  await fetchOccupiedBedOrders();
-
-  loading.value = false;
+    // 获取所有服务中的床位的订单数据
+    timer = setTimeout(() => {
+      fetchOccupiedBedOrders();
+    }, 200);
+  } catch (error) {
+  } finally {
+    loading.value = false;
+  }
 };
 
 /**

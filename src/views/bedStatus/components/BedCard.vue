@@ -1,5 +1,50 @@
 <template>
-  <div class="bed-card-box">
+  <!-- 服务中且有订单数据时，显示悬浮订单详情 -->
+  <el-popover
+    v-if="bedData.status === 1 && bedData.order"
+    placement="right"
+    :width="400"
+    trigger="hover"
+    :popper-class="'order-summary-popover'"
+  >
+    <template #reference>
+      <div class="bed-card-box">
+        <div class="bed-card">
+          <!-- 卡片头部 -->
+          <div class="bed-card__header">
+            <div class="bed-card__header-left">
+              <span>{{ bedData.bedName }}</span>
+            </div>
+            <div class="bed-card__header-right">
+              <!-- <ModifyBed :bill="{}" /> -->
+            </div>
+          </div>
+
+          <!-- 服务状态 -->
+          <div class="bed-card__bottom bed-card__bottom--occupied">
+            <div class="bed-card__info">
+              <div class="bed-card__info-left">
+                <span>服务中...</span>
+              </div>
+              <div class="bed-card__progress">
+                <!-- <Progress :bed="bedData"></Progress> -->
+              </div>
+            </div>
+            <div class="bed-card__option">
+              <el-button @click="handleShowDrawer" type="primary" plain size="small">账单</el-button>
+              <el-button @click="handleCheckout" type="primary" plain size="small">去结账</el-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <!-- 订单详情内容 -->
+    <OrderSummary :order-data="bedData.order" />
+  </el-popover>
+
+  <!-- 空闲状态或服务中但无订单数据时，不显示悬浮框 -->
+  <div v-else class="bed-card-box">
     <div class="bed-card">
       <!-- 卡片头部 -->
       <div class="bed-card__header">
@@ -23,8 +68,8 @@
         </div>
       </div>
 
-      <!-- 服务状态 -->
-      <div v-if="bedData.status === 1" class="bed-card__bottom bed-card__bottom--occupied">
+      <!-- 服务状态（无订单数据） -->
+      <div v-if="bedData.status === 1 && !bedData.order" class="bed-card__bottom bed-card__bottom--occupied">
         <div class="bed-card__info">
           <div class="bed-card__info-left">
             <span>服务中...</span>
@@ -43,6 +88,7 @@
 </template>
 
 <script setup lang="ts">
+import OrderSummary from './OrderSummary.vue';
 import { CashierRouteSign } from '@/enums/index';
 
 /**
