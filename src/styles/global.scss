@@ -225,3 +225,26 @@ $directions: (
     }
   }
 }
+
+// 订单详情弹出框样式优化
+.order-summary-popover {
+  max-height: 400px;
+  overflow-y: auto;
+
+  .el-table {
+    font-size: 12px;
+
+    .el-table__header {
+      th {
+        background-color: #f5f7fa;
+        font-weight: bold;
+      }
+    }
+
+    .el-table__body {
+      td {
+        padding: 6px 0;
+      }
+    }
+  }
+}
