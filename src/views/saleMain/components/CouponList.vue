@@ -139,7 +139,7 @@ const cancelSelect = (item: any) => {
     }
   }
   .coupon-list {
-    height: calc(100% - 33px);
+    // height: calc(100% - 33px);
     :deep(.el-scrollbar__view) {
       width: 260px;
       margin: 0 auto;

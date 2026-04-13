@@ -138,13 +138,6 @@ export const useOrderStore = defineStore('Order', () => {
           // 当前选择折扣卡的折扣率
           const discountRate = div(assetDiscountRate, 100);
 
-          // 如果是标准价，且折扣率为100%，则优先使用会员价
-          if (!isMemberPrice && assetDiscountRate === 100) {
-            detail.trueUnitPrice = detail.vipPrice;
-            // detail.truePrice = mul(detail.trueUnitPrice, detail.quantity);
-            continue;
-          }
-
           // 数量更新时
           // if (isMemberPrice) {
           //   detail.trueUnitPrice = detail.vipPrice;
@@ -153,10 +146,20 @@ export const useOrderStore = defineStore('Order', () => {
           //   detail.trueUnitPrice = detail.stdPrice;
           //   detail.truePrice = mul(detail.trueUnitPrice, detail.quantity);
           // }
+          detail.trueUnitPrice = detail.vipPrice;
           detail.truePrice = mul(detail.trueUnitPrice, detail.quantity);
+
+          // 如果是标准价，且折扣率为100%，则优先使用会员价
+          if (!isMemberPrice && assetDiscountRate === 100) {
+            // detail.trueUnitPrice = detail.vipPrice;
+            // detail.truePrice = mul(detail.trueUnitPrice, detail.quantity);
+            continue;
+          }
 
           // 如果设置为不打折则不进行更新
           if (detail.isDiscount === IsDiscount.No) {
+            // detail.trueUnitPrice = detail.vipPrice;
+            // detail.truePrice = mul(detail.trueUnitPrice, detail.quantity);
             continue;
           }
 

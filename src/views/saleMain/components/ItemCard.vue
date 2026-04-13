@@ -16,7 +16,14 @@
         <span v-else class="discount-tag not-discount">{{ IsDiscountMap[IsDiscount.No] }}</span>
       </template>
     </div>
-    <div class="item sub-title"><EllipsisText :content="getItemValue(data, config.codeKey || 'code')" /></div>
+    <div class="item sub-title">
+      <div class="code">
+        <EllipsisText :content="getItemValue(data, config.codeKey || 'code')" />
+      </div>
+      <template v-if="data.quantity !== null">
+        <div class="quantity text-overflow" :title="`数量：${data.quantity}`">{{ data.quantity }}&nbsp;</div>
+      </template>
+    </div>
     <div
       v-if="getItemValue(data, config.retailPriceKey || 'retailPrice', undefined) !== undefined"
       class="item price-item"
@@ -185,6 +192,14 @@ const getItemValue = (data: Record<string, any>, key: string, defaultValue: any 
     font-size: 12px;
     height: 16px;
     color: var(--el-text-color-secondary);
+    width: 100%;
+    .code {
+      width: calc(100% - 50px);
+    }
+    .quantity {
+      width: 50px;
+      text-align: right;
+    }
   }
   .price-item {
     font-size: 12px;
