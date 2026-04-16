@@ -110,9 +110,9 @@
         </span>
       </li>
       <li>
-        <span>UU远程：</span>
+        <span>XP58驱动：</span>
         <span>
-          <a href="https://uuyc.163.com/" target="_blank">点击下载</a>
+          <a href="./Pdriver.exe" target="_blank">点击下载</a>
         </span>
       </li>
     </ul>

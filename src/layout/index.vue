@@ -18,8 +18,9 @@
         </el-menu>
       </el-scrollbar>
       <div class="driver-down" v-show="!settingStore.fold">
-        <el-link href="./Pdriver.exe" class="down-link" underline="never">小票打印机驱动</el-link>
-        <el-link href="./printer.exe" class="down-link" underline="never">打印加速控件下载</el-link>
+        <!-- <el-link href="./Pdriver.exe" class="down-link" underline="never">小票打印机驱动</el-link> -->
+        <el-link href="https://uuyc.163.com/" target="_blank" class="down-link" underline="never">远程工具</el-link>
+        <el-link href="./printer.exe" target="_blank" class="down-link" underline="never">打印加速控件下载</el-link>
       </div>
     </div>
     <div class="layout_right">
