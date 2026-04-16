@@ -2,7 +2,7 @@
   <div class="product-list">
     <DictRadio :dictCode="DictCode.ITEM_CATEGORY" class="dict-radio" @change="handleChange" />
     <template v-if="serviceItemList && serviceItemList.length > 0">
-      <el-scrollbar v-loading="loading" :element-loading-text="LOADING_MSG">
+      <el-scrollbar v-loading="loading" :element-loading-text="LOADING_MSG" :always="true">
         <ItemCard
           v-for="item in serviceItemList"
           :key="item.id"
