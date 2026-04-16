@@ -159,6 +159,7 @@ const getItemValue = (data: Record<string, any>, key: string, defaultValue: any 
     justify-content: space-between;
     .title {
       width: 70%;
+      font-size: 14px;
       display: inline-block;
       > :deep(.el-tooltip__trigger) {
         width: 100%;
@@ -202,9 +203,8 @@ const getItemValue = (data: Record<string, any>, key: string, defaultValue: any 
     }
   }
   .price-item {
-    font-size: 12px;
     height: 18px;
-    font-size: 14px;
+    font-size: 13px;
     .guest {
       font-weight: 500;
       color: var(--el-color-info);
