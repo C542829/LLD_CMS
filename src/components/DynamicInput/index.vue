@@ -4,7 +4,13 @@
     <template v-if="!isEditing">
       <div class="view-text" :style="{ fontSize: fontSize }">
         <span class="text-overflow" :title="inputValue!">{{ inputValue || '- ' }}</span>
-        <el-button type="primary" :color="btnColor ? btnColor : ''" :size="size" link @click="isEditing = true">
+        <el-button
+          type="primary"
+          :color="btnColor ? btnColor : ''"
+          :size="size"
+          link
+          @click.stop.prevent="isEditing = true"
+        >
           编辑
         </el-button>
       </div>
@@ -12,10 +18,10 @@
     <!-- 编辑状态 -->
     <template v-else>
       <el-input v-model="inputValue" @keyup.enter="handleConfirm" :size="size" class="input" clearable />
-      <el-button type="primary" :color="btnColor ? btnColor : ''" :size="size" link @click="handleCancel">
+      <el-button type="primary" :color="btnColor ? btnColor : ''" :size="size" link @click.stop.prevent="handleCancel">
         取消
       </el-button>
-      <el-button type="primary" :color="btnColor ? btnColor : ''" :size="size" link @click="handleConfirm">
+      <el-button type="primary" :color="btnColor ? btnColor : ''" :size="size" link @click.stop.prevent="handleConfirm">
         确定
       </el-button>
     </template>

@@ -51,10 +51,10 @@
           <span>可用余额：</span>
           <span>￥{{ store.formData.balance }} 元</span>
         </p>
-        <p>
+        <!-- <p>
           <span>本店可用优惠券：</span>
           <span>0 张</span>
-        </p>
+        </p> -->
       </div>
 
       <!-- 标签 -->

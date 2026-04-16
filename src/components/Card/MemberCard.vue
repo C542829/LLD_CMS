@@ -7,12 +7,22 @@
         <h1>会员：{{ member.name }}</h1>
         <el-button
           v-if="showResetBtn"
-          @click="reset"
+          @click.stop.prevent="reset"
           size="small"
           plain
           style="background-color: transparent; color: var(--el-color-primary-light-5)"
         >
           重选会员
+        </el-button>
+        <el-button
+          v-if="showInfoBtn"
+          @click.stop.prevent="handleClickInfo"
+          size="small"
+          link
+          color="#000"
+          type="primary"
+        >
+          详细信息
         </el-button>
       </div>
       <div class="item-info">电话：{{ member.phoneNumber }}</div>
@@ -21,7 +31,14 @@
       </div>
       <div class="item-info">
         <span>门店余额：{{ member.balance || 0 }} 元&nbsp;&nbsp;</span>
-        <el-button v-if="showGoRechargeBtn" @click="goRecharge" color="#000" type="primary" icon="Promotion" link>
+        <el-button
+          v-if="showGoRechargeBtn"
+          @click.stop.prevent="goRecharge"
+          color="#000"
+          type="primary"
+          icon="Promotion"
+          link
+        >
           去充值
         </el-button>
       </div>
@@ -62,16 +79,19 @@ interface Props {
   showResetBtn?: boolean;
   showGoRechargeBtn?: boolean;
   showRemark?: boolean;
+  showInfoBtn?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   showResetBtn: true,
   showGoRechargeBtn: true,
   showRemark: false,
+  showInfoBtn: false,
 });
 
 const emit = defineEmits<{
   (e: 'reset'): void;
+  (e: 'info'): void;
   (e: 'goRecharge', member: Member): void;
 }>();
 
@@ -80,8 +100,13 @@ const vipCode = computed(() => {
     ? `卡号：${props.member.cardNumber}(${vipLevelMap.get(Number(props.member.identity)) || '未知'})`
     : '无卡号';
 });
+
 const reset = () => {
   emit('reset');
+};
+
+const handleClickInfo = () => {
+  emit('info');
 };
 
 const goRecharge = () => {
