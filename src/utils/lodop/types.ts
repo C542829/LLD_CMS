@@ -36,6 +36,7 @@ export interface OrderData {
   settleTime: string;
   totalAmount: number;
   actualAmount: number;
+  afterBalance: number;
   discountAmount: number;
   bedName: string;
   userName: string; // 收银员

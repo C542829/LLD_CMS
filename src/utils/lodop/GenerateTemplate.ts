@@ -1,5 +1,4 @@
 import { OrderData, RechargeData } from './types';
-import { OrderInfoVO } from '@/api/order/types';
 import { formatDateTime } from '@/utils/time';
 import { hidePhone } from '@/utils/index';
 import { getUserNameList } from './utils';
@@ -11,8 +10,8 @@ const FONT_SIZE_TABLE = '2.5mm';
 const FONT_SIZE_SMALL = '2.5mm';
 // const MARGIN_TOP = '';
 const MARGIN_TOP = '0mm';
-const MARGIN = '3mm';
-const HR_STYLE = `border-top: 1px solid #333; margin: 2mm 0;`;
+const MARGIN = '2mm';
+const HR_STYLE = `border-top: 1px solid #333; margin: 1mm 0;`;
 
 /**
  * 生成订单HTML模板字符串
@@ -51,15 +50,15 @@ export const generateOrderHtmlTemplate = (data: OrderData, width = '48mm'): stri
     .join('');
 
   return `
-      <div style="width: ${width}; ${FONT_FAMILY}; padding: 3mm 0; color: #000; font-size: ${FONT_SIZE};">
+      <div style="width: ${width}; ${FONT_FAMILY}; color: #000; font-size: ${FONT_SIZE}; padding-top: 3mm;">
         <h2 style="text-align: center; font-size: ${FONT_SIZE_TITLE}; font-weight: bold;">${data.orgName || '门店'}</h2>
         <p style="margin: 1mm 0 2mm 0; text-align: center; font-size: ${FONT_SIZE};">消费单</p>
 
-        <p style="margin-top: ${MARGIN_TOP};">系统单号: ${data.orderCode || '-'}</p>
+        <p>系统单号: ${data.orderCode || '-'}</p>
 
-        <p style="margin-top: ${MARGIN_TOP};">买单时间: ${data.settleTime || '-'}</p>
-        <p style="margin-top: ${MARGIN_TOP};">顾客: ${data.vipName || data.customerName || '-'}</p>
-        <p style="margin-top: ${MARGIN_TOP};">手机号: ${hidePhone(data.vipPhoneNumber) || '-'}</p>
+        <p>买单时间: ${data.settleTime || '-'}</p>
+        <p>顾客: ${data.vipName || data.customerName || '-'}</p>
+        <p>手机号: ${hidePhone(data.vipPhoneNumber) || '-'}</p>
 
         <div style="${HR_STYLE}"></div>
 
@@ -77,21 +76,21 @@ export const generateOrderHtmlTemplate = (data: OrderData, width = '48mm'): stri
 
         <div style="${HR_STYLE}"></div>
 
-        <p style="margin: ${MARGIN_TOP} 0; font-weight: bold;">支付明细：</p>
-        <div style="margin-top: ${MARGIN_TOP};">${paymentItems}</div>
-        <p style="margin-top: ${MARGIN_TOP};">实付总计: ￥${data.actualAmount || '0'}</p>
-        <p style="margin-top: ${MARGIN_TOP};">消费后余额:￥${data.afterBalance || '-'}</p>
+        <p style="font-weight: bold;">支付明细：</p>
+        <div>${paymentItems}</div>
+        <p>实付总计: ￥${data.actualAmount || '0'}</p>
+        <p>消费后余额:￥${data.afterBalance || '-'}</p>
 
         <div style="${HR_STYLE}"></div>
 
 
-        <p style="margin-top: ${MARGIN_TOP};">收银员: ${data.userName || '-'}</p>
+        <p>收银员: ${data.userName || '-'}</p>
 
         <p style="margin: ${MARGIN} 0;">顾客签名: ______________</p>
 
         <p style="margin: ${MARGIN} 0; text-align: center;">恭侯您下次光临</p>
-        <p style="margin-top: ${MARGIN_TOP};">服务电话: ${data.servicePhone || data.orgNumber || '-'}</p>
-        <p style="margin-top: ${MARGIN_TOP};">门店地址: ${data.orgAddress || '-'}</p>
+        <p>服务电话: ${data.servicePhone || data.orgNumber || '-'}</p>
+        <p>门店地址: ${data.orgAddress || '-'}</p>
         <p style="margin: ${MARGIN} 0; text-align: center;">加盟门店 自主经营</p>
       </div>
     `;
