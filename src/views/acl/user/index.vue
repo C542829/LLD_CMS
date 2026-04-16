@@ -14,7 +14,7 @@
               <OrgSelect
                 v-model="searchParams.orgIds"
                 placeholder="门店"
-                class="w-160"
+                class="w-180"
                 :multiple="true"
                 @change="search"
                 @clear="search"
