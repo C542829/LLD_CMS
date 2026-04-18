@@ -1,201 +1,200 @@
-export interface ConsumeBillItemEmp {
+// ==================== JSON 子类型定义 ====================
+
+/** 消费项目 - 技师信息 */
+export interface SaleDataItemEmp {
+  /** 技师ID */
   empid: number;
+  /** 账单ID */
   billid: number;
+  /** 技师姓名 */
   empName: string;
+  /** 明细ID */
   detailid: number;
+  /** 是否自动分配 */
   automatic: number;
+  /** 是否展示 */
   mgjshowinmyk: number;
 }
 
-export interface ConsumeBillItem {
+/** 消费项目明细 */
+export interface SaleDataItem {
+  /** 项目ID */
   itemId: string;
+  /** 消费类型 */
   consumetype: number;
+  /** 项目名称 */
   serviceItemName: string;
-  emps: ConsumeBillItemEmp[];
+  /** 技师列表 */
+  emps: SaleDataItemEmp[];
+  /** 单价 */
   price: string;
+  /** 赠送 */
   largess: string | null;
+  /** 数量 */
   num: number;
-  treatmentItemId: number | null;
+  /** 疗程项目ID */
+  treatmentItemId: string | null;
+  /** 明细ID */
   id: number;
+  /** 类型 0-服务 3-套餐 4-疗程 */
   type: number;
+  /** 消费类型 */
   consumeType: number;
 }
 
-export interface ConsumeBillCash {
-  mdFee: number;
-  dianpin: number;
-  unionPay: number;
-  type: number;
-  voucherFee: number;
-  otherfee6: number;
-  otherfee7: number;
-  otherfee8: number;
-  tableName: string | null;
-  otherfee9: number;
-  debtFee: number;
-  luckymoney: number;
-  id: number;
-  shopId: number;
+/** 现金支付明细 */
+export interface SaleDataCash {
+  /** 现金 */
   cash: number;
-  depcode: string;
-  mallOrderFee: number;
-  payedUnionPay: number;
-  consumeType: number;
-  cooperation: number;
-  payedAliPay: number;
-  consumeTime: string;
-  coupon: number;
-  mall: number;
-  jdFee: number;
-  pay: number;
-  otherfee10: number;
-  payedWechatPay: number;
-  otherfee2: number;
-  otherfee3: number;
-  otherfee4: number;
+  /** 微信 */
   weixin: number;
-  otherfee5: number;
-  cancelTime: string | null;
-  billId: number;
-  otherfee1: number;
-  billDetailId: string | null;
-  pointfee: number;
-  status: number;
-}
-
-export interface ConsumeBillCard {
-  type: number;
-  tableName: string | null;
-  cardFee: number;
-  onlineCredit: number;
-  offlineCredit: number;
-  treatPresentFee: number;
-  id: number;
-  shopId: number;
-  cardTypeId: string;
-  depcode: string;
-  consumeType: number;
-  divideFee: number;
-  offlineCreditPay: number;
-  memberId: number;
+  /** 点评 */
+  dianpin: number;
+  /** 银联 */
+  unionPay: number;
+  /** 优惠券 */
+  coupon: number;
+  /** 红包 */
+  luckymoney: number;
+  /** 支付金额 */
+  pay: number;
+  /** 消费时间 */
   consumeTime: string;
-  otherFlag: number;
-  memCardId: number;
-  onlineCreditPay: number;
-  cardType: string;
-  presentFee: number;
-  cancelTime: string | null;
-  billId: number;
-  treatFee: number;
-  billDetailId: string | null;
-  yearFee: number;
+  /** 支付类型 */
+  type: number;
+  /** 状态 */
   status: number;
+  /** 账单ID */
+  billId: number;
+  /** 门店ID */
+  shopId: number;
+  /** 积分 */
+  pointfee: number;
 }
 
-export interface ConsumeBill {
-  id: number;
-  cashs: ConsumeBillCash[];
-  cards: ConsumeBillCard[];
-  channel: string | null;
-  jsonStr: string;
-  clientflag: string;
-  feedbackComment: string | null;
-  billtype: number;
-  eafee: string;
-  custId: number;
-  lotteryStatus: number | null;
-  feedbackDT: string | null;
-  consumefee: string;
-  consumeshopname: string | null;
-  consumeType: number;
-  mgjIsHighQualityCust: string;
-  createDate: number;
+/** 会员卡支付明细 */
+export interface SaleDataCard {
+  /** 卡金支付 */
+  cardFee: number;
+  /** 疗程支付 */
+  treatFee: number;
+  /** 赠送支付 */
+  presentFee: number;
+  /** 卡类型ID */
+  cardTypeId: string;
+  /** 卡类型 */
+  cardType: string;
+  /** 会员卡ID */
+  memCardId: number;
+  /** 会员ID */
   memberId: number;
-  remainFee: string | null;
-  addOverallScore: number | null;
-  billstatus: number;
-  debtBillId: string;
-  expenseCategory: number;
-  overallScore: number;
-  sex: string;
-  cardType: number;
-  settlementChannel: string | null;
-  expense: string;
-  storeId: number;
-  lotteryType: number | null;
-  otherflag: number;
-  name: string;
-  comment: string | null;
-  addFeedbackComment: string | null;
-  auditingFlag: number;
-  items: ConsumeBillItem[];
-  billno: string;
-  freezeType: number;
-  billingChannel: string | null;
+  /** 消费时间 */
+  consumeTime: string;
+  /** 消费类型 */
+  consumeType: number;
+  /** 类型 */
+  type: number;
+  /** 状态 */
+  status: number;
+  /** 账单ID */
+  billId: number;
+  /** 门店ID */
+  shopId: number;
 }
 
-export interface ConsumeBillQuery {
-  pageNum: number;
-  pageSize: number;
-  startTime?: string;
-  endTime?: string;
-  billno?: string;
-  name?: string;
-  memberId?: number;
-  billtype?: number;
+// ==================== 查询参数 ====================
+
+/**
+ * MGJ 销售数据查询参数
+ */
+export interface MgjSaleDataQuery {
+  /** 账单状态 */
   billstatus?: number;
+  /** 消费类型 */
+  consumeType?: number;
+  /** 结束日期 */
+  endDate?: string;
+  /** 会员ID */
+  memberId?: number | string;
+  /** 客户姓名 */
+  name?: string;
+  /** 页码 */
+  pageNum?: number;
+  /** 每页大小 */
+  pageSize?: number;
+  /** 开始日期 */
+  startDate?: string;
+  /** 门店ID */
+  storeId?: number | string;
 }
 
-export interface ConsumeBillListResponse {
-  total: number;
-  rows: ConsumeBill[];
+// ==================== 响应数据 ====================
+
+/**
+ * MGJ 销售数据 VO
+ * 注意：cards、cashs、items 字段后端返回 JSON 字符串，需前端解析
+ */
+export interface MgjSaleDataVO {
+  /** 账单号 */
+  billno: string;
+  /** 账单状态 */
+  billstatus: number;
+  /** 账单类型 */
+  billtype: number;
+  /** 卡消费明细(JSON字符串，需解析为 SaleDataCard[]) */
+  cards: string;
+  /** 卡类型 */
+  cardType: number;
+  /** 支付明细(JSON字符串，需解析为 SaleDataCash[]) */
+  cashs: string;
+  /** 渠道 */
+  channel: string;
+  /** 备注 */
+  comment: string;
+  /** 消费金额 */
+  consumefee: string;
+  /** 消费门店名称 */
+  consumeshopname: string;
+  /** 消费类型 */
+  consumeType: number;
+  /** 创建时间（时间戳毫秒） */
+  createDate: string;
+  /** 客户ID */
+  custId: number;
+  /** EA金额（实收金额） */
+  eafee: string;
+  /** 消费金额(支出) */
+  expense: string;
+  /** 消费分类 */
+  expenseCategory: number;
+  /** 评价内容 */
+  feedbackComment: string;
+  /** 主键ID */
+  id: number;
+  /** 服务项目(JSON字符串，需解析为 SaleDataItem[]) */
+  items: string;
+  /** 会员ID */
+  memberId: number;
+  /** 客户姓名 */
+  name: string;
+  /** 总评分 */
+  overallScore: number;
+  /** 剩余金额 */
+  remainFee: string;
+  /** 性别 */
+  sex: string;
+  /** 门店ID */
+  storeId: number;
 }
 
-export const BILL_TYPE_OPTIONS = [
-  { value: 0, label: '消费' },
-  { value: 1, label: '充值' },
-  { value: 2, label: '办卡' },
-  { value: 3, label: '套餐' },
-  { value: 4, label: '疗程' },
-];
-
-export const BILL_STATUS_OPTIONS = [
-  { value: 0, label: '正常' },
-  { value: 1, label: '已取消' },
-  { value: 2, label: '已冲正' },
-];
-
-export const BILL_TYPE_MAP: Record<number, string> = {
-  0: '消费',
-  1: '充值',
-  2: '办卡',
-  3: '套餐',
-  4: '疗程',
-};
-
-export const BILL_STATUS_MAP: Record<number, string> = {
-  0: '正常',
-  1: '已取消',
-  2: '已冲正',
-};
-
-export const SEX_MAP: Record<string, string> = {
-  M: '男',
-  F: '女',
-};
-
-export const CASH_TYPE_MAP: Record<number, string> = {
-  1: '现金',
-  2: '银行卡',
-  3: '微信',
-  4: '支付宝',
-  5: '会员卡',
-};
-
-export const CARD_TYPE_MAP: Record<number, string> = {
-  1: '储值卡',
-  2: '疗程卡',
-  3: '次卡',
-  4: '折扣卡',
-  5: '套餐卡',
-};
+/**
+ * 解析后的销售数据（将 JSON 字符串解析为数组）
+ */
+export interface MgjSaleDataParsed extends Omit<MgjSaleDataVO, 'cards' | 'cashs' | 'items'> {
+  /** 卡消费明细（解析后） */
+  cards: SaleDataCard[];
+  /** 支付明细（解析后） */
+  cashs: SaleDataCash[];
+  /** 消费项目（解析后） */
+  items: SaleDataItem[];
+}

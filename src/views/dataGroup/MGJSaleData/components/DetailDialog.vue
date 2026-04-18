@@ -60,7 +60,7 @@
             <template #label>
               <span>消费项目 ({{ bill?.items?.length || 0 }})</span>
             </template>
-            <el-table :data="bill?.items || []" :border="true" height="100%" stripe size="small">
+            <PaginationTable :data="bill?.items || []" :showPagination="false" size="small" containerHeight="100%">
               <el-table-column prop="serviceItemName" label="项目名称" min-width="120" />
               <el-table-column prop="price" label="单价" width="80">
                 <template #default="{ row }">￥{{ row.price }}</template>
@@ -73,7 +73,7 @@
                 <template #default="{ row }">
                   <span v-for="(emp, index) in row.emps" :key="index">
                     {{ emp.empName }}
-                    <span v-if="index < row.emps.length - 1">、</span>
+                    <span v-if="Number(index) < row.emps.length - 1">、</span>
                   </span>
                 </template>
               </el-table-column>
@@ -84,14 +84,14 @@
                   </el-tag>
                 </template>
               </el-table-column>
-            </el-table>
+            </PaginationTable>
           </el-tab-pane>
 
           <el-tab-pane class="tab-pane-content">
             <template #label>
               <span>现金支付 ({{ bill?.cashs?.length || 0 }})</span>
             </template>
-            <el-table :data="cashPaymentList" :border="true" height="100%" stripe size="small">
+            <PaginationTable :data="cashPaymentList" :showPagination="false" size="small" containerHeight="100%">
               <el-table-column prop="name" label="支付方式" min-width="100" />
               <el-table-column prop="amount" label="金额" width="100">
                 <template #default="{ row }">
@@ -99,14 +99,14 @@
                 </template>
               </el-table-column>
               <el-table-column prop="consumeTime" label="支付时间" min-width="160" />
-            </el-table>
+            </PaginationTable>
           </el-tab-pane>
 
           <el-tab-pane class="tab-pane-content">
             <template #label>
               <span>会员卡支付 ({{ bill?.cards?.length || 0 }})</span>
             </template>
-            <el-table :data="bill?.cards || []" :border="true" height="100%" stripe size="small">
+            <PaginationTable :data="bill?.cards || []" :showPagination="false" size="small" containerHeight="100%">
               <el-table-column prop="cardTypeId" label="卡类型ID" width="100" />
               <el-table-column label="卡金支付" width="100">
                 <template #default="{ row }">
@@ -127,7 +127,7 @@
                 </template>
               </el-table-column>
               <el-table-column prop="consumeTime" label="支付时间" min-width="160" />
-            </el-table>
+            </PaginationTable>
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -151,13 +151,14 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
-import type { ConsumeBill, ConsumeBillCash } from '../utils/types';
-import { BILL_TYPE_MAP, BILL_STATUS_MAP, SEX_MAP } from '../utils/types';
+import type { MgjSaleDataParsed, SaleDataCash } from '../utils/types';
+import { BILL_TYPE_MAP, BILL_STATUS_MAP, SEX_MAP } from '../utils';
 import { LOADING_MSG } from '@/utils/constant';
+import { formatDateTime } from '@/utils';
 
 interface Props {
   modelValue: boolean;
-  billData: ConsumeBill | null;
+  billData: MgjSaleDataParsed | null;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -169,7 +170,7 @@ const emit = defineEmits(['update:modelValue']);
 
 const dialogVisible = ref<boolean>(props.modelValue);
 const loading = ref<boolean>(false);
-const bill = ref<ConsumeBill | null>(null);
+const bill = ref<MgjSaleDataParsed | null>(null);
 
 watch(
   () => props.modelValue,
@@ -190,16 +191,10 @@ const closeDialog = () => {
   emit('update:modelValue', false);
 };
 
-const formatTimestamp = (timestamp?: number): string => {
+/** 格式化时间戳 */
+const formatTimestamp = (timestamp?: string | number): string => {
   if (!timestamp) return '-';
-  const date = new Date(timestamp);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  const seconds = String(date.getSeconds()).padStart(2, '0');
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  return (formatDateTime(Number(timestamp)) as string) || '-';
 };
 
 interface CashPaymentItem {
@@ -212,7 +207,7 @@ const cashPaymentList = computed<CashPaymentItem[]>(() => {
   if (!bill.value?.cashs || bill.value.cashs.length === 0) return [];
 
   const result: CashPaymentItem[] = [];
-  bill.value.cashs.forEach((cash: ConsumeBillCash) => {
+  bill.value.cashs.forEach((cash: SaleDataCash) => {
     if (cash.cash > 0) {
       result.push({ name: '现金', amount: cash.cash, consumeTime: cash.consumeTime });
     }
@@ -249,7 +244,7 @@ const paymentSummary = computed<PaymentSummaryItem[]>(() => {
     let dianpinTotal = 0;
     let unionPayTotal = 0;
 
-    bill.value.cashs.forEach((cash: ConsumeBillCash) => {
+    bill.value.cashs.forEach((cash: SaleDataCash) => {
       cashTotal += cash.cash || 0;
       weixinTotal += cash.weixin || 0;
       dianpinTotal += cash.dianpin || 0;
