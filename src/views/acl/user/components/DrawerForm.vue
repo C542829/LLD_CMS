@@ -10,7 +10,7 @@
       @reset="handleFormReset"
     >
       <!-- 关联门店 -->
-      <template v-if="userStore.isAdmin">
+      <template v-if="userStore.isAdmin || userStore.isAreaManager">
         <el-form-item label="关联门店" prop="orgIds">
           <OrgSelect v-model="formdata.orgIds" />
         </el-form-item>

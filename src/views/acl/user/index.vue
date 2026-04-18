@@ -87,10 +87,10 @@
             {{ row.orgs.map((org: OrgInfo) => org.orgName).join('、') }}
           </template>
         </el-table-column>
-        <el-table-column prop="userName" label="姓名" width="80" />
+        <el-table-column prop="userName" label="姓名" width="80" sortable />
         <el-table-column prop="userSex" label="性别" width="60" :formatter="sexMap" />
         <el-table-column prop="userNumber" label="手机号" width="120" />
-        <el-table-column prop="userCode" label="账号" min-width="60" />
+        <el-table-column prop="userCode" label="账号" min-width="60" sortable />
         <el-table-column prop="role.roleName" label="角色" min-width="40" />
         <el-table-column prop="userDept" label="部门" min-width="50" />
         <el-table-column prop="userPosition" label="职位" min-width="40" />
