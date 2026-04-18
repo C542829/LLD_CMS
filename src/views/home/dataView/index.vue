@@ -1,23 +1,39 @@
 <template>
-  <div class="data-view-container">
+  <div class="data-view-container" v-loading="loading" :element-loading-text="LOADING_MSG">
     <div class="left-content">
       <div class="content-top">
         <div class="filter-row">
           <div>日记单</div>
           <div>
-            统计日期：
-            <DatePicker v-model="dateRange" @change="handleDateChange" style="width: 260px; margin-right: 10px" />
+            <template v-if="userStore.isAdmin || userStore.isAreaManager">
+              <label>
+                门店：
+                <OrgSelect
+                  v-model="searchParams.orgIds"
+                  placeholder="门店"
+                  class="w-100"
+                  :multiple="true"
+                  :maxCollapseTags="0"
+                  @change="search"
+                  @clear="search"
+                />
+              </label>
+            </template>
+            <label style="margin: 0 10px">
+              统计日期：
+              <DatePicker v-model="dateRange" @change="search" @clear="search" class="w-240" />
+            </label>
             <el-button disabled @click="" plain>打印数据</el-button>
           </div>
         </div>
         <div class="chart-container">
           <div class="pie-chart-list">
             <div class="chart-item">
-              <PieChart :data="store.incomeData" title="实收合计" radius="[40%, 70%]" height="100%" />
+              <PieChart :data="incomeData" title="实收合计" radius="[40%, 70%]" height="100%" />
             </div>
             <div class="chart-item">
               <PieChart
-                :data="store.performanceData"
+                :data="performanceData"
                 title="劳动业绩"
                 radius="[40%, 70%]"
                 height="100%"
@@ -26,26 +42,29 @@
             </div>
             <div class="chart-item">
               <PieChart
-                :data="store.businessData"
+                :data="businessData"
                 title="业务统计"
                 radius="[40%, 70%]"
                 height="100%"
                 unit="次"
-                :centerText="`总项目次\n${0}次`"
+                :centerText="`总项目次\n${totalItem}次`"
               />
+              <!-- <PieChart
+                :data="memberStats"
+                title="会员统计"
+                radius="[40%, 70%]"
+                height="100%"
+                unit="次"
+                centerText="劳动业绩"
+              /> -->
+              <!-- :centerText="`会员数\n${memberStats[0].value}次`" -->
             </div>
           </div>
           <div class="bar-chart-list">
+            <BarChart :data="revenueSummary" title="收入划分" xAxisName="" yAxisName="单位(元)" height="100%" />
             <BarChart
-              :data="store.projectPerformanceData"
-              title="项目和产品业绩"
-              xAxisName=""
-              yAxisName="单位(元)"
-              height="100%"
-            />
-            <BarChart
-              :data="store.rechargeData"
-              :title="`充值/开卡，总额：￥${0}`"
+              :data="technicianRanking"
+              :title="`技师业绩排名（前十）`"
               xAxisName=""
               yAxisName="单位(元)"
               height="100%"
@@ -72,117 +91,133 @@
         </div>
       </div> -->
     </div>
-
-    <div class="right-content" v-loading="settingStore.loading" :element-loading-text="settingStore.loadingMsg">
-      <PaginationTable
-        :data="store.data.prodTreatSummary.productStatDetails"
-        :showPagination="false"
-        :stripe="false"
-        containerHeight="auto"
-        size="small"
-        height="auto"
-        show-summary
-      >
-        <el-table-column prop="prodName" label="科目" :align="'center'" />
-        <el-table-column prop="countNum" label="数量" :align="'center'" />
-        <el-table-column prop="countAmount" label="金额" :align="'center'" />
-      </PaginationTable>
-
-      <PaginationTable
-        :data="store.data.prodStatSummary.productStatDetails"
-        :showPagination="false"
-        :stripe="false"
-        containerHeight="auto"
-        size="small"
-        height="auto"
-        show-summary
-      >
-        <el-table-column prop="prodName" label="科目" :align="'center'" />
-        <el-table-column prop="countNum" label="数量" :align="'center'" />
-        <el-table-column prop="countAmount" label="金额" :align="'center'" />
-      </PaginationTable>
-      <PaginationTable
-        :data="store.data.itemStatSummary.productStatDetails"
-        :showPagination="false"
-        :summary-method="summaryMethod"
-        :stripe="false"
-        size="small"
-        height="auto"
-        containerHeight="auto"
-        show-summary
-      >
-        <el-table-column prop="prodName" label="科目" :align="'center'" />
-        <el-table-column prop="countNum" label="点 | 轮 | 加" :align="'center'">
-          <template #default="{ row }">
-            <div class="count-num">
-              <span>{{ row.dianNum }}</span>
-              <span>{{ row.lunNum }}</span>
-              <span>{{ row.jiaNum }}</span>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="countAmount" label="金额" :align="'center'" />
-      </PaginationTable>
+    <div class="right-content">
+      <RightTable ref="rightTableRef" @businessData="setBusinessData" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
-import { formatDateTime } from '@/utils/time';
 import PieChart from '@/views/home/components/PieChart.vue';
 import BarChart from '@/views/home/components/BarChart.vue';
+import RightTable from './components/RightTable.vue';
+import { ref, reactive, onMounted, nextTick, computed } from 'vue';
+import { reqMemberStats, type Types } from '@/api/home/index';
+import { formatDate } from '@/utils/time';
+import { LOADING_MSG } from '@/utils/constant';
+import {
+  DEFAULT_SEARCH_PARAMS,
+  colors,
+  getRevenueSummary,
+  getTechnicianRanking,
+  getMemberStats,
+  getServiceStats,
+} from './utils/index';
+import useUserStore from '@/store/modules/acl/user';
+const userStore = useUserStore();
 
-import { useSettingStore } from '@/store/modules/acl/setting';
-import { useHomeStore } from '@/store/modules/home/index';
-const settingStore = useSettingStore();
-const store = useHomeStore();
+interface ChartData {
+  name?: string;
+  value: number;
+  itemStyle?: any;
+}
 
+onMounted(() => {
+  search();
+});
+
+/** 收入划分数据 */
+const revenueSummary = ref<ChartData[]>([]);
+/** 技师业绩排名数据 */
+const technicianRanking = ref<ChartData[]>([]);
+/** 会员统计数据 */
+const memberStats = ref<ChartData[]>([]);
+
+const loading = ref(false);
+const rightTableRef = ref<typeof RightTable>();
 const dateRange = ref([new Date(), new Date()]);
+const searchParams = reactive<Types.DataViewQuery>(DEFAULT_SEARCH_PARAMS);
 
-const handleDateChange = async () => {
+const handleSearchParams = () => {
   if (dateRange.value.length === 0) {
+    searchParams.startDate = '';
+    searchParams.endDate = '';
     return;
+  } else {
+    searchParams.startDate = formatDate(dateRange.value[0]);
+    searchParams.endDate = formatDate(dateRange.value[1]);
   }
-  const startDate = formatDateTime(dateRange.value[0]);
-  const endDate = formatDateTime(dateRange.value[1]);
-  console.log(startDate, endDate);
-  // 这里可以添加实际的数据获取逻辑
 };
-handleDateChange();
 
-const summaryMethod = (data: { columns: any[]; data: any[] }) => {
-  const { columns, data: rows } = data;
-  const sums: any = [];
-  columns.forEach((item, index) => {
-    if (index === 0) {
-      sums[index] = '合计';
-      return;
-    }
-    if (item.property === 'countNum') {
-      const lun = calcTotal(rows, 'lunNum');
-      const dian = calcTotal(rows, 'dianNum');
-      const jia = calcTotal(rows, 'jiaNum');
-      sums[index] = `点钟：${dian}；轮钟：${lun}；加钟：${jia}`;
-      return;
-    }
+const search = async () => {
+  loading.value = true;
+  try {
+    // 处理搜索参数
+    handleSearchParams();
 
-    sums[index] = calcTotal(rows, item.property);
-  });
-  return sums;
+    // 获取收入划分数据
+    revenueSummary.value = await getRevenueSummary(searchParams);
+    nextTick(() => {
+      setIncomeData(revenueSummary.value || []);
+    });
+    // 获取技师业绩排名数据
+    technicianRanking.value = await getTechnicianRanking(searchParams);
+    // 获取会员统计数据
+    memberStats.value = await getMemberStats(searchParams);
+
+    // 初始化右侧表格数据
+    rightTableRef.value?.initData(searchParams);
+  } catch (error) {
+    console.error(error);
+  } finally {
+    loading.value = false;
+  }
 };
-const calcTotal = (rows: any, key: string) => {
-  const values = rows.map((row: any) => row[key]);
-  const result = values.reduce((prev: any, cur: any) => {
-    const value = Number(cur);
-    if (!isNaN(value)) {
-      return prev + value;
-    } else {
-      return prev;
-    }
-  }, 0);
-  return result;
+
+const setIncomeData = (data: ChartData[]) => {
+  // incomeData.value = data;
+  // const result = data.map((item, index) => ({
+  //   ...item,
+  //   itemStyle: { color: colors[index] },
+  // }));
+  incomeData.value = data || [];
 };
+
+const totalItem = computed(() => {
+  return businessData.value.reduce((acc, cur) => acc + cur.value, 0);
+});
+
+const setBusinessData = (data: ChartData[]) => {
+  const result = getServiceStats(data);
+  businessData.value = result || [];
+  // businessData.value = data.map((item, index) => ({
+  //   ...item,
+  //   itemStyle: { color: colors[index] },
+  // })) || [];
+};
+
+/** 实收合计数据 */
+const incomeData = ref([
+  // { name: '微信', value: 0, itemStyle: { color: '#07C160' } },
+  // { name: '银行卡', value: 0, itemStyle: { color: '#1485EE' } },
+  // { name: '支付宝', value: 0, itemStyle: { color: '#1677FF' } },
+  // { name: '现金', value: 0, itemStyle: { color: '#FF9D2B' } },
+  // { name: '其他', value: 0, itemStyle: { color: '#8C8C8C' } },
+]);
+
+/** 劳动业绩数据 */
+const performanceData = ref([
+  { name: '应收', value: 0, itemStyle: { color: '#5B8FF9' } },
+  { name: '优惠', value: 0, itemStyle: { color: '#5AD8A6' } },
+  { name: '优惠后金额', value: 0, itemStyle: { color: '#5D7092' } },
+]);
+
+/** 业务统计数据 */
+const businessData = ref([
+  { name: '点钟', value: 0, itemStyle: { color: '#C9C9C9' } },
+  { name: '加钟', value: 0, itemStyle: { color: '#C0C0C0' } },
+  { name: '轮牌', value: 0, itemStyle: { color: '#FFD700' } },
+]);
 </script>
 
 <style scoped lang="scss">
@@ -277,18 +312,6 @@ const calcTotal = (rows: any, key: string) => {
     display: flex;
     flex-direction: column;
     gap: 15px;
-
-    .count-num {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: 1fr;
-      span:first-child {
-        border-right: 1px dashed gray;
-      }
-      span:last-child {
-        border-left: 1px dashed gray;
-      }
-    }
   }
 }
 </style>

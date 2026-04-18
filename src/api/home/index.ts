@@ -1,22 +1,70 @@
-import { get } from '@/utils/request';
+import { post, get } from '@/utils/request';
+import * as Types from './types';
+
+export { Types };
 
 enum API {
-  INCOME_URL = '/',
-  PERFORMANCE_URL = '/',
-  BUSINESS_URL = '/',
-  RECHARGE_URL = '/',
-  PRODUCT_URL = '/',
-  PROJECT_URL = '/',
+  /** 营业额概览（含支付方式分布） */
+  REVENUE_SUMMARY = '/data-view/revenue-summary',
+  /** 会员统计 */
+  MEMBER_STATS = '/data-view/member-stats',
+  /** 充值明细统计（日记单-充值） */
+  RECHARGE_DETAIL = '/data-view/recharge-detail',
+  /** 产品销售统计（日记单-产品销售） */
+  PRODUCT_SALES = '/data-view/product-sales',
+  /** 服务项目统计（日记单-服务项目） */
+  SERVICE_STATS = '/data-view/service-stats',
+  /** 技师业绩排行 */
+  TECHNICIAN_RANKING = '/data-view/technician-ranking',
+  _ = '',
 }
 
-export const reqIncomeTotal = (params = {}) => get(API.INCOME_URL, params);
+/**
+ * 获取营业额概览数据
+ * @param data 查询参数
+ * @returns 营业额概览数据
+ */
+export const reqRevenueSummary = (data: Types.DataViewQuery): ApiResponse<Types.RevenueSummaryVO> =>
+  post(API.REVENUE_SUMMARY, data);
 
-export const reqPerformanceTotal = (params = {}) => get(API.PERFORMANCE_URL, params);
+/**
+ * 获取会员统计数据
+ * @param data 查询参数
+ * @returns 会员统计数据
+ */
+export const reqMemberStats = (data: Types.DataViewQuery): ApiResponse<Types.MemberStatsVO> =>
+  post(API.MEMBER_STATS, data);
 
-export const reqBusinessTotal = (params = {}) => get(API.BUSINESS_URL, params);
+/**
+ * 获取会员统计数据
+ * @param data 查询参数
+ * @returns 充值明细统计数据
+ */
+export const reqRechargeDetail = (data: Types.DataViewQuery): ApiResponse<Types.RechargeDetailVO> =>
+  post(API.RECHARGE_DETAIL, data);
 
-export const reqRechargeTotal = (params = {}) => get(API.RECHARGE_URL, params);
+/**
 
-export const reqProductTotal = (params = {}) => get(API.PRODUCT_URL, params);
+/**
+ * 获取产品销售统计数据
+ * @param data 查询参数
+ * @returns 产品销售统计数据
+ */
+export const reqProductSales = (data: Types.DataViewQuery): ApiResponse<Types.ProductSalesVO> =>
+  post(API.PRODUCT_SALES, data);
 
-export const reqProjectTotal = (params = {}) => get(API.PROJECT_URL, params);
+/**
+ * 获取服务项目统计数据
+ * @param data 查询参数
+ * @returns 服务项目统计数据
+ */
+export const reqServiceStats = (data: Types.DataViewQuery): ApiResponse<Types.ServiceStatsVO> =>
+  post(API.SERVICE_STATS, data);
+
+/**
+ * 获取技师业绩排行
+ * @param data 查询参数
+ * @returns 技师业绩排行数据
+ */
+export const reqTechnicianRanking = (data: Types.DataViewQuery): ApiResponse<Types.TechnicianRankingVO> =>
+  post(API.TECHNICIAN_RANKING, data);

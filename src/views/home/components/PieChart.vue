@@ -157,7 +157,7 @@ const generateOptions = () => {
       left: 'center',
       formatter: function (name: any) {
         const item: any = data.find((item) => item.name === name);
-        return `${item.name}：${item.value}${unit}`;
+        return item ? `${item?.name || name}：${item?.value || 0}${unit}` : name;
       },
     },
     series: [

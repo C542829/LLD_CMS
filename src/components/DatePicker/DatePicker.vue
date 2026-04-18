@@ -1,5 +1,9 @@
 <template>
-  <component ref="datePickerRef" :is="h(ElDatePicker, { ...$attrs, ...props, ref: changeRef }, $slots)" />
+  <component
+    ref="datePickerRef"
+    :is="h(ElDatePicker, { ...$attrs, ...props, ref: changeRef }, $slots)"
+    @clear="clear"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -34,7 +38,10 @@ const props = withDefaults(defineProps<Props>(), {
   valueFormat: 'YYYY-MM-DD',
 });
 
-const emit = defineEmits();
+const emit = defineEmits(['clear']);
+function clear() {
+  emit('clear', []);
+}
 </script>
 <script lang="ts">
 export default {
