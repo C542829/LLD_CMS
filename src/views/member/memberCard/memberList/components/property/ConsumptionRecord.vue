@@ -10,6 +10,7 @@
       @pagination-current-change="handleCurrentChange"
     >
       <el-table-column prop="orgName" label="消费门店" min-width="40" />
+      <el-table-column prop="manualOrderNo" label="手写单号" min-width="50" />
       <el-table-column prop="orderCode" label="关联单号" min-width="50" />
       <el-table-column prop="settleTime" label="消费时间" min-width="60" />
       <el-table-column prop="actualAmount" label="消费金额" min-width="50" />

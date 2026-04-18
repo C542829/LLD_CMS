@@ -34,6 +34,7 @@ export interface OrderData {
   orderCode: string;
   orderTime: string;
   settleTime: string;
+  manualOrderNo: string;
   totalAmount: number;
   actualAmount: number;
   afterBalance: number;

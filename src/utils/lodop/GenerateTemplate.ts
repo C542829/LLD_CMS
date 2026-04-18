@@ -54,6 +54,7 @@ export const generateOrderHtmlTemplate = (data: OrderData, width = '48mm'): stri
         <h2 style="text-align: center; font-size: ${FONT_SIZE_TITLE}; font-weight: bold;">${data.orgName || '门店'}</h2>
         <p style="margin: 1mm 0 2mm 0; text-align: center; font-size: ${FONT_SIZE};">消费单</p>
 
+        <p style="font-weight: 600;">手写单号: ${data.manualOrderNo || '-'}</p>
         <p>系统单号: ${data.orderCode || '-'}</p>
 
         <p>买单时间: ${data.settleTime || '-'}</p>
@@ -91,7 +92,6 @@ export const generateOrderHtmlTemplate = (data: OrderData, width = '48mm'): stri
         <p style="margin: ${MARGIN} 0; text-align: center;">恭侯您下次光临</p>
         <p>服务电话: ${data.servicePhone || data.orgNumber || '-'}</p>
         <p>门店地址: ${data.orgAddress || '-'}</p>
-        <p style="margin: ${MARGIN} 0; text-align: center;">加盟门店 自主经营</p>
       </div>
     `;
 };

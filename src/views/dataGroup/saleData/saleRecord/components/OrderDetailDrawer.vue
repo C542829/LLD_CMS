@@ -8,6 +8,10 @@
           <span>{{ orderData.orgName || orgInfo.orgName }}</span>
         </div>
         <div class="detail-item">
+          <span>手写单号：</span>
+          <span>{{ orderData.manualOrderNo || '-' }}</span>
+        </div>
+        <div class="detail-item">
           <span>销售单号：</span>
           <span>{{ orderData.orderCode }}</span>
         </div>

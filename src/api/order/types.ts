@@ -117,6 +117,10 @@ export interface OrderSettleDTO {
    */
   bedName?: string;
   /**
+   * 手动订单号
+   */
+  manualOrderNo?: string;
+  /**
    * 散客名称
    */
   customerName?: string;

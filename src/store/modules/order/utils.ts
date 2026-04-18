@@ -10,6 +10,7 @@ export const DEFAULT_ORDER_FORM: OrderSettleDTO = {
   vipId: 0,
   bedId: 0,
   bedName: '',
+  manualOrderNo: '',
   customerType: CustomerType.Guest,
   customerName: '散客',
   remark: '',

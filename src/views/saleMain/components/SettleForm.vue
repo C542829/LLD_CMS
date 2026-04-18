@@ -18,6 +18,10 @@
         <template v-else>
           <el-descriptions-item label="客户姓名:">{{ orderStore.order.customerName }}</el-descriptions-item>
         </template>
+        <el-descriptions-item label="手写单号:">
+          <el-input v-model="orderStore.order.manualOrderNo" clearable class="w-100" />
+          <span class="text-error">手写单号为必填项</span>
+        </el-descriptions-item>
         <el-descriptions-item label="订单总额:">
           <span class="order-total">{{ orderStore.payAmount }} 元</span>
         </el-descriptions-item>
@@ -134,6 +138,11 @@ const handleSubmit = async () => {
   //   Message.warning('请选择支付方式');
   //   return;
   // }
+
+  if (isEmpty(orderStore.order.manualOrderNo)) {
+    Message.warning('请输入流水单号');
+    return;
+  }
 
   const order = cloneDeep(orderStore.order);
 
@@ -262,5 +271,11 @@ const closeDialog = () => {
     //   margin-top: 12px;
     // }
   }
+}
+
+.text-error {
+  font-size: 12px;
+  color: var(--el-color-danger);
+  margin-left: 6px;
 }
 </style>

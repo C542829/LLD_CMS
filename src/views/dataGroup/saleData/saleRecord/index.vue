@@ -118,13 +118,14 @@
         <el-table-column prop="orderTime" label="开单日期" width="105" :formatter="dateFormatter" />
         <el-table-column prop="orderTime" label="开单时间" width="85" :formatter="timeFormatter" />
         <el-table-column prop="settleTime" label="结算时间" width="85" :formatter="timeFormatter" />
-        <el-table-column prop="orderCode" label="销售单号" min-width="80" />
+        <el-table-column prop="manualOrderNo" label="单号" width="60" />
+        <!-- <el-table-column prop="orderCode" label="系统单号" min-width="70" /> -->
         <el-table-column label="顾客信息" min-width="100">
           <template #default="{ row }">
             <p>姓名：{{ row.vipName || row.customerName }}</p>
-            <p v-if="row.vipCardNumber">卡号：{{ row.vipCardNumber }}</p>
-            <p v-if="row.vipPhoneNumber">电话：{{ row.vipPhoneNumber }}</p>
-            <p v-if="row.vipName">余额：{{ row.afterBalance }}元</p>
+            <p class="text" v-if="row.vipCardNumber">卡号：{{ row.vipCardNumber }}</p>
+            <p class="text" v-if="row.vipPhoneNumber">电话：{{ row.vipPhoneNumber }}</p>
+            <p class="text" v-if="row.vipName">余额：{{ row.afterBalance }}元</p>
           </template>
         </el-table-column>
         <el-table-column label="应收/实收" min-width="90">
@@ -161,10 +162,10 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="状态" min-width="80">
+        <el-table-column label="状态" min-width="70">
           <template #default="scope">
-            <p>状态：{{ scope.row.orderStatusName }}</p>
-            <p>收银：{{ scope.row.userName }}</p>
+            <p class="text">状态：{{ scope.row.orderStatusName }}</p>
+            <p class="text">收银：{{ scope.row.userName }}</p>
           </template>
         </el-table-column>
         <el-table-column label="操作" min-width="100">
