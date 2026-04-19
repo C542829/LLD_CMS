@@ -1,15 +1,30 @@
-import { OrderData, RechargeData, Technician } from './types';
+import { OrderData, OrderDetail, RechargeData, Technician } from './types';
+import { OrderDetailType, ServiceType } from '@/enums/index';
+
+/**
+ * 服务类型映射
+ */
+const ServiceTypeMap: Record<number, string> = {
+  [ServiceType.Point]: '点',
+  [ServiceType.Add]: '加',
+  [ServiceType.Round]: '轮',
+};
 
 /**
  * 获取技师姓名列表
  * @param list 技师列表
  * @returns 技师姓名列表
  */
-export const getUserNameList = (list: Technician[]) => {
+export const getUserNameList = (list: Technician[], detail: OrderDetail) => {
   if (!Array.isArray(list) || list.length === 0) {
     return '';
   }
-  return list.map((item) => item.userName).join('\n');
+  return list
+    .map(
+      (item) =>
+        item.userName + (OrderDetailType.Service === detail.detailType ? `-${ServiceTypeMap[detail.serverType]}` : ''),
+    )
+    .join('\n');
 };
 
 /**
