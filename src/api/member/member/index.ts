@@ -38,7 +38,29 @@ const AssetIdStr = '{assetId}';
  * @param params 搜索参数
  * @returns 会员列表
  */
-export const reqVipList = (params: Types.SearchParams) => get(API.LIST_URL, params);
+export const reqVipList = (params: Types.SearchParams): ApiResponse<PageListInfo<Types.VipInfoVO>> =>
+  get(API.LIST_URL, params);
+
+/**
+ * 获取搜索联想会员列表
+ * @param queryField 搜索字段
+ * @param size 列表容量
+ * @returns 会员列表
+ */
+export const getAssociateList = async (queryField: string, size?: number) => {
+  try {
+    const params = <Types.SearchParams>{
+      queryField,
+      pageNum: 1,
+      pageSize: size || 30,
+    };
+    const { data } = await reqVipList(params);
+    return data?.rows || [];
+  } catch (error) {
+    console.log('获取搜索联想会员列表失败：', error);
+  }
+  return [];
+};
 
 /**
  * 获取会员详情
