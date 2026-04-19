@@ -270,7 +270,7 @@ export enum PaymentType {
 /**
  * 支付类型映射
  */
-export const paymentTypeMap = {
+export const paymentTypeMap: Record<PaymentType, string> = {
   [PaymentType.QR]: '收款码',
   [PaymentType.Cash]: '现金',
   [PaymentType.POS]: 'POS',
@@ -449,7 +449,7 @@ export enum ServiceType {
 /**
  * 服务类型映射
  */
-export const ServiceTypeMap = {
+export const ServiceTypeMap: Record<ServiceType, string> = {
   [ServiceType.Point]: '点钟',
   [ServiceType.Add]: '加钟',
   [ServiceType.Round]: '轮牌',
