@@ -123,6 +123,7 @@ const setOrderByBed = async (bedId: number) => {
     const orderRes = await reqQueryOrderByBedId(bedId);
     const order = { ...DEFAULT_ORDER_FORM, ...orderRes.data };
     order.orderId = order.id;
+    order.manualOrderNo = '';
     orderStore.order = cloneDeep(order) as Types.OrderSettleDTO;
   } catch (error) {
     Message.error('获取订单信息出错，请刷新页面后重试');

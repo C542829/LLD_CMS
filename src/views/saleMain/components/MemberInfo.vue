@@ -1,51 +1,49 @@
 <template>
-  <div v-loading="loading">
-    <div class="member-info">
-      <!-- 会员卡信息 -->
-      <div class="member-card-container">
-        <template v-if="store.order.customerType === CustomerType.Member">
-          <MemberCard
-            :member="store.member.vipInfoVO || {}"
-            :show-reset-btn="false"
-            :show-remark="true"
-            :show-info-btn="true"
-            @info="handleClickMember"
-          />
-        </template>
-        <template v-if="store.order.customerType === CustomerType.Guest">
-          <el-descriptions :column="1">
-            <el-descriptions-item label="顾客姓名:">
-              <el-input v-model="store.order.customerName" placeholder="请输入散客姓名" clearable />
-            </el-descriptions-item>
-            <el-descriptions-item label="应付总额:">
-              <span class="price-text">{{ store.truePayAmount }} 元</span>
-            </el-descriptions-item>
-          </el-descriptions>
-        </template>
-      </div>
+  <div class="member-info" v-loading="loading" :element-loading-text="LOADING_MSG">
+    <!-- 会员卡信息 -->
+    <div class="member-card-container">
+      <template v-if="store.order.customerType === CustomerType.Member">
+        <MemberCard
+          :member="store.member.vipInfoVO || {}"
+          :show-reset-btn="false"
+          :show-remark="true"
+          :show-info-btn="true"
+          @info="handleClickMember"
+        />
+      </template>
+      <template v-if="store.order.customerType === CustomerType.Guest">
+        <el-descriptions :column="1">
+          <el-descriptions-item label="顾客姓名:">
+            <el-input v-model="store.order.customerName" placeholder="请输入散客姓名" clearable />
+          </el-descriptions-item>
+          <el-descriptions-item label="应付总额:">
+            <span class="price-text">{{ store.truePayAmount }} 元</span>
+          </el-descriptions-item>
+        </el-descriptions>
+      </template>
+    </div>
 
-      <!-- <div v-if="false && store.order.customerType === CustomerType.Member" class="tag-container"></div> -->
+    <!-- <div v-if="false && store.order.customerType === CustomerType.Member" class="tag-container"></div> -->
 
-      <!-- 资产信息 -->
-      <div class="asset-container" v-if="store.order.customerType === CustomerType.Member">
-        <template v-if="assetList && assetList.length > 0">
-          <div class="member-card-container">
-            <el-scrollbar class="property-container">
-              <el-checkbox-group v-model="checkedList" @change="handleChange">
-                <PropertyCard
-                  v-for="(item, index) in assetList"
-                  :key="item.id"
-                  :data="item"
-                  :index="index"
-                  :amount="store.payAmount"
-                />
-              </el-checkbox-group>
-            </el-scrollbar>
-          </div>
-        </template>
-        <div class="coupon-container" v-if="store.member.vipTicketVOList && store.member.vipTicketVOList.length > 0">
-          <CouponList></CouponList>
+    <!-- 资产信息 -->
+    <div class="asset-container" v-if="store.order.customerType === CustomerType.Member">
+      <template v-if="assetList && assetList.length > 0">
+        <div class="member-card-container">
+          <el-scrollbar class="property-container">
+            <el-checkbox-group v-model="checkedList" @change="handleChange">
+              <PropertyCard
+                v-for="(item, index) in assetList"
+                :key="item.id"
+                :data="item"
+                :index="index"
+                :amount="store.payAmount"
+              />
+            </el-checkbox-group>
+          </el-scrollbar>
         </div>
+      </template>
+      <div class="coupon-container" v-if="store.member.vipTicketVOList && store.member.vipTicketVOList.length > 0">
+        <CouponList></CouponList>
       </div>
     </div>
     <el-dialog
@@ -66,9 +64,10 @@ import MemberInfo from '@/views/member/memberCard/memberList/components/MemberIn
 import PropertyCard from './PropertyCard.vue';
 import CouponList from './CouponList.vue';
 
-import { ref, watch, computed, onMounted, reactive } from 'vue';
+import { ref, watch, computed, onMounted } from 'vue';
 import { isEmpty } from 'lodash';
 import { CustomerType, DiscountType, discountTypeMap } from '@/enums/index';
+import { LOADING_MSG } from '@/utils/constant';
 import { useOrderStore } from '@/store/modules/order/index';
 import { useMemberStore } from '@/store/modules/member/member';
 import { useDataEnumStore } from '@/store/modules/enums';
