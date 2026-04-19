@@ -18,6 +18,7 @@
                 placeholder="门店"
                 class="w-100"
                 :multiple="true"
+                :max-collapse-tags="0"
                 @change="search"
                 @clear="search"
               />
@@ -144,8 +145,9 @@ import { datetimeFormatter } from '@/utils/formatter';
 import { reqSaleDetail } from '@/api/dataGroup/saleData';
 import { parseResObj } from '@/utils/parseResponse';
 import { LOADING_MSG } from '@/utils/constant';
-import useUserStore from '@/store/modules/acl/user';
 import { OrderDetailType } from '@/enums';
+import { generateDateRange } from '@/utils/time';
+import useUserStore from '@/store/modules/acl/user';
 
 const userStore = useUserStore();
 
@@ -172,7 +174,7 @@ const loading = ref(false);
 const searchParams = reactive({
   pageNum: 1,
   pageSize: 50,
-  date: [] as string[],
+  date: generateDateRange() as string[],
   orgIds: [] as number[],
   userId: undefined as number | undefined,
   businessCode: '',

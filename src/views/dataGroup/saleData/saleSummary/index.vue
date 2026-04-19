@@ -17,8 +17,9 @@
               <OrgSelect
                 v-model="searchParams.orgIds"
                 placeholder="门店"
-                class="w-120"
+                class="w-100"
                 :multiple="true"
+                :max-collapse-tags="0"
                 @change="search"
                 @clear="search"
               />
@@ -70,6 +71,7 @@ import { reqSaleSummary } from '@/api/dataGroup/saleData';
 import { OrderSummaryVO } from '@/api/dataGroup/saleData/types';
 import { dateFormatter } from '@/utils/formatter';
 import { LOADING_MSG } from '@/utils/constant';
+import { generateDateRange } from '@/utils/time';
 import useUserStore from '@/store/modules/acl/user';
 
 const userStore = useUserStore();
@@ -87,7 +89,7 @@ const search = () => {
 const loading = ref(false);
 
 const searchParams = reactive({
-  date: [],
+  date: generateDateRange(),
   orgIds: [],
 });
 

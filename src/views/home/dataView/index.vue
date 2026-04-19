@@ -103,7 +103,7 @@ import BarChart from '@/views/home/components/BarChart.vue';
 import RightTable from './components/RightTable.vue';
 import { ref, reactive, onMounted, nextTick, computed } from 'vue';
 import { reqMemberStats, type Types } from '@/api/home/index';
-import { formatDate } from '@/utils/time';
+import { formatDate, generateDateRange } from '@/utils/time';
 import { LOADING_MSG } from '@/utils/constant';
 import {
   DEFAULT_SEARCH_PARAMS,
@@ -135,7 +135,7 @@ const memberStats = ref<ChartData[]>([]);
 
 const loading = ref(false);
 const rightTableRef = ref<typeof RightTable>();
-const dateRange = ref([new Date(), new Date()]);
+const dateRange = ref(generateDateRange());
 const searchParams = reactive<Types.DataViewQuery>(DEFAULT_SEARCH_PARAMS);
 
 const handleSearchParams = () => {
@@ -155,6 +155,9 @@ const search = async () => {
     // 处理搜索参数
     handleSearchParams();
 
+    // 初始化右侧表格数据
+    rightTableRef.value?.initData(searchParams);
+
     // 获取收入划分数据
     revenueSummary.value = await getRevenueSummary(searchParams);
     nextTick(() => {
@@ -164,9 +167,6 @@ const search = async () => {
     technicianRanking.value = await getTechnicianRanking(searchParams);
     // 获取会员统计数据
     memberStats.value = await getMemberStats(searchParams);
-
-    // 初始化右侧表格数据
-    rightTableRef.value?.initData(searchParams);
   } catch (error) {
     console.error(error);
   } finally {
@@ -180,7 +180,7 @@ const setIncomeData = (data: ChartData[]) => {
   //   ...item,
   //   itemStyle: { color: colors[index] },
   // }));
-  incomeData.value = data || [];
+  incomeData.value = data.slice(1) || [];
 };
 
 const totalItem = computed(() => {

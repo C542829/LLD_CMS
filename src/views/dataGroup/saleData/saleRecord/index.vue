@@ -19,6 +19,7 @@
                 placeholder="门店"
                 class="w-120"
                 :multiple="true"
+                :max-collapse-tags="0"
                 @change="search"
                 @clear="search"
               />
@@ -207,7 +208,7 @@ import { printer } from '@/utils/lodop';
 import { dateFormatter, timeFormatter } from '@/utils/formatter';
 import { parseResMsg } from '@/utils/parseResponse';
 import { OrderStatus, orderStatusOptions, paymentTypeOptions, ResponseCode } from '@/enums';
-import { isFullDaysSince, formatDate } from '@/utils/time';
+import { isFullDaysSince, generateDateRange } from '@/utils/time';
 import { reqQueryOrder, reqRollBackOrder } from '@/api/order';
 import { reqOrgInfo } from '@/api/acl/org';
 import { reqSaleRecord } from '@/api/dataGroup/saleData';
@@ -221,7 +222,7 @@ const loading = ref(false);
 const searchParams = reactive({
   pageNum: 1,
   pageSize: 50,
-  date: [] as string[],
+  date: generateDateRange() as string[],
   orgIds: [] as number[],
   userId: undefined as number | undefined,
   payZero: 1,

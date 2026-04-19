@@ -7,13 +7,10 @@
         <div class="search-item">
           <label>
             开单时段：
-            <DatePicker v-model="searchParams.date" style="width: 260px" />
+            <DatePicker v-model="searchParams.date" class="w-240" @change="search" />
           </label>
         </div>
-      </div>
 
-      <!-- 第二行 -->
-      <div class="search-container">
         <template v-if="userStore.isAdmin || userStore.isAreaManager">
           <div class="search-item">
             <label>
@@ -21,8 +18,9 @@
               <OrgSelect
                 v-model="searchParams.orgIds"
                 placeholder="门店"
-                class="w-120"
+                class="w-100"
                 :multiple="true"
+                :max-collapse-tags="0"
                 @change="search"
                 @clear="search"
               />
@@ -134,6 +132,7 @@ import type { KpiListQuery, KpiListVO } from '@/api/dataGroup/staffPerformance/t
 import { parseResObj } from '@/utils/parseResponse';
 import { OrderDetailType, ServiceType } from '@/enums';
 import { LOADING_MSG } from '@/utils/constant';
+import { generateDateRange } from '@/utils/time';
 // import { useEnumStore, useDataEnumStore } from '@/store/modules/enums/index';
 import useUserStore from '@/store/modules/acl/user';
 
@@ -148,7 +147,7 @@ const searchParams = ref<KpiListQuery>({
   pageNum: 1,
   pageSize: 50,
   userId: null,
-  date: [],
+  date: generateDateRange(),
   orgIds: [],
   serviceCode: '',
   username: '',

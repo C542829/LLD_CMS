@@ -7,13 +7,10 @@
         <div class="search-item">
           <label>
             销售时段：
-            <DatePicker v-model="searchParams.date" @change="search" style="width: 260px" />
+            <DatePicker v-model="searchParams.date" @change="search" class="w-240" />
           </label>
         </div>
-      </div>
 
-      <!-- 第二行 -->
-      <div class="search-container">
         <template v-if="userStore.isAdmin || userStore.isAreaManager">
           <div class="search-item">
             <label>
@@ -21,8 +18,9 @@
               <OrgSelect
                 v-model="searchParams.orgIds"
                 placeholder="门店"
-                class="w-120"
+                class="w-100"
                 :multiple="true"
+                :max-collapse-tags="0"
                 @change="search"
                 @clear="search"
               />
@@ -91,13 +89,14 @@
 import PersonalPerformanceTable from './components/PersonalPerformanceTable.vue';
 import { ref, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
+import { reqPerformanceSummary } from '@/api/dataGroup/staffPerformance/index';
+import type { KpiSummaryQuery, KpiSummaryVO } from '@/api/dataGroup/staffPerformance/types';
+import { parseResList } from '@/utils/parseResponse';
+import { generateDateRange } from '@/utils/time';
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useDataEnumStore } from '@/store/modules/enums/index';
 import useUserStore from '@/store/modules/acl/user';
-import { reqPerformanceSummary } from '@/api/dataGroup/staffPerformance/index';
-import type { KpiSummaryQuery, KpiSummaryVO } from '@/api/dataGroup/staffPerformance/types';
-import { parseResList } from '@/utils/parseResponse';
 
 const userStore = useUserStore();
 const settingStore = useSettingStore();
@@ -105,7 +104,7 @@ const dataEnumStore = useDataEnumStore();
 
 // 搜索参数
 const searchParams = ref<KpiSummaryQuery>({
-  date: [],
+  date: generateDateRange(),
   orgIds: [],
   userId: undefined,
 });

@@ -203,7 +203,7 @@ import {
 const loading = ref(false);
 
 /** 日期范围 */
-const dateRange = ref<string[]>([]);
+const dateRange = ref([]);
 
 /** 默认搜索参数 */
 const DEFAULT_SEARCH_PARAMS: MgjSaleDataQuery = {
