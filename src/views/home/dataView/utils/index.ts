@@ -1,12 +1,4 @@
-import {
-  reqRevenueSummary,
-  reqMemberStats,
-  reqProductSales,
-  reqRechargeDetail,
-  reqServiceStats,
-  reqTechnicianRanking,
-  type Types,
-} from '@/api/home/index';
+import { reqRevenueSummary, reqMemberStats, reqTechnicianRanking, type Types } from '@/api/home/index';
 
 /**
  * 默认搜索参数
@@ -52,8 +44,8 @@ export const getRevenueSummary = async (params: Types.DataViewQuery) => {
   try {
     const { data } = await reqRevenueSummary(params);
     const result = [
-      { name: '扫码', value: data.qrPayment || 0 },
       { name: '会员卡', value: data.memberCardPayment || 0 },
+      { name: '扫码', value: data.qrPayment || 0 },
       { name: '现金', value: data.cashPayment || 0 },
       { name: '抖音', value: data.douyinPayment || 0 },
       { name: '美团', value: data.meituanPayment || 0 },

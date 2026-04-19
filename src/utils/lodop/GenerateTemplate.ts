@@ -30,10 +30,10 @@ export const generateOrderHtmlTemplate = (data: OrderData, width = '48mm'): stri
       // const addFlag = item.serverType === 1 ? '-加' : '';
       return `
           <tr>
-            <td style="width: 45%; ">
-            ${item.businessName} ￥${item.trueUnitPrice}
+            <td style="width: 35%; ">
+            ${item.businessName}￥${item.trueUnitPrice}
             </td>
-            <td style="width: 20%;" align="center">${getUserNameList(item.technicians)}</td>
+            <td style="width: 30%;" align="center">${getUserNameList(item.technicians, item)}</td>
             <td style="width: 15%;" align="center">${item.quantity}</td>
             <td style="width: 20%;" align="center">￥${item.truePrice}</td>
           </tr>
