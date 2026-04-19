@@ -53,7 +53,7 @@
       <li>
         <span>机构状态：</span>
         <span>
-          <el-tag :type="org.orgState === 0 ? 'success' : 'danger'">
+          <el-tag :type="org.orgState === 0 ? 'success' : 'danger'" @click="handleOpenSettingDialog">
             {{ org.orgState === 0 ? '正常' : '停用' }}
           </el-tag>
         </span>
@@ -99,8 +99,9 @@
       <li>
         <span>谷歌浏览器：</span>
         <span>
-          <a href="https://caihao.lanzouu.com/imwZf3miidrc" target="_blank">点击下载</a>
-          提取码：gk8j
+          <a href="https://pan.huang1111.cn/s/P6KvXim" target="_blank">点击下载</a>
+          <!-- <a href="https://caihao.lanzouu.com/imwZf3miidrc" target="_blank">点击下载</a>
+          提取码：gk8j -->
         </span>
       </li>
       <li>
@@ -125,10 +126,13 @@
 
   <!-- 自定义分类 -->
   <CustomCategoryTab v-model="dialog.visible" :dict-code="dialog.category" :title="dialog.title" />
+  <!-- 机构状态设置 -->
+  <SettingDialog v-model="settingDialog" />
 </template>
 
 <script setup lang="ts">
 import CustomCategoryTab from './components/CustomCategoryTab.vue';
+import SettingDialog from './components/SettingDialog.vue';
 import Message from '@/components/Message';
 import { ref, reactive, onMounted } from 'vue';
 import { getUserInfo } from '@/utils/localStorageTools';
@@ -189,6 +193,11 @@ const showDrawer = () => {
 const closeDrawer = () => {
   init();
   drawer.visible = false;
+};
+
+const settingDialog = ref(false);
+const handleOpenSettingDialog = () => {
+  settingDialog.value = true;
 };
 </script>
 
