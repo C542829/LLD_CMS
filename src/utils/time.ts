@@ -114,6 +114,15 @@ export const formatDate = (date: Date | number | string, format = 'YYYY-MM-DD') 
 };
 
 /**
+ * 生成当前日期的日期范围（默认格式为 YYYY-MM-DD）
+ * @returns 包含开始日期和结束日期的数组，格式为 [开始日期, 结束日期]
+ */
+export const generateDateRange = () => {
+  const date = formatDate(new Date());
+  return [date, date];
+};
+
+/**
  * 判定类型：精准模式（含时分秒）/ 宽松模式（仅比较日期）
  */
 type JudgeMode = 'strict' | 'loose';
