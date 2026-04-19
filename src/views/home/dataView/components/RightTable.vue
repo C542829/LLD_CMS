@@ -30,7 +30,7 @@
       <template #default="{ row }">
         <div class="count-num">
           <span>{{ row.designatedCount }}</span>
-          <span>{{ row.designatedCount }}</span>
+          <span>{{ row.rotationCount }}</span>
           <span>{{ row.addCount }}</span>
         </div>
       </template>
@@ -115,10 +115,10 @@ const summaryMethod = (data: { columns: any[]; data: any[] }) => {
       return;
     }
     if (item.property === 'quantity') {
-      const lun = calcTotal(rows, 'designatedCount');
+      const lun = calcTotal(rows, 'rotationCount');
       const dian = calcTotal(rows, 'designatedCount');
       const jia = calcTotal(rows, 'addCount');
-      sums[index] = `点钟：${dian}；轮钟：${lun}；加钟：${jia}`;
+      sums[index] = `点钟：${dian}；轮牌：${lun}；加钟：${jia}`;
       return;
     }
 
@@ -136,7 +136,7 @@ const calcTotal = (rows: any, key: string) => {
       return prev;
     }
   }, 0);
-  return result;
+  return result.toFixed(2);
 };
 </script>
 

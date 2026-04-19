@@ -2,13 +2,18 @@ import { MgjSaleDataParsed, MgjSaleDataVO, SaleDataCard, SaleDataCash, SaleDataI
 
 export enum StoreId {
   MGJ_1 = 1594232,
+  MGJ_2 = 1599512,
 }
 
 export const StoreMap: Record<number, string> = {
   [StoreId.MGJ_1]: '锦艺城1店',
+  [StoreId.MGJ_2]: '锦艺城2店',
 };
 
-export const StoreOptions = [{ value: StoreId.MGJ_1, label: StoreMap[StoreId.MGJ_1] }];
+export const StoreOptions = [
+  { value: StoreId.MGJ_1, label: StoreMap[StoreId.MGJ_1] },
+  { value: StoreId.MGJ_2, label: StoreMap[StoreId.MGJ_2] },
+];
 
 /**
  * MGJ 销售数据模块类型定义

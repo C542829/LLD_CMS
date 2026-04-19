@@ -53,7 +53,7 @@ export const getRevenueSummary = async (params: Types.DataViewQuery) => {
     const { data } = await reqRevenueSummary(params);
     const result = [
       { name: '扫码', value: data.qrPayment || 0 },
-      { name: '会员卡', value: data.memberCard || 0 },
+      { name: '会员卡', value: data.memberCardPayment || 0 },
       { name: '现金', value: data.cashPayment || 0 },
       { name: '抖音', value: data.douyinPayment || 0 },
       { name: '美团', value: data.meituanPayment || 0 },
