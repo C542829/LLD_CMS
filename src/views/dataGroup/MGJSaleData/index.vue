@@ -17,6 +17,7 @@
               endPlaceholder="结束日期"
               format="YYYY-MM-DD"
               valueFormat="YYYY-MM-DD"
+              @change="search"
             />
           </label>
         </div>
@@ -264,17 +265,19 @@ const fetchTableData = async () => {
 
 /** 搜索 */
 const search = () => {
-  searchParams.pageNum = 1;
+  // searchParams.pageNum = 1;
   fetchTableData();
 };
 
 /** 每页大小变化 */
-const handleSizeChange = () => {
+const handleSizeChange = (val: number) => {
+  searchParams.pageSize = val;
   fetchTableData();
 };
 
 /** 页码变化 */
-const handleCurrentChange = () => {
+const handleCurrentChange = (val: number) => {
+  searchParams.pageNum = val;
   fetchTableData();
 };
 
