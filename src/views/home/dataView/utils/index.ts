@@ -9,6 +9,8 @@ export const DEFAULT_SEARCH_PARAMS: Types.DataViewQuery = {
   orgIds: [],
 };
 
+const DEFAULT_TECHNICIAN_RANKING: any = [{ name: '', value: 0 }];
+
 /**
  * 颜色数组
  */
@@ -43,21 +45,40 @@ export const colors: string[] = [
 export const getRevenueSummary = async (params: Types.DataViewQuery) => {
   try {
     const { data } = await reqRevenueSummary(params);
-    const result = [
-      { name: '会员卡', value: data.memberCardPayment || 0 },
+
+    // 实收合计数据
+    const actualIncome = [
       { name: '扫码', value: data.qrPayment || 0 },
       { name: '现金', value: data.cashPayment || 0 },
       { name: '抖音', value: data.douyinPayment || 0 },
       { name: '美团', value: data.meituanPayment || 0 },
-      { name: '代金券', value: data.ticketConsumerPayment || 0 },
-      { name: '项目券', value: data.ticketItemPayment || 0 },
       { name: 'POS', value: data.posPayment || 0 },
     ];
-    return result;
+
+    // 应收合计数据
+    const allIncome = [
+      ...actualIncome,
+      { name: '会员卡', value: data.memberCardPayment || 0 },
+      { name: '项目券', value: data.ticketItemPayment || 0 },
+      { name: '代金券', value: data.ticketConsumerPayment || 0 },
+    ];
+
+    // 绩效数据
+    const performance = [
+      { name: '应收', value: data.totalTurnover || 0 },
+      // { name: '优惠', value: data.discount || 0 },
+      { name: '实收', value: data.totalActualReceipt || 0 },
+    ];
+
+    return { actualIncome, allIncome, performance };
   } catch (error) {
     console.log(error);
   }
-  return [];
+  return {
+    actualIncome: [],
+    allIncome: [],
+    performance: [],
+  };
 };
 
 /**
@@ -67,15 +88,19 @@ export const getTechnicianRanking = async (params: Types.DataViewQuery) => {
   try {
     const { data } = await reqTechnicianRanking(params);
     let result = data?.ranking || [];
+    if (Array.isArray(result) && result.length === 0) {
+      return DEFAULT_TECHNICIAN_RANKING;
+    }
     // 取前10名
     result = result.slice(0, 10);
-    return result.map((item) => ({
+    return result.map((item: any) => ({
       name: item.userName,
       value: item.performance || 0,
     }));
   } catch (error) {
     console.log(error);
   }
+  return DEFAULT_TECHNICIAN_RANKING;
 };
 
 /**

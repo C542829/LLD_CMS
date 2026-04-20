@@ -101,8 +101,8 @@
 import PieChart from '@/views/home/components/PieChart.vue';
 import BarChart from '@/views/home/components/BarChart.vue';
 import RightTable from './components/RightTable.vue';
-import { ref, reactive, onMounted, nextTick, computed } from 'vue';
-import { reqMemberStats, type Types } from '@/api/home/index';
+import { ref, reactive, onMounted, computed } from 'vue';
+import { type Types } from '@/api/home/index';
 import { formatDate, generateDateRange } from '@/utils/time';
 import { LOADING_MSG } from '@/utils/constant';
 import {
@@ -132,6 +132,20 @@ const revenueSummary = ref<ChartData[]>([]);
 const technicianRanking = ref<ChartData[]>([]);
 /** 会员统计数据 */
 const memberStats = ref<ChartData[]>([]);
+/** 实收合计数据 */
+const incomeData: any = ref([
+  { name: '扫码', value: 0 },
+  { name: '现金', value: 0 },
+  { name: '抖音', value: 0 },
+  { name: '美团', value: 0 },
+  { name: 'POS', value: 0 },
+]);
+/** 劳动业绩数据 */
+const performanceData = ref([
+  { name: '应收', value: 0 },
+  { name: '优惠', value: 0 },
+  { name: '实收', value: 0 },
+]);
 
 const loading = ref(false);
 const rightTableRef = ref<typeof RightTable>();
@@ -144,8 +158,8 @@ const handleSearchParams = () => {
     searchParams.endDate = '';
     return;
   } else {
-    searchParams.startDate = formatDate(dateRange.value[0]);
-    searchParams.endDate = formatDate(dateRange.value[1]);
+    searchParams.startDate = formatDate(dateRange.value[0]) as string;
+    searchParams.endDate = formatDate(dateRange.value[1]) as string;
   }
 };
 
@@ -156,15 +170,17 @@ const search = async () => {
     handleSearchParams();
 
     // 获取收入划分数据
-    revenueSummary.value = await getRevenueSummary(searchParams);
-    nextTick(() => {
-      setIncomeData(revenueSummary.value || []);
-    });
+    const { actualIncome, allIncome, performance } = await getRevenueSummary(searchParams);
+    revenueSummary.value = allIncome;
+    incomeData.value = actualIncome;
+    performanceData.value = performance;
+
     // 获取技师业绩排名数据
     // technicianRanking.value = await getTechnicianRanking(searchParams);
     getTechnicianRanking(searchParams).then((data: any) => {
       technicianRanking.value = data || [];
     });
+
     // 获取会员统计数据
     // memberStats.value = await getMemberStats(searchParams);
     getMemberStats(searchParams).then((data: any) => {
@@ -180,14 +196,12 @@ const search = async () => {
   }
 };
 
-const setIncomeData = (data: ChartData[]) => {
-  // incomeData.value = data;
-  // const result = data.map((item, index) => ({
-  //   ...item,
-  //   itemStyle: { color: colors[index] },
-  // }));
-  incomeData.value = data.slice(1) || [];
-};
+/** 业务统计数据 */
+const businessData = ref([
+  { name: '点钟', value: 0 },
+  { name: '加钟', value: 0 },
+  { name: '轮牌', value: 0 },
+]);
 
 const totalItem = computed(() => {
   return businessData.value.reduce((acc, cur) => acc + cur.value, 0);
@@ -196,34 +210,7 @@ const totalItem = computed(() => {
 const setBusinessData = (data: ChartData[]) => {
   const result = getServiceStats(data);
   businessData.value = result || [];
-  // businessData.value = data.map((item, index) => ({
-  //   ...item,
-  //   itemStyle: { color: colors[index] },
-  // })) || [];
 };
-
-/** 实收合计数据 */
-const incomeData = ref([
-  // { name: '微信', value: 0, itemStyle: { color: '#07C160' } },
-  // { name: '银行卡', value: 0, itemStyle: { color: '#1485EE' } },
-  // { name: '支付宝', value: 0, itemStyle: { color: '#1677FF' } },
-  // { name: '现金', value: 0, itemStyle: { color: '#FF9D2B' } },
-  // { name: '其他', value: 0, itemStyle: { color: '#8C8C8C' } },
-]);
-
-/** 劳动业绩数据 */
-const performanceData = ref([
-  { name: '应收', value: 0, itemStyle: { color: '#5B8FF9' } },
-  { name: '优惠', value: 0, itemStyle: { color: '#5AD8A6' } },
-  { name: '优惠后金额', value: 0, itemStyle: { color: '#5D7092' } },
-]);
-
-/** 业务统计数据 */
-const businessData = ref([
-  { name: '点钟', value: 0, itemStyle: { color: '#C9C9C9' } },
-  { name: '加钟', value: 0, itemStyle: { color: '#C0C0C0' } },
-  { name: '轮牌', value: 0, itemStyle: { color: '#FFD700' } },
-]);
 </script>
 
 <style scoped lang="scss">
