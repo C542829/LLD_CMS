@@ -65,8 +65,12 @@ const rechargeTableData = ref<any[]>([]);
 /** 获取充值/开卡数据 */
 const getRechargeDetail = async (params: Types.DataViewQuery) => {
   try {
-    const { data } = await reqRechargeDetail(params);
-    rechargeTableData.value = data.items || [];
+    // const { data } = await reqRechargeDetail(params);
+    // rechargeTableData.value = data.items || [];
+    reqRechargeDetail(params).then((res) => {
+      const data = res.data;
+      rechargeTableData.value = data.items || [];
+    });
   } catch (error) {
     console.error(error);
   }
@@ -76,8 +80,12 @@ const productTableData = ref<any[]>([]);
 /** 获取充值/开卡数据 */
 const getProductDetail = async (params: Types.DataViewQuery) => {
   try {
-    const { data } = await reqProductSales(params);
-    productTableData.value = data.items || [];
+    // const { data } = await reqProductSales(params);
+    // productTableData.value = data.items || [];
+    reqProductSales(params).then((res) => {
+      const data = res.data;
+      productTableData.value = data.items || [];
+    });
   } catch (error) {
     console.error(error);
   }
@@ -87,9 +95,14 @@ const serviceTableData = ref<any[]>([]);
 /** 获取充值/开卡数据 */
 const getServiceDetail = async (params: Types.DataViewQuery) => {
   try {
-    const { data } = await reqServiceStats(params);
-    serviceTableData.value = data.items || [];
-    emit('businessData', data);
+    // const { data } = await reqServiceStats(params);
+    // serviceTableData.value = data.items || [];
+    // emit('businessData', data);
+    reqServiceStats(params).then((res) => {
+      const data = res.data;
+      serviceTableData.value = data.items || [];
+      emit('businessData', data);
+    });
   } catch (error) {
     console.error(error);
   }
@@ -122,7 +135,7 @@ const summaryMethod = (data: { columns: any[]; data: any[] }) => {
       return;
     }
 
-    sums[index] = calcTotal(rows, item.property);
+    sums[index] = calcTotal(rows, item.property).toFixed(2);
   });
   return sums;
 };
@@ -136,7 +149,7 @@ const calcTotal = (rows: any, key: string) => {
       return prev;
     }
   }, 0);
-  return result.toFixed(2);
+  return result;
 };
 </script>
 

@@ -155,18 +155,24 @@ const search = async () => {
     // 处理搜索参数
     handleSearchParams();
 
-    // 初始化右侧表格数据
-    rightTableRef.value?.initData(searchParams);
-
     // 获取收入划分数据
     revenueSummary.value = await getRevenueSummary(searchParams);
     nextTick(() => {
       setIncomeData(revenueSummary.value || []);
     });
     // 获取技师业绩排名数据
-    technicianRanking.value = await getTechnicianRanking(searchParams);
+    // technicianRanking.value = await getTechnicianRanking(searchParams);
+    getTechnicianRanking(searchParams).then((data: any) => {
+      technicianRanking.value = data || [];
+    });
     // 获取会员统计数据
-    memberStats.value = await getMemberStats(searchParams);
+    // memberStats.value = await getMemberStats(searchParams);
+    getMemberStats(searchParams).then((data: any) => {
+      memberStats.value = data || [];
+    });
+
+    // 初始化右侧表格数据
+    rightTableRef.value?.initData(searchParams);
   } catch (error) {
     console.error(error);
   } finally {
