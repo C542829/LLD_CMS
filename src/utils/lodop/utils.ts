@@ -22,7 +22,7 @@ export const getUserNameList = (list: Technician[], detail: OrderDetail) => {
   return list
     .map(
       (item) =>
-        item.userName + (OrderDetailType.Service === detail.detailType ? `-${ServiceTypeMap[detail.serverType]}` : ''),
+        item.userName + (OrderDetailType.Service === detail.bizType ? `-${ServiceTypeMap[detail.serverType]}` : ''),
     )
     .join('\n');
 };

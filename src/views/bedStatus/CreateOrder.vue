@@ -62,7 +62,7 @@
           </el-table-column>
           <el-table-column prop="serverType" label="上钟类型" width="85">
             <template #default="{ row }">
-              <template v-if="row.detailType === OrderDetailType.Service">
+              <template v-if="row.bizType === OrderDetailType.Service">
                 <ClockInTypeTag :type="row.serverType" />
               </template>
             </template>

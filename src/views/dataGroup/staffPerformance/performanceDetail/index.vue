@@ -95,12 +95,12 @@
         <el-table-column prop="serviceName" label="项目/产品/疗程名称" width="155" />
         <el-table-column label="类型" align="center" width="70">
           <template #default="{ row }">
-            <ServiceTypeTag :type="row.serviceType" />
+            <ServiceTypeTag :type="row.bizType" />
           </template>
         </el-table-column>
         <el-table-column label="上钟类型" align="center" width="90">
           <template #default="{ row }">
-            <template v-if="row.serviceType === OrderDetailType.Service">
+            <template v-if="row.bizType === OrderDetailType.Service">
               <ClockInTypeTag :type="row.itemType" />
             </template>
           </template>
@@ -212,7 +212,7 @@ const dialog: any = reactive({
 });
 
 const showDialog = async (row: any) => {
-  if (row.serviceType === OrderDetailType.Recharge) {
+  if (row.bizType === OrderDetailType.Recharge) {
     ElMessage.info('充值订单暂不能查看原单');
     return;
   }
@@ -227,7 +227,7 @@ const showDialog = async (row: any) => {
 // 上钟类型字典数据
 // const perfTypeList = ref<any[]>([]);
 // // 服务类型字典数据
-// const serviceTypeList = ref<any[]>([]);
+// const bizTypeList = ref<any[]>([]);
 
 // // 获取上钟类型字典数据
 // const loadPerfTypeList = async () => {
@@ -242,10 +242,10 @@ const showDialog = async (row: any) => {
 // // 获取服务类型字典数据
 // const loadServiceTypeList = async () => {
 //   try {
-//     serviceTypeList.value = await enumStore.getServiceTypeList();
+//     bizTypeList.value = await enumStore.getServiceTypeList();
 //   } catch (error) {
 //     console.error('获取服务类型字典失败:', error);
-//     serviceTypeList.value = [];
+//     bizTypeList.value = [];
 //   }
 // };
 
@@ -269,9 +269,9 @@ const showDialog = async (row: any) => {
 // });
 
 // // 服务类型映射计算属性
-// const serviceTypeMap = computed(() => {
+// const bizTypeMap = computed(() => {
 //   const map = new Map();
-//   serviceTypeList.value.forEach((item: any) => {
+//   bizTypeList.value.forEach((item: any) => {
 //     map.set(item.itemValue, item.itemLabel);
 //   });
 //   return map;
@@ -283,8 +283,8 @@ const showDialog = async (row: any) => {
 // };
 
 // // 格式化服务类型显示
-// const formatServiceType = (serviceType: any) => {
-//   return serviceTypeMap.value.get(String(serviceType)) || serviceType || '';
+// const formatServiceType = (bizType: any) => {
+//   return bizTypeMap.value.get(String(bizType)) || bizType || '';
 // };
 </script>
 

@@ -55,9 +55,9 @@ const filter = (item: any) => {
   }
 
   // 如果是服务项目，判断是否包含在优惠券的服务项目中
-  if (props.detailItem.detailType === OrderDetailType.Service) {
+  if (props.detailItem.bizType === OrderDetailType.Service) {
     const ids = item.ticketInfo.serverItems.map((item: any) => item.id);
-    return ids.includes(props.detailItem.bid);
+    return ids.includes(props.detailItem.bizId);
   }
   return false;
 };

@@ -103,12 +103,12 @@
         </el-table-column>
         <el-table-column label="服务类型" width="90">
           <template #default="{ row }">
-            <ServiceTypeTag :type="row.detailType" />
+            <ServiceTypeTag :type="row.bizType" />
           </template>
         </el-table-column>
         <el-table-column label="上钟类型" width="90">
           <template #default="{ row }">
-            <template v-if="row.detailType === OrderDetailType.Service">
+            <template v-if="row.bizType === OrderDetailType.Service">
               <ClockInTypeTag :type="row.serverType" />
             </template>
           </template>

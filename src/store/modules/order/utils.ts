@@ -83,8 +83,8 @@ export const orderResToOrder = (params: any) => {
     details: details.map((detail: any) => ({
       // id: detail.id,
       detailCode: detail.detailCode,
-      detailType: detail.detailType, // 业务类型（必填）
-      bid: detail.bid, // 业务ID（必填）
+      bizType: detail.bizType, // 业务类型（必填）
+      bizId: detail.bizId, // 业务ID（必填）
       businessName: detail.businessName,
       businessCode: detail.businessCode,
       stdPrice: detail.stdPrice,

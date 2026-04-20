@@ -187,8 +187,8 @@ const addOrderItem = async (detail: any) => {
     return;
   }
 
-  //   const detailTypes = orderStore.order.orderDetails.map((item) => item.detailType);
-  // if (detailTypes.includes(OrderDetailType.Product) || detailTypes.includes(OrderDetailType.Service)) {
+  //   const bizTypes = orderStore.order.orderDetails.map((item) => item.bizType);
+  // if (bizTypes.includes(OrderDetailType.Product) || bizTypes.includes(OrderDetailType.Service)) {
   //   Message.warning('疗程卡');
   //   return;
   // }

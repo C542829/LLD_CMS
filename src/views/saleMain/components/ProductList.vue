@@ -54,10 +54,10 @@ const getProductList = async (category: string) => {
 
 const handleAddItem = (item: any) => {
   item = cloneDeep(item);
-  item.detailType = OrderDetailType.Product;
+  item.bizType = OrderDetailType.Product;
   item.isDiscount = item.isDiscount;
   item.quantity = 1;
-  item.bid = item.id;
+  item.bizId = item.id;
   item.businessName = item.productName;
   item.businessCode = item.productEncode;
   item.stdPrice = item.productPrice;

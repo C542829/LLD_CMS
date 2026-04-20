@@ -21,12 +21,12 @@
       <el-table-column prop="serviceName" label="项目/产品/疗程名称" width="155" />
       <el-table-column label="类型">
         <template #default="{ row }">
-          <ServiceTypeTag :type="row.serviceType" />
+          <ServiceTypeTag :type="row.bizType" />
         </template>
       </el-table-column>
       <el-table-column label="上钟类型">
         <template #default="{ row }">
-          <template v-if="row.serviceType === OrderDetailType.Service">
+          <template v-if="row.bizType === OrderDetailType.Service">
             <ClockInTypeTag :type="row.itemType" />
           </template>
         </template>

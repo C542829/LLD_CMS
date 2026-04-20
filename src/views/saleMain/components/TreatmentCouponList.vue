@@ -38,10 +38,10 @@ onMounted(async () => {
 
 const handleAddItem = (item: any) => {
   item = cloneDeep(item);
-  item.detailType = OrderDetailType.TreatmentCoupon;
+  item.bizType = OrderDetailType.TreatmentCoupon;
   item.isDiscount = IsDiscount.No;
   item.quantity = 1;
-  item.bid = item.id;
+  item.bizId = item.id;
   item.businessName = item.name;
   item.businessCode = item.encode;
   item.stdPrice = item.price;

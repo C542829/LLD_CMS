@@ -189,7 +189,7 @@ export interface OrderDetailVO {
   /**
    * 订单业务ID
    */
-  bid?: number;
+  bizId?: number;
   /**
    * 业务编码
    */
@@ -209,7 +209,7 @@ export interface OrderDetailVO {
   /**
    * 业务类型（0 产品，1 服务，2 疗程券）
    */
-  detailType?: number;
+  bizType?: number;
   /**
    * 主键ID
    */
@@ -494,7 +494,7 @@ export interface OrderDetailVO {
   /**
    * 订单业务ID
    */
-  bid?: number;
+  bizId?: number;
   /**
    * 业务编码
    */
@@ -514,7 +514,7 @@ export interface OrderDetailVO {
   /**
    * 业务类型（0 产品，1 服务，2 疗程券）
    */
-  detailType?: number;
+  bizType?: number;
   /**
    * 主键ID
    */

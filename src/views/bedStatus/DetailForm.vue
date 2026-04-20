@@ -1,8 +1,8 @@
 <template>
   <Dialog :title="title" v-model="dialogVisible" @closed="closeDialog" width="700px" center>
     <el-form ref="formRef" :model="orderStore.detailForm" :rules="rules" @submit.native.prevent label-width="120px">
-      <el-form-item label="明细类型：" prop="detailType">
-        <el-radio-group v-model="orderStore.detailForm.detailType" @change="changeDetailType">
+      <el-form-item label="明细类型：" prop="bizType">
+        <el-radio-group v-model="orderStore.detailForm.bizType" @change="changeDetailType">
           <el-radio-button
             v-for="item in OrderDetailTypeOptions"
             :value="item.value"
@@ -12,10 +12,10 @@
         </el-radio-group>
       </el-form-item>
       <!-- 服务项目 -->
-      <div v-show="orderStore.detailForm.detailType === OrderDetailType.Service">
-        <el-form-item label="选择项目：" prop="bid">
+      <div v-show="orderStore.detailForm.bizType === OrderDetailType.Service">
+        <el-form-item label="选择项目：" prop="bizId">
           <el-select
-            v-model="orderStore.detailForm.bid"
+            v-model="orderStore.detailForm.bizId"
             placeholder="请选择项目"
             filterable
             clearable
@@ -44,10 +44,10 @@
       </div>
 
       <!-- 产品 -->
-      <div v-show="orderStore.detailForm.detailType === OrderDetailType.Product">
-        <el-form-item label="选择产品：" prop="bid">
+      <div v-show="orderStore.detailForm.bizType === OrderDetailType.Product">
+        <el-form-item label="选择产品：" prop="bizId">
           <el-select
-            v-model="orderStore.detailForm.bid"
+            v-model="orderStore.detailForm.bizId"
             placeholder="请选择产品"
             filterable
             clearable
@@ -72,10 +72,10 @@
         </el-form-item>
       </div>
       <!-- 疗程 -->
-      <div v-show="orderStore.detailForm.detailType === OrderDetailType.TreatmentCoupon">
-        <el-form-item label="选择疗程：" prop="bid">
+      <div v-show="orderStore.detailForm.bizType === OrderDetailType.TreatmentCoupon">
+        <el-form-item label="选择疗程：" prop="bizId">
           <el-select
-            v-model="orderStore.detailForm.bid"
+            v-model="orderStore.detailForm.bizId"
             placeholder="请选择疗程"
             filterable
             clearable
@@ -194,14 +194,14 @@ const closeDialog = () => {
 };
 
 const changeDetailType = () => {
-  // orderStore.detailForm.bid = '';
+  // orderStore.detailForm.bizId = '';
 };
 
 const formRef = ref<FormInstance | null>(null);
 
 const rules = ref({
-  detailType: [{ required: true, message: '请选择明细类型', trigger: 'blur' }],
-  bid: [{ required: true, message: '请选择产品/疗程', trigger: 'blur' }],
+  bizType: [{ required: true, message: '请选择明细类型', trigger: 'blur' }],
+  bizId: [{ required: true, message: '请选择产品/疗程', trigger: 'blur' }],
   quantity: [{ required: false, message: '请输入数量', trigger: 'blur' }],
   userId: [{ required: true, message: '请选择技师/销售', trigger: 'blur' }],
   serverType: [{ required: true, message: '请选择服务类型', trigger: 'blur' }],

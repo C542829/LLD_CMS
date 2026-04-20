@@ -88,7 +88,7 @@ export interface KpiListVO {
   /**
    * 业务类型
    */
-  serviceType?: number;
+  bizType?: number;
   /**
    * 员工姓名
    */

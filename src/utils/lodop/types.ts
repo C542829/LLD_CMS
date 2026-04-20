@@ -15,7 +15,7 @@ export interface OrderDetail {
   quantity: number;
   truePrice: number;
   trueUnitPrice: number;
-  detailType: number;
+  bizType: number;
   serverType: number; // 0-主项目 1-加项
   technicians: Technician[];
 }

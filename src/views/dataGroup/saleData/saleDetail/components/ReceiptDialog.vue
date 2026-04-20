@@ -33,12 +33,12 @@
               <el-table-column prop="trueUnitPrice" label="实收金额" width="90" :formatter="amountFormatter" />
               <el-table-column label="类型" width="80">
                 <template #default="{ row }">
-                  <ServiceTypeTag :type="row.detailType" />
+                  <ServiceTypeTag :type="row.bizType" />
                 </template>
               </el-table-column>
               <el-table-column label="上钟类型" width="90">
                 <template #default="{ row }">
-                  <template v-if="row.detailType === OrderDetailType.Service">
+                  <template v-if="row.bizType === OrderDetailType.Service">
                     <ClockInTypeTag :type="row.serverType" />
                   </template>
                 </template>

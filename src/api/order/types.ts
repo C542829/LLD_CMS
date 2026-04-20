@@ -46,11 +46,11 @@ export interface OrderDetailCreateDTO {
   /**
    * 订单业务ID（产品ID、服务ID或疗程券ID）
    */
-  bid: number;
+  bizId: number;
   /**
    * 业务类型（0 产品，1 服务，2 疗程券）
    */
-  detailType: number;
+  bizType: number;
   /**
    * 销售数量
    */
@@ -178,7 +178,7 @@ export interface OrderDetailSettleDTO {
   /**
    * 订单业务ID（产品ID、服务ID或疗程券ID）
    */
-  bid: number;
+  bizId: number;
   /**
    * 业务编码
    */
@@ -194,7 +194,7 @@ export interface OrderDetailSettleDTO {
   /**
    * 业务类型（0 产品，1 服务，2 疗程券）
    */
-  detailType: number;
+  bizType: number;
   /**
    * 订单明细ID
    */
@@ -442,7 +442,7 @@ export interface OrderDetailVO {
   /**
    * 订单业务ID
    */
-  bid?: number;
+  bizId?: number;
   /**
    * 业务编码
    */
@@ -462,7 +462,7 @@ export interface OrderDetailVO {
   /**
    * 业务类型（0 产品，1 服务，2 疗程券）
    */
-  detailType?: number;
+  bizType?: number;
   /**
    * 主键ID
    */

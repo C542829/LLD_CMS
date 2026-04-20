@@ -43,9 +43,9 @@
           </el-table-column>
           <el-table-column label="修改项目/产品" min-width="120">
             <template #default="{ row }">
-              <template v-if="row.detailType === OrderDetailType.Product">
+              <template v-if="row.bizType === OrderDetailType.Product">
                 <ProductSelect
-                  v-model="row.bid"
+                  v-model="row.bizId"
                   placeholder="选择产品"
                   class="w-100"
                   :multiple="false"
@@ -53,9 +53,9 @@
                   @clear=""
                 />
               </template>
-              <template v-else-if="row.detailType === OrderDetailType.Service">
+              <template v-else-if="row.bizType === OrderDetailType.Service">
                 <ServiceItemSelect
-                  v-model="row.bid"
+                  v-model="row.bizId"
                   placeholder="选择项目"
                   class="w-100"
                   :multiple="false"
@@ -63,9 +63,9 @@
                   @clear=""
                 />
               </template>
-              <template v-else-if="row.detailType === OrderDetailType.TreatmentCoupon">
+              <template v-else-if="row.bizType === OrderDetailType.TreatmentCoupon">
                 <TreatmentCouponSelect
-                  v-model="row.bid"
+                  v-model="row.bizId"
                   placeholder="选择疗程券"
                   class="w-100"
                   :multiple="false"

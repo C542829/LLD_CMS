@@ -13,7 +13,7 @@
         <!-- 总价 -->
         <span class="total-price">总价:{{ data.truePrice }}</span>
         <!-- 优惠券 -->
-        <template v-if="data.detailType === OrderDetailType.Service">
+        <template v-if="data.bizType === OrderDetailType.Service">
           <template v-if="!orderStore.isCreated">
             <el-tooltip effect="dark" content="开单后才能选择优惠券" placement="top">
               <span class="item-coupon-info">
@@ -69,7 +69,7 @@
           />
         </label>
         <!-- 数量 -->
-        <template v-if="data.detailType !== OrderDetailType.Service">
+        <template v-if="data.bizType !== OrderDetailType.Service">
           <label class="m-l-10">
             <span>数量：</span>
             <el-input-number
@@ -84,7 +84,7 @@
           </label>
         </template>
         <!-- 上钟类型 -->
-        <template v-if="data.detailType === OrderDetailType.Service">
+        <template v-if="data.bizType === OrderDetailType.Service">
           <label class="m-l-10">
             <span>上钟类型：</span>
             <el-select
@@ -272,13 +272,13 @@ const handleDelete = () => {
  */
 const isPT = computed(() => {
   const result = { class: '', text: '' };
-  if (props.data?.detailType === OrderDetailType.Product) {
+  if (props.data?.bizType === OrderDetailType.Product) {
     result.class = 'is-pt-prod';
     result.text = '产 品';
-  } else if (props.data?.detailType === OrderDetailType.Service) {
+  } else if (props.data?.bizType === OrderDetailType.Service) {
     result.class = 'is-pt-svr';
     result.text = '项 目';
-  } else if (props.data?.detailType === OrderDetailType.TreatmentCoupon) {
+  } else if (props.data?.bizType === OrderDetailType.TreatmentCoupon) {
     result.class = 'is-pt-treat';
     result.text = '疗 程';
   }

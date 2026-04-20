@@ -54,11 +54,11 @@ const getServiceItemList = async (category: string) => {
 
 const handleAddItem = (item: any) => {
   item = cloneDeep(item);
-  item.detailType = OrderDetailType.Service;
+  item.bizType = OrderDetailType.Service;
   item.serverType = ServiceType.Round;
   item.isDiscount = item.isDiscounts;
   item.quantity = 1;
-  item.bid = item.id;
+  item.bizId = item.id;
   item.businessName = item.itemName;
   item.businessCode = item.itemEncode;
   item.stdPrice = item.itemPrice;
