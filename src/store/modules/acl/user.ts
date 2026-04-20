@@ -129,21 +129,30 @@ const useUserStore = defineStore('User', {
     /** 存储门店信息 */
     async storageOrgInfo(orgId: number) {
       try {
-        const res = await reqOrgInfo(orgId);
-        const orgInfo = res.data;
-        orgInfo.orgArea && (orgInfo.orgArea = JSON.parse(orgInfo.orgArea as string));
-        this.org = orgInfo;
-        setOrgInfo(orgInfo);
+        // const res = await reqOrgInfo(orgId);
+        // const orgInfo = res.data;
+        // orgInfo.orgArea && (orgInfo.orgArea = JSON.parse(orgInfo.orgArea as string));
+        // this.org = orgInfo;
+        // setOrgInfo(orgInfo);
+        reqOrgInfo(orgId).then((res) => {
+          const orgInfo = res.data;
+          orgInfo.orgArea && (orgInfo.orgArea = JSON.parse(orgInfo.orgArea as string));
+          this.org = orgInfo;
+          setOrgInfo(orgInfo);
+        });
       } catch (error) {}
     },
 
     /** 存储当前用户信息 */
     async storageUserInfo(userId: number) {
       try {
-        const res = await reqUserInfo(userId);
-        const userInfo = res.data;
-        this.user = { ...this.user, ...userInfo };
-        // setUserInfo(userInfo);
+        // const res = await reqUserInfo(userId);
+        // const userInfo = res.data;
+        // this.user = { ...this.user, ...userInfo };
+        reqUserInfo(userId).then((res) => {
+          const userInfo = res.data;
+          this.user = { ...this.user, ...userInfo };
+        });
       } catch (error) {}
     },
 
