@@ -1,6 +1,6 @@
 <template>
-  <div class="data-view-container" v-loading="loading" :element-loading-text="LOADING_MSG">
-    <div class="left-content">
+  <div class="data-view-container">
+    <div class="left-content" v-loading="loading" :element-loading-text="LOADING_MSG">
       <div class="content-top">
         <div class="filter-row">
           <div>日记单</div>
@@ -61,7 +61,7 @@
             </div>
           </div>
           <div class="bar-chart-list">
-            <BarChart :data="revenueSummary" title="收入划分" xAxisName="" yAxisName="单位(元)" height="100%" />
+            <BarChart :data="revenueSummary" title="总业绩划分" xAxisName="" yAxisName="单位(元)" height="100%" />
             <BarChart
               :data="technicianRanking"
               :title="`技师业绩排名（前十）`"
@@ -169,6 +169,9 @@ const search = async () => {
     // 处理搜索参数
     handleSearchParams();
 
+    // 初始化右侧表格数据
+    rightTableRef.value?.initData(searchParams);
+
     // 获取收入划分数据
     const { actualIncome, allIncome, performance } = await getRevenueSummary(searchParams);
     revenueSummary.value = allIncome;
@@ -186,9 +189,6 @@ const search = async () => {
     getMemberStats(searchParams).then((data: any) => {
       memberStats.value = data || [];
     });
-
-    // 初始化右侧表格数据
-    rightTableRef.value?.initData(searchParams);
   } catch (error) {
     console.error(error);
   } finally {

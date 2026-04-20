@@ -63,6 +63,8 @@ export const getRevenueSummary = async (params: Types.DataViewQuery) => {
       { name: '代金券', value: data.ticketConsumerPayment || 0 },
     ];
 
+    allIncome.sort((a, b) => b.value - a.value);
+
     // 绩效数据
     const performance = [
       { name: '应收', value: data.totalTurnover || 0 },
