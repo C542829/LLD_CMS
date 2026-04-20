@@ -38,8 +38,10 @@ export interface OrderData {
   manualOrderNo: string;
   totalAmount: number;
   actualAmount: number;
+  beforeBalance: number;
   afterBalance: number;
   discountAmount: number;
+  customerType: number;
   bedName: string;
   userName: string; // 收银员
   vipName: string;

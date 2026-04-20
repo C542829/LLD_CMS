@@ -7,6 +7,7 @@ import { OrderInfoVO } from '@/api/order/types';
 import { generateOrderHtmlTemplate, generateRechargeHtmlTemplate } from './GenerateTemplate';
 import { orderTemplate } from './GenerateLodopTemplate';
 import ElMessage from '@/components/Message'; // 若使用Element Plus，可用于提示
+import { CustomerType } from '@/enums/index.js';
 
 export class LodopPrinter {
   private LODOP: LODOP | null = null;
@@ -104,12 +105,14 @@ export class LodopPrinter {
     // 开启预览打印
     // preview = true;
 
+    const isMember = data.customerType === CustomerType.Member;
+
     // 获取打印配置（单位：毫米）
     const { width, height } = this.getPrintConfig(data, PrintType.ORDER);
     // LODOP的打印页面宽度
     const printWidth = `${width - 10}mm`;
     // LODOP的打印页面高度
-    const printHeight = `${height}mm`;
+    const printHeight = `${isMember ? height : height - 18}mm`;
 
     console.log('订单打印尺寸：', { printWidth, printHeight });
 

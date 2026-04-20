@@ -2,6 +2,7 @@ import { OrderData, RechargeData } from './types';
 import { formatDateTime } from '@/utils/time';
 import { hidePhone } from '@/utils/index';
 import { getUserNameList } from './utils';
+import { CustomerType } from '@/enums';
 
 const FONT_FAMILY = 'font-family: 黑体, 宋体';
 const FONT_SIZE = '3mm';
@@ -24,6 +25,8 @@ export const generateOrderHtmlTemplate = (data: OrderData, width = '48mm'): stri
   // 分割线 4 * 3
   // 4 + 6 + 3.5 + 6 + 4.5 * 12 + 9*3 + 4 * 3 = 112.5
   // 4 + 6 + 3.5 + 6 + 4.5 * 12 + 9*3 + 4 * 3 + 3.5*6+4.5*3 =147
+
+  const isMember = data.customerType === CustomerType.Member;
 
   const detailRows = data.orderDetails
     .map((item) => {
@@ -59,7 +62,7 @@ export const generateOrderHtmlTemplate = (data: OrderData, width = '48mm'): stri
 
         <p>买单时间: ${data.settleTime || '-'}</p>
         <p>顾客: ${data.vipName || data.customerName || '-'}</p>
-        <p>手机号: ${hidePhone(data.vipPhoneNumber) || '-'}</p>
+        ${isMember ? `<p>手机号: ${hidePhone(data.vipPhoneNumber) || '-'}</p>` : ''}
 
         <div style="${HR_STYLE}"></div>
 
@@ -80,7 +83,8 @@ export const generateOrderHtmlTemplate = (data: OrderData, width = '48mm'): stri
         <p style="font-weight: bold;">支付明细：</p>
         <div>${paymentItems}</div>
         <p>实付总计: ￥${data.actualAmount || '0'}</p>
-        <p>消费后余额:￥${data.afterBalance || '-'}</p>
+        ${isMember ? `<p>消费前余额:￥${data.beforeBalance || '-'}</p>` : ''}
+        ${isMember ? `<p>消费后余额:￥${data.afterBalance || '-'}</p>` : ''}
 
         <div style="${HR_STYLE}"></div>
 
