@@ -1,23 +1,14 @@
 <template>
   <Dialog :title="title" v-model="dialogVisible" @closed="closeDialog" width="400px" center class="settle-dialog">
     <div class="dialog-body">
-      <el-descriptions :column="1">
-        <template v-if="orderStore.order.customerType === CustomerType.Member">
-          <el-descriptions-item label="会员姓名:">{{ orderStore.member.name }}</el-descriptions-item>
-          <el-descriptions-item label="会员卡号:">{{ orderStore.member.cardNumber }}</el-descriptions-item>
-          <el-descriptions-item label="会员电话:">{{ orderStore.member.phoneNumber }}</el-descriptions-item>
-          <el-descriptions-item label="可用余额:" v-show="orderStore.checkedAssetInfo.assetIds.length > 0">
-            <span class="amount">{{ orderStore.checkedAssetInfo.assetAmount }} 元</span>
-          </el-descriptions-item>
-          <!-- <template v-if="orderStore.checkedAssetInfo.assetIds.length > 0">
-            <el-descriptions-item label="可用余额:">
-              <span class="amount">{{ orderStore.checkedAssetInfo.assetAmount }} 元</span>
-            </el-descriptions-item>
-          </template> -->
-        </template>
-        <template v-else>
-          <el-descriptions-item label="客户姓名:">{{ orderStore.order.customerName }}</el-descriptions-item>
-        </template>
+      <!-- 会员客户信息 -->
+      <el-descriptions v-if="orderStore.order.customerType === CustomerType.Member" :column="1">
+        <el-descriptions-item label="会员姓名:">{{ orderStore.member.name }}</el-descriptions-item>
+        <el-descriptions-item label="会员卡号:">{{ orderStore.member.cardNumber }}</el-descriptions-item>
+        <el-descriptions-item label="会员电话:">{{ orderStore.member.phoneNumber }}</el-descriptions-item>
+        <el-descriptions-item v-if="orderStore.checkedAssetInfo.assetIds.length > 0" label="可用余额:">
+          <span class="amount">{{ orderStore.checkedAssetInfo.assetAmount }} 元</span>
+        </el-descriptions-item>
         <el-descriptions-item label="手写单号:">
           <el-input v-model="orderStore.order.manualOrderNo" clearable class="w-100" />
           <span class="text-error">手写单号为必填项</span>
@@ -28,16 +19,32 @@
         <el-descriptions-item label="应付总额:">
           <span class="pay-total">{{ orderStore.truePayAmount }} 元</span>
         </el-descriptions-item>
-        <template v-if="orderStore.discountAmount > 0">
-          <el-descriptions-item label="折扣优惠:">
-            <span class="discount-total">{{ orderStore.discountAmount }} 元</span>
-          </el-descriptions-item>
-        </template>
-        <template v-if="orderStore.couponDiscountAmount > 0">
-          <el-descriptions-item label="优惠券优惠:">
-            <span class="discount-total">{{ orderStore.couponDiscountAmount }} 元</span>
-          </el-descriptions-item>
-        </template>
+        <el-descriptions-item v-if="orderStore.discountAmount > 0" label="折扣优惠:">
+          <span class="discount-total">{{ orderStore.discountAmount }} 元</span>
+        </el-descriptions-item>
+        <el-descriptions-item v-if="orderStore.couponDiscountAmount > 0" label="优惠券优惠:">
+          <span class="discount-total">{{ orderStore.couponDiscountAmount }} 元</span>
+        </el-descriptions-item>
+      </el-descriptions>
+      <!-- 散客客户信息 -->
+      <el-descriptions v-else :column="1">
+        <el-descriptions-item label="客户姓名:">{{ orderStore.order.customerName }}</el-descriptions-item>
+        <el-descriptions-item label="手写单号:">
+          <el-input v-model="orderStore.order.manualOrderNo" clearable class="w-100" />
+          <span class="text-error">手写单号为必填项</span>
+        </el-descriptions-item>
+        <el-descriptions-item label="订单总额:">
+          <span class="order-total">{{ orderStore.payAmount }} 元</span>
+        </el-descriptions-item>
+        <el-descriptions-item label="应付总额:">
+          <span class="pay-total">{{ orderStore.truePayAmount }} 元</span>
+        </el-descriptions-item>
+        <el-descriptions-item v-if="orderStore.discountAmount > 0" label="折扣优惠:">
+          <span class="discount-total">{{ orderStore.discountAmount }} 元</span>
+        </el-descriptions-item>
+        <el-descriptions-item v-if="orderStore.couponDiscountAmount > 0" label="优惠券优惠:">
+          <span class="discount-total">{{ orderStore.couponDiscountAmount }} 元</span>
+        </el-descriptions-item>
       </el-descriptions>
 
       <template v-if="orderStore.couponDiscountAmount > 0">
@@ -180,12 +187,12 @@ const settleOrder = async (order: any) => {
 
     // 获取订单编码
     const orderCode = res.data.orderCode;
-    //  打印小票
+    // 关闭弹窗（先关闭再重置，避免弹窗动画期间数据变化导致渲染错误）
+    closeDialog();
+    // 打印小票
     printReceipt(orderCode);
     // 重置订单表单
     orderStore.reset();
-    // 关闭弹窗
-    closeDialog();
   } catch (error) {
     console.error('结算订单报错：', error);
   } finally {

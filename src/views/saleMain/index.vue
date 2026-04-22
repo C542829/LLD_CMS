@@ -3,7 +3,7 @@
     <div class="top-content">
       <div class="top-item"></div>
       <div class="top-item search">
-        <SearchMember v-model="inputValue" size="default" :showSearchButton="false" @selected="handleSelect" />
+        <SearchMember size="default" :showSearchButton="false" @selected="handleSelect" />
       </div>
       <div class="top-item"></div>
       <div class="top-item bed">
@@ -274,9 +274,6 @@ const visibleDropdown = (visible: boolean) => {
 //#endregion 更新床位信息
 
 //#region 更新会员信息
-
-// 搜索会员
-const inputValue = ref('');
 
 // 选中会员
 const handleSelect = (item: Record<string, any>) => {

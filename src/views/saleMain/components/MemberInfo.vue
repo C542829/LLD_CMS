@@ -8,7 +8,6 @@
           :show-reset-btn="false"
           :show-remark="true"
           :show-info-btn="true"
-          @info="handleClickMember"
         />
       </template>
       <template v-if="store.order.customerType === CustomerType.Guest">
@@ -46,21 +45,11 @@
         <CouponList></CouponList>
       </div>
     </div>
-    <el-dialog
-      v-model="dialogVisible"
-      title="会员信息"
-      destroy-on-close
-      center
-      style="width: 1200px; background-color: var(--el-color-primary-light-9)"
-    >
-      <MemberInfo @close-drawer="dialogVisible = false" />
-    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import MemberCard from '@/components/Card/MemberCard.vue';
-import MemberInfo from '@/views/member/memberCard/memberList/components/MemberInfo.vue';
 import PropertyCard from './PropertyCard.vue';
 import CouponList from './CouponList.vue';
 
@@ -233,18 +222,6 @@ const getDiscountLabel = (data: any): string => {
 
   // 无有效折扣率时直接返回基础标签
   return baseLabel;
-};
-
-// 模态框
-const dialogVisible = ref(false);
-
-/**
- * 点击会员卡时触发
- * @param member 会员卡信息
- */
-const handleClickMember = () => {
-  memberStore.formData = store.member.vipInfoVO;
-  dialogVisible.value = true;
 };
 </script>
 
