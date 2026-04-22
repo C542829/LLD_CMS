@@ -16,12 +16,19 @@
           </el-radio-group>
         </el-descriptions-item>
         <el-descriptions-item v-show="orderStore.order.customerType == CustomerType.Member" label="开单会员：">
-          <SearchMember
+          <!-- <SearchMember
             v-model="orderStore.order.vipName"
             size="default"
             :showSearchButton="false"
             :disabled="true"
             @selected="handleMemberSelected"
+          /> -->
+          <el-input
+            v-model="orderStore.order.vipName"
+            placeholder="请输入会员姓名"
+            clearable
+            :disabled="true"
+            class="w-180"
           />
         </el-descriptions-item>
         <el-descriptions-item v-show="orderStore.order.customerType == CustomerType.Guest" label="散客姓名：">
@@ -30,7 +37,7 @@
             placeholder="请输入散客姓名"
             clearable
             :disabled="true"
-            style="width: 200px"
+            class="w-180"
           />
         </el-descriptions-item>
       </el-descriptions>
