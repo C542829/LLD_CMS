@@ -3,7 +3,7 @@
     <!-- 会员基本信息 -->
     <div class="left-content">
       <!-- 会员卡 -->
-      <MemberCard :member="store.member || {}" :showGoRechargeBtn="false" :show-remark="true" @reset="store.reset" />
+      <MemberCard :member="store.member || {}" :showInfoBtn="true" :show-remark="true" @reset="store.reset" />
 
       <!-- 设置按钮 -->
       <div class="left-item">
