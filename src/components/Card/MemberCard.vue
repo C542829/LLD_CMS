@@ -48,15 +48,27 @@
       </div>
     </div>
     <div v-else class="member-card-empty">未选择会员</div>
+    <el-dialog
+      v-model="dialogVisible"
+      title="会员信息"
+      destroy-on-close
+      center
+      style="width: 1200px; background-color: var(--el-color-primary-light-9)"
+    >
+      <MemberInfo @close-drawer="dialogVisible = false" />
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
+import MemberInfo from '@/views/member/memberCard/memberList/components/MemberInfo.vue';
 import Message from '@/components/Message';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { VipLevel, vipLevelMap } from '@/enums';
 import { reqUpdateMemberRemark } from '@/api/member/member/index';
+import { useMemberStore } from '@/store/modules/member/member';
+const memberStore = useMemberStore();
 
 // 声明路由
 const router = useRouter();
@@ -83,7 +95,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  showResetBtn: true,
+  showResetBtn: false,
   showGoRechargeBtn: true,
   showRemark: false,
   showInfoBtn: false,
@@ -106,7 +118,20 @@ const reset = () => {
 };
 
 const handleClickInfo = () => {
+  handleClickMember();
   emit('info');
+};
+
+// 模态框
+const dialogVisible = ref(false);
+
+/**
+ * 点击会员卡时触发
+ * @param member 会员卡信息
+ */
+const handleClickMember = () => {
+  memberStore.formData = props.member;
+  dialogVisible.value = true;
 };
 
 const goRecharge = () => {
