@@ -6,6 +6,9 @@
         <p class="setting-desc">
           谷歌浏览器输入 chrome://flags ；搜索 block-insecure-private-network-requests ， 修改 Default 为 Disabled
         </p>
+        <p class="setting-desc">
+          新版谷歌浏览器输入 chrome://flags ；搜索 Local Network Access Checks ， 修改 Default 为 Disabled
+        </p>
       </div>
       <div class="setting-item">
         <h1 class="setting-title">谷歌浏览器</h1>
@@ -93,6 +96,7 @@ const handleClose = () => {
       text-indent: 2em;
       font-size: 14px;
       color: var(--el-text-color-secondary);
+      margin-bottom: 8px;
     }
   }
 }
