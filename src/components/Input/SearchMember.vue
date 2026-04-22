@@ -1,6 +1,5 @@
 <template>
   <el-autocomplete
-    v-bind="$attrs"
     v-model="inputValue"
     @select="handleSelect"
     :fetch-suggestions="querySearchAsync"
@@ -40,14 +39,10 @@
 
 <script setup lang="ts">
 import { Search } from '@element-plus/icons-vue';
-import { AutocompleteInstance } from 'element-plus';
-import { ref, watch, withDefaults } from 'vue';
+import { ref, withDefaults } from 'vue';
 import { getAssociateList } from '@/api/member/member';
 
-type ElAutocompleteProps = AutocompleteInstance['$props'];
-
-interface Props extends ElAutocompleteProps {
-  modelValue: string;
+interface Props {
   size?: SizeType;
   width?: string;
   placeholder?: string;
@@ -55,30 +50,22 @@ interface Props extends ElAutocompleteProps {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  modelValue: '',
   size: 'large',
   width: '200px',
   placeholder: '姓名 | 手机号 | 会员卡号',
   showSearchButton: true,
 });
 
-const emit = defineEmits(['update:modelValue', 'selected']);
+const emit = defineEmits(['selected']);
 
-const inputValue = ref<string>('');
+const inputValue = ref<any>('');
 
-watch(
-  () => props.modelValue,
-  (newVal) => {
-    inputValue.value = newVal || '';
-  },
-);
-
-watch(
-  () => inputValue.value,
-  (newVal) => {
-    emit('update:modelValue', newVal || '');
-  },
-);
+// watch(
+//   () => props.modelValue,
+//   (newVal) => {
+//     inputValue.value = newVal || '';
+//   },
+// );
 
 const querySearchAsync: (queryString: string, cb: (arg: any) => void) => void = async (
   queryString: string,
