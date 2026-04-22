@@ -32,7 +32,7 @@ export enum ContentType {
 // 创建axios实例
 const request = axios.create({
   baseURL: import.meta.env.VITE_APP_BASE_API, // 基础路径
-  timeout: 1000 * 10, // 超时时间
+  timeout: 1000 * 60, // 超时时间
   paramsSerializer: (params: any) => {
     return new URLSearchParams(params).toString();
   },
