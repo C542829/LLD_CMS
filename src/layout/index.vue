@@ -137,28 +137,29 @@ export default {
 
   // 右侧主题内容
   .layout_right {
+    flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
 
     // 顶部header
     .layout_tabbar {
-      width: calc(100vw - $base-menu-width);
+      // width: calc(100% - $base-menu-width);
       height: $base-tabbar-height;
       transition: all 0.3s;
       &.fold {
-        width: calc(100vw - $base-menu-min-width);
+        // width: calc(100% - $base-menu-min-width);
       }
     }
 
     // 主体内容
     .layout_main {
-      width: calc(100vw - $base-menu-width);
+      // width: calc(100% - $base-menu-width);
       height: calc(100vh - $base-tabbar-height);
       padding: $main-padding;
       transition: all 0.3s;
       &.fold {
-        width: calc(100vw - $base-menu-min-width);
+        // width: calc(100% - $base-menu-min-width);
       }
     }
   }
