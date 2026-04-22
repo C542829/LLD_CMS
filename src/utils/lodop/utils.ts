@@ -33,9 +33,11 @@ export const getUserNameList = (list: Technician[], detail: OrderDetail) => {
  * @returns 估算的打印高度（毫米）
  */
 export function calculateOrderPrintHeight(data: OrderData): number {
-  const baseHeight = 120; // 基础内容高度（固定部分）
-  const detailRowHeight = 3; // 每行订单明细的高度（毫米）
-  const paymentRowHeight = 6; // 每行支付明细的高度（毫米）
+  // 21 * 3 = 63
+  const baseHeight = 70; // 基础内容高度（固定部分）
+  // const baseHeight = 120; // 基础内容高度（固定部分）
+  const detailRowHeight = 4; // 每行订单明细的高度（毫米）
+  const paymentRowHeight = 3; // 每行支付明细的高度（毫米）
   const faultTolerance = 10; // 容错空间
 
   // 动态部分高度

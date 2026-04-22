@@ -2,8 +2,7 @@
 // @ts-expect-error 忽略js文件检查
 import { getLodop } from './LodopFuncs.js';
 import { OrderData, RechargeData, Config, PrintType } from './types';
-import { calculateOrderPrintHeight, calculateRechargePrintHeight, getOrgInfo } from './utils';
-import { OrderInfoVO } from '@/api/order/types';
+import { calculateOrderPrintHeight, calculateRechargePrintHeight } from './utils';
 import { generateOrderHtmlTemplate, generateRechargeHtmlTemplate } from './GenerateTemplate';
 import { orderTemplate } from './GenerateLodopTemplate';
 import ElMessage from '@/components/Message'; // 若使用Element Plus，可用于提示
@@ -112,7 +111,7 @@ export class LodopPrinter {
     // LODOP的打印页面宽度
     const printWidth = `${width - 10}mm`;
     // LODOP的打印页面高度
-    const printHeight = `${isMember ? height : height - 18}mm`;
+    const printHeight = `${isMember ? height : height - 9}mm`;
 
     console.log('订单打印尺寸：', { printWidth, printHeight });
 

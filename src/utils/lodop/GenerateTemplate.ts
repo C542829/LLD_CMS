@@ -4,14 +4,22 @@ import { hidePhone } from '@/utils/index';
 import { getUserNameList } from './utils';
 import { CustomerType } from '@/enums';
 
-const FONT_FAMILY = 'font-family: 黑体, 宋体';
+const FONT_FAMILY = `font-family:
+            "SimHei",
+            "黑体",
+            "SimSun",
+            "宋体",
+            "Microsoft YaHei",
+            "微软雅黑",
+            "Arial",
+            sans-serif`;
 const FONT_SIZE = '3mm';
 const FONT_SIZE_TITLE = '4mm';
 const FONT_SIZE_TABLE = '2.5mm';
 const FONT_SIZE_SMALL = '2.5mm';
 // const MARGIN_TOP = '';
 const MARGIN_TOP = '0mm';
-const MARGIN = '2mm';
+const MARGIN = '6px';
 const HR_STYLE = `border-top: 1px solid #333; margin: 1mm 0;`;
 
 /**
@@ -33,12 +41,15 @@ export const generateOrderHtmlTemplate = (data: OrderData, width = '48mm'): stri
       // const addFlag = item.serverType === 1 ? '-加' : '';
       return `
           <tr>
-            <td style="width: 35%; ">
+            <td style="width: 40%; ">
             ${item.businessName}￥${item.trueUnitPrice}
             </td>
-            <td style="width: 30%;" align="center">${getUserNameList(item.technicians, item)}</td>
-            <td style="width: 15%;" align="center">${item.quantity}</td>
-            <td style="width: 20%;" align="center">￥${item.truePrice}</td>
+            <td style="width: 25%; white-space: pre-wrap;" align="center">${getUserNameList(
+              item.technicians,
+              item,
+            )}</td>
+            <td style="width: 15%; white-space: pre-wrap;" align="center">${item.quantity}</td>
+            <td style="width: 20%; white-space: pre-wrap;" align="center">￥${item.truePrice}</td>
           </tr>
         `;
     })
@@ -53,7 +64,32 @@ export const generateOrderHtmlTemplate = (data: OrderData, width = '48mm'): stri
     .join('');
 
   return `
-      <div style="width: ${width}; ${FONT_FAMILY}; color: #000; font-size: ${FONT_SIZE}; padding-top: 3mm;">
+  <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <style>
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+        body {
+          line-height: 4mm;
+          font-family:
+            "SimHei",
+            "黑体",
+            "SimSun",
+            "宋体",
+            "Microsoft YaHei",
+            "微软雅黑",
+            "Arial",
+            sans-serif;
+        }
+      </style>
+    </head>
+    <body>
+      <div style="width: ${width}; font-size: ${FONT_SIZE}; line-height: 3mm; color: #000; padding-top: 3mm;">
         <h2 style="text-align: center; font-size: ${FONT_SIZE_TITLE}; font-weight: bold;">${data.orgName || '门店'}</h2>
         <p style="margin: 1mm 0 2mm 0; text-align: center; font-size: ${FONT_SIZE};">消费单</p>
 
@@ -69,8 +105,8 @@ export const generateOrderHtmlTemplate = (data: OrderData, width = '48mm'): stri
         <table border="1" style="width: 100%; border-collapse: collapse; font-size: ${FONT_SIZE_TABLE};">
           <thead>
             <tr style="font-weight:bold;">
-              <td style="width: 45%; padding-bottom: 1mm;">项目/单价</td>
-              <td style="width: 20%;" align="center">技师</td>
+              <td style="width: 40%; padding-bottom: 1mm;">项目/单价</td>
+              <td style="width: 25%;" align="center">技师</td>
               <td style="width: 15%;" align="center">数量</td>
               <td style="width: 20%;" align="center">金额</td>
             </tr>
@@ -97,6 +133,8 @@ export const generateOrderHtmlTemplate = (data: OrderData, width = '48mm'): stri
         <p>服务电话: ${data.servicePhone || data.orgNumber || '-'}</p>
         <p>门店地址: ${data.orgAddress || '-'}</p>
       </div>
+    </body>
+    </html>
     `;
 };
 
