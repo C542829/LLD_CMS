@@ -52,7 +52,7 @@ const props = withDefaults(defineProps<DynamicInputProps>(), {
 const $emit = defineEmits(['update']);
 
 // 输入框初始值
-let inputValue = ref(props.value);
+let inputValue = ref<any>('');
 // 是否处于编辑状态
 let isEditing = ref(false);
 
@@ -80,7 +80,11 @@ const handleCancel = () => {
 watch(
   () => props.value,
   (newValue) => {
-    inputValue.value = newValue;
+    if (newValue) {
+      inputValue.value = newValue;
+    } else {
+      inputValue.value = '';
+    }
   },
 );
 </script>
