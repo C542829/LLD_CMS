@@ -118,7 +118,6 @@ export const useOrderStore = defineStore('Order', () => {
     try {
       // 订单明细
       const details = order.value.orderDetails;
-      // console.log('updateOrderItemPrice - 当前订单明细：', details);
 
       // 遍历订单明细更新价格
       for (const detail of details) {
@@ -126,8 +125,6 @@ export const useOrderStore = defineStore('Order', () => {
         if (detail.coupon) {
           continue;
         }
-
-        console.log('updateOrderItemPrice - 更新当前订单明细项：', detail);
 
         // 如果选择了折扣卡 - 则根据折扣卡更新价格
         if (isSelectedMemberAsset.value) {
@@ -138,28 +135,18 @@ export const useOrderStore = defineStore('Order', () => {
           // 当前选择折扣卡的折扣率
           const discountRate = div(assetDiscountRate, 100);
 
-          // 数量更新时
-          // if (isMemberPrice) {
-          //   detail.trueUnitPrice = detail.vipPrice;
-          //   detail.truePrice = mul(detail.trueUnitPrice, detail.quantity);
-          // } else {
-          //   detail.trueUnitPrice = detail.stdPrice;
-          //   detail.truePrice = mul(detail.trueUnitPrice, detail.quantity);
-          // }
-          detail.trueUnitPrice = detail.vipPrice;
-          detail.truePrice = mul(detail.trueUnitPrice, detail.quantity);
-
           // 如果是标准价，且折扣率为100%，则优先使用会员价
-          if (!isMemberPrice && assetDiscountRate === 100) {
-            // detail.trueUnitPrice = detail.vipPrice;
-            // detail.truePrice = mul(detail.trueUnitPrice, detail.quantity);
-            continue;
-          }
+          // if (!isMemberPrice && assetDiscountRate === 100) {
+          // detail.trueUnitPrice = detail.vipPrice;
+          // detail.truePrice = mul(detail.trueUnitPrice, detail.quantity);
+          // continue;
+          // }
 
+          // TODO: 如果设置为不打折 是否切换为会员价
           // 如果设置为不打折则不进行更新
           if (detail.isDiscount === IsDiscount.No) {
-            // detail.trueUnitPrice = detail.vipPrice;
-            // detail.truePrice = mul(detail.trueUnitPrice, detail.quantity);
+            detail.trueUnitPrice = detail.vipPrice;
+            detail.truePrice = mul(detail.trueUnitPrice, detail.quantity);
             continue;
           }
 
@@ -171,8 +158,9 @@ export const useOrderStore = defineStore('Order', () => {
           detail.trueUnitPrice = discountPrice;
           // 计算实收总价
           detail.truePrice = mul(detail.trueUnitPrice, detail.quantity);
-        } else {
-          // 如果没选择折扣卡，先将价格更新为标准价
+        }
+        // 如果没选择折扣卡，先将价格更新为标准价
+        else {
           detail.trueUnitPrice = detail.stdPrice;
           detail.truePrice = mul(detail.trueUnitPrice, detail.quantity);
         }
