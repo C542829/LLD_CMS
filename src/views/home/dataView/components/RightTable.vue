@@ -60,7 +60,7 @@
 <script lang="ts" setup>
 import { ref, reactive } from 'vue';
 import { reqProductSales, reqRechargeDetail, reqServiceStats, type Types } from '@/api/home/index';
-import { LOADING_MSG } from '@/utils/constant';
+import { LOADING_MSG } from '@/utils/constants';
 
 const emit = defineEmits(['businessData']);
 

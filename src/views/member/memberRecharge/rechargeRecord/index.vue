@@ -194,7 +194,7 @@ import Message from '@/components/Message';
 import { ref, reactive, onMounted } from 'vue';
 import { datetimeFormatter } from '@/utils/formatter';
 import { formatDate, isFullDaysSince } from '@/utils/time';
-import { LOADING_MSG } from '@/utils/constant';
+import { LOADING_MSG } from '@/utils/constants';
 import { type Types, reqRechargeHistoryList, reqRollBackRecharge } from '@/api/member/recharge/index';
 import {
   RechargeStatus,

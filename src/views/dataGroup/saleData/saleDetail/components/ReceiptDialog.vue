@@ -85,7 +85,7 @@ import { ElMessage } from 'element-plus';
 import { reqOrderInfo } from '@/api/dataGroup/saleData';
 import { parseResObj } from '@/utils/parseResponse';
 import { amountFormatter } from '@/utils/formatter';
-import { LOADING_MSG } from '@/utils/constant';
+import { LOADING_MSG } from '@/utils/constants';
 import { OrderDetailType } from '@/enums';
 
 /** 订单数据 */

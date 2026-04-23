@@ -131,7 +131,7 @@ import { reqPerformanceRecord } from '@/api/dataGroup/staffPerformance/index';
 import type { KpiListQuery, KpiListVO } from '@/api/dataGroup/staffPerformance/types';
 import { parseResObj } from '@/utils/parseResponse';
 import { OrderDetailType, ServiceType } from '@/enums';
-import { LOADING_MSG } from '@/utils/constant';
+import { LOADING_MSG } from '@/utils/constants';
 import { generateDateRange } from '@/utils/time';
 // import { useEnumStore, useDataEnumStore } from '@/store/modules/enums/index';
 import useUserStore from '@/store/modules/acl/user';

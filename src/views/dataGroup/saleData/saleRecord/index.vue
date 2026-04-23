@@ -212,7 +212,7 @@ import { isFullDaysSince, generateDateRange } from '@/utils/time';
 import { reqQueryOrder, reqRollBackOrder } from '@/api/order';
 import { reqOrgInfo } from '@/api/acl/org';
 import { reqSaleRecord } from '@/api/dataGroup/saleData';
-import { LOADING_MSG } from '@/utils/constant';
+import { LOADING_MSG } from '@/utils/constants';
 import useUserStore from '@/store/modules/acl/user';
 
 const userStore = useUserStore();

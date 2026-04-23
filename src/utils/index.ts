@@ -1,4 +1,4 @@
-import { RoleLevel } from './constant';
+import { RoleLevel } from './constants';
 import { formatDateTime, formatDate } from './time';
 
 export { formatDateTime, formatDate };

@@ -56,7 +56,7 @@
 <script setup lang="ts">
 import { ElDialog, type DialogProps } from 'element-plus';
 import { ref, onMounted, onUpdated, inject, h, getCurrentInstance, reactive, watch } from 'vue';
-import { LOADING_MSG } from '@/utils/constant';
+import { LOADING_MSG } from '@/utils/constants';
 
 import { useEnumStore } from '@/store/modules/enums/index';
 const store = useEnumStore();

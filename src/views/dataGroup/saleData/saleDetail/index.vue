@@ -144,7 +144,7 @@ import { reactive, onMounted, ref } from 'vue';
 import { datetimeFormatter } from '@/utils/formatter';
 import { reqSaleDetail } from '@/api/dataGroup/saleData';
 import { parseResObj } from '@/utils/parseResponse';
-import { LOADING_MSG } from '@/utils/constant';
+import { LOADING_MSG } from '@/utils/constants';
 import { OrderDetailType } from '@/enums';
 import { generateDateRange } from '@/utils/time';
 import useUserStore from '@/store/modules/acl/user';

@@ -153,7 +153,7 @@
 import { ref, watch, computed } from 'vue';
 import type { MgjSaleDataParsed, SaleDataCash } from '../utils/types';
 import { BILL_TYPE_MAP, BILL_STATUS_MAP, SEX_MAP } from '../utils';
-import { LOADING_MSG } from '@/utils/constant';
+import { LOADING_MSG } from '@/utils/constants';
 import { formatDateTime } from '@/utils';
 
 interface Props {

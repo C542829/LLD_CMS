@@ -24,7 +24,7 @@ import ItemCard from './ItemCard.vue';
 import DictRadio from '@/components/FormComponents/DictRadio.vue';
 import { ref, onMounted } from 'vue';
 import { cloneDeep } from 'lodash';
-import { LOADING_MSG } from '@/utils/constant';
+import { LOADING_MSG } from '@/utils/constants';
 import { OrderDetailType, DictCode } from '@/enums/index';
 import { reqProductList, type Types } from '@/api/setGroup/product';
 

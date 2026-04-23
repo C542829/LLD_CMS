@@ -70,7 +70,7 @@ import { onMounted, reactive, ref } from 'vue';
 import { reqSaleSummary } from '@/api/dataGroup/saleData';
 import { OrderSummaryVO } from '@/api/dataGroup/saleData/types';
 import { dateFormatter } from '@/utils/formatter';
-import { LOADING_MSG } from '@/utils/constant';
+import { LOADING_MSG } from '@/utils/constants';
 import { generateDateRange } from '@/utils/time';
 import useUserStore from '@/store/modules/acl/user';
 

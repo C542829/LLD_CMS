@@ -56,7 +56,7 @@ import CouponList from './CouponList.vue';
 import { ref, watch, computed, onMounted } from 'vue';
 import { isEmpty } from 'lodash';
 import { CustomerType, DiscountType, discountTypeMap } from '@/enums/index';
-import { LOADING_MSG } from '@/utils/constant';
+import { LOADING_MSG } from '@/utils/constants';
 import { useOrderStore } from '@/store/modules/order/index';
 import { useMemberStore } from '@/store/modules/member/member';
 import { useDataEnumStore } from '@/store/modules/enums';

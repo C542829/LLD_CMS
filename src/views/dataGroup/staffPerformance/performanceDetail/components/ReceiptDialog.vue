@@ -72,7 +72,7 @@ import { ref, watch } from 'vue';
 import { reqQueryOrder } from '@/api/order';
 import { OrderInfoVO } from '@/api/order/types';
 import { OrderDetailType } from '@/enums';
-import { LOADING_MSG } from '@/utils/constant';
+import { LOADING_MSG } from '@/utils/constants';
 
 interface Props {
   modelValue: boolean;

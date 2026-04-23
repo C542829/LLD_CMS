@@ -43,7 +43,7 @@
 import { ref, reactive, withDefaults, watch } from 'vue';
 import { reqPerformanceRecord } from '@/api/dataGroup/staffPerformance/index';
 import { dateFormatter } from '@/utils/formatter';
-import { LOADING_MSG } from '@/utils/constant';
+import { LOADING_MSG } from '@/utils/constants';
 import { OrderDetailType } from '@/enums/index';
 
 interface Props {

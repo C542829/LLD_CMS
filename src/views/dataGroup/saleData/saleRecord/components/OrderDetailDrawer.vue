@@ -121,7 +121,7 @@ import { OrderDetailType } from '@/enums';
 import { useOrgStore } from '@/store/modules/acl/org';
 import { reqReconcileOrder, reqQueryOrder } from '@/api/order/index';
 import { OrderStatus } from '@/enums';
-import { LOADING_MSG } from '@/utils/constant';
+import { LOADING_MSG } from '@/utils/constants';
 
 //#region 父子组件交互
 interface Props {
