@@ -27,9 +27,11 @@ export default {
 </script>
 
 <script lang="ts" setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { ElDatePicker } from 'element-plus';
 import { useDateShortcuts } from '@/composables/useDateShortcuts';
+import { isBoolean, isNumber } from 'lodash';
+import { formatDateTime } from '@/utils';
 
 /** 日期时间范围值类型 */
 type DateRangeValue = [string, string] | [Date, Date] | string | Date | [];
@@ -39,6 +41,8 @@ interface Props {
   modelValue?: DateRangeValue;
   /** 日期选择器类型 */
   type?: string;
+  /** 是否启用默认值（值为true 默认使用当天；值为数字时为快捷数组下标 0-10） */
+  default?: boolean | number;
   /** 尺寸 */
   size?: SizeType;
   /** 是否禁用 */
@@ -58,13 +62,14 @@ interface Props {
   /** 是否显示快捷选项 */
   showShortcuts?: boolean;
   /** 默认值 */
-  defaultValue?: Date | Date[];
+  defaultValue?: Date | [Date, Date];
   /** 默认时间 */
-  defaultTime?: Date | Date[];
+  defaultTime?: Date | [Date, Date];
 }
 const props = withDefaults(defineProps<Props>(), {
   modelValue: () => [],
   type: 'datetimerange',
+  default: true,
   size: 'default',
   disabled: false,
   rangeSeparator: '至',
@@ -101,6 +106,37 @@ const innerValue = computed({
 
 /** 获取快捷选项 */
 const { shortcuts } = useDateShortcuts();
+
+/** 解析快捷选项值，处理函数类型 */
+const resolveShortcutValue = (shortcut: (typeof shortcuts)[number]): [Date, Date] | [] => {
+  let val = shortcut.value;
+  return typeof val === 'function' ? val() : val;
+};
+
+/**
+ * 默认值变化监听
+ * 当 default 为 true 时，使用快捷选项第一个值
+ * 当 default 为 number 时，使用快捷选项对应下标值
+ */
+watch(
+  () => props.default,
+  (val) => {
+    //  值为true 默认使用当天
+    if (isBoolean(val)) {
+      const datetime = resolveShortcutValue(shortcuts[0]);
+      const datetimeStr = [formatDateTime(datetime[0] as Date), formatDateTime(datetime[1] as Date)];
+      innerValue.value = val ? (datetimeStr as any) : [];
+    } else {
+      // 为数字时，使用快捷选项对应下标值
+      if (isNumber(val)) {
+        const datetime = resolveShortcutValue(shortcuts[val]);
+        const datetimeStr = [formatDateTime(datetime[0] as Date), formatDateTime(datetime[1] as Date)];
+        innerValue.value = datetimeStr as any;
+      }
+    }
+  },
+  { immediate: true },
+);
 
 /** 值变化事件 */
 const handleChange = (val: DateRangeValue) => {

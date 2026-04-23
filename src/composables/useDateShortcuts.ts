@@ -1,7 +1,7 @@
 /** 快捷选项类型 */
 interface Shortcut {
   text: string;
-  value: Date[] | (() => Date[]);
+  value: [Date, Date] | (() => [Date, Date]);
 }
 
 /**
