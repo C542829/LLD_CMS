@@ -124,6 +124,14 @@
   width: 100% !important;
 }
 
+.w-30 {
+  width: 30px !important;
+}
+
+.w-40 {
+  width: 40px !important;
+}
+
 .w-50 {
   width: 50px !important;
 }
@@ -184,27 +192,31 @@
   width: 240px !important;
 }
 
+.w-250 {
+  width: 250px !important;
+}
+
+.w-260 {
+  width: 260px !important;
+}
+
+.w-270 {
+  width: 270px !important;
+}
+
+.w-280 {
+  width: 280px !important;
+}
+
+.w-290 {
+  width: 290px !important;
+}
+
+.w-300 {
+  width: 300px !important;
+}
+
 // #endregion 宽度
-
-// 间距 - 根据上下左右外边距生成5-30px的间距，每次前进5px 用for循环，生成类名m-5 m-10 ... m-30
-
-// @mixin margin($direction, $value) {
-//   @if $value >= 5 and $value <= 30 {
-//     margin-#{$direction}: $value * 5px;
-//   } @else {
-//     @warn "间距值必须在5-30之间";
-//   }
-// }
-
-// @for $i from 5 through 30 {
-//   .m-#{$direction}-#{$i} {
-//     @include margin(top, $i);
-//     @include margin(bottom, $i);
-//     @include margin(left, $i);
-//     @include margin(right, $i);
-//   }
-// }
-// 参考 tailwindcss 间距类名命名规则，生成类名m-t-5 m-b-5 m-l-5 m-r-5 ... m-t-30 m-b-30 m-l-30 m-r-30
 
 // 定义间距数值范围（5到30，步长为5）
 $spacing-values: 5, 10, 15, 20, 25, 30;
