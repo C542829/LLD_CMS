@@ -1,13 +1,26 @@
-import type { ElPagination, TableInstance, FormInstance, ButtonInstance, TagInstance } from 'element-plus';
 import { Component } from 'vue';
-import { RoleLevel } from '@/utils/constant';
+import { RoleLevel } from '@/utils/constants';
+import type {
+  ElPagination,
+  TableInstance,
+  FormInstance,
+  ButtonInstance,
+  TagInstance,
+  PopoverInstance,
+} from 'element-plus';
 
 declare global {
-  type ButtonType = ButtonInstance['type'];
-  type SizeType = ButtonInstance['size'];
-  type ElTagType = TagInstance['type'];
-  type ElTableProps = TableInstance['$props'];
   type ElFormInstance = FormInstance;
+  /** 按钮类型 */
+  type ButtonType = ButtonInstance['type'];
+  /** 按钮尺寸 */
+  type SizeType = ButtonInstance['size'];
+  /** 标签类型 */
+  type ElTagType = TagInstance['type'];
+  /** 表格类型 */
+  type ElTableProps = TableInstance['$props'];
+  /** 弹出框位置 */
+  type PlacementType = PopoverInstance['placement'];
 
   /** 角色编码 */
   type RoleCode = keyof typeof RoleLevel;
@@ -27,32 +40,18 @@ declare global {
   /** 弹窗类型 */
   type DialogType = 'add' | 'view' | 'edit';
 
-  /** 弹出框位置 */
-  type PlacementType =
-    | 'top'
-    | 'top-start'
-    | 'top-end'
-    | 'bottom'
-    | 'bottom-start'
-    | 'bottom-end'
-    | 'left'
-    | 'left-start'
-    | 'left-end'
-    | 'right'
-    | 'right-start'
-    | 'right-end';
-
   /** 所有 api 接口的响应数据都应该准守该格式 */
   interface ApiResponseData<T> {
     code: number;
     data: T;
     message: string;
   }
+
   /** api 响应数据格式（函数返回值） */
   type ApiResponse<T> = Promise<ApiResponseData<T>>;
 
   /** 分页列表接口返回值 */
-  interface PageListInfo<List = unknown> {
+  interface PageListInfo<List = any> {
     pageNum: number; // 当前页码
     pageSize: number; // 每页大小
     rows: List[]; // 当前页数据
