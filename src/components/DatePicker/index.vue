@@ -17,11 +17,12 @@
 <script lang="ts" setup>
 import { ElDatePicker, type DatePickerProps } from 'element-plus';
 import { ref, h, getCurrentInstance } from 'vue';
+import { useDateShortcuts } from '@/composables/useDateShortcuts';
 
 /**
  * 组件属性接口定义
- * - 继承 DialogProps 并覆盖/扩展部分属性
- * - config: 配置对象，包含API调用方法和父级ID
+ * - 继承 DatePickerProps 并覆盖/扩展部分属性
+ * - default: 默认日期范围
  */
 interface MyDatePickerProps extends Partial<DatePickerProps> {
   default?: Array<Date>;
@@ -37,133 +38,25 @@ function changeRef(dialogInstance: any) {
   vm.exposeProxy = vm.exposed = dialogInstance || {};
 }
 
-const emit: any = defineEmits();
+const emit = defineEmits<{
+  'update:modelValue': [value: any];
+  change: [value: any];
+  clear: [];
+}>();
 
 // 绑定值
 const value = ref<Array<Date>>([]);
 
-// 当值发生变化时，调用自定义事件
-// watch(
-//   () => value.value,
-//   (newValue: Array<Date>, oldValue) => {
-//     if (newValue.length === 0) {
-//       return;
-//     }
-
-//     const start: string = formatDate(newValue[0]);
-//     const end: string = formatDate(newValue[1]);
-//     emit('selectDate', start, end);
-//   },
-// );
-
 props.default && (value.value = props.default);
+
+// 获取快捷选项
+const { shortcuts } = useDateShortcuts();
 
 // 重置
 const reset = () => {
   value.value = [];
 };
 
-// 设置快捷选项
-const shortcuts = [
-  {
-    text: '今天',
-    value: () => {
-      // 起始时间：今天 00:00:00.000
-      const start = new Date();
-      start.setHours(0, 0, 0, 0);
-      // 结束时间：今天 23:59:59.999
-      const end = new Date();
-      end.setHours(23, 59, 59, 999);
-      return [start, end];
-    },
-  },
-  {
-    text: '昨天',
-    value: () => {
-      // 获取今天的时间
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      // 起始时间：昨天 00:00:00.000
-      const start = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-      // 结束时间：昨天 23:59:59.999
-      const end = new Date(today.getTime() - 1);
-      return [start, end];
-    },
-  },
-  {
-    text: '本周',
-    value: () => {
-      const end = new Date();
-      const start = new Date();
-      const offset = start.getDay() - 1;
-      start.setTime(start.getTime() - 3600 * 1000 * 24 * offset);
-      return [start, end];
-    },
-  },
-  {
-    text: '本月',
-    value: () => {
-      const end = new Date();
-      const start = new Date();
-      const offset = start.getDate() - 1;
-      start.setTime(start.getTime() - 3600 * 1000 * 24 * offset);
-      return [start, end];
-    },
-  },
-  {
-    text: '上月',
-    value: () => {
-      // 获取当前日期
-      const now = new Date();
-      // 上个月的第一天
-      const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      start.setHours(0, 0, 0, 0);
-      // 上个月的最后一天（本月第0天即为上月最后一天）
-      const end = new Date(now.getFullYear(), now.getMonth(), 0);
-      end.setHours(23, 59, 59, 999);
-      return [start, end];
-    },
-  },
-  {
-    text: '最近一个月',
-    value: () => {
-      const end = new Date();
-      const start = new Date();
-      start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-      return [start, end];
-    },
-  },
-  {
-    text: '最近三个月',
-    value: () => {
-      const end = new Date();
-      const start = new Date();
-      start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-      return [start, end];
-    },
-  },
-  {
-    text: '最近六个月',
-    value: () => {
-      const end = new Date();
-      const start = new Date();
-      start.setTime(start.getTime() - 3600 * 1000 * 24 * 180);
-      return [start, end];
-    },
-  },
-  {
-    text: '最近一年',
-    value: () => {
-      const end = new Date();
-      const start = new Date();
-      start.setTime(start.getTime() - 3600 * 1000 * 24 * 365);
-      return [start, end];
-    },
-  },
-];
-</script>
-<script lang="ts">
-export default {
-  name: 'DatePicker',
-};
+// 暴露方法
+defineExpose({ reset });
 </script>

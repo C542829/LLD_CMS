@@ -14,6 +14,7 @@ import MultipleSelect from './MultipleSelect/index.vue';
 import OrgSelect from './FormComponents/OrgSelect.vue';
 import UserSelect from './FormComponents/UserSelect.vue';
 import DictSelect from './FormComponents/DictSelect.vue';
+import IDateTimePicker from './FormComponents/IDateTimePicker.vue';
 import EllipsisText from './EllipsisText/index.vue';
 import Empty from './Empty/index.vue';
 import Message from './Message';
@@ -43,6 +44,7 @@ const allGlobalComponent: any = {
   DictSelect,
   MultipleSelect,
   OrgSelect,
+  IDateTimePicker,
   EllipsisText,
   Empty,
   ServiceTypeTag,
