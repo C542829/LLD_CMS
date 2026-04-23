@@ -17,10 +17,20 @@
           <Menu :menuList="userStore.menuRoutes"></Menu>
         </el-menu>
       </el-scrollbar>
-      <div class="driver-down" v-show="!settingStore.fold">
+      <div class="driver-down">
         <!-- <el-link href="./Pdriver.exe" class="down-link" underline="never">小票打印机驱动</el-link> -->
-        <el-link href="https://uuyc.163.com/" target="_blank" class="down-link" underline="never">远程工具</el-link>
-        <el-link href="./printer.exe" target="_blank" class="down-link" underline="never">打印加速控件下载</el-link>
+        <el-link
+          v-show="!settingStore.fold"
+          href="https://uuyc.163.com/"
+          target="_blank"
+          class="down-link"
+          underline="never"
+        >
+          远程工具
+        </el-link>
+        <el-link v-show="!settingStore.fold" href="./printer.exe" target="_blank" class="down-link" underline="never">
+          打印加速控件下载
+        </el-link>
       </div>
     </div>
     <div class="layout_right">
@@ -141,6 +151,7 @@ export default {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    width: calc(100% - $base-menu-width);
 
     // 顶部header
     .layout_tabbar {
