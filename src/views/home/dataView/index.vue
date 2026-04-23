@@ -4,26 +4,28 @@
       <div class="content-top">
         <div class="filter-row">
           <div>日记单</div>
-          <div>
+          <div class="text-sm">
             <template v-if="userStore.isAdmin || userStore.isAreaManager">
               <label>
                 门店：
                 <OrgSelect
                   v-model="searchParams.orgIds"
                   placeholder="门店"
-                  class="w-100"
+                  class="w-80"
                   :multiple="true"
                   :maxCollapseTags="0"
                   @change="search"
                   @clear="search"
+                  size="small"
                 />
               </label>
             </template>
             <label style="margin: 0 10px">
               统计日期：
-              <DatePicker v-model="dateRange" @change="search" @clear="search" class="w-240" />
+              <!-- <DatePicker v-model="dateRange" @change="search" @clear="search" size="small" class="w-200" /> -->
+              <IDateTimePicker v-model="dateRange" @change="search" @clear="search" size="small" class="w-260" />
             </label>
-            <el-button disabled @click="" plain>打印数据</el-button>
+            <!-- <el-button disabled @click="" plain>打印数据</el-button> -->
           </div>
         </div>
         <div class="chart-container">
@@ -103,11 +105,9 @@ import BarChart from '@/views/home/components/BarChart.vue';
 import RightTable from './components/RightTable.vue';
 import { ref, reactive, onMounted, computed } from 'vue';
 import { type Types } from '@/api/home/index';
-import { formatDate, generateDateRange } from '@/utils/time';
-import { LOADING_MSG } from '@/utils/constant';
+import { LOADING_MSG } from '@/utils/constants';
 import {
   DEFAULT_SEARCH_PARAMS,
-  colors,
   getRevenueSummary,
   getTechnicianRanking,
   getMemberStats,
@@ -127,9 +127,9 @@ onMounted(() => {
 });
 
 /** 收入划分数据 */
-const revenueSummary = ref<ChartData[]>([]);
+const revenueSummary = ref<any[]>([]);
 /** 技师业绩排名数据 */
-const technicianRanking = ref<ChartData[]>([]);
+const technicianRanking = ref<any[]>([]);
 /** 会员统计数据 */
 const memberStats = ref<ChartData[]>([]);
 /** 实收合计数据 */
@@ -149,17 +149,16 @@ const performanceData = ref([
 
 const loading = ref(false);
 const rightTableRef = ref<typeof RightTable>();
-const dateRange = ref(generateDateRange());
+const dateRange = ref([]);
 const searchParams = reactive<Types.DataViewQuery>(DEFAULT_SEARCH_PARAMS);
 
 const handleSearchParams = () => {
   if (dateRange.value.length === 0) {
-    searchParams.startDate = '';
-    searchParams.endDate = '';
-    return;
+    searchParams.startTime = '';
+    searchParams.endTime = '';
   } else {
-    searchParams.startDate = formatDate(dateRange.value[0]) as string;
-    searchParams.endDate = formatDate(dateRange.value[1]) as string;
+    searchParams.startTime = dateRange.value[0] as string;
+    searchParams.endTime = dateRange.value[1] as string;
   }
 };
 

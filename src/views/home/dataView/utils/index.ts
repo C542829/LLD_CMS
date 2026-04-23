@@ -4,8 +4,8 @@ import { reqRevenueSummary, reqMemberStats, reqTechnicianRanking, type Types } f
  * 默认搜索参数
  */
 export const DEFAULT_SEARCH_PARAMS: Types.DataViewQuery = {
-  startDate: '',
-  endDate: '',
+  startTime: '',
+  endTime: '',
   orgIds: [],
 };
 

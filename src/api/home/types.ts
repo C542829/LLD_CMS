@@ -5,7 +5,7 @@ export interface DataViewQuery {
   /**
    * 结束日期
    */
-  endDate?: string;
+  endTime?: string;
   /**
    * 门店ID列表，不传则查全部关联门店
    */
@@ -13,7 +13,7 @@ export interface DataViewQuery {
   /**
    * 开始日期
    */
-  startDate?: string;
+  startTime?: string;
   [property: string]: any;
 }
 

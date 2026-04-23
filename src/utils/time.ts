@@ -118,8 +118,11 @@ export const formatDate = (date: Date | number | string, format = 'YYYY-MM-DD') 
  * @returns 包含开始日期和结束日期的数组，格式为 [开始日期, 结束日期]
  */
 export const generateDateRange = () => {
-  const date = formatDate(new Date());
-  return [date, date];
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  const end = new Date();
+  end.setHours(23, 59, 59, 999);
+  return [formatDateTime(start), formatDateTime(end)];
 };
 
 /**
