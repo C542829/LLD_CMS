@@ -90,10 +90,10 @@ export function useDateShortcuts() {
     { text: '本周', value: () => getThisWeek() },
     { text: '本月', value: () => getThisMonth() },
     { text: '上月', value: () => getLastMonth() },
-    { text: '去年', value: () => getLastYear() },
     { text: '最近一个月', value: () => getRecentDays(30) },
     { text: '最近三个月', value: () => getRecentDays(90) },
     { text: '最近六个月', value: () => getRecentDays(180) },
+    { text: '去年', value: () => getLastYear() },
     { text: '最近一年', value: () => getRecentDays(365) },
     { text: '最近两年', value: () => getRecentDays(730) },
   ];
