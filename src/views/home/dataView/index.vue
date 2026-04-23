@@ -219,7 +219,7 @@ const setBusinessData = (data: ChartData[]) => {
   height: 100%;
   background-color: $base-bg;
   display: flex;
-  gap: 15px;
+  gap: 12px;
 
   .left-content {
     flex: 1;
@@ -296,15 +296,16 @@ const setBusinessData = (data: ChartData[]) => {
   }
 
   .right-content {
-    width: 400px;
+    width: 360px;
+    min-width: 320px;
     padding: 10px;
     height: 100%;
     border-radius: 5px;
     overflow: auto;
     background-color: $base-main-bg;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+    // display: flex;
+    // flex-direction: column;
+    // gap: 15px;
   }
 }
 </style>

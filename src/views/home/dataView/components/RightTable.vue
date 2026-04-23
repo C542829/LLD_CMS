@@ -25,14 +25,15 @@
       height="auto"
       containerHeight="auto"
       show-summary
+      class="service-item-table"
     >
       <el-table-column prop="name" label="项目名称" :align="'center'" />
       <el-table-column prop="quantity" label="点 | 轮 | 加" :align="'center'">
         <template #default="{ row }">
           <div class="count-num">
-            <span>{{ row.designatedCount }}</span>
-            <span>{{ row.rotationCount }}</span>
-            <span>{{ row.addCount }}</span>
+            <span class="text-overflow" :title="row.designatedCount">{{ row.designatedCount }}</span>
+            <span class="text-overflow" :title="row.rotationCount">{{ row.rotationCount }}</span>
+            <span class="text-overflow" :title="row.addCount">{{ row.addCount }}</span>
           </div>
         </template>
       </el-table-column>
@@ -141,7 +142,7 @@ const summaryMethod = (data: { columns: any[]; data: any[] }) => {
       const lun = calcTotal(rows, 'rotationCount');
       const dian = calcTotal(rows, 'designatedCount');
       const jia = calcTotal(rows, 'addCount');
-      sums[index] = `点钟：${dian}；轮牌：${lun}；加钟：${jia}`;
+      sums[index] = `点钟：${dian}\n轮牌：${lun}\n加钟：${jia}`;
       return;
     }
 
@@ -166,22 +167,33 @@ const calcTotal = (rows: any, key: string) => {
 <style lang="scss" scoped>
 .right-table-container {
   height: 100%;
-}
 
-.right-table-title {
-  color: var(--el-text-color-secondary);
-  font-weight: 600;
-  margin: 12px 0;
-}
-.count-num {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: 1fr;
-  span:first-child {
-    border-right: 1px dashed gray;
+  .right-table-title {
+    color: var(--el-text-color-secondary);
+    font-weight: 600;
+    margin: 12px 0;
   }
-  span:last-child {
-    border-left: 1px dashed gray;
+
+  .service-item-table {
+    :deep(.el-table) {
+      .el-table__footer-wrapper {
+        .cell {
+          white-space: pre-line;
+        }
+      }
+    }
+  }
+
+  .count-num {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: 1fr;
+    span:first-child {
+      border-right: 1px dashed gray;
+    }
+    span:last-child {
+      border-left: 1px dashed gray;
+    }
   }
 }
 </style>
