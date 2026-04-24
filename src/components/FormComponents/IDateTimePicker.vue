@@ -1,6 +1,6 @@
 <template>
   <el-tooltip effect="dark" content="区间为 当天 07:00:00 ~ 次日 07:00:00" placement="top">
-    <div>
+    <div class="date-picker-container">
       <el-date-picker
         ref="datePickerRef"
         v-bind="{ ...$attrs, ...props }"
@@ -162,3 +162,9 @@ defineExpose({
   blur: () => datePickerRef.value?.blur(),
 });
 </script>
+
+<style lang="scss" scoped>
+.date-picker-container {
+  display: inline-block;
+}
+</style>
