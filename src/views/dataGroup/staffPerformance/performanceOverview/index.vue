@@ -65,7 +65,9 @@
         </el-table-column>
         <el-table-column type="index" label="序号" width="60" fixed />
         <el-table-column prop="orgName" label="门店" width="60" fixed />
-        <el-table-column prop="userName" label="技师" width="100" fixed />
+        <el-table-column prop="userName" label="技师" width="100" fixed>
+          <template #default="{ row }">{{ row.userName }}({{ row.userCode }})</template>
+        </el-table-column>
         <el-table-column prop="totalPerformance" label="总业绩" min-width="85" fixed />
         <el-table-column prop="totalCommission" label="总提成" min-width="85" fixed />
         <el-table-column prop="totalProjectCount" label="总项目次" min-width="85" />
@@ -171,6 +173,7 @@ const search = () => {
 const exportColumns: ExportColumn<KpiSummaryVO>[] = [
   { key: 'orgName', title: '门店', width: 16 },
   { key: 'userName', title: '技师', width: 12 },
+  { key: 'userCode', title: '工号', width: 12 },
   { key: 'totalPerformance', title: '总业绩', width: 12 },
   { key: 'totalCommission', title: '总提成', width: 12 },
   { key: 'totalProjectCount', title: '总项目次', width: 10 },
