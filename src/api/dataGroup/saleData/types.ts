@@ -4,14 +4,6 @@
  */
 export interface SaleDataRequest {
   /**
-   * 开单时段
-   */
-  date?: string[];
-  /**
-   * 结束日期
-   */
-  endDate?: string;
-  /**
    * 订单号
    */
   orderCode?: string;
@@ -36,9 +28,13 @@ export interface SaleDataRequest {
    */
   payZero?: number;
   /**
-   * 开始日期
+   * 开始时间（格式：YYYY-MM-DD HH:mm:ss，左闭右开区间）
    */
-  startDate?: string;
+  startTime?: string;
+  /**
+   * 结束时间（格式：YYYY-MM-DD HH:mm:ss，左闭右开区间）
+   */
+  endTime?: string;
   /**
    * 订单状态
    */
@@ -351,9 +347,13 @@ export interface PaymentVO {
  */
 export interface SaleSummaryQuery {
   /**
-   * 日期查询范围
+   * 开始时间（格式：YYYY-MM-DD HH:mm:ss，左闭右开区间）
    */
-  date?: string[];
+  startTime?: string;
+  /**
+   * 结束时间（格式：YYYY-MM-DD HH:mm:ss，左闭右开区间）
+   */
+  endTime?: string;
   /**
    * 门店ID列表，不传则查全部关联门店
    */
@@ -463,9 +463,13 @@ export interface OrderDetailPageQuery {
    */
   businessCode?: string;
   /**
-   * 搜索日期范围
+   * 开始时间（格式：YYYY-MM-DD HH:mm:ss，左闭右开区间）
    */
-  date?: string[];
+  startTime?: string;
+  /**
+   * 结束时间（格式：YYYY-MM-DD HH:mm:ss，左闭右开区间）
+   */
+  endTime?: string;
   /**
    * 门店ID列表，不传则查全部关联门店
    */

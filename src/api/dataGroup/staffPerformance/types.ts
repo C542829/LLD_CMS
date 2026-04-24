@@ -5,9 +5,13 @@
  */
 export interface KpiListQuery {
   /**
-   * 日期查询范围
+   * 开始时间（格式：YYYY-MM-DD HH:mm:ss，左闭右开区间）
    */
-  date?: string[];
+  startTime?: string;
+  /**
+   * 结束时间（格式：YYYY-MM-DD HH:mm:ss，左闭右开区间）
+   */
+  endTime?: string;
   /**
    * 门店ID列表，不传则查全部关联门店
    */
@@ -105,9 +109,13 @@ export interface KpiListVO {
  */
 export interface KpiSummaryQuery {
   /**
-   * 日期查询范围
+   * 开始时间（格式：YYYY-MM-DD HH:mm:ss，左闭右开区间）
    */
-  date?: string[];
+  startTime?: string;
+  /**
+   * 结束时间（格式：YYYY-MM-DD HH:mm:ss，左闭右开区间）
+   */
+  endTime?: string;
   /**
    * 门店ID列表，不传则查全部关联门店
    */

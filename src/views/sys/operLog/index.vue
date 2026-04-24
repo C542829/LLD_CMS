@@ -6,21 +6,7 @@
         <div class="search-item">
           <label>
             时间段：
-            <!-- <DatePicker v-model="dateRange" @change="search" style="width: 240px" /> -->
-            <el-date-picker
-              v-model="dateRange"
-              :shortcuts="shortcuts"
-              unlinkPanels
-              clearable
-              @change="search"
-              type="daterange"
-              class="w-240"
-              rangeSeparator="至"
-              startPlaceholder="开始日期"
-              endPlaceholder="结束日期"
-              format="YYYY-MM-DD"
-              valueFormat="YYYY-MM-DD"
-            />
+            <IDateTimePicker v-model="dateRange" :default="false" @change="search" @clear="search" class="w-220" />
           </label>
         </div>
 
@@ -110,7 +96,7 @@
             {{ formatOrgId(row.orgId) || '未知' }}
           </template>
         </el-table-column>
-        <el-table-column prop="ip" label="操作IP" min-width="60" />
+        <!-- <el-table-column prop="ip" label="操作IP" min-width="60" /> -->
         <el-table-column label="状态" min-width="30">
           <template #default="{ row }">
             <el-tag v-if="row.status === 0" type="success">成功</el-tag>
@@ -128,12 +114,12 @@
 import { reactive, onMounted, ref, computed } from 'vue';
 import { reqOrgList } from '@/api/acl/org/index';
 import { type Types, reqOperLogList } from '@/api/sys/index';
-import { shortcuts } from '@/utils/time';
 import { cloneDeep } from 'lodash';
 
 const loading = ref(false);
 
-const dateRange = ref<any[]>([]);
+/** 日期范围 */
+const dateRange = ref<string[]>([]);
 
 const DEFAULT_SEARCH_PARAMS = {
   pageNum: 1,
@@ -207,9 +193,13 @@ const setTableData = async () => {
 
 // 搜索
 const search = () => {
+  // 处理日期范围参数
   if (Array.isArray(dateRange.value) && dateRange.value.length === 2) {
     searchParams.startTime = dateRange.value[0];
     searchParams.endTime = dateRange.value[1];
+  } else {
+    searchParams.startTime = '';
+    searchParams.endTime = '';
   }
 
   if (searchParams.status == undefined) {

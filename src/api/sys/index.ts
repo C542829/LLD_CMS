@@ -18,5 +18,5 @@ enum API {
  * @returns
  */
 export const reqOperLogList = (params: Types.SearchOperLogParams): ApiResponse<PageListInfo<Types.OperLogVO[]>> => {
-  return get(API.OPER_LOG, params);
+  return post(API.OPER_LOG, params);
 };

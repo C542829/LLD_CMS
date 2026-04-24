@@ -7,7 +7,7 @@
         <div class="search-item">
           <label>
             开单时段：
-            <DatePicker v-model="searchParams.date" class="w-240" @change="search" />
+            <IDateTimePicker v-model="dateRange" class="w-220" @change="search" @clear="search" />
           </label>
         </div>
         <template v-if="userStore.isAdmin || userStore.isAreaManager">
@@ -208,7 +208,7 @@ import { printer } from '@/utils/lodop';
 import { dateFormatter, timeFormatter } from '@/utils/formatter';
 import { parseResMsg } from '@/utils/parseResponse';
 import { OrderStatus, orderStatusOptions, paymentTypeOptions, ResponseCode } from '@/enums';
-import { isFullDaysSince, generateDateRange } from '@/utils/time';
+import { isFullDaysSince } from '@/utils/time';
 import { reqQueryOrder, reqRollBackOrder } from '@/api/order';
 import { reqOrgInfo } from '@/api/acl/org';
 import { reqSaleRecord } from '@/api/dataGroup/saleData';
@@ -219,10 +219,14 @@ const userStore = useUserStore();
 
 const loading = ref(false);
 
+/** 日期范围 */
+const dateRange = ref<string[]>([]);
+
 const searchParams = reactive({
   pageNum: 1,
   pageSize: 50,
-  date: generateDateRange() as string[],
+  startTime: '',
+  endTime: '',
   orgIds: [] as number[],
   userId: undefined as number | undefined,
   payZero: 1,
@@ -232,6 +236,17 @@ const searchParams = reactive({
   orderCode: '',
 });
 
+/** 处理搜索参数 */
+const handleSearchParams = () => {
+  if (dateRange.value.length === 0) {
+    searchParams.startTime = '';
+    searchParams.endTime = '';
+  } else {
+    searchParams.startTime = dateRange.value[0] as string;
+    searchParams.endTime = dateRange.value[1] as string;
+  }
+};
+
 const saleRecord = reactive({
   total: 0,
   data: [] as any[],
@@ -240,7 +255,7 @@ const saleRecord = reactive({
 const setSaleRecord = async () => {
   loading.value = true;
   try {
-    // const params = { ...searchParams };
+    handleSearchParams();
     const { data } = await reqSaleRecord(searchParams);
     saleRecord.total = data.total;
     saleRecord.data = data.rows;
@@ -252,10 +267,6 @@ const setSaleRecord = async () => {
 };
 
 onMounted(() => {
-  if (isEmpty(searchParams.date)) {
-    // searchParams.date = [];
-    delete searchParams.date;
-  }
   search();
 });
 
@@ -271,9 +282,6 @@ const reset = () => {
   // 重置搜索参数到初始状态
   searchParams.pageNum = 1;
   searchParams.pageSize = 50;
-  // 设置日期为今天
-  // const today = formatDate(new Date()) as string;
-  // searchParams.date = [today, today];
   searchParams.orgIds = [];
   searchParams.userId = undefined;
   searchParams.payZero = 1;
@@ -281,6 +289,7 @@ const reset = () => {
   searchParams.paymentType = undefined;
   searchParams.vipInfoFiled = '';
   searchParams.orderCode = '';
+  dateRange.value = [];
 
   // 重新加载数据
   search();

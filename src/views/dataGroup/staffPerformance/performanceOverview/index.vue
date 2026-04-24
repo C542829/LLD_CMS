@@ -7,7 +7,7 @@
         <div class="search-item">
           <label>
             销售时段：
-            <DatePicker v-model="searchParams.date" @change="search" class="w-240" />
+            <IDateTimePicker v-model="dateRange" @change="search" @clear="search" class="w-220" />
           </label>
         </div>
 
@@ -92,7 +92,6 @@ import { ElMessage } from 'element-plus';
 import { reqPerformanceSummary } from '@/api/dataGroup/staffPerformance/index';
 import type { KpiSummaryQuery, KpiSummaryVO } from '@/api/dataGroup/staffPerformance/types';
 import { parseResList } from '@/utils/parseResponse';
-import { generateDateRange } from '@/utils/time';
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useDataEnumStore } from '@/store/modules/enums/index';
@@ -102,12 +101,27 @@ const userStore = useUserStore();
 const settingStore = useSettingStore();
 const dataEnumStore = useDataEnumStore();
 
+/** 日期范围 */
+const dateRange = ref<string[]>([]);
+
 // 搜索参数
 const searchParams = ref<KpiSummaryQuery>({
-  date: generateDateRange(),
+  startTime: '',
+  endTime: '',
   orgIds: [],
   userId: undefined,
 });
+
+/** 处理搜索参数 */
+const handleSearchParams = () => {
+  if (dateRange.value.length === 0) {
+    searchParams.value.startTime = '';
+    searchParams.value.endTime = '';
+  } else {
+    searchParams.value.startTime = dateRange.value[0] as string;
+    searchParams.value.endTime = dateRange.value[1] as string;
+  }
+};
 
 // 绩效汇总数据
 const performanceSummary = ref<KpiSummaryVO[]>([]);
@@ -128,6 +142,7 @@ const loadStaffList = async () => {
 const setPerformanceSummary = async () => {
   try {
     settingStore.loading = true;
+    handleSearchParams();
     const params = { ...searchParams.value };
     const res = await reqPerformanceSummary(params);
     const data: any = parseResList(res);

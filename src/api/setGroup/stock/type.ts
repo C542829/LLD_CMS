@@ -3,9 +3,9 @@
  */
 export interface SearchParams {
   /**
-   * 结束日期
+   * 结束时间（格式：YYYY-MM-DD HH:mm:ss，左闭右开区间）
    */
-  endDate?: string;
+  endTime?: string;
   /**
    * 操作员
    */
@@ -23,9 +23,9 @@ export interface SearchParams {
    */
   pageSize?: number;
   /**
-   * 开始日期
+   * 开始时间（格式：YYYY-MM-DD HH:mm:ss，左闭右开区间）
    */
-  startDate?: string;
+  startTime?: string;
   [property: string]: any;
 }
 

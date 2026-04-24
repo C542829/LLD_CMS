@@ -7,7 +7,7 @@
         <div class="search-item">
           <label>
             销售时段：
-            <DatePicker v-model="searchParams.date" class="w-240" @change="search" />
+            <IDateTimePicker v-model="dateRange" class="w-220" @change="search" @clear="search" />
           </label>
         </div>
         <template v-if="userStore.isAdmin || userStore.isAreaManager">
@@ -71,7 +71,6 @@ import { reqSaleSummary } from '@/api/dataGroup/saleData';
 import { OrderSummaryVO } from '@/api/dataGroup/saleData/types';
 import { dateFormatter } from '@/utils/formatter';
 import { LOADING_MSG } from '@/utils/constants';
-import { generateDateRange } from '@/utils/time';
 import useUserStore from '@/store/modules/acl/user';
 
 const userStore = useUserStore();
@@ -88,10 +87,25 @@ const search = () => {
 
 const loading = ref(false);
 
+/** 日期范围 */
+const dateRange = ref<string[]>([]);
+
 const searchParams = reactive({
-  date: generateDateRange(),
-  orgIds: [],
+  startTime: '',
+  endTime: '',
+  orgIds: [] as number[],
 });
+
+/** 处理搜索参数 */
+const handleSearchParams = () => {
+  if (dateRange.value.length === 0) {
+    searchParams.startTime = '';
+    searchParams.endTime = '';
+  } else {
+    searchParams.startTime = dateRange.value[0] as string;
+    searchParams.endTime = dateRange.value[1] as string;
+  }
+};
 
 const saleSummary = reactive<{
   total: number;
@@ -104,6 +118,7 @@ const saleSummary = reactive<{
 const setSaleSummary = async () => {
   loading.value = true;
   try {
+    handleSearchParams();
     const res = await reqSaleSummary(searchParams);
     saleSummary.data = res.data || [];
   } catch (error) {

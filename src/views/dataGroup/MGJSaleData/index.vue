@@ -5,20 +5,7 @@
         <div class="search-item">
           <label>
             开单时段：
-            <el-date-picker
-              v-model="dateRange"
-              :shortcuts="shortcuts"
-              unlinkPanels
-              clearable
-              type="daterange"
-              class="w-240"
-              rangeSeparator="至"
-              startPlaceholder="开始日期"
-              endPlaceholder="结束日期"
-              format="YYYY-MM-DD"
-              valueFormat="YYYY-MM-DD"
-              @change="search"
-            />
+            <IDateTimePicker v-model="dateRange" :default="false" @change="search" @clear="search" class="w-220" />
           </label>
         </div>
         <div class="search-item">
@@ -187,7 +174,6 @@ import DetailDialog from './components/DetailDialog.vue';
 import { ref, reactive, onMounted } from 'vue';
 import { cloneDeep } from 'lodash';
 import { datetimeFormatter } from '@/utils/formatter';
-import { shortcuts } from '@/utils/time';
 import { reqMGJSaleDataList } from './utils/api';
 import type { MgjSaleDataQuery, MgjSaleDataParsed } from './utils/types';
 import {
@@ -210,8 +196,8 @@ const dateRange = ref([]);
 const DEFAULT_SEARCH_PARAMS: MgjSaleDataQuery = {
   pageNum: 1,
   pageSize: 50,
-  startDate: '',
-  endDate: '',
+  startTime: '',
+  endTime: '',
   name: '',
   memberId: '',
   storeId: '',
@@ -249,8 +235,8 @@ const fetchTableData = async () => {
   try {
     const params = { ...searchParams };
     if (Array.isArray(dateRange.value) && dateRange.value.length === 2) {
-      params.startDate = dateRange.value[0];
-      params.endDate = dateRange.value[1];
+      params.startTime = dateRange.value[0];
+      params.endTime = dateRange.value[1];
     }
     const res = await reqMGJSaleDataList(params);
     // 解析 VO 中的 JSON 字段

@@ -25,7 +25,7 @@ enum API {
 export const reqRechargeHistoryList = (
   params: Types.RechargeRecordRequest = {},
 ): ApiResponse<PageListInfo<Types.RechargeHistoryVO[]>> => {
-  return get(API.LIST_URL, params);
+  return post(API.LIST_URL, params);
 };
 
 export const reqUpdateRechargeHistory = (data = {}) => put(API.UPDATE_URL, data);

@@ -7,7 +7,7 @@
         <div class="search-item">
           <label>
             充值时段：
-            <DatePicker v-model="recordSearch.date" @change="search" @clear="search" clearable style="width: 260px" />
+            <IDateTimePicker v-model="dateRange" @change="search" @clear="search" class="w-220" />
           </label>
         </div>
         <template v-if="userStore.isAdmin || userStore.isAreaManager">
@@ -193,7 +193,7 @@ import Message from '@/components/Message';
 
 import { ref, reactive, onMounted } from 'vue';
 import { datetimeFormatter } from '@/utils/formatter';
-import { formatDate, isFullDaysSince } from '@/utils/time';
+import { isFullDaysSince } from '@/utils/time';
 import { LOADING_MSG } from '@/utils/constants';
 import { type Types, reqRechargeHistoryList, reqRollBackRecharge } from '@/api/member/recharge/index';
 import {
@@ -215,9 +215,11 @@ onMounted(() => {
 });
 
 // #region 充值记录
+/** 日期范围 */
+const dateRange = ref<string[]>([]);
+
 // 充值记录请求参数
 const recordSearch = reactive<Types.RechargeRecordRequest>({
-  date: [],
   orgIds: [],
   paymentType: '',
   vipInfoFiled: '',
@@ -225,6 +227,8 @@ const recordSearch = reactive<Types.RechargeRecordRequest>({
   userId: '',
   pageNum: 1,
   pageSize: 50,
+  startTime: '',
+  endTime: '',
 });
 
 const resetRecordSearchParams = () => {
@@ -232,16 +236,22 @@ const resetRecordSearchParams = () => {
   recordSearch.paymentType = '';
   recordSearch.rechargeStatus = RechargeStatus.SUCCESS;
   recordSearch.userId = '';
-  recordSearch.date = [];
+  recordSearch.startTime = '';
+  recordSearch.endTime = '';
+  dateRange.value = [];
   search();
 };
 
 // 处理请求参数
 const handleParams = () => {
   const params: any = { ...recordSearch };
-  if (params.date && params.date.length !== 0) {
-    params.startDate = formatDate(params.date[0]);
-    params.endDate = formatDate(params.date[1]);
+  // 处理日期范围参数
+  if (Array.isArray(dateRange.value) && dateRange.value.length === 2) {
+    params.startTime = dateRange.value[0];
+    params.endTime = dateRange.value[1];
+  } else {
+    params.startTime = '';
+    params.endTime = '';
   }
 
   if (params.rechargeStatus === undefined) {
@@ -253,8 +263,6 @@ const handleParams = () => {
   if (params.userId === undefined) {
     params.userId = '';
   }
-  // 移除多余参数
-  delete params.date;
   return params || {};
 };
 

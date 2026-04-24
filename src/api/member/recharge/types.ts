@@ -68,9 +68,9 @@ export interface RechargeDTO {
  */
 export interface RechargeRecordRequest {
   /**
-   * 结束时间
+   * 结束时间（格式：YYYY-MM-DD HH:mm:ss，左闭右开区间）
    */
-  endDate?: string;
+  endTime?: string;
   /**
    * 门店ID列表，不传则查全部关联门店
    */
@@ -92,9 +92,9 @@ export interface RechargeRecordRequest {
    */
   rechargeStatus?: number | string;
   /**
-   * 开始时间
+   * 开始时间（格式：YYYY-MM-DD HH:mm:ss，左闭右开区间）
    */
-  startDate?: string;
+  startTime?: string;
   userId?: number | string;
   /**
    * 会员信息

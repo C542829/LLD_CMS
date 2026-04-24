@@ -112,8 +112,8 @@ export interface MgjSaleDataQuery {
   billstatus?: number;
   /** 消费类型 */
   consumeType?: number;
-  /** 结束日期 */
-  endDate?: string;
+  /** 结束时间（格式：YYYY-MM-DD HH:mm:ss，左闭右开区间） */
+  endTime?: string;
   /** 会员ID */
   memberId?: number | string;
   /** 客户姓名 */
@@ -122,8 +122,8 @@ export interface MgjSaleDataQuery {
   pageNum?: number;
   /** 每页大小 */
   pageSize?: number;
-  /** 开始日期 */
-  startDate?: string;
+  /** 开始时间（格式：YYYY-MM-DD HH:mm:ss，左闭右开区间） */
+  startTime?: string;
   /** 门店ID */
   storeId?: number | string;
 }

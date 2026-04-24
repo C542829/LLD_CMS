@@ -7,7 +7,7 @@
         <div class="search-item">
           <label>
             开单时段：
-            <DatePicker v-model="searchParams.date" class="w-240" @change="search" />
+            <IDateTimePicker v-model="dateRange" class="w-220" @change="search" @clear="search" />
           </label>
         </div>
 
@@ -132,26 +132,37 @@ import type { KpiListQuery, KpiListVO } from '@/api/dataGroup/staffPerformance/t
 import { parseResObj } from '@/utils/parseResponse';
 import { OrderDetailType, ServiceType } from '@/enums';
 import { LOADING_MSG } from '@/utils/constants';
-import { generateDateRange } from '@/utils/time';
-// import { useEnumStore, useDataEnumStore } from '@/store/modules/enums/index';
 import useUserStore from '@/store/modules/acl/user';
 
 const userStore = useUserStore();
-// const enumStore = useEnumStore();
-// const dataEnumStore = useDataEnumStore();
 
 const loading = ref<boolean>(false);
+
+/** 日期范围 */
+const dateRange = ref<string[]>([]);
 
 // 搜索参数
 const searchParams = ref<KpiListQuery>({
   pageNum: 1,
   pageSize: 50,
   userId: null,
-  date: generateDateRange(),
+  startTime: '',
+  endTime: '',
   orgIds: [],
   serviceCode: '',
   username: '',
 });
+
+/** 处理搜索参数 */
+const handleSearchParams = () => {
+  if (dateRange.value.length === 0) {
+    searchParams.value.startTime = '';
+    searchParams.value.endTime = '';
+  } else {
+    searchParams.value.startTime = dateRange.value[0] as string;
+    searchParams.value.endTime = dateRange.value[1] as string;
+  }
+};
 
 // 绩效记录数据
 const performanceRecord = reactive<{

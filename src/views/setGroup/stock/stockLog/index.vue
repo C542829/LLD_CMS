@@ -81,8 +81,8 @@ const search = async () => {
 const handleSearchParams = (params: any) => {
   searchParams.value.operator = params.operator;
   searchParams.value.orderCode = params.orderCode;
-  searchParams.value.startDate = params.startDate;
-  searchParams.value.endDate = params.endDate;
+  searchParams.value.startTime = params.startTime;
+  searchParams.value.endTime = params.endTime;
   search();
 };
 

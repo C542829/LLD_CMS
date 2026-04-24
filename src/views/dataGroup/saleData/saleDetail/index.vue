@@ -6,7 +6,7 @@
         <div class="search-item">
           <label>
             开单时段：
-            <DatePicker v-model="searchParams.date" class="w-240" @change="search" />
+            <IDateTimePicker v-model="dateRange" class="w-220" @change="search" @clear="search" />
           </label>
         </div>
         <template v-if="userStore.isAdmin || userStore.isAreaManager">
@@ -146,7 +146,6 @@ import { reqSaleDetail } from '@/api/dataGroup/saleData';
 import { parseResObj } from '@/utils/parseResponse';
 import { LOADING_MSG } from '@/utils/constants';
 import { OrderDetailType } from '@/enums';
-import { generateDateRange } from '@/utils/time';
 import useUserStore from '@/store/modules/acl/user';
 
 const userStore = useUserStore();
@@ -171,14 +170,29 @@ const handleCurrentChange = (val: number) => {
 
 const loading = ref(false);
 
+/** 日期范围 */
+const dateRange = ref<string[]>([]);
+
 const searchParams = reactive({
   pageNum: 1,
   pageSize: 50,
-  date: generateDateRange() as string[],
+  startTime: '',
+  endTime: '',
   orgIds: [] as number[],
   userId: undefined as number | undefined,
   businessCode: '',
 });
+
+/** 处理搜索参数 */
+const handleSearchParams = () => {
+  if (dateRange.value.length === 0) {
+    searchParams.startTime = '';
+    searchParams.endTime = '';
+  } else {
+    searchParams.startTime = dateRange.value[0] as string;
+    searchParams.endTime = dateRange.value[1] as string;
+  }
+};
 
 const saleDetail = reactive({
   total: 0,
@@ -188,6 +202,7 @@ const saleDetail = reactive({
 const setSaleDetail = async () => {
   loading.value = true;
   try {
+    handleSearchParams();
     const params = { ...searchParams };
     const res = await reqSaleDetail(params);
     const data: any = parseResObj(res) || {};

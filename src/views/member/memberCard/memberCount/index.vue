@@ -6,7 +6,7 @@
         <div class="search-item">
           <label>
             时间：
-            <DatePicker v-model="searchParams.date" class="w-240" @change="search" />
+            <IDateTimePicker v-model="dateRange" @change="search" @clear="search" class="w-220" />
           </label>
         </div>
         <template v-if="userStore.isAdmin || userStore.isAreaManager">
@@ -82,9 +82,8 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, onMounted } from 'vue';
+import { reactive, onMounted, ref } from 'vue';
 import { sexMap, amountFormatter } from '@/utils/formatter';
-import { formatDate } from '@/utils/time';
 import { parseResObj } from '@/utils/parseResponse';
 import { reqVipList } from '@/api/member/member';
 
@@ -97,6 +96,9 @@ import useUserStore from '@/store/modules/acl/user';
 const userStore = useUserStore();
 const settingStore = useSettingStore();
 
+/** 日期范围 */
+const dateRange = ref<string[]>([]);
+
 // 搜索参数
 const searchParams = reactive<any>({
   queryField: '',
@@ -104,7 +106,8 @@ const searchParams = reactive<any>({
   pageSize: 20,
   amount: null,
   amountType: 0,
-  date: [],
+  startTime: '',
+  endTime: '',
   orgIds: [],
 });
 
@@ -124,15 +127,18 @@ const handleTotalParams = () => {
   if (params.amount) {
     params.amountType === 0 ? (params.less = params.amount) : (params.greater = params.amount);
   }
-  if (params.date && params.date.length !== 0) {
-    params.startTime = formatDate(params.date[0]);
-    params.endTime = formatDate(params.date[1]);
+  // 处理日期范围参数
+  if (Array.isArray(dateRange.value) && dateRange.value.length === 2) {
+    params.startTime = dateRange.value[0];
+    params.endTime = dateRange.value[1];
+  } else {
+    params.startTime = '';
+    params.endTime = '';
   }
 
   // 移除多余参数
   delete params.amount;
   delete params.amountType;
-  delete params.date;
 
   return params;
 };
@@ -157,7 +163,9 @@ const resetSearch = () => {
   searchParams.queryField = '';
   searchParams.amount = null;
   searchParams.amountType = 0;
-  searchParams.date = [];
+  searchParams.startTime = '';
+  searchParams.endTime = '';
+  dateRange.value = [];
   setTableData();
 };
 

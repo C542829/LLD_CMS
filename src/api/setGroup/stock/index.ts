@@ -32,7 +32,7 @@ export const reqInStockAdd = (data = {}) => post(API.IN_ADD_URL, data);
  * @param params
  * @returns
  */
-export const reqInStockList = (params = {}) => get(API.IN_LIST_URL, params);
+export const reqInStockList = (params = {}) => post(API.IN_LIST_URL, params);
 
 /**
  * 入库单详情
@@ -53,7 +53,7 @@ export const reqOutStockAdd = (data = {}) => post(API.OUT_ADD_URL, data);
  * @param params
  * @returns
  */
-export const reqOutStockList = (params = {}) => get(API.OUT_LIST_URL, params);
+export const reqOutStockList = (params = {}) => post(API.OUT_LIST_URL, params);
 
 /**
  * 出库单详情
@@ -67,4 +67,4 @@ export const reqOutStockInfo = (orderCode = {}) => get(API.OUT_INFO_URL, orderCo
  * @param params
  * @returns
  */
-export const reqStockLogList = (params = {}) => get(API.LOG_URL, params);
+export const reqStockLogList = (params = {}) => post(API.LOG_URL, params);

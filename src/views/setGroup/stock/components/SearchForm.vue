@@ -3,7 +3,7 @@
     <div class="search-item">
       <label>
         <span>时间段：</span>
-        <DatePicker v-model="searchParams.date" @change="search" @clear="clearDate" style="width: 240px" />
+        <IDateTimePicker v-model="dateRange" @change="search" @clear="clearDate" class="w-220" />
       </label>
     </div>
     <div class="search-item">
@@ -29,41 +29,44 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
-import { formatDateTime } from '@/utils/time';
 
 const emit = defineEmits(['search']);
 
+/** 日期范围 */
+const dateRange = ref<string[]>([]);
+
 const searchParams = reactive<any>({
-  endDate: '',
-  startDate: '',
-  date: [],
   operator: '',
   orderCode: '',
+  startTime: '',
+  endTime: '',
 });
 
 const search = () => {
-  if (searchParams?.date?.length === 2) {
-    searchParams.startDate = formatDateTime(searchParams.date[0]);
-    searchParams.endDate = formatDateTime(searchParams.date[1]);
+  // 处理日期范围参数
+  if (Array.isArray(dateRange.value) && dateRange.value.length === 2) {
+    searchParams.startTime = dateRange.value[0];
+    searchParams.endTime = dateRange.value[1];
+  } else {
+    searchParams.startTime = '';
+    searchParams.endTime = '';
   }
   emit('search', searchParams);
 };
 
 const reset = () => {
-  searchParams.endDate = '';
-  searchParams.startDate = '';
   searchParams.operator = '';
   searchParams.orderCode = '';
-  searchParams.date = [];
+  searchParams.startTime = '';
+  searchParams.endTime = '';
+  dateRange.value = [];
   emit('search', searchParams);
 };
 
 const clearDate = () => {
-  searchParams.date = [];
-  // delete searchParams.startDate;
-  // delete searchParams.endDate;
-  searchParams.endDate = '';
-  searchParams.startDate = '';
+  dateRange.value = [];
+  searchParams.startTime = '';
+  searchParams.endTime = '';
   emit('search', searchParams);
 };
 </script>
