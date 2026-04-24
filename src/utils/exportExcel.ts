@@ -24,6 +24,10 @@ export interface ExportSheetOption<T = Record<string, unknown>> {
   columns: ExportColumn<T>[];
   /** 数据源 */
   data: T[];
+  /** 是否包含序号列，默认 true */
+  includeIndex?: boolean;
+  /** 序号列表头名称，默认"序号" */
+  indexLabel?: string;
 }
 
 /** 导出配置 */
@@ -43,27 +47,36 @@ export interface ExportExcelOption<T = Record<string, unknown>> {
  * @param columns 列配置
  * @param data 数据源
  * @param includeHeader 是否包含表头
+ * @param includeIndex 是否包含序号列
+ * @param indexLabel 序号列表头名称
  */
-function transformData<T>(columns: ExportColumn<T>[], data: T[], includeHeader = true): (string | number)[][] {
+function transformData<T>(
+  columns: ExportColumn<T>[],
+  data: T[],
+  includeHeader = true,
+  includeIndex = true,
+  indexLabel = '序号',
+): (string | number)[][] {
   const result: (string | number)[][] = [];
 
   // 添加表头
   if (includeHeader) {
-    result.push(columns.map((col) => col.title));
+    const headerRow = includeIndex ? [indexLabel] : [];
+    result.push([...headerRow, ...columns.map((col) => col.title)]);
   }
 
   // 填充数据行
   data.forEach((row, rowIndex) => {
-    const rowData = columns.map((col) => {
+    const rowData: (string | number)[] = includeIndex ? [rowIndex + 1] : [];
+    columns.forEach((col) => {
       const cellValue = row[col.key];
       if (col.formatter) {
-        return col.formatter(cellValue, row, rowIndex);
+        rowData.push(col.formatter(cellValue, row, rowIndex));
+      } else if (cellValue === null || cellValue === undefined) {
+        rowData.push('');
+      } else {
+        rowData.push(cellValue as string | number);
       }
-      // 处理 null/undefined
-      if (cellValue === null || cellValue === undefined) {
-        return '';
-      }
-      return cellValue as string | number;
     });
     result.push(rowData);
   });
@@ -77,17 +90,18 @@ function transformData<T>(columns: ExportColumn<T>[], data: T[], includeHeader =
  * @param includeHeader 是否包含表头
  */
 function createWorksheet<T>(option: ExportSheetOption<T>, includeHeader: boolean): XLSX.WorkSheet {
-  const { columns, data } = option;
-  const aoa = transformData(columns, data, includeHeader);
+  const { columns, data, includeIndex = true, indexLabel = '序号' } = option;
+  const aoa = transformData(columns, data, includeHeader, includeIndex, indexLabel);
 
   const ws = XLSX.utils.aoa_to_sheet(aoa);
 
   // 设置列宽
-  if (columns.some((col) => col.width)) {
-    ws['!cols'] = columns.map((col) => ({
-      wch: col.width ?? 15,
-    }));
-  }
+  ws['!cols'] = [
+    // 序号列宽度
+    ...(includeIndex ? [{ wch: 6 }] : []),
+    // 数据列宽度
+    ...columns.map((col) => ({ wch: col.width ?? 15 })),
+  ];
 
   return ws;
 }
