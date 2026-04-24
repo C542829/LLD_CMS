@@ -156,8 +156,9 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="120">
+        <el-table-column label="操作" width="180">
           <template #default="{ row }">
+            <el-button link type="primary" @click="showDetailDialog(row)">详情</el-button>
             <el-button
               link
               type="primary"
@@ -184,10 +185,12 @@
   </div>
 
   <OrderModify v-model:visible="dialog.visible" :data="dialog.data" />
+  <RechargeDetailDialog v-model="detailDialogVisible" :data="detailDialogData" />
 </template>
 
 <script setup lang="ts">
 import OrderModify from './OrderModify.vue';
+import RechargeDetailDialog from './components/RechargeDetailDialog.vue';
 import MessageBox from '@/components/MessageBox/index';
 import Message from '@/components/Message';
 
@@ -364,6 +367,17 @@ const showDialog = (row: any) => {
 //   console.log();
 //   return isFullDaysSince
 // };
+
+// #region 充值详情对话框
+const detailDialogVisible = ref(false);
+const detailDialogData = ref<any>({});
+
+/** 查看充值详情 */
+const showDetailDialog = (row: any) => {
+  detailDialogData.value = row;
+  detailDialogVisible.value = true;
+};
+// #endregion
 
 /** 设置行样式 */
 const getRowClassName = ({ row }: { row: { rechargeStatus: number } }) => {
