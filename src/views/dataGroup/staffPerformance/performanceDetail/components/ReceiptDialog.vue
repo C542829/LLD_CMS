@@ -18,13 +18,7 @@
             <template #label>
               <span>项目/产品消费</span>
             </template>
-            <el-table
-              :data="receiptInfo?.orderDetails || []"
-              :border="true"
-              height="100%"
-              stripe
-              class="table-container"
-            >
+            <PaginationTable :data="receiptInfo?.orderDetails || []" :show-pagination="false" container-height="100%">
               <el-table-column prop="businessName" label="项目/产品消费" min-width="100" />
               <el-table-column prop="stdPrice" label="标准价" />
               <el-table-column prop="quantity" label="数量" />
@@ -41,8 +35,19 @@
                   </template>
                 </template>
               </el-table-column>
-              <el-table-column prop="userName" label="技师/销售" />
-            </el-table>
+              <el-table-column prop="userName" label="技师/销售">
+                <template #default="{ row }">
+                  <template v-if="row.technicians">
+                    <div v-for="(item, index) in row.technicians" :key="index" class="text-overflow text">
+                      {{ item.userName }}({{ item.userCode }})
+                    </div>
+                  </template>
+                  <template v-else>
+                    {{ row.userName }}
+                  </template>
+                </template>
+              </el-table-column>
+            </PaginationTable>
           </el-tab-pane>
           <el-tab-pane>
             <template #label>
