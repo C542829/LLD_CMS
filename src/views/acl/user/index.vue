@@ -14,8 +14,9 @@
               <OrgSelect
                 v-model="searchParams.orgIds"
                 placeholder="门店"
-                class="w-180"
+                class="w-100"
                 :multiple="true"
+                :maxCollapseTags="0"
                 @change="search"
                 @clear="search"
               />
@@ -26,7 +27,7 @@
         <div class="search-item">
           <label>
             <span>在职状态：</span>
-            <el-select v-model="searchParams.userStatus" clearable @change="search" class="w-120">
+            <el-select v-model="searchParams.userStatus" clearable @change="search" class="w-100">
               <el-option
                 v-for="item in searchEmployedOptions"
                 :key="item.value"
@@ -40,7 +41,7 @@
         <div class="search-item">
           <label>
             <span>角色：</span>
-            <el-select v-model="searchParams.roleId" clearable @change="search" class="w-120">
+            <el-select v-model="searchParams.roleId" clearable @change="search" class="w-100">
               <el-option v-for="item in roles" :label="item.roleName" :value="item.id" :key="item.id" />
             </el-select>
           </label>
@@ -52,9 +53,9 @@
             @keydown.enter="search"
             @clear="search"
             :prefix-icon="Search"
-            placeholder="姓名 | 登录名"
+            placeholder="姓名"
             clearable
-            class="search-input"
+            class="search-input w-220"
           >
             <template #append>
               <el-button type="primary" @click="search">搜索</el-button>

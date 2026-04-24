@@ -8,7 +8,8 @@ export const DEFAULT_SEARCH_PARAMS = {
   userStatus: '在职',
   userNumber: '',
   pageNum: 1,
-  pageSize: 20,
+  pageSize: 30,
+  orgIds: [],
 };
 
 export const DEFAULT_FORMDATA = {
