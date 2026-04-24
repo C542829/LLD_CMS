@@ -1,23 +1,27 @@
 <template>
-  <el-date-picker
-    ref="datePickerRef"
-    v-bind="$attrs"
-    v-model="innerValue"
-    :type="type as any"
-    :size="size"
-    :disabled="disabled"
-    :range-separator="rangeSeparator"
-    :start-placeholder="startPlaceholder"
-    :end-placeholder="endPlaceholder"
-    :clearable="clearable"
-    :format="format"
-    :value-format="valueFormat"
-    :default-value="defaultTime"
-    :default-time="defaultTime"
-    :shortcuts="showShortcuts ? shortcuts : undefined"
-    @change="handleChange"
-    @clear="handleClear"
-  />
+  <el-tooltip effect="dark" content="区间为 当天 07:00:00 ~ 次日 07:00:00" placement="top">
+    <div>
+      <el-date-picker
+        ref="datePickerRef"
+        v-bind="{ ...$attrs, ...props }"
+        v-model="innerValue"
+        :type="type as any"
+        :size="size"
+        :disabled="disabled"
+        :range-separator="rangeSeparator"
+        :start-placeholder="startPlaceholder"
+        :end-placeholder="endPlaceholder"
+        :clearable="clearable"
+        :format="format"
+        :value-format="valueFormat"
+        :default-value="defaultTime"
+        :default-time="defaultTime"
+        :shortcuts="showShortcuts ? shortcuts : undefined"
+        @change="handleChange"
+        @clear="handleClear"
+      />
+    </div>
+  </el-tooltip>
 </template>
 
 <script lang="ts">
