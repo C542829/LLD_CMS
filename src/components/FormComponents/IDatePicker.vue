@@ -1,5 +1,5 @@
 <template>
-  <el-tooltip effect="dark" content="选择日期范围" placement="top">
+  <el-tooltip effect="dark" content="区间为 当天 07:00:00 ~ 次日 07:00:00" placement="top">
     <div class="date-picker-container">
       <el-date-picker
         ref="datePickerRef"
