@@ -75,7 +75,7 @@
           </el-table-column>
           <el-table-column prop="bedName" label="床位" min-width="50">
             <template #default="{ row }">
-              <div>{{ orderData.bedName }}</div>
+              {{ orderData.bedName }}
             </template>
           </el-table-column>
           <el-table-column prop="userName" label="技师/销售" min-width="100">
