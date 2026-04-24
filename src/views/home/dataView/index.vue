@@ -3,8 +3,8 @@
     <div class="left-content" v-loading="loading" :element-loading-text="LOADING_MSG">
       <div class="content-top">
         <div class="filter-row">
-          <div>日记单</div>
-          <div class="text-sm">
+          <div class="title">日记单</div>
+          <div class="text-sm filter-container">
             <template v-if="userStore.isAdmin || userStore.isAreaManager">
               <label>
                 门店：
@@ -243,7 +243,12 @@ const setBusinessData = (data: ChartData[]) => {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 10px;
+        .title {
+          color: var(--el-text-color-regular);
+        }
+        .filter-container {
+          // flex: 1;
+        }
       }
       .chart-container {
         height: calc(100% - 52px);

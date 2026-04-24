@@ -10,7 +10,11 @@
       height="auto"
       show-summary
     >
-      <el-table-column prop="name" label="充值活动名称" :align="'center'" />
+      <el-table-column prop="name" label="充值活动名称" :align="'center'">
+        <template #default="{ row }">
+          {{ row.name || '会员卡' }}
+        </template>
+      </el-table-column>
       <el-table-column prop="quantity" label="数量" :align="'center'" />
       <el-table-column prop="amount" label="金额" :align="'center'" />
     </PaginationTable>
