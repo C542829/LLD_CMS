@@ -44,11 +44,7 @@ export interface ExportExcelOption<T = Record<string, unknown>> {
  * @param data 数据源
  * @param includeHeader 是否包含表头
  */
-function transformData<T>(
-  columns: ExportColumn<T>[],
-  data: T[],
-  includeHeader = true,
-): (string | number)[][] {
+function transformData<T>(columns: ExportColumn<T>[], data: T[], includeHeader = true): (string | number)[][] {
   const result: (string | number)[][] = [];
 
   // 添加表头
@@ -80,10 +76,7 @@ function transformData<T>(
  * @param option Sheet 配置
  * @param includeHeader 是否包含表头
  */
-function createWorksheet<T>(
-  option: ExportSheetOption<T>,
-  includeHeader: boolean,
-): XLSX.WorkSheet {
+function createWorksheet<T>(option: ExportSheetOption<T>, includeHeader: boolean): XLSX.WorkSheet {
   const { columns, data } = option;
   const aoa = transformData(columns, data, includeHeader);
 
@@ -128,15 +121,8 @@ function createWorksheet<T>(
  * });
  * ```
  */
-export function exportExcel<T = Record<string, unknown>>(
-  option: ExportExcelOption<T>,
-): void {
-  const {
-    fileName,
-    sheets,
-    bookType = 'xlsx',
-    includeHeader = true,
-  } = option;
+export function exportExcel<T = Record<string, unknown>>(option: ExportExcelOption<T>): void {
+  const { fileName, sheets, bookType = 'xlsx', includeHeader = true } = option;
 
   // 统一转为数组处理
   const sheetList = Array.isArray(sheets) ? sheets : [sheets];
@@ -144,8 +130,7 @@ export function exportExcel<T = Record<string, unknown>>(
 
   sheetList.forEach((sheetOption, index) => {
     const ws = createWorksheet(sheetOption, includeHeader);
-    const sheetName =
-      sheetOption.sheetName || `Sheet${index + 1}`;
+    const sheetName = sheetOption.sheetName || `Sheet${index + 1}`;
     XLSX.utils.book_append_sheet(workbook, ws, sheetName);
   });
 
@@ -168,12 +153,10 @@ export function exportByHeaderMap<T = Record<string, unknown>>(
   headerMap: Record<string, string>,
   data: T[],
 ): void {
-  const columns: ExportColumn<T>[] = Object.entries(headerMap).map(
-    ([key, title]) => ({
-      key: key as keyof T & string,
-      title,
-    }),
-  );
+  const columns: ExportColumn<T>[] = Object.entries(headerMap).map(([key, title]) => ({
+    key: key as keyof T & string,
+    title,
+  }));
 
   exportExcel({ fileName, sheets: { columns, data } });
 }
@@ -188,11 +171,7 @@ export function exportByHeaderMap<T = Record<string, unknown>>(
  * exportFromAOA('报表', [['姓名', '年龄'], ['张三', 25], ['李四', 30]]);
  * ```
  */
-export function exportFromAOA(
-  fileName: string,
-  aoa: (string | number)[][],
-  sheetName = 'Sheet1',
-): void {
+export function exportFromAOA(fileName: string, aoa: (string | number)[][], sheetName = 'Sheet1'): void {
   const workbook = XLSX.utils.book_new();
   const ws = XLSX.utils.aoa_to_sheet(aoa);
   XLSX.utils.book_append_sheet(workbook, ws, sheetName);

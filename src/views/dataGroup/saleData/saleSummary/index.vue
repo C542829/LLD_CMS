@@ -29,9 +29,9 @@
         <div class="search-item">
           <el-button type="primary" @click="search">搜索</el-button>
         </div>
-        <!-- <div class="search-item">
-          <el-button type="primary" @click="">导出表格</el-button>
-        </div> -->
+        <div class="search-item">
+          <el-button type="success" @click="handleExport">导出表格</el-button>
+        </div>
       </div>
     </Card>
 
@@ -75,6 +75,8 @@ import { reqSaleSummary, reqSaleSummaryV2 } from '@/api/dataGroup/saleData';
 import { OrderSummaryVO } from '@/api/dataGroup/saleData/types';
 import { dateFormatter } from '@/utils/formatter';
 import { LOADING_MSG } from '@/utils/constants';
+import { ElMessage } from 'element-plus';
+import { exportExcel, type ExportColumn } from '@/utils/exportExcel';
 import useUserStore from '@/store/modules/acl/user';
 
 const userStore = useUserStore();
@@ -90,24 +92,19 @@ const search = () => {
 };
 
 const loading = ref(false);
+const isMultipleOrg = ref(false);
+const orgName = ref<string | undefined>('');
 
 /** 日期范围 */
 const dateRange = ref<string[]>([]);
-
 const searchParams = reactive({
   startTime: '',
   endTime: '',
   orgIds: [] as number[],
 });
 
-const isMultipleOrg = ref(false);
-// const isMultipleOrg = computed(() => {
-//   return searchParams.orgIds.length > 1;
-// });
-
 /** 处理搜索参数 */
 const handleSearchParams = () => {
-  const params: any = {};
   if (dateRange.value.length === 0) {
     searchParams.startTime = '';
     searchParams.endTime = '';
@@ -115,17 +112,6 @@ const handleSearchParams = () => {
     searchParams.startTime = dateRange.value[0] as string;
     searchParams.endTime = dateRange.value[1] as string;
   }
-
-  // if (dateRange.value.length === 2) {
-  //   // params.startTime = dateRange.value[0];
-  //   // params.endTime = dateRange.value[1];
-  // }
-
-  // if (searchParams.orgIds.length > 0) {
-  //   params.orgIds = searchParams.orgIds;
-  // }
-
-  return params;
 };
 
 const saleSummary = reactive<{
@@ -139,24 +125,77 @@ const saleSummary = reactive<{
 const setSaleSummary = async () => {
   loading.value = true;
   try {
-    const params = handleSearchParams();
+    handleSearchParams();
     const { data } = await reqSaleSummaryV2(searchParams);
-    //
-    if (data?.storeList) {
-      // 判断是否是多门店
-      if (data?.storeList?.length > 1) {
-        isMultipleOrg.value = true;
-        saleSummary.data = data?.storeList || [];
-      } else {
-        isMultipleOrg.value = false;
-        saleSummary.data = data?.total?.dailyList || [];
-      }
+    const storeLength = data?.storeList?.length || 0;
+    if (Array.isArray(data?.storeList) && storeLength <= 1) {
+      isMultipleOrg.value = false;
+      orgName.value = storeLength === 1 ? data?.storeList[0].orgName : '';
+      saleSummary.data = data?.total?.dailyList || [];
+    } else {
+      isMultipleOrg.value = true;
+      saleSummary.data = data?.storeList || [];
     }
   } catch (error) {
     console.error('获取订单汇总失败:', error);
   } finally {
     loading.value = false;
   }
+};
+
+/** 多门店模式导出列配置 */
+const multiOrgColumns: ExportColumn<OrderSummaryVO>[] = [
+  { key: 'orgName', title: '门店', width: 12 },
+  { key: 'totalTurnover', title: '总营业额', width: 12 },
+  { key: 'totalActualReceipt', title: '总实收', width: 12 },
+  { key: 'totalSingleTime', title: '总单次', width: 10 },
+  { key: 'totalPeopleTime', title: '总人次', width: 10 },
+  { key: 'totalProjectCount', title: '总项目数', width: 10 },
+  { key: 'qrPayment', title: '收款码', width: 10 },
+  { key: 'cashPayment', title: '现金', width: 8 },
+  { key: 'memberCardPayment', title: '会员卡', width: 10 },
+  { key: 'posPayment', title: 'POS', width: 8 },
+  { key: 'meituanPayment', title: '美团', width: 10 },
+  { key: 'douyinPayment', title: '抖音', width: 10 },
+  { key: 'ticketItemPayment', title: '项目券', width: 10 },
+  { key: 'ticketConsumerPayment', title: '代金券', width: 10 },
+];
+
+/** 单门店模式导出列配置 */
+const singleOrgColumns: ExportColumn<OrderSummaryVO>[] = [
+  { key: 'statsDate', title: '日期', width: 12 },
+  { key: 'totalTurnover', title: '总营业额', width: 12 },
+  { key: 'totalActualReceipt', title: '总实收', width: 12 },
+  { key: 'totalSingleTime', title: '总单次', width: 10 },
+  { key: 'totalPeopleTime', title: '总人次', width: 10 },
+  { key: 'totalProjectCount', title: '总项目数', width: 10 },
+  { key: 'qrPayment', title: '收款码', width: 10 },
+  { key: 'cashPayment', title: '现金', width: 8 },
+  { key: 'memberCardPayment', title: '会员卡', width: 10 },
+  { key: 'posPayment', title: 'POS', width: 8 },
+  { key: 'meituanPayment', title: '美团', width: 10 },
+  { key: 'douyinPayment', title: '抖音', width: 10 },
+  { key: 'ticketItemPayment', title: '项目券', width: 10 },
+  { key: 'ticketConsumerPayment', title: '代金券', width: 10 },
+];
+
+/** 导出表格 */
+const handleExport = () => {
+  if (!saleSummary.data.length) {
+    return ElMessage.warning('暂无数据可导出');
+  }
+
+  const columns = isMultipleOrg.value ? multiOrgColumns : singleOrgColumns;
+  const fileName = isMultipleOrg.value ? '销售汇总' : `${orgName.value}-销售汇总`;
+
+  exportExcel({
+    fileName,
+    sheets: {
+      sheetName: '销售汇总',
+      columns,
+      data: saleSummary.data,
+    },
+  });
 };
 </script>
 
