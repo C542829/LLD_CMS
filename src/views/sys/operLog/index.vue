@@ -6,7 +6,7 @@
         <div class="search-item">
           <label>
             时间段：
-            <IDateTimePicker v-model="dateRange" :default="false" @change="search" @clear="search" class="w-220" />
+            <IDatePicker v-model="dateRange" :default="false" @change="search" @clear="search" class="w-220" />
           </label>
         </div>
 

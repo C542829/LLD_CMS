@@ -3,7 +3,7 @@
     <div class="search-item">
       <label>
         <span>时间段：</span>
-        <IDateTimePicker v-model="dateRange" @change="search" @clear="clearDate" class="w-220" />
+        <IDatePicker v-model="dateRange" @change="search" @clear="clearDate" class="w-220" />
       </label>
     </div>
     <div class="search-item">

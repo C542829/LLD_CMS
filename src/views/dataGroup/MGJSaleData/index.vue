@@ -5,7 +5,7 @@
         <div class="search-item">
           <label>
             开单时段：
-            <IDateTimePicker v-model="dateRange" :default="false" @change="search" @clear="search" class="w-220" />
+            <IDatePicker v-model="dateRange" :default="false" @change="search" @clear="search" class="w-220" />
           </label>
         </div>
         <div class="search-item">
