@@ -26,6 +26,8 @@ enum API {
   UPDATE_MEMBER_REMARK = `/vip/update-remark/{vipId}`,
   /** 修改会员资产备注 */
   UPDATE_ASSET_REMARK = `/vip/update-asset-remark/{assetId}`,
+  /** 修改会员资产属性 */
+  UPDATE_ASSET_DISCOUNT = '/vip/update-asset-discount',
   /**  */
   _ = '',
 }
@@ -145,5 +147,15 @@ export const reqCancelTicket = (id: number, ticketIds: number[]) => {
  */
 export const reqPresentAsset = (id: number, data: Types.ReqPresentAsset) => {
   const url = API.PRESENT_ASSET.replace(IdStr, id.toString());
+  return post(url, data);
+};
+
+/**
+ * 修改会员资产属性
+ * @param data
+ * @returns
+ */
+export const reqUpdateVipAsset = (data: Types.VipAssetDiscountDTO): ApiResponse<any> => {
+  const url = API.UPDATE_ASSET_DISCOUNT;
   return post(url, data);
 };

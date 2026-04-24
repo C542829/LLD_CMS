@@ -43,6 +43,11 @@
           </el-tag>
         </template>
       </el-table-column>
+      <el-table-column label="操作" width="80">
+        <template #default="{ row }">
+          <el-button type="primary" size="small" link @click="handleEditProperty(row)">编辑</el-button>
+        </template>
+      </el-table-column>
     </PaginationTable>
 
     <div class="section-title">优惠券资产</div>
@@ -97,10 +102,13 @@
       </el-table-column>
       <el-table-column prop="remark" label="备注" min-width="100" />
     </PaginationTable>
+
+    <PropertyModify ref="propertyModifyRef" @refresh="loadPropertyData" />
   </div>
 </template>
 
 <script setup lang="ts">
+import PropertyModify from './PropertyModify.vue';
 import { ref, onMounted } from 'vue';
 import { CouponType, couponTypeMap, CouponStatus, CouponStatusMap } from '@/enums/index';
 import { reqVipAssetList, Types } from '@/api/member/member/index';
@@ -146,6 +154,12 @@ const loadPropertyData = async () => {
 onMounted(() => {
   loadPropertyData();
 });
+
+const propertyModifyRef = ref();
+const handleEditProperty = (row: any) => {
+  propertyModifyRef.value.initInfo(row);
+  console.log('handleEditProperty', row);
+};
 </script>
 
 <style lang="scss" scoped>

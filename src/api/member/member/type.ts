@@ -489,4 +489,27 @@ export interface ServerItemVO {
   [property: string]: any;
 }
 
+/**
+ * org.haut.common.domain.dto.vip.VipAssetDiscountDTO
+ */
+export interface VipAssetDiscountDTO {
+  /**
+   * 折扣基础（0 标准价，1 会员价）
+   */
+  assetDiscountBase?: number;
+  /**
+   * 折扣率（如80表示原价的80%）
+   */
+  assetDiscountRate?: number;
+  /**
+   * 资产ID
+   */
+  assetId: number;
+  /**
+   * 跨店消费（0 不允许，1 允许）
+   */
+  assetIsCrossStore?: number;
+  [property: string]: any;
+}
+
 //#endregion 会员资产
