@@ -42,7 +42,7 @@
         </div>
         <div class="search-item">
           <el-button type="primary" @click="search">搜索</el-button>
-          <el-button type="success" :disabled="true" @click="search">导出表格</el-button>
+          <el-button type="success" @click="handleExport">导出表格</el-button>
         </div>
       </div>
     </Card>
@@ -92,6 +92,7 @@ import { ElMessage } from 'element-plus';
 import { reqPerformanceSummary } from '@/api/dataGroup/staffPerformance/index';
 import type { KpiSummaryQuery, KpiSummaryVO } from '@/api/dataGroup/staffPerformance/types';
 import { parseResList } from '@/utils/parseResponse';
+import { exportExcel, type ExportColumn } from '@/utils/exportExcel';
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useDataEnumStore } from '@/store/modules/enums/index';
@@ -164,6 +165,42 @@ onMounted(() => {
 // 搜索
 const search = () => {
   setPerformanceSummary();
+};
+
+/** 导出列配置 */
+const exportColumns: ExportColumn<KpiSummaryVO>[] = [
+  { key: 'orgName', title: '门店', width: 16 },
+  { key: 'userName', title: '技师', width: 12 },
+  { key: 'totalPerformance', title: '总业绩', width: 12 },
+  { key: 'totalCommission', title: '总提成', width: 12 },
+  { key: 'totalProjectCount', title: '总项目次', width: 10 },
+  { key: 'appointmentCount', title: '点钟次数', width: 10 },
+  { key: 'rotationCount', title: '轮牌次数', width: 10 },
+  { key: 'extendCount', title: '加钟次数', width: 10 },
+  { key: 'projectPerformance', title: '项目业绩', width: 12 },
+  { key: 'projectCommission', title: '项目提成', width: 12 },
+  { key: 'productPerformance', title: '产品业绩', width: 12 },
+  { key: 'productCommission', title: '产品提成', width: 12 },
+  { key: 'cureTicketPerformance', title: '疗程销售业绩', width: 14 },
+  { key: 'cureTicketCommission', title: '疗程销售提成', width: 14 },
+  { key: 'rechargePerformance', title: '卡金业绩', width: 12 },
+  { key: 'rechargeCommission', title: '卡金提成', width: 12 },
+];
+
+/** 导出表格 */
+const handleExport = () => {
+  if (!performanceSummary.value.length) {
+    return ElMessage.warning('暂无数据可导出');
+  }
+
+  exportExcel({
+    fileName: '绩效汇总',
+    sheets: {
+      sheetName: '绩效汇总',
+      columns: exportColumns,
+      data: performanceSummary.value,
+    },
+  });
 };
 </script>
 

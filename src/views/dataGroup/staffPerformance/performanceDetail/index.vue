@@ -179,6 +179,7 @@ const performanceRecord = reactive<{
 const setPerformanceRecord = async () => {
   try {
     loading.value = true;
+    handleSearchParams();
     const params = { ...searchParams.value };
     const res = await reqPerformanceRecord(params);
     const data: any = parseResObj(res);
