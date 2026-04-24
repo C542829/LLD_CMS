@@ -64,7 +64,7 @@
           </template>
         </el-table-column>
         <el-table-column type="index" label="序号" width="60" fixed />
-        <el-table-column prop="orgName" label="门店" width="60" fixed />
+        <el-table-column prop="orgName" label="门店" width="120" fixed />
         <el-table-column prop="userName" label="技师" width="100" fixed>
           <template #default="{ row }">{{ row.userName }}({{ row.userCode }})</template>
         </el-table-column>
