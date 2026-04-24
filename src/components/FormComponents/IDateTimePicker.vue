@@ -35,7 +35,7 @@ import { ref, computed, watch } from 'vue';
 import { ElDatePicker } from 'element-plus';
 import { useDateShortcuts } from '@/composables/useDateShortcuts';
 import { isBoolean, isNumber } from 'lodash';
-import { formatDateTime } from '@/utils';
+import { formatDate, formatDateTime } from '@/utils';
 
 /** 日期时间范围值类型 */
 type DateRangeValue = [string, string] | [Date, Date] | string | Date | [];
@@ -103,9 +103,11 @@ const emit = defineEmits(['update:modelValue', 'change', 'clear']);
 const datePickerRef = ref<any>();
 
 /** 内部绑定值，与 modelValue 双向同步 */
-const innerValue = computed({
+const innerValue = computed<any>({
   get: () => props.modelValue,
-  set: (val) => emit('update:modelValue', val as DateRangeValue),
+  set: (val: [string, string]) => {
+    emit('update:modelValue', val as DateRangeValue);
+  },
 });
 
 /** 获取快捷选项 */
