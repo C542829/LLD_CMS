@@ -135,15 +135,14 @@ export const useOrderStore = defineStore('Order', () => {
           // 当前选择折扣卡的折扣率
           const discountRate = div(assetDiscountRate, 100);
 
-          // 如果是标准价，且折扣率为100%，则优先使用会员价
-          // if (!isMemberPrice && assetDiscountRate === 100) {
-          // detail.trueUnitPrice = detail.vipPrice;
-          // detail.truePrice = mul(detail.trueUnitPrice, detail.quantity);
-          // continue;
-          // }
+          // 如果是标准价，且折扣率为100%，则优先使用标准价
+          if (!isMemberPrice && assetDiscountRate === 100) {
+            detail.trueUnitPrice = detail.stdPrice;
+            detail.truePrice = mul(detail.trueUnitPrice, detail.quantity);
+            continue;
+          }
 
-          // TODO: 如果设置为不打折 是否切换为会员价
-          // 如果设置为不打折则不进行更新
+          // 如果设置为不打折则切换为会员价
           if (detail.isDiscount === IsDiscount.No) {
             detail.trueUnitPrice = detail.vipPrice;
             detail.truePrice = mul(detail.trueUnitPrice, detail.quantity);
