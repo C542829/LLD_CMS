@@ -96,7 +96,14 @@ const datePickerRef = ref<any>();
 /** 内部绑定值，与 modelValue 双向同步 */
 const innerValue = computed({
   get: () => props.modelValue,
-  set: (val) => emit('update:modelValue', val as DateRangeValue),
+  set: (val) => {
+    if (!val) {
+      emit('update:modelValue', []);
+      return;
+    }
+
+    emit('update:modelValue', val as DateRangeValue);
+  },
 });
 
 /** 获取快捷选项 */
@@ -140,7 +147,7 @@ const handleChange = (val: DateRangeValue) => {
 
 /** 清空事件 */
 const handleClear = () => {
-  emit('clear', []);
+  emit('clear');
 };
 
 /** 暴露实例方法 */

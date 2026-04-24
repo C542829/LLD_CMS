@@ -106,6 +106,10 @@ const datePickerRef = ref<any>();
 const innerValue = computed<any>({
   get: () => props.modelValue,
   set: (val: [string, string]) => {
+    if (!val) {
+      emit('update:modelValue', []);
+      return;
+    }
     emit('update:modelValue', val as DateRangeValue);
   },
 });
