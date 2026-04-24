@@ -450,6 +450,163 @@ export interface OrderSummaryVO {
   [property: string]: any;
 }
 
+/**
+ * 数据对象
+ *
+ * org.haut.common.domain.vo.order.SalesSummaryV2VO
+ */
+export interface SalesSummaryV2VO {
+  /**
+   * 各门店分组
+   */
+  storeList?: OrderStoreSummaryVO[];
+  /**
+   * 所有门店合计
+   */
+  total?: OrderStoreSummaryVO;
+  [property: string]: any;
+}
+
+/**
+ * org.haut.common.domain.vo.order.OrderStoreSummaryVO
+ *
+ * 所有门店合计
+ */
+export interface OrderStoreSummaryVO {
+  /**
+   * 现金支付金额
+   */
+  cashPayment?: number;
+  /**
+   * 每日明细（倒序）
+   */
+  dailyList?: OrderDailySummaryVO[];
+  /**
+   * 抖音支付金额
+   */
+  douyinPayment?: number;
+  /**
+   * 美团支付金额
+   */
+  meituanPayment?: number;
+  /**
+   * 会员卡支付金额
+   */
+  memberCardPayment?: number;
+  /**
+   * 门店编码，合计行为null
+   */
+  orgCode?: string;
+  /**
+   * 门店ID，合计行为null
+   */
+  orgId?: number;
+  /**
+   * 门店名称，合计行为"合计
+   */
+  orgName?: string;
+  /**
+   * POS支付金额
+   */
+  posPayment?: number;
+  /**
+   * 扫码支付金额
+   */
+  qrPayment?: number;
+  /**
+   * 代金券支付金额
+   */
+  ticketConsumerPayment?: number;
+  /**
+   * 项目券支付金额
+   */
+  ticketItemPayment?: number;
+  /**
+   * 总实收金额
+   */
+  totalActualReceipt?: number;
+  /**
+   * 总人次
+   */
+  totalPeopleTime?: number;
+  /**
+   * 总项目数
+   */
+  totalProjectCount?: number;
+  /**
+   * 总单次数量
+   */
+  totalSingleTime?: number;
+  /**
+   * 总营业额
+   */
+  totalTurnover?: number;
+  [property: string]: any;
+}
+
+/**
+ * org.haut.common.domain.vo.order.OrderDailySummaryVO
+ */
+export interface OrderDailySummaryVO {
+  /**
+   * 现金支付金额
+   */
+  cashPayment?: number;
+  /**
+   * 抖音支付金额
+   */
+  douyinPayment?: number;
+  /**
+   * 美团支付金额
+   */
+  meituanPayment?: number;
+  /**
+   * 会员卡支付金额
+   */
+  memberCardPayment?: number;
+  /**
+   * POS支付金额
+   */
+  posPayment?: number;
+  /**
+   * 扫码支付金额
+   */
+  qrPayment?: number;
+  /**
+   * 统计日期
+   */
+  statsDate?: string;
+  /**
+   * 代金券支付金额
+   */
+  ticketConsumerPayment?: number;
+  /**
+   * 项目券支付金额
+   */
+  ticketItemPayment?: number;
+  /**
+   * 总实收金额
+   */
+  totalActualReceipt?: number;
+  /**
+   * 总人次
+   */
+  totalPeopleTime?: number;
+  /**
+   * 总项目数
+   */
+  totalProjectCount?: number;
+  /**
+   * 总单次数量
+   */
+  totalSingleTime?: number;
+  /**
+   * 总营业额
+   */
+  totalTurnover?: number;
+  [property: string]: any;
+}
+
 // #endregion 销售汇总
 
 // #region 销售明细

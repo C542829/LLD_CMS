@@ -10,6 +10,8 @@ enum API {
   SALE_DETAIL = '/order/detail/page',
   /** 获取销售汇总 */
   SALE_SUMMARY = '/order/summary',
+  /** 获取销售汇总v2（按门店分组） */
+  SALE_SUMMARY_V2 = '/order/summary/v2',
   /** 根据订单编号查询订单信息 */
   ORDER_INFO_BY_CODE = '/order/query-by-order-code/{orderCode}',
 }
@@ -43,7 +45,16 @@ export const reqSaleDetail = (data: Types.OrderDetailPageQuery): ApiResponse<Pag
  * @param data
  * @returns
  */
-export const reqSaleSummary = (data = {}): ApiResponse<Types.OrderSummaryVO[]> => post(API.SALE_SUMMARY, data);
+export const reqSaleSummary = (data: Types.SaleSummaryQuery): ApiResponse<Types.OrderSummaryVO[]> =>
+  post(API.SALE_SUMMARY, data);
+
+/**
+ * 获取销售汇总
+ * @param data
+ * @returns
+ */
+export const reqSaleSummaryV2 = (data: Types.SaleSummaryQuery): ApiResponse<Types.SalesSummaryV2VO> =>
+  post(API.SALE_SUMMARY_V2, data);
 
 /**
  * 根据订单编号查询订单信息

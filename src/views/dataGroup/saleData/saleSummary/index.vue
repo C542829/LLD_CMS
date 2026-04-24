@@ -45,20 +45,24 @@
         show-summary
       >
         <el-table-column type="index" label="序号" width="60" fixed />
-        <el-table-column prop="orgName" label="门店" min-width="60" fixed />
-        <el-table-column prop="statsDate" label="日期" width="105" :formatter="dateFormatter" fixed />
+        <template v-if="isMultipleOrg">
+          <el-table-column prop="orgName" label="门店" min-width="80" fixed />
+        </template>
+        <template v-else>
+          <el-table-column prop="statsDate" label="日期" width="105" :formatter="dateFormatter" fixed />
+        </template>
         <el-table-column prop="totalTurnover" label="总营业额" min-width="85" fixed />
         <el-table-column prop="totalActualReceipt" label="总实收" min-width="85" fixed />
         <el-table-column prop="totalSingleTime" label="总单次" min-width="80" />
         <el-table-column prop="totalPeopleTime" label="总人次" min-width="80" />
         <el-table-column prop="totalProjectCount" label="总项目数" min-width="85" />
-        <el-table-column prop="qrPayment" label="收款码" min-width="85" />
-        <el-table-column prop="cashPayment" label="现金" min-width="85" />
-        <el-table-column prop="memberCardPayment" label="会员卡" min-width="95" />
-        <el-table-column prop="posPayment" label="POS" min-width="85" />
-        <el-table-column prop="meituanPayment" label="美团" min-width="85" />
-        <el-table-column prop="douyinPayment" label="抖音" min-width="85" />
-        <el-table-column prop="ticketItemPayment" label="项目券" min-width="85" />
+        <el-table-column prop="qrPayment" label="收款码" min-width="80" />
+        <el-table-column prop="cashPayment" label="现金" min-width="60" />
+        <el-table-column prop="memberCardPayment" label="会员卡" min-width="80" />
+        <el-table-column prop="posPayment" label="POS" min-width="60" />
+        <el-table-column prop="meituanPayment" label="美团" min-width="80" />
+        <el-table-column prop="douyinPayment" label="抖音" min-width="80" />
+        <el-table-column prop="ticketItemPayment" label="项目券" min-width="80" />
         <el-table-column prop="ticketConsumerPayment" label="代金券" min-width="80" />
       </PaginationTable>
     </Card>
@@ -66,8 +70,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue';
-import { reqSaleSummary } from '@/api/dataGroup/saleData';
+import { computed, onMounted, reactive, ref } from 'vue';
+import { reqSaleSummary, reqSaleSummaryV2 } from '@/api/dataGroup/saleData';
 import { OrderSummaryVO } from '@/api/dataGroup/saleData/types';
 import { dateFormatter } from '@/utils/formatter';
 import { LOADING_MSG } from '@/utils/constants';
@@ -96,8 +100,14 @@ const searchParams = reactive({
   orgIds: [] as number[],
 });
 
+const isMultipleOrg = ref(false);
+// const isMultipleOrg = computed(() => {
+//   return searchParams.orgIds.length > 1;
+// });
+
 /** 处理搜索参数 */
 const handleSearchParams = () => {
+  const params: any = {};
   if (dateRange.value.length === 0) {
     searchParams.startTime = '';
     searchParams.endTime = '';
@@ -105,6 +115,17 @@ const handleSearchParams = () => {
     searchParams.startTime = dateRange.value[0] as string;
     searchParams.endTime = dateRange.value[1] as string;
   }
+
+  // if (dateRange.value.length === 2) {
+  //   // params.startTime = dateRange.value[0];
+  //   // params.endTime = dateRange.value[1];
+  // }
+
+  // if (searchParams.orgIds.length > 0) {
+  //   params.orgIds = searchParams.orgIds;
+  // }
+
+  return params;
 };
 
 const saleSummary = reactive<{
@@ -118,9 +139,19 @@ const saleSummary = reactive<{
 const setSaleSummary = async () => {
   loading.value = true;
   try {
-    handleSearchParams();
-    const res = await reqSaleSummary(searchParams);
-    saleSummary.data = res.data || [];
+    const params = handleSearchParams();
+    const { data } = await reqSaleSummaryV2(searchParams);
+    //
+    if (data?.storeList) {
+      // 判断是否是多门店
+      if (data?.storeList?.length > 1) {
+        isMultipleOrg.value = true;
+        saleSummary.data = data?.storeList || [];
+      } else {
+        isMultipleOrg.value = false;
+        saleSummary.data = data?.total?.dailyList || [];
+      }
+    }
   } catch (error) {
     console.error('获取订单汇总失败:', error);
   } finally {
