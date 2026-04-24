@@ -3,16 +3,19 @@ import { MgjSaleDataParsed, MgjSaleDataVO, SaleDataCard, SaleDataCash, SaleDataI
 export enum StoreId {
   MGJ_1 = 1594232,
   MGJ_2 = 1599512,
+  MGJ_3 = 1646391,
 }
 
 export const StoreMap: Record<number, string> = {
   [StoreId.MGJ_1]: '锦艺城1店',
   [StoreId.MGJ_2]: '锦艺城2店',
+  [StoreId.MGJ_3]: '须水3店',
 };
 
 export const StoreOptions = [
   { value: StoreId.MGJ_1, label: StoreMap[StoreId.MGJ_1] },
   { value: StoreId.MGJ_2, label: StoreMap[StoreId.MGJ_2] },
+  { value: StoreId.MGJ_3, label: StoreMap[StoreId.MGJ_3] },
 ];
 
 /**
@@ -33,6 +36,13 @@ export const BILL_TYPE_OPTIONS: OptionItem[] = [
   { value: 0, label: '消费' },
   { value: 1, label: '充值' },
   { value: 2, label: '退款' },
+];
+
+/** 是否会员 0=散客，1=会员，不传=全部 */
+export const MEMBER_TYPE_OPTIONS: OptionItem[] = [
+  { value: '', label: '全部' },
+  { value: 0, label: '散客' },
+  { value: 1, label: '会员' },
 ];
 
 /** 账单状态映射 */

@@ -9,6 +9,19 @@
           </label>
         </div>
         <div class="search-item">
+          <label for="isVip">是否会员：</label>
+          <el-select
+            v-model="searchParams.isVip"
+            clearable
+            @change="search"
+            id="isVip"
+            class="w-80"
+            placeholder="是否是会员"
+          >
+            <el-option v-for="item in MEMBER_TYPE_OPTIONS" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+        </div>
+        <div class="search-item">
           <label for="storeId">门店：</label>
           <el-select
             v-model="searchParams.storeId"
@@ -176,15 +189,7 @@ import { cloneDeep } from 'lodash';
 import { datetimeFormatter } from '@/utils/formatter';
 import { reqMGJSaleDataList } from './utils/api';
 import type { MgjSaleDataQuery, MgjSaleDataParsed } from './utils/types';
-import {
-  StoreMap,
-  BILL_STATUS_OPTIONS,
-  CONSUME_TYPE_MAP,
-  BILL_STATUS_MAP,
-  SEX_MAP,
-  parseSaleDataVO,
-  StoreOptions,
-} from './utils/index';
+import { StoreMap, CONSUME_TYPE_MAP, MEMBER_TYPE_OPTIONS, SEX_MAP, parseSaleDataVO, StoreOptions } from './utils/index';
 
 /** 加载状态 */
 const loading = ref(false);
@@ -200,6 +205,7 @@ const DEFAULT_SEARCH_PARAMS: MgjSaleDataQuery = {
   endTime: '',
   name: '',
   memberId: '',
+  isVip: 1,
   storeId: '',
   consumeType: undefined,
   billstatus: undefined,

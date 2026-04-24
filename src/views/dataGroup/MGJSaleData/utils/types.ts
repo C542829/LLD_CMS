@@ -116,6 +116,8 @@ export interface MgjSaleDataQuery {
   endTime?: string;
   /** 会员ID */
   memberId?: number | string;
+  /** 是否为会员 */
+  isVip?: number | string;
   /** 客户姓名 */
   name?: string;
   /** 页码 */
