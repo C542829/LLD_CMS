@@ -25,12 +25,12 @@
         <div class="search-item">
           <el-input
             v-model="store.search.queryField"
+            :prefix-icon="Search"
+            clearable
+            placeholder="会员卡号 | 姓名 | 手机号"
+            class="search-input w-260"
             @keydown.enter="search"
             @clear="search"
-            :prefix-icon="Search"
-            placeholder="会员卡号 | 姓名 | 手机号"
-            clearable
-            class="search-input"
           >
             <template #append>
               <el-button type="primary" @click="search">搜索</el-button>

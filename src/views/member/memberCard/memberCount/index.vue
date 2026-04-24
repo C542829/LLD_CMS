@@ -16,8 +16,9 @@
               <OrgSelect
                 v-model="searchParams.orgIds"
                 placeholder="门店"
-                class="w-120"
+                class="w-100"
                 :multiple="true"
+                :max-collapse-tags="0"
                 @change="search"
                 @clear="search"
               />
@@ -41,7 +42,7 @@
           <el-button type="info" @click="resetSearch">重置</el-button>
         </div>
         <div class="search-item">
-          <el-button type="success" @click="exportAllMember">导出所有会员</el-button>
+          <el-button type="success" disabled @click="exportAllMember">导出所有会员</el-button>
         </div>
       </div>
     </Card>

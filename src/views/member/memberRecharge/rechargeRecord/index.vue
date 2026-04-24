@@ -17,8 +17,9 @@
               <OrgSelect
                 v-model="recordSearch.orgIds"
                 placeholder="门店"
-                class="w-120"
+                class="w-100"
                 :multiple="true"
+                :max-collapse-tags="0"
                 @change="search"
                 @clear="search"
               />
@@ -32,13 +33,7 @@
         <div class="search-item">
           <label for="rechargeStatus">
             <span>充值状态：</span>
-            <el-select
-              v-model="recordSearch.rechargeStatus"
-              @change="search"
-              @clear="search"
-              clearable
-              style="width: 120px"
-            >
+            <el-select v-model="recordSearch.rechargeStatus" clearable class="w-100" @change="search" @clear="search">
               <el-option
                 v-for="item in rechargeStatusOptions"
                 :key="item.value"
@@ -51,13 +46,7 @@
         <div class="search-item">
           <label>
             <span>支付类型：</span>
-            <el-select
-              v-model="recordSearch.paymentType"
-              @change="search"
-              @clear="search"
-              clearable
-              style="width: 120px"
-            >
+            <el-select v-model="recordSearch.paymentType" clearable class="w-100" @change="search" @clear="search">
               <el-option v-for="item in paymentTypeOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </label>
@@ -82,8 +71,9 @@
               <el-input
                 v-model="recordSearch.vipInfoFiled"
                 clearable
-                @clear="search"
                 placeholder="姓名 | 卡号 | 手机号"
+                class="w-150"
+                @clear="search"
               />
             </div>
           </label>

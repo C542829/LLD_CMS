@@ -17,7 +17,7 @@
               <OrgSelect
                 v-model="searchParams.orgIds"
                 placeholder="门店"
-                class="w-120"
+                class="w-100"
                 :multiple="true"
                 :max-collapse-tags="0"
                 @change="search"
@@ -64,7 +64,7 @@
             clearable
             id="payType"
             placeholder="支付类型"
-            class="w-120"
+            class="w-100"
             @change="search"
           >
             <el-option v-for="item in paymentTypeOptions" :key="item.value" :label="item.label" :value="item.value" />
