@@ -145,14 +145,14 @@
             <el-button link type="info" @click="showDetailDialog(row)">详情</el-button>
             <el-button
               link
-              type="warning"
+              type="danger"
               :disabled="row.rechargeStatus !== RechargeStatus.SUCCESS"
               @click="billReversal(row)"
             >
               冲正
             </el-button>
             <br />
-            <el-button link type="primary" :disabled="true" @click="showDialog(row)">修改充值单据</el-button>
+            <el-button link type="warning" :disabled="true" @click="showDialog(row)">修改充值单据</el-button>
             <br />
             <el-button
               link
