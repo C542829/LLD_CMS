@@ -183,7 +183,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed, watch } from 'vue';
 import { cloneDeep } from 'lodash';
-import { type Types } from '@/api/acl/role';
+import { type RoleInfoVo } from '@/api/acl/role/types';
 import { type Types as UserTypes, reqAddUser, reqUpdateUser } from '@/api/user/index';
 import { DEFAULT_FORMDATA } from '../utils/index';
 import { sexOptions, employedOptions, maritalStatusOptions, educationOptions } from '@/enums/index';
@@ -199,7 +199,7 @@ const enumStore = useEnumStore();
 interface Props {
   type: DialogType;
   modelValue: boolean;
-  roleList: Types.RoleInfoVo[];
+  roleList: RoleInfoVo[];
   data: UserInfo;
 }
 const props = withDefaults(defineProps<Props>(), {
