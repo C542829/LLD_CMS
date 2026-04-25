@@ -35,6 +35,7 @@ import { ElDatePicker } from 'element-plus';
 import { useDateShortcuts } from '@/composables/useDateShortcuts';
 import { isBoolean, isNumber } from 'lodash';
 import { formatDate } from '@/utils';
+import { getBusinessDate } from '@/composables/useDateShortcuts';
 
 /** 日期时间范围值类型 */
 type DateRangeValue = [string, string] | [Date, Date] | string | Date | [];
@@ -81,9 +82,9 @@ const props = withDefaults(defineProps<Props>(), {
   valueFormat: 'YYYY-MM-DD',
   showShortcuts: true,
   defaultValue: () => {
-    const now = new Date();
-    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const end = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const businessDate = getBusinessDate();
+    const start = new Date(businessDate.getFullYear(), businessDate.getMonth(), businessDate.getDate());
+    const end = new Date(businessDate.getFullYear(), businessDate.getMonth(), businessDate.getDate());
     return [start, end] as any;
   },
 });
