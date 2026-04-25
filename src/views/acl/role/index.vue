@@ -110,7 +110,7 @@ import { Search } from '@element-plus/icons-vue';
 import { ref, onMounted, reactive, watch } from 'vue';
 import { statusOptions } from '@/enums/index';
 import { reqQueryPermTree, reqQueryPermTreeByRole } from '@/api/acl/permission/index';
-import { reqList, reqAdd, reqUpdate, reqUpdateStatus, reqAddAllocatedPerm } from '@/api/acl/role';
+import { reqRoleList, reqAddRole, reqUpdateRole, reqUpdateRoleStatus, reqAddAllocatedPerm } from '@/api/acl/role';
 import type { RoleInfoVo } from '@/api/acl/role/types';
 import { LOADING_MSG } from '@/utils/constants';
 import { parseResList, parseResMsg } from '@/utils/parseResponse';
@@ -146,7 +146,7 @@ const formData = ref<Record<string, any>>({
 const fetchTableData = async () => {
   loading.value = true;
   try {
-    const res = await reqList(searchParams);
+    const res = await reqRoleList(searchParams);
     tableData.value = parseResList(res);
     tableData.value.sort((a, b) => a.roleSort! - b.roleSort!);
   } catch (error) {
@@ -160,7 +160,7 @@ const fetchTableData = async () => {
 const updateRole = async (data: Record<string, any>) => {
   const params = { ...data };
   try {
-    const res = await (params?.id ? reqUpdate(params) : reqAdd(params));
+    const res = await (params?.id ? reqUpdateRole(params) : reqAddRole(params));
     const result = parseResMsg(res);
     result && (await fetchTableData());
     return result;
@@ -177,7 +177,7 @@ const handleUpdateStatus = async (row: RoleInfoVo) => {
     status: row.roleStatus ? 0 : 1,
   };
   try {
-    const res = await reqUpdateStatus(params);
+    const res = await reqUpdateRoleStatus(params);
     const result = parseResMsg(res);
     result && (await fetchTableData());
   } catch (error) {

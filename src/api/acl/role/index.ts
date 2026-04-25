@@ -15,8 +15,6 @@ enum API {
   ADD_ALLOCATED_PERMISSION_URL = '/system/role/add-permission',
 }
 
-export const reqList = (params: any) => get(API.LIST_URL, params);
-
 /**
  * 获取角色列表
  * @param params 查询参数
@@ -30,11 +28,26 @@ export const reqRoleList = (
   },
 ): ApiResponse<Types.RoleInfoVo[]> => get(API.LIST_URL, params);
 
-export const reqAdd = (data: Types.RoleCreateDTO): ApiResponse<any> => post(API.ADD_URL, data);
+/**
+ * 新增角色
+ * @param data 角色信息
+ * @returns
+ */
+export const reqAddRole = (data: Types.RoleCreateDTO): ApiResponse<any> => post(API.ADD_URL, data);
 
-export const reqUpdate = (data: Types.RoleUpdateDTO): ApiResponse<any> => put(API.UPDATE_URL, data);
+/**
+ * 更新角色
+ * @param data 角色信息
+ * @returns
+ */
+export const reqUpdateRole = (data: Types.RoleUpdateDTO): ApiResponse<any> => put(API.UPDATE_URL, data);
 
-export const reqUpdateStatus = (params: { roleId: number; status: number }): ApiResponse<any> =>
+/**
+ * 更新角色状态
+ * @param params 参数
+ * @returns
+ */
+export const reqUpdateRoleStatus = (params: { roleId: number; status: number }): ApiResponse<any> =>
   put(API.UPDATE_STATUS_URL, params, { form_urlencoded: true });
 
 /**
