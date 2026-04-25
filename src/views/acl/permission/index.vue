@@ -36,7 +36,7 @@
       <PaginationTable
         :data="tableData"
         v-loading="loading"
-        :element-loading-text="loadingMsg"
+        :element-loading-text="LOADING_MSG"
         :showPagination="false"
         row-key="id"
       >
@@ -91,13 +91,13 @@ import { ref, onMounted, reactive, inject } from 'vue';
 import { statusOptions } from '@/enums/index';
 import { reqQueryPermTree, reqAddPerm, reqUpdatePerm, reqUpdatePermStatus } from '@/api/acl/permission';
 import { parseResList, parseResMsg } from '@/utils/parseResponse';
+import { LOADING_MSG } from '@/utils/constants';
 
 // 引入消息提示组件
 const $MessageBox: any = inject('$MessageBox');
 
 /** 加载状态 */
 const loading = ref(false);
-const loadingMsg = '加载中...';
 
 /** 搜索参数 */
 const searchParams = reactive({

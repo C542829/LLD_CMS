@@ -44,7 +44,7 @@
     <Card padding="0px">
       <PaginationTable
         v-loading="settingStore.loading"
-        :element-loading-text="settingStore.loadingMsg"
+        :element-loading-text="LOADING_MSG"
         :data="store.dataList"
         :row-class-name="getRowClassName"
         :showPagination="false"
@@ -94,16 +94,12 @@
 </template>
 
 <script setup lang="ts">
+import RechargeCommissionRulesForm from './form.vue';
 import { Search } from '@element-plus/icons-vue';
 import { reactive, onMounted, inject } from 'vue';
-import RechargeCommissionRulesForm from './form.vue';
-
-// 导入表格内容格式化器
 import { amountFormatter, dateFormatter } from '@/utils/formatter';
-
-// 导入枚举数据
 import { statusOptions, commissionTypeMap, CommissionType } from '@/enums/index';
-
+import { LOADING_MSG } from '@/utils/constants';
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useRechargeCommissionRulesStore } from '@/store/modules/setGroup/rechargeCommissionRules';

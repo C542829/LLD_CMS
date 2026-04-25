@@ -4,7 +4,7 @@
     <PaginationTable
       :data="dataList"
       v-loading="settingStore.loading"
-      :element-loading-text="settingStore.loadingMsg"
+      :element-loading-text="LOADING_MSG"
       :border="true"
       :stripe="true"
       :showPagination="false"
@@ -39,6 +39,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { LOADING_MSG } from '@/utils/constants';
 import { useSettingStore } from '@/store/modules/acl/setting';
 
 const settingStore = useSettingStore();

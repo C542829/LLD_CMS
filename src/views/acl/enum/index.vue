@@ -25,7 +25,7 @@
       <PaginationTable
         :data="store.tableData"
         v-loading="settingStore.loading && !enumHandler.visible"
-        :element-loading-text="settingStore.loadingMsg"
+        :element-loading-text="LOADING_MSG"
         :showPagination="false"
       >
         <el-table-column type="index" label="序号" width="60" />
@@ -72,9 +72,10 @@
 </template>
 
 <script setup lang="ts">
+import EnumHandler from '@/components/EnumHandler/index.vue';
 import { Search } from '@element-plus/icons-vue';
 import { onMounted, reactive, inject } from 'vue';
-import EnumHandler from '@/components/EnumHandler/index.vue';
+import { LOADING_MSG } from '@/utils/constants';
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useEnumStore } from '@/store/modules/enums';
 

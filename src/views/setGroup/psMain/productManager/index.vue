@@ -68,7 +68,7 @@
       <PaginationTable
         v-loading="settingStore.loading"
         :data="store.tableData"
-        :element-loading-text="settingStore.loadingMsg"
+        :element-loading-text="LOADING_MSG"
         :row-class-name="getRowClassName"
         :showPagination="false"
       >
@@ -114,16 +114,13 @@
 </template>
 
 <script setup lang="ts">
-import { Search } from '@element-plus/icons-vue';
-import { ref, onMounted, inject, reactive } from 'vue';
 import ProductForm from './form.vue';
 import OrgSelect from '@/components/FormComponents/OrgSelect.vue';
-
-// 导入枚举数据
+import { Search } from '@element-plus/icons-vue';
+import { ref, onMounted, inject, reactive } from 'vue';
 import { statusOptions } from '@/enums/index';
 import { isDiscountMap } from '@/utils/formatter';
-
-// 引入数据仓库
+import { LOADING_MSG } from '@/utils/constants';
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useEnumStore } from '@/store/modules/enums/index';
 import { useProductStore } from '@/store/modules/setGroup/product';

@@ -8,7 +8,7 @@
     </div>
 
     <!-- 床位列表 -->
-    <div v-loading="loading" :element-loading-text="loadingMsg" class="bed-status-content">
+    <div v-loading="loading" :element-loading-text="LOADING_MSG" class="bed-status-content">
       <BedCard v-for="item in bedList" :key="item.id" :bed-data="item" @checkout="checkout" @show-drawer="showDrawer" />
     </div>
 
@@ -31,6 +31,7 @@ import { ref, reactive, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { BedStatus, CashierRouteSign } from '@/enums/index';
 import { reqQueryOrderByBedId } from '@/api/order/index';
+import { LOADING_MSG } from '@/utils/constants';
 // 引入数据仓库
 import { useDataEnumStore } from '@/store/modules/enums/index';
 import { useOrderStore } from '@/store/modules/order/index';
@@ -40,7 +41,6 @@ const orderStore = useOrderStore();
 
 // 加载状态
 const loading = ref(false);
-const loadingMsg = ref('加载中...');
 
 const router = useRouter();
 

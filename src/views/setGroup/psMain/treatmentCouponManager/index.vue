@@ -52,7 +52,7 @@
     <Card padding="0px">
       <PaginationTable
         v-loading="settingStore.loading"
-        :element-loading-text="settingStore.loadingMsg"
+        :element-loading-text="LOADING_MSG"
         :data="store.dataList"
         :row-class-name="getRowClassName"
         :showPagination="false"
@@ -111,16 +111,13 @@
 </template>
 
 <script setup lang="ts">
+import TreatmentCouponForm from './form.vue';
 import { Search } from '@element-plus/icons-vue';
 import { ref, onMounted, inject, reactive } from 'vue';
-import TreatmentCouponForm from './form.vue';
-
-// 导入表格数据格式化器
 import { amountFormatter } from '@/utils/formatter';
-// 导入枚举数据
 import { statusOptions, CommissionType } from '@/enums/index';
 import { cloneDeep } from 'lodash';
-
+import { LOADING_MSG } from '@/utils/constants';
 // 导入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useTreatmentCouponStore } from '@/store/modules/setGroup/treatmentCoupon';

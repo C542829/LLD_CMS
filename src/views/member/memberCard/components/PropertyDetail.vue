@@ -3,7 +3,7 @@
     <div>
       <PaginationTable
         v-loading="settingStore.loading"
-        :element-loading-text="settingStore.loadingMsg"
+        :element-loading-text="LOADING_MSG"
         :data="coupons"
         :showPagination="false"
       >
@@ -29,7 +29,7 @@
 
 <script setup lang="ts">
 import { ref, watchEffect } from 'vue';
-
+import { LOADING_MSG } from '@/utils/constants';
 // 导入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useMemberStore } from '@/store/modules/member/member';

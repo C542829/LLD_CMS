@@ -12,7 +12,7 @@
     <Card padding="0">
       <PaginationTable
         v-loading="settingStore.loading && !createDialog.visible"
-        :element-loading-text="settingStore.loadingMsg"
+        :element-loading-text="LOADING_MSG"
         :data="tableData.list"
         :total="tableData.total"
         v-model:currentPage="searchParams.pageNum"
@@ -53,13 +53,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
 import SearchForm from '@/views/setGroup/stock/components/SearchForm.vue';
 import ShowDetail from '@/views/setGroup/stock/components/ShowDetail.vue';
 import CreateOrder from '@/views/setGroup/stock/components/CreateOrder.vue';
-
+import { ref, reactive, onMounted } from 'vue';
 import { amountFormatter } from '@/utils/formatter';
-
+import { LOADING_MSG } from '@/utils/constants';
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useStockStore } from '@/store/modules/setGroup/stock';
 const settingStore = useSettingStore();

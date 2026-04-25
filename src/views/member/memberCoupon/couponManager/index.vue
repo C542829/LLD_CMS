@@ -51,7 +51,7 @@
     </Card>
 
     <!-- 表格组件 -->
-    <Card v-loading="settingStore.loading" :element-loading-text="settingStore.loadingMsg" flex="row" :gap="7">
+    <Card v-loading="settingStore.loading" :element-loading-text="LOADING_MSG" flex="row" :gap="7">
       <template v-if="store.tableData.length === 0">
         <div class="el-full el-center">
           <el-empty></el-empty>
@@ -84,7 +84,7 @@ import CouponForm from './form.vue';
 import CouponCard from './components/CouponCard.vue';
 import { Search } from '@element-plus/icons-vue';
 import { onMounted, inject, reactive } from 'vue';
-// 导入枚举数据
+import { LOADING_MSG } from '@/utils/constants';
 import { statusOptions } from '@/enums/index';
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';

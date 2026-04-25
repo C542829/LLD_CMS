@@ -44,7 +44,7 @@
     <Card padding="0">
       <PaginationTable
         v-loading="settingStore.loading && !dialog.visible"
-        :element-loading-text="settingStore.loadingMsg"
+        :element-loading-text="LOADING_MSG"
         :data="store.tableData.list"
         :total="store.tableData.total"
         v-model:currentPage="store.search.pageNum"
@@ -131,10 +131,6 @@
 </template>
 
 <script setup lang="ts">
-import { Search } from '@element-plus/icons-vue';
-import { onMounted, markRaw, reactive } from 'vue';
-import { sexMap } from '@/utils/formatter';
-
 // 导入子组件
 import MemberForm from './components/MemberForm.vue';
 import PwdForm from './components/PwdForm.vue';
@@ -142,6 +138,10 @@ import GiveCouponForm from './components/GiveCouponForm.vue';
 import CancelCoupon from './components/CancelCoupon.vue';
 import GiveCardAmount from './components/GiveCardAmount.vue';
 import MemberInfo from './components/MemberInfo.vue';
+import { Search } from '@element-plus/icons-vue';
+import { onMounted, markRaw, reactive } from 'vue';
+import { sexMap } from '@/utils/formatter';
+import { LOADING_MSG } from '@/utils/constants';
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useMemberStore } from '@/store/modules/member/member';
 import useUserStore from '@/store/modules/acl/user';

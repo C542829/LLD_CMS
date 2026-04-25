@@ -51,7 +51,7 @@
     <Card padding="0">
       <PaginationTable
         v-loading="settingStore.loading && !dialog.visible"
-        :element-loading-text="settingStore.loadingMsg"
+        :element-loading-text="LOADING_MSG"
         :data="tableData.list"
         :total="tableData.total"
         v-model:currentPage="searchParams.pageNum"
@@ -83,12 +83,12 @@
 </template>
 
 <script setup lang="ts">
+import PropertyDetail from '../components/PropertyDetail.vue';
 import { reactive, onMounted, ref } from 'vue';
 import { sexMap, amountFormatter } from '@/utils/formatter';
 import { parseResObj } from '@/utils/parseResponse';
 import { reqVipList } from '@/api/member/member';
-
-import PropertyDetail from '../components/PropertyDetail.vue';
+import { LOADING_MSG } from '@/utils/constants';
 
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';

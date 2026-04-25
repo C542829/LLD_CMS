@@ -69,7 +69,7 @@
       <PaginationTable
         :data="store.dataList"
         v-loading="settingStore.loading"
-        :element-loading-text="settingStore.loadingMsg"
+        :element-loading-text="LOADING_MSG"
         :row-class-name="getRowClassName"
         :showPagination="false"
       >
@@ -110,15 +110,12 @@
 </template>
 
 <script setup lang="ts">
+import ServiceItemForm from './form.vue';
 import { Search } from '@element-plus/icons-vue';
 import { onMounted, inject, reactive, ref } from 'vue';
-import ServiceItemForm from './form.vue';
-
-// 导入表格数据格式化器
 import { amountFormatter, isDiscountMap } from '@/utils/formatter';
-// 导入枚举数据
+import { LOADING_MSG } from '@/utils/constants';
 import { statusOptions } from '@/enums/index';
-
 // 导入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useEnumStore } from '@/store/modules/enums/index';

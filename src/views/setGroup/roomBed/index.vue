@@ -23,7 +23,7 @@
     <!-- 房间列表 -->
     <Card
       v-loading="settingStore.loading && !drawerVisible"
-      :element-loading-text="settingStore.loadingMsg"
+      :element-loading-text="LOADING_MSG"
       flex="row"
       :gap="30"
       class="room-list"
@@ -66,7 +66,7 @@
           <Table
             :data="store.bedList"
             v-loading="settingStore.loading"
-            :element-loading-text="settingStore.loadingMsg"
+            :element-loading-text="LOADING_MSG"
             :border="true"
             :row-class-name="getRowClassName"
           >
@@ -97,7 +97,7 @@
 import { Search } from '@element-plus/icons-vue';
 import { ref, onMounted, inject } from 'vue';
 import { bedStatusMap } from '@/utils/formatter';
-
+import { LOADING_MSG } from '@/utils/constants';
 // 导入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useRoomStore } from '@/store/modules/setGroup/room';

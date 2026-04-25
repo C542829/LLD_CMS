@@ -7,12 +7,7 @@
     </header>
 
     <div class="detail-content">
-      <PaginationTable
-        v-loading="loading"
-        :element-loading-text="settingStore.loadingMsg"
-        :data="[]"
-        :show-pagination="false"
-      >
+      <PaginationTable v-loading="loading" :element-loading-text="LOADING_MSG" :data="[]" :show-pagination="false">
         <el-table-column prop="productName" label="充值时间" min-width="100" />
         <el-table-column prop="productCode" label="姓名" min-width="60" />
         <el-table-column prop="unit" label="卡号" min-width="80" />
@@ -30,8 +25,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch, onUpdated } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { formatDate } from '@/utils/time';
+import { LOADING_MSG } from '@/utils/constants';
 import { useSettingStore } from '@/store/modules/acl/setting';
 const settingStore = useSettingStore();
 

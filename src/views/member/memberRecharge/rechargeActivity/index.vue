@@ -53,7 +53,7 @@
     <Card padding="0">
       <PaginationTable
         v-loading="settingStore.loading"
-        :element-loading-text="settingStore.loadingMsg"
+        :element-loading-text="LOADING_MSG"
         :data="store.tableData"
         :row-class-name="getRowClassName"
         :showPagination="false"
@@ -97,15 +97,13 @@
 </template>
 
 <script setup lang="ts">
+import ActivityForm from './form.vue';
+import ShowDetail from './ShowDetail.vue';
 import { Search } from '@element-plus/icons-vue';
 import { onMounted, inject, reactive } from 'vue';
 import { dateFormatter } from '@/utils/formatter';
-import ActivityForm from './form.vue';
-import ShowDetail from './ShowDetail.vue';
-
-// 导入枚举数据
 import { statusOptions } from '@/enums/index';
-
+import { LOADING_MSG } from '@/utils/constants';
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useRechargeActivityStore } from '@/store/modules/member/rechargeActivity';

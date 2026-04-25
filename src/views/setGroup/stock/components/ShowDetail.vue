@@ -26,7 +26,7 @@
     <div class="detail-content">
       <PaginationTable
         v-loading="settingStore.loading"
-        :element-loading-text="settingStore.loadingMsg"
+        :element-loading-text="LOADING_MSG"
         :data="data.items"
         :show-pagination="false"
       >
@@ -43,7 +43,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
-
+import { LOADING_MSG } from '@/utils/constants';
 import { useEnumStore } from '@/store/modules/enums/index';
 import { useSettingStore } from '@/store/modules/acl/setting';
 const enumStore = useEnumStore();
