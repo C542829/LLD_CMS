@@ -24,7 +24,7 @@ enum API {
  * @param params 查询参数
  * @returns 权限列表
  */
-export const reqPermList = (params: { name: string; status: string | number }): ApiResponse<any> =>
+export const reqPermList = (params: { name?: string; status?: string | number } = { status: 0 }): ApiResponse<any> =>
   get(API.LIST_URL, params);
 
 /**
@@ -54,8 +54,9 @@ export const reqUpdatePermStatus = (data: { id: number; status: number }): ApiRe
  * @param params 查询参数
  * @returns 权限树
  */
-export const reqQueryPermTree = (params: { name: string; status: string | number }): ApiResponse<PermissionInfoVO[]> =>
-  get(API.QUERY_TREE_URL, params);
+export const reqQueryPermTree = (
+  params: { name?: string; status?: string | number } = { status: 0 },
+): ApiResponse<PermissionInfoVO[]> => get(API.QUERY_TREE_URL, params);
 
 /**
  * 获取角色权限树
