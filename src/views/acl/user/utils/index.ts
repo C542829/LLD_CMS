@@ -1,4 +1,4 @@
-import { reqEnumItemList } from '@/api/enums';
+import { reqDictItemList } from '@/api/acl/dict/index';
 import { RoleCode } from '@/enums';
 import { formatDate } from '@/utils/time';
 
@@ -49,7 +49,7 @@ export const RoleCodeFilterMap = {
 export const getEnumItemList = async (dictCode: string) => {
   try {
     const params = { dictCode };
-    const res = await reqEnumItemList(params);
+    const res = await reqDictItemList(dictCode);
     const data = res.data;
     return data;
   } catch (error) {

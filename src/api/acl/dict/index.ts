@@ -16,66 +16,61 @@ enum API {
 }
 
 /**
- * 获取枚举列表
+ * 获取字典列表
  * @param params 查询参数
- * @returns 枚举列表
+ * @returns 字典列表
  */
-export const reqEnumList = (params = {}) => get(API.LIST_URL, params);
+export const reqDictList = (params: Types.DictTypeQueryDTO = {}): ApiResponse<Types.DictTypeVO[]> =>
+  get(API.LIST_URL, params);
 
 /**
- * 新增枚举
- * @param data 枚举数据
+ * 新增字典
+ * @param data 字典数据
  * @returns 新增结果
  */
-export const reqAddEnum = (data = {}) => post(API.ADD_URL, data);
+export const reqAddDict = (data: Types.DictTypeCreateDTO): ApiResponse<any> => post(API.ADD_URL, data);
 
 /**
- * 更新枚举
- * @param data 枚举数据
+ * 更新字典
+ * @param data 字典数据
  * @returns 更新结果
  */
-export const reqUpdateEnum = (data = {}) => put(API.UPDATE_URL, data);
+export const reqUpdateDict = (data: Types.DictTypeUpdateDTO): ApiResponse<any> => put(API.UPDATE_URL, data);
 
 /**
- * 删除枚举
- * @param dictTypeId 枚举类型ID
+ * 删除字典
+ * @param dictTypeId 字典类型ID
  * @returns 删除结果
  */
-export const reqDelEnum = (dictTypeId: number) => put(API.DEL_URL, { dictTypeId }, { form_urlencoded: true });
+export const reqDelDict = (dictTypeId: number): ApiResponse<any> =>
+  put(API.DEL_URL, { dictTypeId }, { form_urlencoded: true });
 
 /**
- * 获取枚举项列表
- * @param params 查询参数
- * @returns 枚举项列表
- */
-export const reqEnumItemList = (params: { dictCode: string }): ApiResponse<Types.DictItemVO[]> =>
-  get(API.ITEM_LIST_URL, params);
-
-/**
- * 获取枚举项列表
- * @param params 查询参数
- * @returns 枚举项列表
+ * 获取字典项列表
+ * @param dictCode 字典编码
+ * @returns 字典项列表
  */
 export const reqDictItemList = (dictCode: string): ApiResponse<Types.DictItemVO[]> =>
   get(API.ITEM_LIST_URL, { dictCode });
 
 /**
- * 新增枚举项
- * @param data 枚举项数据
+ * 新增字典项
+ * @param data 字典项数据
  * @returns 新增结果
  */
-export const reqAddEnumItem = (data = {}) => post(API.ITEM_ADD_URL, data);
+export const reqAddDictItem = (data: Types.DictItemCreateDTO): ApiResponse<any> => post(API.ITEM_ADD_URL, data);
 
 /**
- * 更新枚举项
- * @param data 枚举项数据
+ * 更新字典项
+ * @param data 字典项数据
  * @returns 更新结果
  */
-export const reqUpdateEnumItem = (data = {}) => put(API.ITEM_UPDATE_URL, data);
+export const reqUpdateDictItem = (data: Types.DictItemUpdateDTO): ApiResponse<any> => put(API.ITEM_UPDATE_URL, data);
 
 /**
- * 删除枚举项
- * @param itemId 枚举项ID
+ * 删除字典项
+ * @param itemId 字典项ID
  * @returns 删除结果
  */
-export const reqDelEnumItem = (itemId: number) => put(API.ITEM_DEL_URL, { itemId }, { form_urlencoded: true });
+export const reqDelDictItem = (itemId: number): ApiResponse<any> =>
+  put(API.ITEM_DEL_URL, { itemId }, { form_urlencoded: true });

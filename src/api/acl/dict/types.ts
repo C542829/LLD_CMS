@@ -85,3 +85,122 @@ export interface DictItemVO {
   updateTime?: string;
   [property: string]: any;
 }
+
+/**
+ * 字典类型查询参数
+ */
+export interface DictTypeQueryDTO {
+  /** 字典名称 */
+  dictName?: string;
+  /** 字典编码 */
+  dictCode?: string;
+  [property: string]: any;
+}
+
+/**
+ * org.haut.common.domain.dto.system.DictTypeCreateDTO
+ */
+export interface DictTypeCreateDTO {
+  /**
+   * 字典编码
+   */
+  dictCode: string;
+  /**
+   * 字典名称
+   */
+  dictName: string;
+  /**
+   * 备注
+   */
+  remark?: string;
+  /**
+   * 排序
+   */
+  sort: number;
+  [property: string]: any;
+}
+
+/**
+ * org.haut.common.domain.dto.system.DictTypeUpdateDTO
+ */
+export interface DictTypeUpdateDTO {
+  /**
+   * 字典编码
+   */
+  dictCode: string;
+  /**
+   * 字典名称
+   */
+  dictName: string;
+  /**
+   * 字典类型ID
+   */
+  dictTypeId: number;
+  /**
+   * 备注
+   */
+  remark?: string;
+  /**
+   * 排序
+   */
+  sort: number;
+  [property: string]: any;
+}
+
+/**
+ * org.haut.common.domain.dto.system.DictItemCreateDTO
+ */
+export interface DictItemCreateDTO {
+  /**
+   * 字典编码
+   */
+  dictCode: string;
+  /**
+   * 字典项标签
+   */
+  itemLabel: string;
+  /**
+   * 字典项值
+   */
+  itemValue: string;
+  /**
+   * 备注
+   */
+  remark?: string;
+  /**
+   * 排序
+   */
+  sort: number;
+  [property: string]: any;
+}
+
+/**
+ * org.haut.common.domain.dto.system.DictItemUpdateDTO
+ */
+export interface DictItemUpdateDTO {
+  /**
+   * 字典编码
+   */
+  dictCode: string;
+  /**
+   * 字典项ID
+   */
+  dictItemId: number;
+  /**
+   * 字典项标签
+   */
+  itemLabel: string;
+  /**
+   * 字典项值
+   */
+  itemValue: string;
+  /**
+   * 备注
+   */
+  remark?: string;
+  /**
+   * 排序
+   */
+  sort: number;
+  [property: string]: any;
+}

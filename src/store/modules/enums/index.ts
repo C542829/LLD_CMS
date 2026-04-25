@@ -1,17 +1,17 @@
 import { defineStore } from 'pinia';
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive } from 'vue';
 import { isEmpty } from 'lodash';
 
 import {
-  reqEnumList,
-  reqAddEnum,
-  reqUpdateEnum,
-  reqDelEnum,
-  reqEnumItemList,
-  reqAddEnumItem,
-  reqUpdateEnumItem,
-  reqDelEnumItem,
-} from '@/api/enums/index';
+  reqDictList,
+  reqAddDict,
+  reqUpdateDict,
+  reqDelDict,
+  reqDictItemList,
+  reqAddDictItem,
+  reqUpdateDictItem,
+  reqDelDictItem,
+} from '@/api/acl/dict/index';
 import { reqTicketList } from '@/api/member/coupon/index';
 import { reqActiveList } from '@/api/member/rechargeActivity/index';
 import { reqProductList } from '@/api/setGroup/product/index';
@@ -41,7 +41,7 @@ export const useEnumStore = defineStore('Enum', () => {
   const tableData: any = ref([]);
   const setTableData = async () => {
     settingStore.loading = true;
-    const res = await reqEnumList(search);
+    const res = await reqDictList(search);
     const data = parseResList(res);
     tableData.value = data;
     settingStore.loading = false;
@@ -59,14 +59,14 @@ export const useEnumStore = defineStore('Enum', () => {
   };
 
   const updateDict = async () => {
-    const res = await (dict.value.dictTypeId ? reqUpdateEnum(dict.value) : reqAddEnum(dict.value));
+    const res = await (dict.value.dictTypeId ? reqUpdateDict(dict.value) : reqAddDict(dict.value));
     const result = parseResMsg(res);
     result && setTableData();
     return result;
   };
 
   const delDict = async (dictTypeId: number) => {
-    const res = await reqDelEnum(dictTypeId);
+    const res = await reqDelDict(dictTypeId);
     const result = parseResMsg(res);
     result && setTableData();
     return result;
@@ -86,13 +86,13 @@ export const useEnumStore = defineStore('Enum', () => {
 
   const updateDictItem = async (data?: any) => {
     const params = data || dictItem.value;
-    const res = await (params.dictItemId ? reqUpdateEnumItem(params) : reqAddEnumItem(params));
+    const res = await (params.dictItemId ? reqUpdateDictItem(params) : reqAddDictItem(params));
     const result = parseResMsg(res);
     return result;
   };
 
   const delDictItem = async (dictItemId: number) => {
-    const res = await reqDelEnumItem(dictItemId);
+    const res = await reqDelDictItem(dictItemId);
     const result = parseResMsg(res);
     return result;
   };
@@ -104,8 +104,7 @@ export const useEnumStore = defineStore('Enum', () => {
    */
   const getEnumItemList = async (dictCode: string) => {
     try {
-      const params = { dictCode };
-      const res = await reqEnumItemList(params);
+      const res = await reqDictItemList(dictCode);
       const data = parseResList(res);
       return data;
     } catch (error) {

@@ -156,7 +156,6 @@
 
       <!-- 人员地址 -->
       <el-form-item label="人员地址" prop="userAddress">
-        <!-- <el-input v-model="formdata.userAddress" clearable class="w-240" placeholder="请输入居住地址" /> -->
         <el-input
           v-model="formdata.userAddress"
           :autosize="{ minRows: 2, maxRows: 4 }"
