@@ -14,7 +14,6 @@ import {
 } from '@/api/enums/index';
 import { reqTicketList } from '@/api/member/coupon/index';
 import { reqActiveList } from '@/api/member/rechargeActivity/index';
-import { reqUserList } from '@/api/staffMain/index';
 import { reqProductList } from '@/api/setGroup/product/index';
 import { reqServiceItemList } from '@/api/setGroup/serviceItem/index';
 import { reqPackageList } from '@/api/setGroup/package/index';
@@ -196,35 +195,35 @@ export const useEnumStore = defineStore('Enum', () => {
 
 export const useDataEnumStore = defineStore('DataEnum', () => {
   // 员工列表
-  const staffList: any = ref([]);
-  /**
-   * 获取员工列表
-   * @param refresh 是否刷新
-   * @param params 请求参数
-   * @returns 枚举项列表
-   */
-  const getStaffList = async (refresh = false, params = { userStatus: '在职', pageNum: 1, pageSize: 100 }) => {
-    if (isEmpty(staffList.value) || refresh) {
-      await setStaffList(params);
-      return staffList.value;
-    } else {
-      return staffList.value;
-    }
-  };
-  const setStaffList = async (params: any) => {
-    const res = await reqUserList(params);
-    const data = parseResObj(res);
-    staffList.value = data.rows.map((item: any) => {
-      return {
-        id: item.id,
-        userId: item.id,
-        userName: item.userName,
-      };
-    });
-    // for (const staff of staffList.value) {
-    //   staff.userId = staff.id;
-    // }
-  };
+  // const staffList: any = ref([]);
+  // /**
+  //  * 获取员工列表
+  //  * @param refresh 是否刷新
+  //  * @param params 请求参数
+  //  * @returns 枚举项列表
+  //  */
+  // const getStaffList = async (refresh = false, params = { userStatus: '在职', pageNum: 1, pageSize: 100 }) => {
+  //   if (isEmpty(staffList.value) || refresh) {
+  //     await setStaffList(params);
+  //     return staffList.value;
+  //   } else {
+  //     return staffList.value;
+  //   }
+  // };
+  // const setStaffList = async (params: any) => {
+  //   const res = await reqUserList(params);
+  //   const data = parseResObj(res);
+  //   staffList.value = data.rows.map((item: any) => {
+  //     return {
+  //       id: item.id,
+  //       userId: item.id,
+  //       userName: item.userName,
+  //     };
+  //   });
+  //   // for (const staff of staffList.value) {
+  //   //   staff.userId = staff.id;
+  //   // }
+  // };
 
   /** 优惠券列表 */
   const ticketList: any = ref([]);
@@ -422,7 +421,7 @@ export const useDataEnumStore = defineStore('DataEnum', () => {
   };
 
   const $reset = () => {
-    staffList.value = [];
+    // staffList.value = [];
     ticketList.value = [];
     activeList.value = [];
     productList.value = [];
@@ -436,9 +435,9 @@ export const useDataEnumStore = defineStore('DataEnum', () => {
   return {
     $reset,
     // 员工相关
-    staffList,
-    setStaffList,
-    getStaffList,
+    // staffList,
+    // setStaffList,
+    // getStaffList,
 
     // 优惠券相关
     ticketList,

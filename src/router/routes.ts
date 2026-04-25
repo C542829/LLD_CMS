@@ -143,7 +143,6 @@ export const asyncRoute = [
       {
         path: '/staffMain',
         component: () => import('@/views/acl/user/index.vue'),
-        // component: () => import('@/views/staffMain/index.vue'),
         name: 'StaffMain',
         meta: {
           title: '人事',
