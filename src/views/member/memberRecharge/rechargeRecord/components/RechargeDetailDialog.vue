@@ -134,9 +134,9 @@
     </div>
 
     <!-- 底部按钮 -->
-    <template #footer>
+    <!-- <template #footer>
       <el-button @click="handleClose">关闭</el-button>
-    </template>
+    </template> -->
   </Dialog>
 </template>
 

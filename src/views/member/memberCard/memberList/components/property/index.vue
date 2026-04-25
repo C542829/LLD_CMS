@@ -1,9 +1,8 @@
 <template>
-  <!-- <ChildNav :navList="navList" /> -->
   <div class="detail-container">
     <div class="top-content">
       <span>时间段：</span>
-      <DatePicker v-model="query.date" style="width: 260px; margin-right: 10px" />
+      <IDatePicker v-model="query.date" :default="false" class="w-240 mr-3" @change="search" @clear="search" />
       <el-button type="primary" @click="search">查询</el-button>
     </div>
     <div class="main-content">
@@ -28,7 +27,7 @@ import NavTabs from '@/components/Tab/NavTabs.vue';
 import Property from './Property.vue';
 import ConsumptionRecord from './ConsumptionRecord.vue';
 import RechargeRecord from './RechargeRecord.vue';
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useMemberStore } from '@/store/modules/member/member';
 
 // 获取会员信息
@@ -63,14 +62,6 @@ const search = () => {
     rechargeRecordRef.value.getData();
   }
 };
-
-// 默认最近一月日期
-const defaultDate = computed(() => {
-  const end = new Date();
-  const start = new Date();
-  start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-  return [start, end];
-});
 </script>
 
 <style scoped lang="scss">
@@ -80,10 +71,9 @@ const defaultDate = computed(() => {
   > .top-content {
     // margin: 10px;
     width: 100%;
-    // border: 1px red solid;
+    margin-bottom: 12px;
   }
   > .main-content {
-    margin-top: 12px;
     height: calc(100% - 44px);
     // height: 100%;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);

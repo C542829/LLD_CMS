@@ -1,5 +1,5 @@
 <template>
-  <div class="container" v-loading="loading" element-loading-text="加载中...">
+  <div class="container" v-loading="loading" :element-loading-text="LOADING_MSG">
     <div class="section-title">会员卡资产</div>
     <PaginationTable
       :data="assetList"
@@ -113,6 +113,7 @@ import { ref, onMounted } from 'vue';
 import { CouponType, couponTypeMap, CouponStatus, CouponStatusMap } from '@/enums/index';
 import { reqVipAssetList, Types } from '@/api/member/member/index';
 import { parseResObj } from '@/utils/parseResponse';
+import { LOADING_MSG } from '@/utils/constants';
 
 import { useMemberStore } from '@/store/modules/member/member';
 const store = useMemberStore();
