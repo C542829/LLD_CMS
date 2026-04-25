@@ -1,6 +1,7 @@
 import Message from '@/components/Message';
 import { CustomerType } from '@/enums';
 import { OrderSettleDTO } from '@/api/order/types';
+import MessageBox from '@/components/MessageBox';
 
 /**
  * 默认订单表单数据
@@ -30,7 +31,6 @@ export const DEFAULT_ORDER_FORM: OrderSettleDTO = {
 export const verifyOrder = (order: OrderSettleDTO) => {
   for (const detail of order.orderDetails) {
     if (detail.technicians && detail.technicians.length === 0) {
-      Message.warning('请选择销售人员');
       return false;
     }
   }

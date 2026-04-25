@@ -233,9 +233,13 @@ const handleCancel = async () => {
 const settleDialogVisible = ref(false);
 
 // 处理结算事件
-const handleSettle = () => {
+const handleSettle = async () => {
   if (!verifyOrder(orderStore.order)) {
-    return;
+    // 没有选择销售人员，是否继续？
+    const result = await MessageBox.warning('没有选择销售人员，是否继续？');
+    if (!result) {
+      return;
+    }
   }
 
   if (orderStore.order.customerType === CustomerType.Member && !orderStore.order.vipId) {
