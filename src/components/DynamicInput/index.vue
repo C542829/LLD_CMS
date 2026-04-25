@@ -1,117 +1,162 @@
 <template>
-  <div class="dynamic-input-container" :style="{ maxWidth: `${width}px` }">
+  <div class="dynamic-input" :style="{ maxWidth: normalizedWidth }">
     <!-- 查看状态 -->
-    <template v-if="!isEditing">
-      <div class="view-text" :style="{ fontSize: fontSize }">
-        <span class="text-overflow" :title="inputValue!">{{ inputValue || '- ' }}</span>
-        <el-button
-          type="primary"
-          :color="btnColor ? btnColor : ''"
-          :size="size"
-          link
-          @click.stop.prevent="isEditing = true"
-        >
-          编辑
-        </el-button>
-      </div>
-    </template>
+    <div v-if="!isEditing" class="dynamic-input__view" :style="{ fontSize: fontSize }">
+      <span class="dynamic-input__text text-overflow" :title="inputValue ?? ''">
+        {{ inputValue || emptyText }}
+      </span>
+      <el-button
+        type="primary"
+        :color="btnColor || undefined"
+        :size="size"
+        link
+        @click.stop.prevent="handleStartEdit"
+      >
+        编辑
+      </el-button>
+    </div>
     <!-- 编辑状态 -->
-    <template v-else>
-      <el-input v-model="inputValue" @keyup.enter="handleConfirm" :size="size" class="input" clearable />
-      <el-button type="primary" :color="btnColor ? btnColor : ''" :size="size" link @click.stop.prevent="handleCancel">
+    <div v-else class="dynamic-input__edit">
+      <el-input
+        v-model="inputValue"
+        :placeholder="placeholder"
+        :size="size"
+        class="dynamic-input__input"
+        clearable
+        @keyup.enter="handleConfirm"
+        @keyup.escape="handleCancel"
+      />
+      <el-button
+        type="primary"
+        :color="btnColor || undefined"
+        :size="size"
+        link
+        @click.stop.prevent="handleCancel"
+      >
         取消
       </el-button>
-      <el-button type="primary" :color="btnColor ? btnColor : ''" :size="size" link @click.stop.prevent="handleConfirm">
+      <el-button
+        type="primary"
+        :color="btnColor || undefined"
+        :size="size"
+        link
+        @click.stop.prevent="handleConfirm"
+      >
         确定
       </el-button>
-    </template>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, withDefaults, watch, inject } from 'vue';
+import { ref, computed, watch } from 'vue';
+import Message from '@/components/Message/index';
 
-const $Message: any = inject('$Message');
-
+/** 动态编辑输入框组件 Props */
 interface DynamicInputProps {
-  value: string | null | undefined; // 输入框值
-  params?: any; // 额外参数
+  /** 输入框值 */
+  value: string | null | undefined;
+  /** 额外参数，随 change 事件一起传递 */
+  params?: Record<string, unknown>;
+  /** 编辑按钮颜色 */
   btnColor?: string;
-  width?: number;
-  size?: '' | 'default' | 'small' | 'large';
+  /** 容器最大宽度，number 时单位为 px，string 时直接使用 */
+  width?: number | string;
+  /** 尺寸 */
+  size?: SizeType;
+  /** 查看状态文字大小 */
   fontSize?: string;
+  /** 输入框占位文本 */
+  placeholder?: string;
+  /** 空值时显示的文本 */
+  emptyText?: string;
 }
 
 const props = withDefaults(defineProps<DynamicInputProps>(), {
-  value: '',
   size: 'default',
   width: 300,
   fontSize: '14px',
+  placeholder: '请输入内容',
+  emptyText: '-',
 });
 
-const $emit = defineEmits(['update']);
+const emit = defineEmits<{
+  /** 值变更事件 */
+  (e: 'change', value: string, params: Record<string, unknown>): void;
+}>();
 
-// 输入框初始值
-let inputValue = ref<any>('');
-// 是否处于编辑状态
-let isEditing = ref(false);
+/** 标准化宽度：number 时添加 px 单位，string 时直接使用 */
+const normalizedWidth = computed(() => {
+  return typeof props.width === 'number' ? `${props.width}px` : props.width;
+});
 
-// 确认修改
+/** 输入框值 */
+const inputValue = ref<string>('');
+/** 是否处于编辑状态 */
+const isEditing = ref(false);
+
+/** 进入编辑状态 */
+const handleStartEdit = () => {
+  isEditing.value = true;
+};
+
+/** 确认修改 */
 const handleConfirm = () => {
   if (!inputValue.value) {
-    $Message.error('内容不能为空');
+    Message.warning('内容不能为空');
     return;
   }
-  // 传递数据
-  const value = inputValue.value;
-  let params = {};
-  props.params && (params = props.params);
-  $emit('update', value, params);
-  // 关闭编辑状态
+  emit('change', inputValue.value, props.params ?? {});
   isEditing.value = false;
 };
 
-// 取消编辑
+/** 取消编辑，恢复原始值 */
 const handleCancel = () => {
   isEditing.value = false;
-  inputValue.value = props.value;
+  inputValue.value = props.value ?? '';
 };
 
+/** 同步外部 value */
 watch(
   () => props.value,
   (newValue) => {
-    if (newValue) {
-      inputValue.value = newValue;
-    } else {
-      inputValue.value = '';
-    }
+    inputValue.value = newValue ?? '';
   },
+  { immediate: true },
 );
 </script>
+
 <script lang="ts">
 export default {
   name: 'DynamicInput',
 };
 </script>
+
 <style lang="scss" scoped>
-.dynamic-input-container {
+.dynamic-input {
   display: flex;
   align-items: center;
   width: 100%;
-  max-width: 300px;
 
-  .view-text {
+  &__view {
     width: 100%;
     display: flex;
     align-items: center;
-    > span {
-      margin: 0 5px 0 0;
-    }
   }
 
-  .input {
+  &__text {
+    margin-right: 5px;
+  }
+
+  &__edit {
+    width: 100%;
+    display: flex;
+    align-items: center;
+  }
+
+  &__input {
     width: calc(100% - 85px);
-    margin: 0 5px 0 0;
+    margin-right: 5px;
   }
 }
 </style>
