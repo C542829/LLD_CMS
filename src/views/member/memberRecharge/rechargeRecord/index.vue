@@ -7,7 +7,7 @@
         <div class="search-item">
           <label>
             充值时段：
-            <IDatePicker v-model="dateRange" @change="search" @clear="search" class="w-220" />
+            <IDatePicker v-model="dateRange" :default="2" @change="search" @clear="search" class="w-220" />
           </label>
         </div>
         <template v-if="userStore.isAdmin || userStore.isAreaManager">
@@ -142,10 +142,10 @@
         </el-table-column>
         <el-table-column label="操作" width="180">
           <template #default="{ row }">
-            <el-button link type="primary" @click="showDetailDialog(row)">详情</el-button>
+            <el-button link type="info" @click="showDetailDialog(row)">详情</el-button>
             <el-button
               link
-              type="primary"
+              type="warning"
               :disabled="row.rechargeStatus !== RechargeStatus.SUCCESS"
               @click="billReversal(row)"
             >
