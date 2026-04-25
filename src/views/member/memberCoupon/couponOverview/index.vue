@@ -7,7 +7,7 @@
         <div class="search-item">
           <label>
             <span>查询时段：</span>
-            <DatePicker v-model="summaryParams.dateRange" @change="search"></DatePicker>
+            <IDatePicker v-model="summaryParams.dateRange" @change="search" @clear="search" class="w-240" />
           </label>
         </div>
 
@@ -20,7 +20,7 @@
 
     <!-- 数据列表 -->
     <Card class="table-card">
-      <Table v-loading="loading" element-loading-text="加载中..." :data="couponSummary">
+      <Table v-loading="loading" :element-loading-text="LOADING_MSG" :data="couponSummary">
         <el-table-column prop="couponStatType" label="优惠券统计类型" :formatter="couponTypeMap" />
         <el-table-column label="赠送数量/金额">
           <template #default="{ row }">
@@ -47,13 +47,13 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
-
 import { couponTypeMap } from '@/utils/formatter';
 import { formatDate } from '@/utils/time';
+import { LOADING_MSG } from '@/utils/constants';
 
 const loading = ref(false);
 
-const summaryParams = reactive({ dateRange: [new Date(), new Date()] as [Date, Date] });
+const summaryParams = reactive({ dateRange: [] });
 
 interface CouponSummaryItem {
   couponStatType: number;
@@ -78,8 +78,8 @@ const search = () => {
 const loadCouponSummary = async () => {
   loading.value = true;
   try {
-    const start = formatDate(summaryParams.dateRange[0]);
-    const end = formatDate(summaryParams.dateRange[1]);
+    const start = summaryParams.dateRange[0];
+    const end = summaryParams.dateRange[1];
     console.log('查询时段:', start, '-', end);
 
     couponSummary.value = [

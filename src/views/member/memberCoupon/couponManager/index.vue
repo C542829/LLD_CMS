@@ -10,7 +10,7 @@
         <div class="search-item">
           <label>
             <span>优惠券状态：</span>
-            <el-select v-model="store.searchParams.ticketStatus" @change="search" style="width: 120px">
+            <el-select v-model="store.searchParams.ticketStatus" @change="search" class="w-100">
               <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </label>
@@ -22,7 +22,7 @@
               <OrgSelect
                 v-model="store.searchParams.orgId"
                 placeholder="门店"
-                class="w-120"
+                class="w-100"
                 :multiple="false"
                 @change="search"
                 @clear="search"
@@ -40,7 +40,7 @@
             :prefix-icon="Search"
             clearable
             placeholder="优惠券名称"
-            class="search-input"
+            class="search-input w-240"
           >
             <template #append>
               <el-button type="primary" @click="search">搜索</el-button>

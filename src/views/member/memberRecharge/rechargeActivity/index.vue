@@ -23,8 +23,7 @@
                 v-model="store.search.orgId"
                 placeholder="门店"
                 class="w-100"
-                :multiple="true"
-                :max-collapse-tags="0"
+                :multiple="false"
                 @change="search"
                 @clear="search"
               />

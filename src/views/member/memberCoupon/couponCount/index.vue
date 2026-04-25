@@ -7,7 +7,7 @@
         <div class="search-item">
           <label>
             <span>优惠券状态：</span>
-            <el-select v-model="recordParams.status" @change="search" clearable style="width: 120px">
+            <el-select v-model="recordParams.status" @change="search" clearable class="w-100">
               <el-option
                 v-for="item in CouponStatusOptions"
                 :key="item.value"
@@ -22,7 +22,7 @@
         <div class="search-item">
           <label>
             <span>优惠券：</span>
-            <el-select v-model="recordParams.vipTicketId" @change="search" clearable style="width: 120px">
+            <el-select v-model="recordParams.vipTicketId" @change="search" clearable class="w-120">
               <el-option v-for="item in coupons" :key="item.id" :label="item.ticketName" :value="item.id" />
             </el-select>
           </label>
@@ -32,7 +32,7 @@
         <div class="search-item">
           <label>
             <span>活动：</span>
-            <el-select v-model="recordParams.activeId" @change="search" clearable style="width: 120px">
+            <el-select v-model="recordParams.activeId" @change="search" clearable class="w-120">
               <el-option v-for="item in activities" :key="item.id" :label="item.activeName" :value="item.id" />
             </el-select>
           </label>
@@ -55,6 +55,7 @@
             :prefix-icon="Search"
             clearable
             placeholder="会员信息关键字"
+            class="w-220"
           >
             <template #append>
               <el-button type="primary" @click="search">搜索</el-button>
