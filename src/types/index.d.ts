@@ -89,4 +89,9 @@ declare global {
     pageSize: number; //	每页大小
     total: number; //	总记录数
   }
+
+  interface TableData<T = any> {
+    list: T[];
+    total: number;
+  }
 }
