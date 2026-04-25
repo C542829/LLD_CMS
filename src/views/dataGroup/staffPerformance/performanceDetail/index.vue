@@ -197,9 +197,6 @@ const setPerformanceRecord = async () => {
 
 // 初始化
 onMounted(() => {
-  // loadPerfTypeList();
-  // loadServiceTypeList();
-  // loadStaffList();
   search();
 });
 
@@ -254,69 +251,6 @@ const showDialog = async (row: any) => {
 
   dialog.visible = true;
 };
-
-// 上钟类型字典数据
-// const perfTypeList = ref<any[]>([]);
-// // 服务类型字典数据
-// const bizTypeList = ref<any[]>([]);
-
-// // 获取上钟类型字典数据
-// const loadPerfTypeList = async () => {
-//   try {
-//     perfTypeList.value = await enumStore.getPerfTypeList();
-//   } catch (error) {
-//     console.error('获取上钟类型字典失败:', error);
-//     perfTypeList.value = [];
-//   }
-// };
-
-// // 获取服务类型字典数据
-// const loadServiceTypeList = async () => {
-//   try {
-//     bizTypeList.value = await enumStore.getServiceTypeList();
-//   } catch (error) {
-//     console.error('获取服务类型字典失败:', error);
-//     bizTypeList.value = [];
-//   }
-// };
-
-// // 技师列表
-// const staffList: any = ref([]);
-// const loadStaffList = async () => {
-//   try {
-//     staffList.value = await dataEnumStore.getStaffList();
-//   } catch (error) {
-//     console.error('加载技师列表失败:', error);
-//   }
-// };
-
-// // 上钟类型映射计算属性
-// const perfTypeMap = computed(() => {
-//   const map = new Map();
-//   perfTypeList.value.forEach((item: any) => {
-//     map.set(item.itemValue, item.itemLabel);
-//   });
-//   return map;
-// });
-
-// // 服务类型映射计算属性
-// const bizTypeMap = computed(() => {
-//   const map = new Map();
-//   bizTypeList.value.forEach((item: any) => {
-//     map.set(item.itemValue, item.itemLabel);
-//   });
-//   return map;
-// });
-
-// // 格式化上钟类型显示
-// const formatPerfType = (perfType: any) => {
-//   return perfTypeMap.value.get(String(perfType)) || perfType || '';
-// };
-
-// // 格式化服务类型显示
-// const formatServiceType = (bizType: any) => {
-//   return bizTypeMap.value.get(String(bizType)) || bizType || '';
-// };
 </script>
 
 <style scoped lang="scss"></style>

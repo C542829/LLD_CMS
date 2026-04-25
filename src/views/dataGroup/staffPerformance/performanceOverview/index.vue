@@ -50,8 +50,8 @@
     <!-- 数据列表 -->
     <Card padding="0">
       <PaginationTable
-        v-loading="settingStore.loading"
-        :element-loading-text="settingStore.loadingMsg"
+        v-loading="loading"
+        :element-loading-text="LOADING_MSG"
         :data="performanceSummary"
         :showPagination="false"
         show-summary
@@ -95,17 +95,15 @@ import { reqPerformanceSummary } from '@/api/dataGroup/staffPerformance/index';
 import type { KpiSummaryQuery, KpiSummaryVO } from '@/api/dataGroup/staffPerformance/types';
 import { parseResList } from '@/utils/parseResponse';
 import { exportExcel, type ExportColumn } from '@/utils/exportExcel';
+import { LOADING_MSG } from '@/utils/constants';
 // 引入数据仓库
-import { useSettingStore } from '@/store/modules/acl/setting';
-import { useDataEnumStore } from '@/store/modules/enums/index';
 import useUserStore from '@/store/modules/acl/user';
 
 const userStore = useUserStore();
-const settingStore = useSettingStore();
-const dataEnumStore = useDataEnumStore();
 
 /** 日期范围 */
 const dateRange = ref<string[]>([]);
+const loading = ref<boolean>(false);
 
 // 搜索参数
 const searchParams = ref<KpiSummaryQuery>({
@@ -129,22 +127,12 @@ const handleSearchParams = () => {
 // 绩效汇总数据
 const performanceSummary = ref<KpiSummaryVO[]>([]);
 
-// 技师列表
-const staffList: any = ref([]);
-const loadStaffList = async () => {
-  try {
-    staffList.value = await dataEnumStore.getStaffList();
-  } catch (error) {
-    console.error('加载技师列表失败:', error);
-  }
-};
-
 /**
  * 获取绩效汇总数据
  */
 const setPerformanceSummary = async () => {
   try {
-    settingStore.loading = true;
+    loading.value = true;
     handleSearchParams();
     const params = { ...searchParams.value };
     const res = await reqPerformanceSummary(params);
@@ -154,13 +142,12 @@ const setPerformanceSummary = async () => {
     console.error('获取绩效汇总失败:', error);
     ElMessage.error('获取绩效汇总失败');
   } finally {
-    settingStore.loading = false;
+    loading.value = false;
   }
 };
 
 // 初始化
 onMounted(() => {
-  loadStaffList();
   setPerformanceSummary();
 });
 
