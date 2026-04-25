@@ -155,8 +155,6 @@ export class LodopPrinter {
     // LODOP的打印页面高度
     const printHeight = `${height}mm`;
 
-    // console.log('打印尺寸：', { printWidth, printHeight });
-
     // 打印任务名称
     const taskName = `${data.historyCode}-${data.orgName}充值单`;
     // 初始化打印任务

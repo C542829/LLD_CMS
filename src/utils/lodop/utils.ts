@@ -61,10 +61,10 @@ export function calculateOrderPrintHeight(data: OrderData): number {
  * @returns 估算的打印高度（毫米）
  */
 export function calculateRechargePrintHeight(data: RechargeData): number {
-  const baseHeight = 140; // 基础内容高度（固定部分）
-  const paymentRowHeight = 6; // 每行支付明细的高度（毫米）
-  const kpiRowHeight = 6; // 每行业绩归属的高度（毫米）
-  const faultTolerance = 30; // 容错空间
+  const baseHeight = 90; // 基础内容高度（固定部分）
+  const paymentRowHeight = 4; // 每行支付明细的高度（毫米）
+  const kpiRowHeight = 4; // 每行业绩归属的高度（毫米）
+  const faultTolerance = 10; // 容错空间
 
   // 动态部分高度
   const paymentHeight = data.paymentInfoList.length * paymentRowHeight;
