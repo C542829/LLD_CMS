@@ -9,7 +9,6 @@ import Form from './Form/index.vue';
 import Card from './Card/index.vue';
 import BtnForm from './BtnForm/index.vue';
 import DynamicInput from './DynamicInput/index.vue';
-import DatePicker from './DatePicker/index.vue';
 import MultipleSelect from './MultipleSelect/index.vue';
 import OrgSelect from './FormComponents/OrgSelect.vue';
 import UserSelect from './FormComponents/UserSelect.vue';
@@ -40,7 +39,6 @@ const allGlobalComponent: any = {
   Card,
   BtnForm,
   DynamicInput,
-  DatePicker,
   UserSelect,
   DictSelect,
   MultipleSelect,
