@@ -22,8 +22,7 @@
             </template>
             <label style="margin: 0 10px">
               统计日期：
-              <!-- <DatePicker v-model="dateRange" @change="search" @clear="search" size="small" class="w-200" /> -->
-              <IDatePicker v-model="dateRange" @change="search" @clear="search" size="small" class="w-260" />
+              <IDatePicker v-model="dateRange" @change="search" @clear="search" size="small" class="w-220" />
             </label>
             <!-- <el-button disabled @click="" plain>打印数据</el-button> -->
           </div>
