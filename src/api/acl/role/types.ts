@@ -50,3 +50,63 @@ export interface RoleInfoVo {
   roleStatus?: number;
   [property: string]: any;
 }
+
+/**
+ * org.haut.common.domain.dto.system.RoleCreateDTO
+ */
+export interface RoleCreateDTO {
+  /**
+   * 备注
+   */
+  remark?: string;
+  /**
+   * 角色标识
+   * 角色编码
+   */
+  roleCode: string;
+  /**
+   * 角色名称
+   */
+  roleName: string;
+  /**
+   * 显示顺序
+   */
+  roleSort?: number;
+  /**
+   * 角色状态（0 正常，1 停用）
+   */
+  roleStatus?: number;
+  [property: string]: any;
+}
+
+/**
+ * org.haut.common.domain.dto.system.RoleUpdateDTO
+ */
+export interface RoleUpdateDTO {
+  /**
+   * 角色ID
+   */
+  id: number;
+  /**
+   * 备注
+   */
+  remark?: string;
+  /**
+   * 角色标识
+   * 角色编码
+   */
+  roleCode: string;
+  /**
+   * 角色名称
+   */
+  roleName: string;
+  /**
+   * 显示顺序
+   */
+  roleSort?: number;
+  /**
+   * 角色状态（0 正常，1 停用）
+   */
+  roleStatus?: number;
+  [property: string]: any;
+}

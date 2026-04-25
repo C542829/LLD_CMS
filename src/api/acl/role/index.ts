@@ -13,7 +13,6 @@ enum API {
   UNALLOCATED_LIST_URL = '/system/role/query-unallocated-list',
   ADD_ALLOCATED_USER_URL = '/system/role/add-user',
   ADD_ALLOCATED_PERMISSION_URL = '/system/role/add-permission',
-  QUERY_TREE_URL = '/system/role/query-tree',
 }
 
 export const reqList = (params: any) => get(API.LIST_URL, params);
@@ -31,12 +30,18 @@ export const reqRoleList = (
   },
 ): ApiResponse<Types.RoleInfoVo[]> => get(API.LIST_URL, params);
 
-export const reqAdd = (params: any) => post(API.ADD_URL, params);
+export const reqAdd = (data: Types.RoleCreateDTO): ApiResponse<any> => post(API.ADD_URL, data);
 
-export const reqUpdate = (params: any) => put(API.UPDATE_URL, params);
+export const reqUpdate = (data: Types.RoleUpdateDTO): ApiResponse<any> => put(API.UPDATE_URL, data);
 
-export const reqUpdateStatus = (params: any) => put(API.UPDATE_STATUS_URL, params, { form_urlencoded: true });
+export const reqUpdateStatus = (params: { roleId: number; status: number }): ApiResponse<any> =>
+  put(API.UPDATE_STATUS_URL, params, { form_urlencoded: true });
 
+/**
+ * 获取已分配用户列表
+ * @param roleId 角色ID
+ * @returns 已分配用户列表
+ */
 export const reqAllocatedList = (roleId: number) => get(API.ALLOCATED_LIST_URL, { roleId });
 
 export const reqUnallocatedList = () => get(API.UNALLOCATED_LIST_URL);
@@ -44,5 +49,3 @@ export const reqUnallocatedList = () => get(API.UNALLOCATED_LIST_URL);
 export const reqAddAllocatedUser = (params: any) => post(API.ADD_ALLOCATED_USER_URL, params);
 
 export const reqAddAllocatedPerm = (params: any) => post(API.ADD_ALLOCATED_PERMISSION_URL, params);
-
-export const reqQueryTree = (params: any) => get(API.QUERY_TREE_URL, params);
