@@ -10,7 +10,7 @@
         <div class="search-item">
           <label>
             <span>状态：</span>
-            <el-select v-model="store.search.orgStatus" @change="search" clearable style="width: 100px">
+            <el-select v-model="searchParams.orgStatus" @change="fetchTableData" clearable style="width: 100px">
               <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </label>
@@ -18,15 +18,15 @@
         <!-- 搜索框 -->
         <div class="search-item">
           <el-input
-            v-model="store.search.orgName"
-            @keydown.enter="search"
-            @clear="search"
+            v-model="searchParams.orgName"
+            @keydown.enter="fetchTableData"
+            @clear="fetchTableData"
             :prefix-icon="Search"
             placeholder="请输入门店关键字"
             clearable
           >
             <template #append>
-              <el-button type="primary" @click="search">搜索</el-button>
+              <el-button type="primary" @click="fetchTableData">搜索</el-button>
             </template>
           </el-input>
         </div>
@@ -35,9 +35,9 @@
     <!-- 数据列表 -->
     <Card class="table-card" padding="0">
       <PaginationTable
-        v-loading="settingStore.loading"
-        :element-loading-text="settingStore.loadingMsg"
-        :data="store.tableData"
+        v-loading="loading"
+        :element-loading-text="LOADING_MSG"
+        :data="tableData"
         :showPagination="false"
         :row-class-name="getRowClassName"
       >
@@ -63,7 +63,7 @@
           <template #default="{ row }">
             <el-button @click="showDrawer(2, row)" link type="info">详情</el-button>
             <el-button @click="showDrawer(1, row)" link type="primary">编辑</el-button>
-            <el-button v-if="row.orgState === 1" @click="store.updateStatus(row)" link type="success">启用</el-button>
+            <el-button v-if="row.orgState === 1" @click="handleUpdateStatus(row)" link type="success">启用</el-button>
             <el-button v-else @click="showConfirm(row)" link type="warning">禁用</el-button>
           </template>
         </el-table-column>
@@ -74,45 +74,85 @@
   <!-- 抽屉表单 -->
   <Drawer v-model="drawer.visible" :title="drawer.title" @closed="handleDrawerClose" width="450">
     <!-- 表单 -->
-    <OrgForm @close-drawer="drawer.visible = false" :disabled="drawer.disabled" />
+    <OrgForm
+      :form-data="currentFormData"
+      :disabled="drawer.disabled"
+      @close-drawer="drawer.visible = false"
+      @submit-success="handleSubmitSuccess"
+    />
   </Drawer>
 </template>
 
 <script setup lang="ts">
-import { Search } from '@element-plus/icons-vue';
-import { onMounted, inject, reactive } from 'vue';
-import { statusOptions } from '@/enums/index';
-import { dateFormatter } from '@/utils/formatter';
 import OrgForm from './form.vue';
+import MessageBox from '@/components/MessageBox/index';
+import { Search } from '@element-plus/icons-vue';
+import { onMounted, reactive, ref } from 'vue';
+import { cloneDeep } from 'lodash';
+import { Status, statusOptions } from '@/enums/index';
+import { dateFormatter } from '@/utils/formatter';
+import { reqOrgList, reqUpdateOrgStatus } from '@/api/acl/org';
+import type * as Types from '@/api/acl/org/types';
+import { parseResList, parseResMsg } from '@/utils/parseResponse';
+import { LOADING_MSG } from '@/utils/constants';
 
-import { useSettingStore } from '@/store/modules/acl/setting';
-import { useOrgStore } from '@/store/modules/acl/org';
+/** 加载状态 */
+const loading = ref(false);
 
-const $MessageBox: any = inject('$MessageBox');
-
-const settingStore = useSettingStore();
-const store = useOrgStore();
-
-onMounted(async () => {
-  search();
+/** 搜索参数 */
+const searchParams = reactive<Types.SearchListParams>({
+  orgName: '',
+  orgCode: '',
+  orgStatus: Status.enabled,
 });
 
-// 搜索
-const search = () => {
-  if (store.search.orgStatus == undefined) {
-    store.search.orgStatus = '';
+/** 表格数据 */
+const tableData = ref<any[]>([]);
+
+/** 当前表单数据（传递给子组件） */
+const currentFormData = ref<any>({});
+
+/** 获取门店列表 */
+const fetchTableData = async () => {
+  if (searchParams.orgStatus == undefined) {
+    searchParams.orgStatus = '';
   }
-  store.setTableData();
+  loading.value = true;
+  try {
+    const res = await reqOrgList(searchParams);
+    const data: Types.Org[] = parseResList(res);
+    for (const item of data) {
+      item.orgArea && (item.orgArea = JSON.parse(item.orgArea as string));
+    }
+    tableData.value = data.filter((item) => !item.orgCode.includes('Test'));
+  } finally {
+    loading.value = false;
+  }
 };
 
-// 禁用
+/** 更新门店状态 */
+const handleUpdateStatus = async (row: Types.Org) => {
+  const params = {
+    id: row.id,
+    status: row.orgState ? 0 : 1,
+  };
+  const res = await reqUpdateOrgStatus(params);
+  const result = parseResMsg(res);
+  result && fetchTableData();
+};
+
+onMounted(() => {
+  fetchTableData();
+});
+
+// 禁用确认
 const showConfirm = async (row: any) => {
-  const result = await $MessageBox.confirm({
+  const result = await MessageBox.confirm({
     title: '确认操作',
     message: `你确定要禁用门店【${row.orgName}】吗？`,
     type: 'warning',
   });
-  result && store.updateStatus(row);
+  result && handleUpdateStatus(row);
 };
 
 // 抽屉标题
@@ -123,9 +163,32 @@ const drawer: any = reactive({
   disabled: false,
 });
 
+/** 默认表单数据 */
+const DEFAULT_FORMDATA = {
+  id: 0,
+  orgState: 0,
+  orgName: '',
+  orgShortName: '',
+  orgCode: '',
+  orgParent: '无',
+  orgProperty: '实体门店',
+  orgType: '自营',
+  orgArea: ['河南省', '郑州市', '中原区'],
+  orgNumber: '',
+  orgLeader: '',
+  orgLeaderNum: '',
+  orgAddress: '',
+  remark: '',
+};
+
+/** 重置表单数据 */
+const resetFormData = () => {
+  currentFormData.value = cloneDeep(DEFAULT_FORMDATA);
+};
+
 // 打开抽屉
 const showDrawer = (handleIndex: number, row: any = {}) => {
-  row?.id ? (store.formData = { ...row }) : store.resetFormData();
+  row?.id ? (currentFormData.value = { ...row }) : resetFormData();
   drawer.title = drawerTitles[handleIndex];
   drawer.visible = true;
   drawer.disabled = handleIndex === 2;
@@ -133,7 +196,13 @@ const showDrawer = (handleIndex: number, row: any = {}) => {
 
 // 关闭抽屉触发
 const handleDrawerClose = () => {
-  store.resetFormData();
+  resetFormData();
+};
+
+/** 表单提交成功回调 */
+const handleSubmitSuccess = () => {
+  drawer.visible = false;
+  fetchTableData();
 };
 
 // 设置行样式

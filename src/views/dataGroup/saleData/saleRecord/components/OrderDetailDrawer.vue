@@ -118,7 +118,8 @@ import MessageBox from '@/components/MessageBox';
 import Message from '@/components/Message';
 import { ref, onMounted, watch } from 'vue';
 import { OrderDetailType } from '@/enums';
-import { useOrgStore } from '@/store/modules/acl/org';
+import { reqOrgInfo } from '@/api/acl/org';
+import { parseResObj } from '@/utils/parseResponse';
 import { reqReconcileOrder, reqQueryOrder } from '@/api/order/index';
 import { OrderStatus } from '@/enums';
 import { LOADING_MSG } from '@/utils/constants';
@@ -179,17 +180,15 @@ const getOrder = async (orderCode: string) => {
 //   { immediate: true },
 // );
 
-// 门店store
-const orgStore = useOrgStore();
-
 // 门店信息
 const orgInfo = ref<any>({});
 
-// 获取门店详情
+/** 获取门店详情 */
 const getOrgDetail = async (orgId: number) => {
   if (orgId) {
     try {
-      orgInfo.value = await orgStore.getOrgInfo(orgId);
+      const res = await reqOrgInfo(orgId);
+      orgInfo.value = parseResObj(res);
     } catch (error) {
       console.error('获取门店详情失败:', error);
       orgInfo.value = {};

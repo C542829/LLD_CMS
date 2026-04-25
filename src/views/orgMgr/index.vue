@@ -121,7 +121,7 @@
   <!-- 抽屉表单 -->
   <Drawer v-model="drawer.visible" :title="drawer.title" width="450">
     <!-- 表单 -->
-    <OrgForm @close-drawer="closeDrawer" />
+    <OrgForm :form-data="currentFormData" @close-drawer="closeDrawer" @submit-success="onSubmitSuccess" />
   </Drawer>
 
   <!-- 自定义分类 -->
@@ -136,13 +136,11 @@ import SettingDialog from './components/SettingDialog.vue';
 import Message from '@/components/Message';
 import { ref, reactive, onMounted } from 'vue';
 import { getUserInfo } from '@/utils/localStorageTools';
-import { reqSetPrintWidth } from '@/api/acl/org/index';
+import { reqOrgInfo, reqSetPrintWidth } from '@/api/acl/org/index';
+import { parseResObj } from '@/utils/parseResponse';
 import { IsCrossStoreMap, discountTypeMap, IsCrossStore, DiscountType, DictCode } from '@/enums/index';
 
 import OrgForm from '@/views/acl/orgMgr/form.vue';
-
-import { useOrgStore } from '@/store/modules/acl/org';
-const store = useOrgStore();
 
 onMounted(() => {
   init();
@@ -150,10 +148,26 @@ onMounted(() => {
 
 const org = ref<any>({});
 
+/** 当前表单数据（传递给子组件） */
+const currentFormData = ref<any>({});
+
+/** 获取门店详情 */
+const fetchOrgInfo = async (id: number) => {
+  try {
+    const res = await reqOrgInfo(id);
+    const info = parseResObj(res);
+    info.orgArea && (info.orgArea = JSON.parse(info.orgArea as string));
+    return info;
+  } catch (error) {
+    console.error('获取门店信息报错：', error);
+    return {};
+  }
+};
+
 const init = async () => {
   const userInfo = getUserInfo();
-  org.value = await store.getOrgInfo(userInfo.orgId);
-  org.value.orgAreaStr = org.value.orgArea.join('/');
+  org.value = await fetchOrgInfo(userInfo.orgId);
+  org.value.orgAreaStr = org.value.orgArea?.join('/');
 };
 
 const dialog = reactive({
@@ -186,13 +200,19 @@ const drawer: any = reactive({
 });
 
 const showDrawer = () => {
-  store.formData = { ...org.value };
+  currentFormData.value = { ...org.value };
   drawer.visible = true;
 };
 
 const closeDrawer = () => {
   init();
   drawer.visible = false;
+};
+
+/** 表单提交成功回调 */
+const onSubmitSuccess = () => {
+  drawer.visible = false;
+  init();
 };
 
 const settingDialog = ref(false);
