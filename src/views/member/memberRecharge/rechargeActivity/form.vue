@@ -23,7 +23,6 @@
       <!-- 活动时间 -->
       <el-form-item label="活动时间" prop="activeTime">
         <div style="width: 240px">
-          <!-- <DatePicker v-model="store.formData.activeTime" style="width: 240px" /> -->
           <el-date-picker
             v-model="store.formData.activeTime"
             :shortcuts="shortcuts"

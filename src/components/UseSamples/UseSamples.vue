@@ -46,12 +46,6 @@
       </div>
     </section>
 
-    <!-- 时间选择器 -->
-    <section class="component-section">
-      <h3>时间选择器</h3>
-      <DatePicker @selectDate="selectDate" :title="title" :size="size" />
-    </section>
-
     <!-- 抽屉组件 -->
     <section class="component-section">
       <h3>抽屉组件</h3>

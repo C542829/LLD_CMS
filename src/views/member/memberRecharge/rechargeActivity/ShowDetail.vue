@@ -2,7 +2,7 @@
   <div class="detail-container">
     <header class="detail-header">
       <span>时间段：</span>
-      <DatePicker @selectDate="selectDate" :default="defaultDate" style="width: 260px; margin-right: 10px" />
+      <IDatePicker @selectDate="selectDate" :default="true" style="width: 260px; margin-right: 10px" />
       <el-button type="primary">查询</el-button>
     </header>
 
