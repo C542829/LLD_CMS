@@ -100,37 +100,32 @@
         @pagination-current-change="handleCurrentChange"
       >
         <el-table-column type="index" label="序号" width="60" />
-        <el-table-column prop="orgName" label="门店" min-width="30" />
+        <el-table-column prop="orgName" label="门店" min-width="40" />
         <el-table-column prop="rechargeTime" label="充值时间" width="155" :formatter="datetimeFormatter" />
         <el-table-column prop="infoCardNumber" label="相关人员" min-width="80">
           <template #default="{ row }">
-            <div>
-              <div>
-                <span>销售员：</span>
-                <span>{{ row.userKpiList.map((e: any) => e.userName).join('、') }}</span>
-              </div>
-              <div>操作员：{{ row.userName }}</div>
-            </div>
+            <p class="text">销售员：{{ row.userKpiList.map((e: any) => e.userName).join('、') }}</p>
+            <p class="text">操作员：{{ row.userName }}</p>
           </template>
         </el-table-column>
         <el-table-column prop="infoPhoneNumber" label="充值会员" min-width="80">
-          <template #default="scope">
-            <p>姓名：{{ scope.row.vipName }}</p>
-            <p>卡号：{{ scope.row.vipCardNumber }}</p>
-            <p>电话：{{ scope.row.vipPhoneNumber }}</p>
+          <template #default="{ row }">
+            <p class="text">姓名：{{ row.vipName }}</p>
+            <p class="text">卡号：{{ row.vipCardNumber }}</p>
+            <p class="text">电话：{{ row.vipPhoneNumber }}</p>
           </template>
         </el-table-column>
         <el-table-column prop="infoLastConsumptionTime" label="充值金额及资产编号" min-width="100">
           <template #default="{ row }">
             <div class="el-v-center">
               <p>充值：￥{{ row.rechargeValue }}</p>
-              <el-tag style="margin-left: 8px">({{ row.assetCode }})</el-tag>
+              <el-tag class="ml-1">{{ row.assetCode }}</el-tag>
             </div>
             <template v-if="row.ticketInfo">
-              <p>赠券：{{ row.ticketInfo }}</p>
+              <p class="text">赠券：{{ row.ticketInfo }}</p>
             </template>
             <template v-if="row.activeName">
-              <p>活动：{{ row.activeName }}</p>
+              <p class="text">活动：{{ row.activeName }}</p>
             </template>
           </template>
         </el-table-column>
@@ -178,7 +173,7 @@
 </template>
 
 <script setup lang="ts">
-import OrderModify from './OrderModify.vue';
+import OrderModify from './components/OrderModify.vue';
 import RechargeDetailDialog from './components/RechargeDetailDialog.vue';
 import MessageBox from '@/components/MessageBox/index';
 import Message from '@/components/Message';
