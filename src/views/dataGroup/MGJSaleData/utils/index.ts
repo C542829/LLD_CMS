@@ -4,18 +4,24 @@ export enum StoreId {
   MGJ_1 = 1594232,
   MGJ_2 = 1599512,
   MGJ_3 = 1646391,
+  MGJ_5 = 1029151,
+  MGJ_7 = 1700433,
 }
 
 export const StoreMap: Record<number, string> = {
   [StoreId.MGJ_1]: '锦艺城1店',
   [StoreId.MGJ_2]: '锦艺城2店',
   [StoreId.MGJ_3]: '须水3店',
+  [StoreId.MGJ_5]: '广电路5店',
+  [StoreId.MGJ_7]: '富田太阳城7店',
 };
 
 export const StoreOptions = [
   { value: StoreId.MGJ_1, label: StoreMap[StoreId.MGJ_1] },
   { value: StoreId.MGJ_2, label: StoreMap[StoreId.MGJ_2] },
   { value: StoreId.MGJ_3, label: StoreMap[StoreId.MGJ_3] },
+  { value: StoreId.MGJ_5, label: StoreMap[StoreId.MGJ_5] },
+  { value: StoreId.MGJ_7, label: StoreMap[StoreId.MGJ_7] },
 ];
 
 /**
