@@ -36,16 +36,29 @@ onMounted(async () => {
 
 const loading = ref(false);
 const productList = ref<Types.ProductInfoVO[]>([]);
+/** 本地缓存的全量数据，用于按分类过滤 */
+const allProductList = ref<Types.ProductInfoVO[]>([]);
 
 const handleChange = (val: string | number | boolean | undefined) => {
   getProductList(val as string);
 };
 
+/**
+ * 获取产品列表
+ * - category 为空时请求接口获取全量数据并缓存到本地
+ * - category 非空时基于本地缓存数据按分类过滤
+ */
 const getProductList = async (category: string) => {
+  if (category) {
+    productList.value = allProductList.value.filter((item) => item.category === category);
+    return;
+  }
   try {
     loading.value = true;
-    const res = await reqProductList({ category, productStatus: 0 });
-    productList.value = res.data || [];
+    const res = await reqProductList({ category: '', productStatus: 0 });
+    const list = res.data || [];
+    allProductList.value = list;
+    productList.value = list;
   } catch (error) {
   } finally {
     loading.value = false;

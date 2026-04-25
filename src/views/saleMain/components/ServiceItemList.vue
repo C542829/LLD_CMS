@@ -36,16 +36,29 @@ onMounted(async () => {
 
 const loading = ref(false);
 const serviceItemList = ref<Types.ServerItemVO[]>([]);
+/** 本地缓存的全量数据，用于按分类过滤 */
+const allServiceItemList = ref<Types.ServerItemVO[]>([]);
 
 const handleChange = (val: string | number | boolean | undefined) => {
   getServiceItemList(val as string);
 };
 
+/**
+ * 获取服务项目列表
+ * - category 为空时请求接口获取全量数据并缓存到本地
+ * - category 非空时基于本地缓存数据按分类过滤
+ */
 const getServiceItemList = async (category: string) => {
+  if (category) {
+    serviceItemList.value = allServiceItemList.value.filter((item) => item.category === category);
+    return;
+  }
   try {
     loading.value = true;
-    const res = await reqServiceItemList({ category, itemStatus: 0 });
-    serviceItemList.value = res.data || [];
+    const res = await reqServiceItemList({ category: '', itemStatus: 0 });
+    const list = res.data || [];
+    allServiceItemList.value = list;
+    serviceItemList.value = list;
   } catch (error) {
   } finally {
     loading.value = false;
