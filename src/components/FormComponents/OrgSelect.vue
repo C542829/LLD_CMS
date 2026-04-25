@@ -40,7 +40,7 @@ import useUserStore from '@/store/modules/acl/user';
 type ElSelectProps = SelectInstance['$props'];
 
 interface Props extends Partial<ElSelectProps> {
-  modelValue: number | number[];
+  modelValue: number | number[] | string;
   placeholder?: string;
   class?: string;
   valueKey?: string;
