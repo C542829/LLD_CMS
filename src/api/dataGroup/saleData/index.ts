@@ -14,6 +14,9 @@ enum API {
   SALE_SUMMARY_V2 = '/order/summary/v2',
   /** 根据订单编号查询订单信息 */
   ORDER_INFO_BY_CODE = '/order/query-by-order-code/{orderCode}',
+
+  /** 导出销售记录（含明细） */
+  SALE_EXPORT = '/order/export',
 }
 
 enum PathStr {
@@ -29,8 +32,8 @@ enum PathStr {
  * @returns
  */
 export const reqSaleRecord = (
-  params: Types.SaleDataRequest = {} as any,
-): ApiResponse<PageListInfo<Types.OrderInfoVO[]>> => post(API.SALE_RECORD, params);
+  data: Types.SaleDataRequest = {} as any,
+): ApiResponse<PageListInfo<Types.OrderInfoVO[]>> => post(API.SALE_RECORD, data);
 
 /**
  * 分页查询销售明细
@@ -64,3 +67,11 @@ export const reqSaleSummaryV2 = (data: Types.SaleSummaryQuery): ApiResponse<Type
 export const reqOrderInfo = (orderCode: string): ApiResponse<Types.OrderInfoVO> => {
   return get(API.ORDER_INFO_BY_CODE.replace(PathStr.orderCode, orderCode));
 };
+
+/**
+ * 导出销售记录（含明细）
+ * @param data
+ * @returns
+ */
+export const reqSaleExport = (data: Types.SaleDataRequest): Promise<Blob> =>
+  post(API.SALE_EXPORT, data, { responseType: 'blob' });

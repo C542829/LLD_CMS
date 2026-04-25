@@ -97,6 +97,7 @@
         <div class="search-item">
           <el-button type="primary" @click="search">搜索</el-button>
           <el-button type="info" @click="reset">重置</el-button>
+          <el-button type="success" :loading="exportLoading" @click="exportData">导出</el-button>
         </div>
       </div>
     </Card>
@@ -211,8 +212,9 @@ import { OrderStatus, orderStatusOptions, paymentTypeOptions, ResponseCode } fro
 import { isFullDaysSince } from '@/utils/time';
 import { reqQueryOrder, reqRollBackOrder } from '@/api/order';
 import { reqOrgInfo } from '@/api/acl/org';
-import { reqSaleRecord } from '@/api/dataGroup/saleData';
+import { reqSaleExport, reqSaleRecord } from '@/api/dataGroup/saleData';
 import { LOADING_MSG } from '@/utils/constants';
+import { downloadBlob } from '@/utils/download';
 import useUserStore from '@/store/modules/acl/user';
 
 const userStore = useUserStore();
@@ -303,6 +305,24 @@ const handleSizeChange = (val: number) => {
 const handleCurrentChange = (val: number) => {
   searchParams.pageNum = val;
   setSaleRecord();
+};
+
+/** 导出loading */
+const exportLoading = ref(false);
+/**
+ * 导出销售数据
+ */
+const exportData = async () => {
+  exportLoading.value = true;
+  try {
+    const res = await reqSaleExport(searchParams);
+    downloadBlob(res, { fileName: `销售记录_${new Date().toLocaleDateString().replace(/\//g, '-')}.xlsx` });
+    Message.success('导出成功');
+  } catch (error) {
+    console.error('导出销售数据失败:', error);
+  } finally {
+    exportLoading.value = false;
+  }
 };
 
 /**

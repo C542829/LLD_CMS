@@ -71,6 +71,7 @@
         </div>
         <div class="search-item">
           <el-button type="primary" @click="search">搜索</el-button>
+          <el-button type="success" :loading="exportLoading" @click="exportData">导出</el-button>
         </div>
       </div>
     </Card>
@@ -127,11 +128,12 @@ import ServiceItemSelect from '@/components/FormComponents/ServiceItemSelect.vue
 import ReceiptDialog from './components/ReceiptDialog.vue';
 import { ref, reactive, onMounted, computed } from 'vue';
 import { ElMessage } from 'element-plus';
-import { reqPerformanceRecord } from '@/api/dataGroup/staffPerformance/index';
+import { reqPerformanceRecord, reqPerformanceExport } from '@/api/dataGroup/staffPerformance/index';
 import type { KpiListQuery, KpiListVO } from '@/api/dataGroup/staffPerformance/types';
 import { parseResObj } from '@/utils/parseResponse';
 import { OrderDetailType, ServiceType } from '@/enums';
 import { LOADING_MSG } from '@/utils/constants';
+import { downloadBlob } from '@/utils/download';
 import useUserStore from '@/store/modules/acl/user';
 
 const userStore = useUserStore();
@@ -215,6 +217,23 @@ const handleSizeChange = (val: number) => {
 const handleCurrentChange = (val: number) => {
   searchParams.value.pageNum = val;
   setPerformanceRecord();
+};
+
+/** 导出业绩明细 */
+const exportLoading = ref(false);
+const exportData = async () => {
+  exportLoading.value = true;
+  try {
+    handleSearchParams();
+    const res = await reqPerformanceExport(searchParams.value);
+    downloadBlob(res, { fileName: `业绩明细_${new Date().toLocaleDateString().replace(/\//g, '-')}.xlsx` });
+    ElMessage.success('导出成功');
+  } catch (error) {
+    console.error('导出业绩明细失败:', error);
+    ElMessage.error('导出业绩明细失败');
+  } finally {
+    exportLoading.value = false;
+  }
 };
 
 // 模态框

@@ -15,6 +15,9 @@ enum API {
   ACTIVE_INFO_URL = '/vip/recharge-active/active-info',
   REVERSE_RECHARGE = '/vip/reverse-recharge',
   _ = ``,
+
+  /** 导出充值记录 */
+  RECHARGE_HISTORY_EXPORT = '/vip/recharge-history/export',
 }
 
 /**
@@ -57,3 +60,11 @@ export const reqRecharge = (data = {}) =>
 export const reqRollBackRecharge = (historyCode: string, reverseReason: string) => {
   return post(API.REVERSE_RECHARGE, { historyCode, reverseReason });
 };
+
+/**
+ * 导出充值记录
+ * @param data
+ * @returns
+ */
+export const reqRechargeHistoryExport = (data: Types.RechargeRecordRequest): Promise<Blob> =>
+  post(API.RECHARGE_HISTORY_EXPORT, data, { responseType: 'blob' });

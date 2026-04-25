@@ -80,9 +80,8 @@
         </div>
         <div class="search-item">
           <el-button type="primary" @click="search">搜索</el-button>
-        </div>
-        <div class="search-item">
           <el-button type="info" @click="resetRecordSearchParams">重置</el-button>
+          <el-button type="success" :loading="exportLoading" @click="exportData">导出</el-button>
         </div>
       </div>
     </Card>
@@ -188,7 +187,12 @@ import { ref, reactive, onMounted } from 'vue';
 import { datetimeFormatter } from '@/utils/formatter';
 import { isFullDaysSince } from '@/utils/time';
 import { LOADING_MSG } from '@/utils/constants';
-import { type Types, reqRechargeHistoryList, reqRollBackRecharge } from '@/api/member/recharge/index';
+import {
+  type Types,
+  reqRechargeHistoryList,
+  reqRollBackRecharge,
+  reqRechargeHistoryExport,
+} from '@/api/member/recharge/index';
 import {
   RechargeStatus,
   rechargeStatusOptions,
@@ -198,6 +202,7 @@ import {
 } from '@/enums/index';
 import { printer } from '@/utils/lodop';
 import { parseResMsg, parseResObj } from '@/utils/parseResponse';
+import { downloadBlob } from '@/utils/download';
 import useUserStore from '@/store/modules/acl/user';
 
 const userStore = useUserStore();
@@ -295,6 +300,23 @@ const handleSizeChange = (val: number) => {
 const handleCurrentChange = (val: number) => {
   recordSearch.pageNum = val;
   search();
+};
+
+/** 导出充值记录 */
+const exportLoading = ref(false);
+const exportData = async () => {
+  exportLoading.value = true;
+  try {
+    const params = handleParams();
+    const res = await reqRechargeHistoryExport(params);
+    downloadBlob(res, { fileName: `充值记录_${new Date().toLocaleDateString().replace(/\//g, '-')}.xlsx` });
+    Message.success('导出成功');
+  } catch (error) {
+    console.error('导出充值记录失败:', error);
+    Message.error('导出充值记录失败');
+  } finally {
+    exportLoading.value = false;
+  }
 };
 
 const billReversal = async (row: any) => {
