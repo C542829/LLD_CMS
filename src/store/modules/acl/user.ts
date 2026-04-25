@@ -1,7 +1,15 @@
+import setting from '@/setting';
+import $Message from '@/components/Message';
+import cloneDeep from 'lodash/cloneDeep';
+import router from '@/router';
 import { defineStore } from 'pinia';
 import { isEmpty } from 'lodash';
+import { parseResObj } from '@/utils/parseResponse';
+import { RoleCode, ResponseCode } from '@/enums';
+import { constantRoute, asyncRoute, anyRoute } from '@/router/routes';
 // 引入接口
 import { reqLogin, reqUserInfo, reqLogout, reqUpdate } from '@/api/user';
+import { reqQueryPermTreeByUser } from '@/api/acl/permission/index';
 import { reqOrgInfo } from '@/api/acl/org/index';
 // 引入操作本地存储的工具方法
 import {
@@ -14,23 +22,8 @@ import {
   setOrgInfo,
   removeOrgInfo,
 } from '@/utils/localStorageTools';
-// 引入相应枚举
-import { ResponseCode } from '@/enums/response';
-// 引入路由(常量路由)
-import { constantRoute, asyncRoute, anyRoute } from '@/router/routes';
-// 引入项目设置
-import setting from '@/setting';
-// 引入消息提示组件
-import $Message from '@/components/Message';
-// 引入深拷贝方法
-import cloneDeep from 'lodash/cloneDeep';
-// 引入路由
-import router from '@/router';
-import { parseResObj } from '@/utils/parseResponse';
 
-import { usePermissionStore } from '@/store/modules/acl/permission';
 import { useDataEnumStore } from '@/store/modules/enums/index';
-import { RoleCode } from '@/enums';
 
 // 用于过滤当前用户需要展示的异步路由
 function filterAsyncRoute(asyncRoute: any, routes: any) {
@@ -86,7 +79,6 @@ const useUserStore = defineStore('User', {
     // 获取用户信息
     async userInfo() {
       try {
-        const permStore = usePermissionStore();
         const user = getUserInfo();
         if (isEmpty(user)) {
           this.clearUserInfo();
@@ -95,20 +87,14 @@ const useUserStore = defineStore('User', {
         // 同步用户信息
         this.setStoreUserInfo(user);
 
-        // this.buttons = result.data.buttons;
         if (this.menuRoutes.length === 0) {
-          const perms = await permStore.getPermTreeByUserId(this.userId);
+          const { data } = await reqQueryPermTreeByUser(this.userId);
+          const perms = data;
           const routes = perms.treeMap((item) => item.component);
-          this.buttons = perms.treeMap((item) => item.permCode);
-          // .filter((item: string) => {
-          //   const btnCode = ['add', 'update', 'disabled'];
-          //   for (const code of btnCode) {
-          //     if (item.includes(code)) {
-          //       return true;
-          //     }
-          //   }
-          // });
-          this.tabs = perms.treeMap((item) => item.remark && [...item.children.map((child: any) => child.name)]).flat();
+          this.buttons = perms.treeMap((item) => item.permCode as string);
+          this.tabs = perms
+            .treeMap((item) => item.remark && [...(item?.children || []).map((child: any) => child.name)])
+            .flat();
           const userAsyncRoute = filterAsyncRoute(cloneDeep(asyncRoute), routes);
           this.menuRoutes = [...constantRoute, ...userAsyncRoute, anyRoute];
         }
@@ -129,11 +115,6 @@ const useUserStore = defineStore('User', {
     /** 存储门店信息 */
     async storageOrgInfo(orgId: number) {
       try {
-        // const res = await reqOrgInfo(orgId);
-        // const orgInfo = res.data;
-        // orgInfo.orgArea && (orgInfo.orgArea = JSON.parse(orgInfo.orgArea as string));
-        // this.org = orgInfo;
-        // setOrgInfo(orgInfo);
         reqOrgInfo(orgId).then((res) => {
           const orgInfo = res.data;
           orgInfo.orgArea && (orgInfo.orgArea = JSON.parse(orgInfo.orgArea as string));
@@ -146,9 +127,6 @@ const useUserStore = defineStore('User', {
     /** 存储当前用户信息 */
     async storageUserInfo(userId: number) {
       try {
-        // const res = await reqUserInfo(userId);
-        // const userInfo = res.data;
-        // this.user = { ...this.user, ...userInfo };
         reqUserInfo(userId).then((res) => {
           const userInfo = res.data;
           this.user = { ...this.user, ...userInfo };
@@ -171,7 +149,7 @@ const useUserStore = defineStore('User', {
 
     clearUserInfo() {
       this.user = {};
-      this.org = {};
+      this.org = {} as OrgInfo;
       this.token = '';
       this.username = '';
       this.nickname = '';
