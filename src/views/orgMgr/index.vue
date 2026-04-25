@@ -73,7 +73,7 @@
       <li>
         <span>打印宽度：</span>
         <span>
-          <DynamicInput :value="String(org.printWidth)" :width="200" @update="updatePrintWidth" />
+          <DynamicInput :value="String(org.printWidth)" :width="200" @change="updatePrintWidth" />
         </span>
       </li>
       <li>

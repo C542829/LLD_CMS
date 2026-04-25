@@ -24,7 +24,7 @@
       <div class="row-item fin-row-remark">
         <!-- <EllipsisText :content="`备注：${data.remark || '-'}`" placement="left" /> -->
         <span style="font-size: 12px">备注：</span>
-        <DynamicInput :value="data.remark" :params="data || {}" size="small" fontSize="12px" @update="updateRemark" />
+        <DynamicInput :value="data.remark" :params="data || {}" size="small" fontSize="12px" @change="updateRemark" />
       </div>
     </div>
     <div v-if="isGiving" class="is-giving">赠 送</div>

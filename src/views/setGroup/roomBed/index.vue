@@ -49,7 +49,7 @@
         <Card>
           <div class="room-name-area">
             <span>房间名：</span>
-            <DynamicInput :value="editRoom.roomName" @update="updateRoomName" />
+            <DynamicInput :value="editRoom.roomName" @change="updateRoomName" />
           </div>
           <div>床位数：{{ editRoom.bedCount }}</div>
           <div>空闲中：{{ editRoom.freeBedCount }}</div>
@@ -72,7 +72,7 @@
           >
             <el-table-column prop="bedName" label="床位名" width="230">
               <template #default="{ row }">
-                <DynamicInput :value="row.bedName" :params="row" @update="updateBedName" width="100%" :key="row.id" />
+                <DynamicInput :value="row.bedName" :params="row" @change="updateBedName" width="100%" :key="row.id" />
               </template>
             </el-table-column>
             <el-table-column prop="status" label="状态" :formatter="bedStatusMap" min-width="50" />

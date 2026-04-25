@@ -44,7 +44,7 @@
       </div>
       <div v-if="showRemark" class="item-info remark-row">
         <span>备注：</span>
-        <DynamicInput :value="member.remark" :params="member || {}" btnColor="#000" @update="updateRemark" />
+        <DynamicInput :value="member.remark" :params="member || {}" btnColor="#000" @change="updateRemark" />
       </div>
     </div>
     <div v-else class="member-card-empty">未选择会员</div>

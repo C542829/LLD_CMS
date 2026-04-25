@@ -5,13 +5,7 @@
       <span class="dynamic-input__text text-overflow" :title="inputValue ?? ''">
         {{ inputValue || emptyText }}
       </span>
-      <el-button
-        type="primary"
-        :color="btnColor || undefined"
-        :size="size"
-        link
-        @click.stop.prevent="handleStartEdit"
-      >
+      <el-button type="primary" :color="btnColor || undefined" :size="size" link @click.stop.prevent="handleStartEdit">
         编辑
       </el-button>
     </div>
@@ -26,22 +20,10 @@
         @keyup.enter="handleConfirm"
         @keyup.escape="handleCancel"
       />
-      <el-button
-        type="primary"
-        :color="btnColor || undefined"
-        :size="size"
-        link
-        @click.stop.prevent="handleCancel"
-      >
+      <el-button type="primary" :color="btnColor || undefined" :size="size" link @click.stop.prevent="handleCancel">
         取消
       </el-button>
-      <el-button
-        type="primary"
-        :color="btnColor || undefined"
-        :size="size"
-        link
-        @click.stop.prevent="handleConfirm"
-      >
+      <el-button type="primary" :color="btnColor || undefined" :size="size" link @click.stop.prevent="handleConfirm">
         确定
       </el-button>
     </div>
