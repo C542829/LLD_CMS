@@ -64,10 +64,8 @@ import Tabbar from './tabbar/index.vue';
 // 获取pinia仓库
 import useUserStore from '@/store/modules/acl/user';
 import { useSettingStore } from '@/store/modules/acl/setting';
-import { useDataEnumStore } from '@/store/modules/enums/index';
 const userStore = useUserStore();
 const settingStore = useSettingStore();
-const enumStore = useDataEnumStore();
 
 //获取路由对象
 let $route = useRoute();
@@ -76,7 +74,6 @@ onMounted(() => {
   // 监听窗口大小变化
   window.addEventListener('resize', handleResize);
   handleResize();
-  init();
 });
 
 // 监听窗口大小变化
@@ -91,13 +88,6 @@ const handleResize = debounce(() => {
     settingStore.fold = false;
   }
 }, 300);
-
-const init = async () => {
-  // 初始化常用枚举信息
-  await enumStore.getProductList();
-  await enumStore.getServiceItemList();
-  await enumStore.getTreatmentCouponList();
-};
 </script>
 
 <script lang="ts">
