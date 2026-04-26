@@ -79,8 +79,7 @@ const handleFormSubmit = async (model: any) => {
   const result = await store.update(model);
   if (result) {
     emit('close-drawer');
-    // goRecharge(result.id || '');
-    goRecharge(result.id);
+    result.id && goRecharge(result.id);
   }
 };
 

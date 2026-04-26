@@ -53,14 +53,14 @@
         @pagination-current-change="handleCurrentChange"
       >
         <el-table-column type="index" label="序号" width="60" />
-        <el-table-column prop="orgName" label="门店" min-width="40" />
+        <el-table-column prop="orgName" label="门店" min-width="60" />
         <el-table-column prop="name" label="姓名" min-width="40" />
         <el-table-column prop="gender" label="性别" min-width="30" :formatter="sexMap" />
         <el-table-column prop="cardNumber" label="卡号" min-width="80" />
         <el-table-column prop="phoneNumber" label="手机号" min-width="50" />
         <el-table-column prop="lastConsumptionTime" label="末次消费日期" min-width="50" />
         <el-table-column prop="lastRechargeTime" label="末次充值日期" min-width="50" />
-        <el-table-column prop="remark" label="备注" min-width="80" />
+        <el-table-column prop="remark" label="备注" min-width="50" />
         <el-table-column label="操作" min-width="100">
           <template #default="{ row }">
             <div style="white-space: normal">

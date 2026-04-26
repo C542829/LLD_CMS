@@ -67,14 +67,23 @@ export const useMemberStore = defineStore('Member', () => {
   const update = async (data: any) => {
     // 浅拷贝防止操作原对象
     data = { ...data };
+    try {
+      // 发送请求
 
-    // 发送请求
-    const res = await (data?.id ? reqUpdateVip(data) : reqAddVip(data));
-    formData.value.id = res.data.id;
-    const result = parseResObj(res, '更新会员信息成功');
-    // 刷新数据
-    result && setTableData();
-    return result;
+      if (data?.id) {
+        const res = await reqUpdateVip(data);
+        parseResMsg(res, '更新会员信息成功');
+        setTableData();
+        return true;
+      } else {
+        const res = await reqAddVip(data);
+        const result = parseResObj(res, '新增会员信息成功');
+        return result;
+      }
+    } catch (error) {
+      console.error('更新会员信息失败', error);
+    }
+    return false;
   };
 
   /**
