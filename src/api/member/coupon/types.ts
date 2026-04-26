@@ -6,7 +6,7 @@ export interface TicketListRequest {
   /**
    * 活动id
    */
-  activeId?: number;
+  activeId?: number | string;
   /**
    * 当前页码
    */
@@ -18,7 +18,7 @@ export interface TicketListRequest {
   /**
    * 优惠券状态
    */
-  status?: number;
+  status?: number | string;
   /**
    * 会员信息关键字
    */
@@ -26,7 +26,7 @@ export interface TicketListRequest {
   /**
    * 优惠券id
    */
-  vipTicketId?: number;
+  vipTicketId?: number | string;
   [property: string]: any;
 }
 
