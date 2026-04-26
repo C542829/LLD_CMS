@@ -16,7 +16,8 @@ enum API {
   SERVICE_STATS = '/data-view/service-stats',
   /** 技师业绩排行 */
   TECHNICIAN_RANKING = '/data-view/technician-ranking',
-  _ = '',
+  /** 劳动业绩统计（排除充值和疗程券） */
+  LABOR_PERFORMANCE = '/data-view/labor-performance',
 }
 
 /**
@@ -68,3 +69,11 @@ export const reqServiceStats = (data: Types.DataViewQuery): ApiResponse<Types.Se
  */
 export const reqTechnicianRanking = (data: Types.DataViewQuery): ApiResponse<Types.TechnicianRankingVO> =>
   post(API.TECHNICIAN_RANKING, data);
+
+/**
+ * 劳动业绩统计（排除充值和疗程券）
+ * @param data 查询参数
+ * @returns 劳动业绩统计数据
+ */
+export const reqLaborPerformance = (data: Types.DataViewQuery): ApiResponse<Types.LaborPerformanceVO> =>
+  post(API.LABOR_PERFORMANCE, data);

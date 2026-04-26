@@ -24,7 +24,6 @@
               统计日期：
               <IDatePicker v-model="dateRange" @change="search" @clear="search" size="small" class="w-220" />
             </label>
-            <!-- <el-button disabled @click="" plain>打印数据</el-button> -->
           </div>
         </div>
         <div class="chart-container">
@@ -34,11 +33,11 @@
             </div>
             <div class="chart-item">
               <PieChart
-                :data="performanceData"
+                :data="laborPerformance"
                 title="劳动业绩"
                 radius="[40%, 70%]"
                 height="100%"
-                centerText="劳动业绩"
+                :centerText="`劳动业绩\n￥${laborPerformanceTotal}`"
               />
             </div>
             <div class="chart-item">
@@ -103,16 +102,18 @@ import PieChart from '@/views/home/components/PieChart.vue';
 import BarChart from '@/views/home/components/BarChart.vue';
 import RightTable from './components/RightTable.vue';
 import { ref, reactive, onMounted, computed } from 'vue';
-import { type Types } from '@/api/home/index';
+import { DataViewQuery } from '@/api/home/types';
 import { LOADING_MSG } from '@/utils/constants';
 import {
   DEFAULT_SEARCH_PARAMS,
   getRevenueSummary,
   getTechnicianRanking,
-  getMemberStats,
   getServiceStats,
+  getMemberStats,
+  getLaborPerformance,
 } from './utils/index';
 import useUserStore from '@/store/modules/acl/user';
+
 const userStore = useUserStore();
 
 interface ChartData {
@@ -131,6 +132,11 @@ const revenueSummary = ref<any[]>([]);
 const technicianRanking = ref<any[]>([]);
 /** 会员统计数据 */
 const memberStats = ref<ChartData[]>([]);
+/** 劳动业绩数据 */
+const laborPerformance = ref<any[]>([]);
+const laborPerformanceTotal = computed(() => {
+  return laborPerformance.value.reduce((acc, cur) => acc + cur.value, 0);
+});
 /** 实收合计数据 */
 const incomeData: any = ref([
   { name: '扫码', value: 0 },
@@ -149,7 +155,7 @@ const performanceData = ref([
 const loading = ref(false);
 const rightTableRef = ref<typeof RightTable>();
 const dateRange = ref([]);
-const searchParams = reactive<Types.DataViewQuery>(DEFAULT_SEARCH_PARAMS);
+const searchParams = reactive<DataViewQuery>(DEFAULT_SEARCH_PARAMS);
 
 const handleSearchParams = () => {
   if (dateRange.value.length === 0) {
@@ -177,15 +183,18 @@ const search = async () => {
     performanceData.value = performance;
 
     // 获取技师业绩排名数据
-    // technicianRanking.value = await getTechnicianRanking(searchParams);
     getTechnicianRanking(searchParams).then((data: any) => {
       technicianRanking.value = data || [];
     });
 
     // 获取会员统计数据
-    // memberStats.value = await getMemberStats(searchParams);
-    getMemberStats(searchParams).then((data: any) => {
-      memberStats.value = data || [];
+    // getMemberStats(searchParams).then((data: any) => {
+    //   memberStats.value = data || [];
+    // });
+
+    // 获取劳动业绩
+    getLaborPerformance(searchParams).then((data: ChartData[]) => {
+      laborPerformance.value = data || [];
     });
   } catch (error) {
     console.error(error);

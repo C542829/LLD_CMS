@@ -1,4 +1,10 @@
-import { reqRevenueSummary, reqMemberStats, reqTechnicianRanking, type Types } from '@/api/home/index';
+import {
+  reqRevenueSummary,
+  reqMemberStats,
+  reqTechnicianRanking,
+  reqLaborPerformance,
+  type Types,
+} from '@/api/home/index';
 
 /**
  * 默认搜索参数
@@ -132,6 +138,32 @@ export const getServiceStats = (data: Types.ServiceStatsVO) => {
       { name: '加钟', value: data.totalAdd || 0 },
       { name: '轮牌', value: data.totalRotation || 0 },
     ];
+    return result;
+  } catch (error) {
+    console.log(error);
+  }
+  return [];
+};
+
+/**
+ * 获取劳动业绩统计（排除充值和疗程券）
+ */
+export const getLaborPerformance = async (params: Types.DataViewQuery) => {
+  try {
+    const { data } = await reqLaborPerformance(params);
+
+    // 实收合计数据
+    const result = [
+      { name: '扫码', value: data.qrPayment || 0 },
+      { name: '现金', value: data.cashPayment || 0 },
+      { name: '抖音', value: data.douyinPayment || 0 },
+      { name: '美团', value: data.meituanPayment || 0 },
+      { name: 'POS', value: data.posPayment || 0 },
+      { name: '会员卡', value: data.memberCardPayment || 0 },
+      { name: '项目券', value: data.ticketItemPayment || 0 },
+      { name: '代金券', value: data.ticketConsumerPayment || 0 },
+    ];
+
     return result;
   } catch (error) {
     console.log(error);

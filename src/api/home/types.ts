@@ -282,3 +282,48 @@ export interface TechnicianItem {
   userName?: string;
   [property: string]: any;
 }
+
+/**
+ * 数据对象
+ *
+ * org.haut.common.domain.vo.dataview.LaborPerformanceVO
+ */
+export interface LaborPerformanceVO {
+  /**
+   * 现金支付金额
+   */
+  cashPayment?: number;
+  /**
+   * 抖音支付金额
+   */
+  douyinPayment?: number;
+  /**
+   * 劳动业绩总额（项目+产品，排除充值和疗程券）
+   */
+  laborPerformance?: number;
+  /**
+   * 美团支付金额
+   */
+  meituanPayment?: number;
+  /**
+   * 会员卡支付金额
+   */
+  memberCardPayment?: number;
+  /**
+   * POS支付金额
+   */
+  posPayment?: number;
+  /**
+   * 扫码支付金额
+   */
+  qrPayment?: number;
+  /**
+   * 代金券支付金额
+   */
+  ticketConsumerPayment?: number;
+  /**
+   * 项目券支付金额
+   */
+  ticketItemPayment?: number;
+  [property: string]: any;
+}
