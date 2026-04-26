@@ -1,6 +1,9 @@
 <template>
   <div class="right-table-container" v-loading="loading" :element-loading-text="LOADING_MSG">
-    <h2 class="right-table-title">充值统计</h2>
+    <h2 class="right-table-title">
+      <span>充值统计</span>
+      <el-button size="small" plain @click="exportRechargeData">导出</el-button>
+    </h2>
     <PaginationTable
       :data="rechargeTableData"
       :showPagination="false"
@@ -19,7 +22,10 @@
       <el-table-column prop="amount" label="金额" :align="'center'" />
     </PaginationTable>
 
-    <h2 class="right-table-title">项目统计</h2>
+    <h2 class="right-table-title">
+      <span>项目统计</span>
+      <el-button size="small" plain @click="exportServiceItemData">导出</el-button>
+    </h2>
     <PaginationTable
       :data="serviceTableData"
       :showPagination="false"
@@ -44,7 +50,10 @@
       <el-table-column prop="amount" label="金额" :align="'center'" />
     </PaginationTable>
 
-    <h2 class="right-table-title">产品统计</h2>
+    <h2 class="right-table-title">
+      <span>产品统计</span>
+      <el-button size="small" plain @click="exportProductData">导出</el-button>
+    </h2>
     <PaginationTable
       :data="productTableData"
       :showPagination="false"
@@ -62,9 +71,11 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive } from 'vue';
+import { ref } from 'vue';
+import { ElMessage } from 'element-plus';
 import { reqProductSales, reqRechargeDetail, reqServiceStats, type Types } from '@/api/home/index';
 import { LOADING_MSG } from '@/utils/constants';
+import { exportExcel, type ExportColumn } from '@/utils/exportExcel';
 
 const emit = defineEmits(['businessData']);
 
@@ -75,8 +86,6 @@ const rechargeTableData = ref<any[]>([]);
 /** 获取充值/开卡数据 */
 const getRechargeDetail = async (params: Types.DataViewQuery) => {
   try {
-    // const { data } = await reqRechargeDetail(params);
-    // rechargeTableData.value = data.items || [];
     reqRechargeDetail(params).then((res) => {
       const data = res.data;
       rechargeTableData.value = data.items || [];
@@ -90,8 +99,6 @@ const productTableData = ref<any[]>([]);
 /** 获取充值/开卡数据 */
 const getProductDetail = async (params: Types.DataViewQuery) => {
   try {
-    // const { data } = await reqProductSales(params);
-    // productTableData.value = data.items || [];
     reqProductSales(params).then((res) => {
       const data = res.data;
       productTableData.value = data.items || [];
@@ -106,9 +113,6 @@ const serviceTableData = ref<any[]>([]);
 const getServiceDetail = async (params: Types.DataViewQuery) => {
   loading.value = true;
   try {
-    // const { data } = await reqServiceStats(params);
-    // serviceTableData.value = data.items || [];
-    // emit('businessData', data);
     reqServiceStats(params)
       .then((res) => {
         const data = res.data;
@@ -125,9 +129,9 @@ const getServiceDetail = async (params: Types.DataViewQuery) => {
 
 /** 初始化数据 */
 const initData = async (params: Types.DataViewQuery) => {
+  getServiceDetail(params);
   getRechargeDetail(params);
   getProductDetail(params);
-  getServiceDetail(params);
 };
 
 defineExpose({
@@ -166,16 +170,88 @@ const calcTotal = (rows: any, key: string) => {
   }, 0);
   return result;
 };
+
+//#region 导出表格
+
+/** 充值统计列配置 */
+const rechargeColumns: ExportColumn<Types.RechargeItem>[] = [
+  { key: 'name', title: '充值活动名称', width: 20 },
+  { key: 'quantity', title: '数量', width: 10 },
+  { key: 'amount', title: '金额', width: 12 },
+];
+
+/** 项目统计列配置 */
+const serviceColumns: ExportColumn<Types.ServiceItem>[] = [
+  { key: 'name', title: '项目名称', width: 20 },
+  { key: 'designatedCount', title: '点钟', width: 10 },
+  { key: 'rotationCount', title: '轮钟', width: 10 },
+  { key: 'addCount', title: '加钟', width: 10 },
+  { key: 'amount', title: '金额', width: 12 },
+];
+
+/** 产品统计列配置 */
+const productColumns: ExportColumn<Types.ProductItem>[] = [
+  { key: 'name', title: '产品名称', width: 20 },
+  { key: 'quantity', title: '数量', width: 10 },
+  { key: 'amount', title: '金额', width: 12 },
+];
+
+/** 导出充值统计数据 */
+const exportRechargeData = () => {
+  if (!rechargeTableData.value.length) return ElMessage.warning('暂无数据可导出');
+  exportExcel<Types.RechargeItem>({
+    fileName: '充值统计',
+    sheets: {
+      sheetName: '充值统计',
+      columns: rechargeColumns,
+      data: rechargeTableData.value,
+    },
+  });
+};
+
+/** 导出项目统计数据 */
+const exportServiceItemData = () => {
+  if (!serviceTableData.value.length) return ElMessage.warning('暂无数据可导出');
+  exportExcel<Types.ServiceItem>({
+    fileName: '项目统计',
+    sheets: {
+      sheetName: '项目统计',
+      columns: serviceColumns,
+      data: serviceTableData.value,
+    },
+  });
+};
+
+/** 导出产品统计数据 */
+const exportProductData = () => {
+  if (!productTableData.value.length) return ElMessage.warning('暂无数据可导出');
+  exportExcel<Types.ProductItem>({
+    fileName: '产品统计',
+    sheets: {
+      sheetName: '产品统计',
+      columns: productColumns,
+      data: productTableData.value,
+    },
+  });
+};
+//#endregion 导出表格
 </script>
 
 <style lang="scss" scoped>
 .right-table-container {
   height: 100%;
+  overflow: auto;
 
   .right-table-title {
     color: var(--el-text-color-secondary);
     font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     margin: 12px 0;
+  }
+  .right-table-title:first-child {
+    margin-top: 0;
   }
 
   .service-item-table {
