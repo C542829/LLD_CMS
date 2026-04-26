@@ -54,7 +54,8 @@ export function useDateShortcuts() {
     const end = new Date(businessDate);
     end.setHours(23, 59, 59, 999);
     const start = new Date(businessDate);
-    const offset = start.getDay() - 1;
+    // getDay(): 周日=0, 周一=1,..., 周六=6 → 需要映射为 周一=0, 周二=1,..., 周日=6
+    const offset = (start.getDay() + 6) % 7;
     start.setTime(start.getTime() - DAY_MS * offset);
     start.setHours(0, 0, 0, 0);
     return [start, end];
@@ -65,9 +66,7 @@ export function useDateShortcuts() {
     const businessDate = getBusinessDate();
     const end = new Date(businessDate);
     end.setHours(23, 59, 59, 999);
-    const start = new Date(businessDate);
-    const offset = start.getDate() - 1;
-    start.setTime(start.getTime() - DAY_MS * offset);
+    const start = new Date(businessDate.getFullYear(), businessDate.getMonth(), 1);
     start.setHours(0, 0, 0, 0);
     return [start, end];
   };
