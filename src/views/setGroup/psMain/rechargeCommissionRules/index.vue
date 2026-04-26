@@ -10,13 +10,7 @@
         <div class="search-item">
           <label>
             提成规则状态：
-            <el-select
-              v-model="store.searchParams.status"
-              @change="search"
-              @clear="search"
-              clearable
-              style="width: 120px"
-            >
+            <el-select v-model="store.searchParams.status" class="w-100" clearable @change="search" @clear="search">
               <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </label>
@@ -26,11 +20,12 @@
         <div class="search-item">
           <el-input
             v-model="store.searchParams.rechargeRoleName"
+            :prefix-icon="Search"
+            clearable
+            placeholder="提成规则名称"
+            class="w-240"
             @keydown.enter="search"
             @clear="search"
-            :prefix-icon="Search"
-            placeholder="提成规则名称"
-            clearable
           >
             <template #append>
               <el-button type="primary" @click="search">搜索</el-button>

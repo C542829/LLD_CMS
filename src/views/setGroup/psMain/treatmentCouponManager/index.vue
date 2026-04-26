@@ -10,7 +10,7 @@
         <div class="search-item">
           <label>
             状态：
-            <el-select v-model="store.searchParams.status" @change="search" style="width: 120px">
+            <el-select v-model="store.searchParams.status" @change="search" class="w-100">
               <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </label>
@@ -34,11 +34,12 @@
         <div class="search-item">
           <el-input
             v-model="store.searchParams.cureTicketName"
+            :prefix-icon="Search"
+            clearable
+            class="w-240"
+            placeholder="疗程券名称"
             @keydown.enter="search"
             @clear="search"
-            :prefix-icon="Search"
-            placeholder="疗程券名称"
-            clearable
           >
             <template #append>
               <el-button type="primary" @click="search">搜索</el-button>

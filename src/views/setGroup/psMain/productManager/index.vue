@@ -10,22 +10,8 @@
         <div class="search-item">
           <label>
             <span>状态：</span>
-            <el-select v-model="store.search.productStatus" @change="search" class="w-120">
+            <el-select v-model="store.search.productStatus" @change="search" class="w-100">
               <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
-            </el-select>
-          </label>
-        </div>
-        <!-- 产品分类 -->
-        <div class="search-item">
-          <label>
-            <span>分类：</span>
-            <el-select v-model="store.search.category" clearable @change="search" class="w-120">
-              <el-option
-                v-for="item in categoryList"
-                :key="item.itemValue"
-                :label="item.itemLabel"
-                :value="item.itemValue"
-              />
             </el-select>
           </label>
         </div>
@@ -44,6 +30,20 @@
             </label>
           </div>
         </template>
+        <!-- 产品分类 -->
+        <div class="search-item">
+          <label>
+            <span>分类：</span>
+            <el-select v-model="store.search.category" clearable @change="search" class="w-100">
+              <el-option
+                v-for="item in categoryList"
+                :key="item.itemValue"
+                :label="item.itemLabel"
+                :value="item.itemValue"
+              />
+            </el-select>
+          </label>
+        </div>
         <!-- 搜索框 -->
         <div class="search-item">
           <el-input
@@ -87,9 +87,9 @@
           </template>
         </el-table-column>
         <el-table-column prop="unit" label="单位/规格" :formatter="unitFormatter" width="90" />
-        <el-table-column prop="productPrice" label="标准价(元)" min-width="50" />
-        <el-table-column prop="vipProductPrice" label="会员价(元)" min-width="50" />
-        <el-table-column prop="isDiscount" label="参与折扣卡打折" :formatter="isDiscountMap" min-width="50" />
+        <el-table-column prop="productPrice" label="标准价(元)" min-width="50" :formatter="amountFormatter" />
+        <el-table-column prop="vipProductPrice" label="会员价(元)" min-width="50" :formatter="amountFormatter" />
+        <el-table-column prop="isDiscount" label="参与折扣卡打折" :formatter="isDiscountMap" min-width="60" />
         <el-table-column label="操作" min-width="80">
           <template #default="{ row }">
             <el-button @click="showDrawer(2, row)" link type="info">详情</el-button>
@@ -119,7 +119,7 @@ import OrgSelect from '@/components/FormComponents/OrgSelect.vue';
 import { Search } from '@element-plus/icons-vue';
 import { ref, onMounted, inject, reactive } from 'vue';
 import { statusOptions } from '@/enums/index';
-import { isDiscountMap } from '@/utils/formatter';
+import { amountFormatter, isDiscountMap } from '@/utils/formatter';
 import { LOADING_MSG } from '@/utils/constants';
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useEnumStore } from '@/store/modules/enums/index';

@@ -10,7 +10,7 @@
         <div class="search-item">
           <label>
             <span>状态：</span>
-            <el-select v-model="store.searchParams.itemStatus" @change="search" class="w-120">
+            <el-select v-model="store.searchParams.itemStatus" @change="search" class="w-100">
               <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </label>
@@ -34,7 +34,7 @@
         <div class="search-item">
           <label>
             <span>分类：</span>
-            <el-select v-model="store.searchParams.category" clearable @change="search" class="w-120">
+            <el-select v-model="store.searchParams.category" clearable @change="search" class="w-100">
               <el-option
                 v-for="item in categoryList"
                 :key="item.itemValue"
@@ -49,12 +49,12 @@
         <div class="search-item">
           <el-input
             v-model="store.searchParams.keyWord"
-            @keydown.enter="search"
-            @clear="search"
             :prefix-icon="Search"
+            clearable
             placeholder="编码 | 服务名称"
             class="w-240"
-            clearable
+            @keydown.enter="search"
+            @clear="search"
           >
             <template #append>
               <el-button type="primary" @click="search">搜索</el-button>
