@@ -40,7 +40,7 @@
       <PaginationTable
         v-loading="loading"
         :element-loading-text="LOADING_MSG"
-        :data="saleSummary.data"
+        :data="saleSummary.list"
         :showPagination="false"
         show-summary
       >
@@ -115,12 +115,9 @@ const handleSearchParams = () => {
   }
 };
 
-const saleSummary = reactive<{
-  total: number;
-  data: OrderSummaryVO[];
-}>({
+const saleSummary = reactive<TableData<OrderSummaryVO>>({
   total: 0,
-  data: [],
+  list: [],
 });
 
 const setSaleSummary = async () => {
@@ -132,10 +129,10 @@ const setSaleSummary = async () => {
     if (Array.isArray(data?.storeList) && storeLength <= 1) {
       isMultipleOrg.value = false;
       orgName.value = storeLength === 1 ? data?.storeList[0].orgName : '';
-      saleSummary.data = data?.total?.dailyList || [];
+      saleSummary.list = data?.total?.dailyList || [];
     } else {
       isMultipleOrg.value = true;
-      saleSummary.data = data?.storeList || [];
+      saleSummary.list = data?.storeList || [];
     }
   } catch (error) {
     console.error('获取订单汇总失败:', error);
@@ -184,7 +181,7 @@ const singleOrgColumns: ExportColumn<OrderSummaryVO>[] = [
 
 /** 导出表格 */
 const handleExport = () => {
-  if (!saleSummary.data.length) {
+  if (!saleSummary.list.length) {
     return ElMessage.warning('暂无数据可导出');
   }
 
@@ -196,7 +193,7 @@ const handleExport = () => {
     sheets: {
       sheetName: '销售汇总',
       columns,
-      data: saleSummary.data,
+      data: saleSummary.list,
     },
   });
 };
