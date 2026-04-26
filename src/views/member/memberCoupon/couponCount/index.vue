@@ -152,6 +152,7 @@ const search = () => {
 
 const handleSizeChange = (val: number) => {
   recordParams.pageSize = val;
+  recordParams.pageNum = 1;
   loadCouponRecords();
 };
 
