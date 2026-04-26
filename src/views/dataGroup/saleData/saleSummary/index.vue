@@ -64,6 +64,7 @@
         <el-table-column prop="douyinPayment" label="抖音" min-width="80" />
         <el-table-column prop="ticketItemPayment" label="项目券" min-width="80" />
         <el-table-column prop="ticketConsumerPayment" label="代金券" min-width="80" />
+        <el-table-column prop="rechargeAmount" label="充值金额" min-width="80" />
       </PaginationTable>
     </Card>
   </div>
@@ -159,6 +160,7 @@ const multiOrgColumns: ExportColumn<OrderSummaryVO>[] = [
   { key: 'douyinPayment', title: '抖音', width: 10 },
   { key: 'ticketItemPayment', title: '项目券', width: 10 },
   { key: 'ticketConsumerPayment', title: '代金券', width: 10 },
+  { key: 'rechargeAmount', title: '充值金额', width: 10 },
 ];
 
 /** 单门店模式导出列配置 */
@@ -177,6 +179,7 @@ const singleOrgColumns: ExportColumn<OrderSummaryVO>[] = [
   { key: 'douyinPayment', title: '抖音', width: 10 },
   { key: 'ticketItemPayment', title: '项目券', width: 10 },
   { key: 'ticketConsumerPayment', title: '代金券', width: 10 },
+  { key: 'rechargeAmount', title: '充值金额', width: 10 },
 ];
 
 /** 导出表格 */
