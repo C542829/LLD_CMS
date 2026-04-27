@@ -327,3 +327,43 @@ export interface LaborPerformanceVO {
   ticketItemPayment?: number;
   [property: string]: any;
 }
+
+/**
+ * 数据对象
+ *
+ * org.haut.common.domain.vo.dataview.CureTicketSalesVO
+ */
+export interface CureTicketSalesVO {
+  /**
+   * 疗程券销售列表
+   */
+  items?: CureTicketItem[];
+  /**
+   * 合计金额
+   */
+  totalAmount?: number;
+  /**
+   * 合计数量
+   */
+  totalQuantity?: number;
+  [property: string]: any;
+}
+
+/**
+ * org.haut.common.domain.vo.dataview.CureTicketSalesVO.CureTicketItem
+ */
+export interface CureTicketItem {
+  /**
+   * 销售金额
+   */
+  amount?: number;
+  /**
+   * 疗程券名称
+   */
+  name?: string;
+  /**
+   * 销售数量
+   */
+  quantity?: number;
+  [property: string]: any;
+}

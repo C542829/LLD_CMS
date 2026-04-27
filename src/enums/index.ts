@@ -473,6 +473,7 @@ export enum OrderStatus {
   SETTLED = 2, // 已结算
   CANCELLED = 3, // 已取消
   ROLLBACK = 4, // 已冲正
+  RECONCILED = 5, // 已对单
 }
 
 /**
@@ -483,6 +484,7 @@ export const OrderStatusMap = {
   [OrderStatus.SETTLED]: '已结算',
   [OrderStatus.CANCELLED]: '已取消',
   [OrderStatus.ROLLBACK]: '已冲正',
+  [OrderStatus.RECONCILED]: '已对单',
 };
 
 /**
@@ -494,6 +496,7 @@ export const orderStatusOptions = [
   { value: OrderStatus.SETTLED, label: '已结算' },
   { value: OrderStatus.CANCELLED, label: '已取消' },
   { value: OrderStatus.ROLLBACK, label: '已冲正' },
+  { value: OrderStatus.RECONCILED, label: '已对单' },
 ];
 // #endregion 订单状态
 

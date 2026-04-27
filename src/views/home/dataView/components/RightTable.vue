@@ -18,8 +18,26 @@
           {{ row.name || '会员卡' }}
         </template>
       </el-table-column>
-      <el-table-column prop="quantity" label="数量" :align="'center'" />
-      <el-table-column prop="amount" label="金额" :align="'center'" />
+      <el-table-column prop="quantity" label="数量" :align="'center'" sortable />
+      <el-table-column prop="amount" label="金额" :align="'center'" sortable />
+    </PaginationTable>
+
+    <h2 class="right-table-title">
+      <span>疗程券统计</span>
+      <el-button size="small" plain @click="exportCureTicketData">导出</el-button>
+    </h2>
+    <PaginationTable
+      :data="cureTicketTableData"
+      :showPagination="false"
+      :stripe="false"
+      containerHeight="auto"
+      size="small"
+      height="auto"
+      show-summary
+    >
+      <el-table-column prop="name" label="疗程券名称" :align="'center'" />
+      <el-table-column prop="quantity" label="数量" :align="'center'" sortable />
+      <el-table-column prop="amount" label="金额" :align="'center'" sortable />
     </PaginationTable>
 
     <h2 class="right-table-title">
@@ -47,7 +65,7 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column prop="amount" label="金额" :align="'center'" />
+      <el-table-column prop="amount" label="金额" :align="'center'" sortable />
     </PaginationTable>
 
     <h2 class="right-table-title">
@@ -64,8 +82,8 @@
       show-summary
     >
       <el-table-column prop="name" label="产品名称" :align="'center'" />
-      <el-table-column prop="quantity" label="数量" :align="'center'" />
-      <el-table-column prop="amount" label="金额" :align="'center'" />
+      <el-table-column prop="quantity" label="数量" :align="'center'" sortable />
+      <el-table-column prop="amount" label="金额" :align="'center'" sortable />
     </PaginationTable>
   </div>
 </template>
@@ -73,7 +91,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import { ElMessage } from 'element-plus';
-import { reqProductSales, reqRechargeDetail, reqServiceStats, type Types } from '@/api/home/index';
+import { type Types, reqProductSales, reqRechargeDetail, reqServiceStats, reqCureTicketSales } from '@/api/home/index';
 import { LOADING_MSG } from '@/utils/constants';
 import { exportExcel, type ExportColumn } from '@/utils/exportExcel';
 
@@ -94,6 +112,7 @@ const getRechargeDetail = async (params: Types.DataViewQuery) => {
     console.error(error);
   }
 };
+
 /** 充值/开卡数据 */
 const productTableData = ref<any[]>([]);
 /** 获取充值/开卡数据 */
@@ -107,6 +126,7 @@ const getProductDetail = async (params: Types.DataViewQuery) => {
     console.error(error);
   }
 };
+
 /** 充值/开卡数据 */
 const serviceTableData = ref<any[]>([]);
 /** 获取充值/开卡数据 */
@@ -127,11 +147,22 @@ const getServiceDetail = async (params: Types.DataViewQuery) => {
   }
 };
 
+/** 充值/开卡数据 */
+const cureTicketTableData = ref<any[]>([]);
+/** 获取充值/开卡数据 */
+const getCureTicketDetail = async (params: Types.DataViewQuery) => {
+  reqCureTicketSales(params).then((res) => {
+    const data = res.data;
+    cureTicketTableData.value = data.items || [];
+  });
+};
+
 /** 初始化数据 */
 const initData = async (params: Types.DataViewQuery) => {
   getServiceDetail(params);
   getRechargeDetail(params);
   getProductDetail(params);
+  getCureTicketDetail(params);
 };
 
 defineExpose({
@@ -196,6 +227,13 @@ const productColumns: ExportColumn<Types.ProductItem>[] = [
   { key: 'amount', title: '金额', width: 12 },
 ];
 
+/** 产品统计列配置 */
+const cureTicketColumns: ExportColumn<Types.CureTicketItem>[] = [
+  { key: 'name', title: '疗程券名称', width: 20 },
+  { key: 'quantity', title: '数量', width: 10 },
+  { key: 'amount', title: '金额', width: 12 },
+];
+
 /** 导出充值统计数据 */
 const exportRechargeData = () => {
   if (!rechargeTableData.value.length) return ElMessage.warning('暂无数据可导出');
@@ -231,6 +269,19 @@ const exportProductData = () => {
       sheetName: '产品统计',
       columns: productColumns,
       data: productTableData.value,
+    },
+  });
+};
+
+/** 导出疗程券统计数据 */
+const exportCureTicketData = () => {
+  if (!cureTicketTableData.value.length) return ElMessage.warning('暂无数据可导出');
+  exportExcel<Types.CureTicketItem>({
+    fileName: '疗程券统计',
+    sheets: {
+      sheetName: '疗程券统计',
+      columns: cureTicketColumns,
+      data: cureTicketTableData.value,
     },
   });
 };
