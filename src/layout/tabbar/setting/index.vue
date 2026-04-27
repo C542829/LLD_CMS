@@ -34,7 +34,7 @@
 import PwdForm from './PwdForm.vue';
 // import UserDrawerForm from '@/views/acl/user/components/DrawerForm.vue';
 import { computed, ref } from 'vue';
-import { printer } from '@/utils/lodop';
+// import { printer } from '@/utils/lodop';
 import { useRouter, useRoute } from 'vue-router';
 // 获取用户相关的小仓库
 import useUserStore from '@/store/modules/acl/user';
@@ -87,13 +87,13 @@ const changeInfo = () => {
 };
 
 /** 打开打印设计窗口 */
-const printDesign = () => {
-  printer.printDesign();
-};
+// const printDesign = () => {
+//   printer.printDesign();
+// };
 /** 打开打印维护窗口 */
-const printSetup = () => {
-  printer.printSetup();
-};
+// const printSetup = () => {
+//   printer.printSetup();
+// };
 </script>
 
 <script lang="ts">
