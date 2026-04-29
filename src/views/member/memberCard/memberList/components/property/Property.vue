@@ -43,7 +43,7 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="80">
+      <el-table-column label="操作" width="80" v-has="'member:memberCard:memberList:UpdateAsset'">
         <template #default="{ row }">
           <el-button type="primary" size="small" link @click="handleEditProperty(row)">编辑</el-button>
         </template>
