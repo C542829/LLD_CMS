@@ -37,7 +37,7 @@
                 title="劳动业绩"
                 radius="[40%, 70%]"
                 height="100%"
-                :centerText="`劳动业绩\n￥${laborPerformanceTotal}`"
+                :centerText="`劳动业绩\n￥${laborPerformanceTotal.toFixed(2)}`"
               />
             </div>
             <div class="chart-item">
