@@ -106,6 +106,7 @@ import { type Types, reqAddOrder, reqCancelOrder, reqDeleteOrderDetail } from '@
 import { useOrderStore } from '@/store/modules/order/index';
 import { verifyOrder } from '../utils';
 import { getOrgInfo } from '@/utils/localStorageTools';
+import { sub } from '@/utils/bigMethods';
 
 const emit = defineEmits<{
   (ev: 'update-order', value: number): void;
@@ -276,11 +277,14 @@ const handleSettle = async () => {
     //   return;
     // }
 
+    // 遍历选择的资产记录 补全支付列表
     for (const assetId of orderStore.checkedAssetInfo.assetIds) {
       const asset = orderStore.member.vipAssetVOList.find((assetItem: any) => assetItem.id === assetId);
+      // 如果资产余额为0，则跳过
       if (asset.assetBalance <= 0) {
         continue;
       }
+
       if (asset) {
         const paymentInfo = {
           paymentType: PaymentType.MemberCard,
@@ -288,9 +292,11 @@ const handleSettle = async () => {
           paymentAmount: truePayAmount,
           assetCode: asset.assetNum,
         };
+
+        // 如果资产余额小于应付金额，则使用资产余额
         if (asset.assetBalance < truePayAmount) {
           paymentInfo.paymentAmount = asset.assetBalance;
-          truePayAmount -= asset.assetBalance;
+          truePayAmount = sub(truePayAmount, asset.assetBalance);
         }
         orderStore.order.paymentInfoList.push(paymentInfo);
       } else {
@@ -298,26 +304,34 @@ const handleSettle = async () => {
         return;
       }
     }
+
+    // 计算支付列表总金额
     const totalTruePayment = orderStore.order.paymentInfoList.reduce(
       (total: number, item: any) => (total += item.paymentAmount),
       0,
     );
+
+    // 如果会员卡余额不足，则使用扫码支付
     if (totalTruePayment < orderStore.truePayAmount) {
-      orderStore.order.paymentInfoList.push({
+      const paymentInfo = {
         paymentType: PaymentType.QR,
         paymentName: paymentTypeMap[PaymentType.QR],
-        paymentAmount: orderStore.truePayAmount - totalTruePayment,
+        paymentAmount: sub(orderStore.truePayAmount, totalTruePayment),
         assetCode: '',
-      });
+      };
+      orderStore.order.paymentInfoList.push(paymentInfo);
     }
     settleDialogVisible.value = true;
-  } else {
-    orderStore.order.paymentInfoList.push({
+  }
+  // 散客结算
+  else {
+    const paymentInfo = {
       paymentType: PaymentType.QR,
       paymentName: paymentTypeMap[PaymentType.QR],
       paymentAmount: orderStore.truePayAmount,
       assetCode: '',
-    });
+    };
+    orderStore.order.paymentInfoList.push(paymentInfo);
     settleDialogVisible.value = true;
   }
 };

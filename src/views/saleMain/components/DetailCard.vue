@@ -194,6 +194,14 @@ const handleChangeQuantity = (cur: number | undefined, prev: number | undefined)
  */
 const handleChangePrice = (cur: number | undefined, prev: number | undefined) => {
   props.data.truePrice = mul(props.data.trueUnitPrice, props.data.quantity!);
+
+  // 如果修改使用项目券，则更新项目券金额
+  if (props.data.coupon) {
+    const coupon = orderStore?.order?.ticketUseList?.find((item: any) => item.ticketId === props.data.coupon.id);
+    if (coupon) {
+      coupon.amount = props.data.truePrice;
+    }
+  }
 };
 
 /**
