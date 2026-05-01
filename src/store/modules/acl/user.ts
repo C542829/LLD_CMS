@@ -61,7 +61,7 @@ const useUserStore = defineStore('User', {
         this.setStoreUserInfo(result);
         setUserInfo(result);
         setToken(this.token);
-        this.userInfo();
+        await this.userInfo();
         return true;
       } catch (error) {
         return false;
@@ -141,6 +141,8 @@ const useUserStore = defineStore('User', {
       if (res.code === ResponseCode.SUCCESS) {
         this.clearUserInfo();
         router.push({ path: '/login' });
+        // window.location.reload();
+        // window.location.href = '/#/login';
         // $Message.success('退出登录成功');
       } else {
         $Message.error('退出登录失败');
