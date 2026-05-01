@@ -165,6 +165,10 @@ const handleSearchParams = () => {
     searchParams.startTime = dateRange.value[0] as string;
     searchParams.endTime = dateRange.value[1] as string;
   }
+  // if (searchParams.orgIds && searchParams.orgIds.length === 0) {
+  //   const orgIds = userStore?.user?.orgs?.map((item) => item.id) || [];
+  //   searchParams.orgIds = orgIds;
+  // }
 };
 
 const search = async () => {
