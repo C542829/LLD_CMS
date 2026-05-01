@@ -1,5 +1,6 @@
 import { get, post, put } from '@/utils/request';
 import * as Types from './type';
+import { TicketCountVO } from '@/api/member/coupon/types';
 
 export { Types };
 
@@ -28,6 +29,8 @@ enum API {
   UPDATE_ASSET_REMARK = `/vip/update-asset-remark/{assetId}`,
   /** 修改会员资产属性 */
   UPDATE_ASSET_DISCOUNT = '/vip/update-asset-discount',
+  /** 查询会员优惠券列表 */
+  QUERY_TICKET_LIST = '/vip/query-tickets/{vipId}',
   /**  */
   _ = '',
 }
@@ -159,3 +162,11 @@ export const reqUpdateVipAsset = (data: Types.VipAssetDiscountDTO): ApiResponse<
   const url = API.UPDATE_ASSET_DISCOUNT;
   return post(url, data);
 };
+
+/**
+ * 获取会员优惠券列表
+ * @param vipId 会员id
+ * @returns 会员优惠券列表
+ */
+export const reqVipTicketList = (vipId: number): ApiResponse<TicketCountVO[]> =>
+  get(API.QUERY_TICKET_LIST.replace(IdStr, vipId.toString()));
