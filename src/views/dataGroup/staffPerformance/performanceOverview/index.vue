@@ -183,8 +183,10 @@ const handleExport = () => {
     return ElMessage.warning('暂无数据可导出');
   }
 
+  /** 拼接日期区间后缀，日期区间为空则不添加 */
+  const dateSuffix = dateRange.value.length === 2 ? `(${dateRange.value[0]}~${dateRange.value[1]})` : '';
   exportExcel({
-    fileName: '绩效汇总',
+    fileName: `绩效汇总${dateSuffix}`,
     sheets: {
       sheetName: '绩效汇总',
       columns: exportColumns,
