@@ -185,11 +185,14 @@
 <script setup lang="ts">
 import DetailDialog from './components/DetailDialog.vue';
 import { ref, reactive, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import { cloneDeep } from 'lodash';
 import { datetimeFormatter } from '@/utils/formatter';
 import { reqMGJSaleDataList } from './utils/api';
 import type { MgjSaleDataQuery, MgjSaleDataParsed } from './utils/types';
 import { StoreMap, CONSUME_TYPE_MAP, MEMBER_TYPE_OPTIONS, SEX_MAP, parseSaleDataVO, StoreOptions } from './utils/index';
+
+const route = useRoute();
 
 /** 加载状态 */
 const loading = ref(false);
@@ -213,6 +216,11 @@ const DEFAULT_SEARCH_PARAMS: MgjSaleDataQuery = {
 
 /** 搜索参数 */
 const searchParams = reactive<MgjSaleDataQuery>(cloneDeep(DEFAULT_SEARCH_PARAMS));
+
+const memberId = route.query.memberId;
+if (memberId) {
+  searchParams.memberId = memberId as string;
+}
 
 /** 表格数据 */
 const tableData = reactive<{ list: MgjSaleDataParsed[]; total: number }>({

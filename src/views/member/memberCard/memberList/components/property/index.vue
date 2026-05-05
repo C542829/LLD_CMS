@@ -4,6 +4,7 @@
       <span>时间段：</span>
       <IDatePicker v-model="query.date" :default="false" class="w-240 mr-3" @change="search" @clear="search" />
       <el-button type="primary" @click="search">查询</el-button>
+      <el-button type="primary" plain @click="handleQueryMgj">查询美管家记录</el-button>
     </div>
     <div class="main-content">
       <NavTabs v-model="activeTab" :tabs="tabs"></NavTabs>
@@ -27,8 +28,11 @@ import NavTabs from '@/components/Tab/NavTabs.vue';
 import Property from './Property.vue';
 import ConsumptionRecord from './ConsumptionRecord.vue';
 import RechargeRecord from './RechargeRecord.vue';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, reactive } from 'vue';
+import { useRouter } from 'vue-router';
 import { useMemberStore } from '@/store/modules/member/member';
+
+const router = useRouter();
 
 // 获取会员信息
 const memberStore = useMemberStore();
@@ -41,13 +45,13 @@ const tabs = ref([
   { label: '充值记录', name: 'RechargeRecord', icon: '' },
 ]);
 
-const query = ref({
+const query = reactive({
   date: [],
-  member: {},
+  member: { cardNumber: '' },
 });
 
 onMounted(() => {
-  query.value.member = memberStore.formData;
+  query.member = memberStore.formData;
 });
 
 const propertyRef = ref();
@@ -61,6 +65,19 @@ const search = () => {
   } else if (activeTab.value === 'RechargeRecord') {
     rechargeRecordRef.value.getData();
   }
+};
+
+/**
+ * 查询美管家记录
+ */
+const handleQueryMgj = () => {
+  // 解析路由
+  const routeUrl = router.resolve({
+    path: '/dataGroup/MGJSaleData',
+    query: { memberId: query.member?.cardNumber },
+  });
+  // 打开新标签
+  window.open(routeUrl.href, '_blank');
 };
 </script>
 
