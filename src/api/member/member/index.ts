@@ -72,7 +72,7 @@ export const getAssociateList = async (queryField: string, size?: number) => {
  * @param id 会员id
  * @returns 会员详情
  */
-export const reqVipInfo = (id: number) => get(API.INFO_URL, { id });
+export const reqVipInfo = (id: number | string): ApiResponse<Types.VipInfoVO> => get(API.INFO_URL, { id });
 
 /**
  * 添加会员

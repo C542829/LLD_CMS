@@ -1,5 +1,5 @@
 <template>
-  <div class="recharge-container" v-loading="settingStore.loading">
+  <div class="recharge-container" v-loading="settingStore.loading" :element-loading-text="LOADING_MSG">
     <!-- 会员基本信息 -->
     <div class="left-content">
       <!-- 会员卡 -->
@@ -86,7 +86,7 @@
           </div>
 
           <!-- 充值活动列表 -->
-          <div v-loading="settingStore.loading" class="activity-list">
+          <div v-loading="activityLoading" :element-loading-text="LOADING_MSG" class="activity-list">
             <h1>
               可选充值活动
               <el-button type="primary" size="small" link @click="getActivities">刷新</el-button>
@@ -131,7 +131,7 @@ import { Search } from '@element-plus/icons-vue';
 import { ref, watch, onMounted, reactive } from 'vue';
 import { reqDefaultCommissionRule } from '@/api/setGroup/rechargeCommissionRules/index';
 import { getActivityList } from '@/api/member/rechargeActivity/index';
-
+import { LOADING_MSG } from '@/utils/constants';
 import { useSettingStore } from '@/store/modules/acl/setting';
 import { useMemberStore } from '@/store/modules/member/member';
 import { useRechargeStore } from '@/store/modules/member/recharge';
@@ -155,19 +155,22 @@ const getDefaultRCRule = async () => {
   }
 };
 
+const activityLoading = ref(false);
 // 活动列表
 const activityList = ref<any>([]);
 const getActivities = async () => {
-  settingStore.loading = true;
-  const data = await getActivityList();
-  activityList.value =
-    data.map((item: any) => {
-      item.status = 'active';
-      return item;
-    }) || [];
-
-  // activityList.value = [];
-  settingStore.loading = false;
+  activityLoading.value = true;
+  try {
+    const data = await getActivityList();
+    activityList.value =
+      data.map((item: any) => {
+        item.status = 'active';
+        return item;
+      }) || [];
+  } catch (error) {
+  } finally {
+    activityLoading.value = false;
+  }
 };
 
 // 搜索会员

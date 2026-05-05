@@ -7,21 +7,33 @@ import ChildNav from '@/components/ChildNav/index.vue';
 import Recharge from './recharge/index.vue';
 import RechargeRecord from './rechargeRecord/index.vue';
 import RechargeActivity from './rechargeActivity/index.vue';
-import useUserStore from '@/store/modules/acl/user';
 import { ref, markRaw, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-// import { useDataEnumStore } from '@/store/modules/enums/index';
-// const dataEnumStore = useDataEnumStore();
+import { reqVipInfo } from '@/api/member/member/index';
+import { useRechargeStore } from '@/store/modules/member/recharge';
+import useUserStore from '@/store/modules/acl/user';
+import { useSettingStore } from '@/store/modules/acl/setting';
 
-onMounted(() => {
-  // dataEnumStore.getOrgList(true);
-});
+const settingStore = useSettingStore();
+const rechargeStore = useRechargeStore();
+
 const route = useRoute();
 const vipId = route.query.vipId;
 
-if (vipId) {
-  localStorage.setItem('activeTab', '会员充值');
-}
+const initVipInfo = async () => {
+  if (vipId) {
+    localStorage.setItem('activeTab', '会员充值');
+    try {
+      settingStore.loading = true;
+      const { data } = await reqVipInfo(vipId as string);
+      rechargeStore.member = data;
+    } catch (error) {
+    } finally {
+      settingStore.loading = false;
+    }
+  }
+};
+initVipInfo();
 
 const originalNavList = ref([
   { label: '会员充值', icon: '', component: markRaw(Recharge) },

@@ -80,15 +80,15 @@ import PropertyDetail from './property/index.vue';
 import { useRouter } from 'vue-router';
 
 import { useMemberStore } from '@/store/modules/member/member';
-import { useRechargeStore } from '@/store/modules/member/recharge';
+// import { useRechargeStore } from '@/store/modules/member/recharge';
 const store = useMemberStore();
-const rechargeStore = useRechargeStore();
+// const rechargeStore = useRechargeStore();
 
 // 路由
 const router = useRouter();
 
 const handleRecharge = () => {
-  rechargeStore.member = store.formData;
+  // rechargeStore.member = store.formData;
   router.push({ name: 'MemberRecharge', query: { vipId: store.formData.id } });
 };
 </script>
