@@ -170,15 +170,16 @@
             <p class="text">收银：{{ scope.row.userName }}</p>
           </template>
         </el-table-column>
-        <el-table-column label="操作" min-width="100">
+        <el-table-column label="操作" min-width="80">
           <template #default="{ row }">
             <el-button @click="showDrawer(row)" link type="info">明细</el-button>
+            <br />
             <el-button :disabled="row.orderStatus !== OrderStatus.SETTLED" @click="reversal(row)" link type="danger">
               冲正
             </el-button>
             <br />
-            <el-button :disabled="true" @click="showDialog(row)" link type="warning">修改销售单据</el-button>
-            <br />
+            <!-- <el-button :disabled="true" @click="showDialog(row)" link type="warning">修改销售单据</el-button>
+            <br /> -->
             <el-button
               :disabled="row.orderStatus !== OrderStatus.SETTLED"
               :loading="row.loading"
@@ -331,7 +332,7 @@ const exportData = async () => {
  */
 const reversal = async (row: any) => {
   if (isFullDaysSince(row.settleTime, 2)) {
-    Message.warning('只能对两天以内的记录进行修改或冲正');
+    Message.warning('只能对两天以内的记录进行冲正');
     return;
   }
 
