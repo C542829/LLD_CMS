@@ -1,6 +1,6 @@
+import Message from '@/components/Message';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import Message from '@/components/Message';
 import { Types, reqRecharge } from '@/api/member/recharge';
 import { parseResMsg } from '@/utils/parseResponse';
 import { paymentTypeMap } from '@/enums/index';
@@ -125,9 +125,14 @@ export const useRechargeStore = defineStore('Recharge', () => {
 
   // 充值
   const recharge = async () => {
+    if (!rechargeFormData.value.userKpiList[0].userId) {
+      Message.warning('请选择销售员');
+      return;
+    }
+
     const params = handleRechargeParams();
     if (!params) {
-      Message.error('充值信息填写不完整');
+      Message.warning('充值信息填写不完整');
       return;
     }
     settingStore.loading = true;

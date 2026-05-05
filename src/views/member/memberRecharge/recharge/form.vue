@@ -124,7 +124,6 @@ const store = useRechargeStore();
 
 onMounted(() => {
   getStaffList();
-  store.reset();
 });
 
 // 销售员列表

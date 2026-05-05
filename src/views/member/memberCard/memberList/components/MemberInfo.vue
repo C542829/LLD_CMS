@@ -89,7 +89,7 @@ const router = useRouter();
 
 const handleRecharge = () => {
   rechargeStore.member = store.formData;
-  router.push({ path: '/member/memberRecharge' });
+  router.push({ name: 'MemberRecharge', query: { vipId: store.formData.id } });
 };
 </script>
 

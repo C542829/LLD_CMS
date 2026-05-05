@@ -39,7 +39,7 @@ export interface RechargeDTO {
   /**
    * 业绩技师信息(支持多人业绩)
    */
-  userKpiList?: UserKpiDTO[];
+  userKpiList: UserKpiDTO[];
   /**
    * 会员卡号
    */

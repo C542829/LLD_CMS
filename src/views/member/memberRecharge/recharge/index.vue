@@ -71,7 +71,12 @@
         <el-form class="recharge-form">
           <!-- 充值金额输入框 -->
           <div class="recharge-input">
-            <el-input-number v-model="store.rechargeFormData.rechargeValue" size="large" :controls="false">
+            <el-input-number
+              v-model="store.rechargeFormData.rechargeValue"
+              size="large"
+              :controls="false"
+              @change="handleRechargeValueChange"
+            >
               <template #prefix><b>￥</b></template>
               <template #suffix><b>元</b></template>
             </el-input-number>
@@ -138,7 +143,6 @@ const store = useRechargeStore();
 onMounted(async () => {
   getActivities();
   getDefaultRCRule();
-  store.reset();
 });
 
 /** 获取默认充值佣金规则 */
@@ -187,6 +191,20 @@ const handleSelect = (item: Record<string, any>) => {
 const handleCardClick = (data: any) => {
   store.rechargeActivity = selectActivity(data);
   store.rechargeFormData.rechargeValue = store.rechargeActivity.activeCapital;
+};
+
+/**
+ * 充值金额变化
+ * @param cur 当前值
+ * @param prev 上一次值
+ */
+const handleRechargeValueChange = (cur: number | undefined, prev: number | undefined) => {
+  // 如果当前值小于活动金额，则设置为活动金额
+  if (store.rechargeActivity) {
+    if (cur && cur < store.rechargeActivity.activeCapital) {
+      store.rechargeFormData.rechargeValue = store.rechargeActivity.activeCapital;
+    }
+  }
 };
 
 // 选择活动
