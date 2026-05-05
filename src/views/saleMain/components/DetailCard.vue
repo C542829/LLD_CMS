@@ -39,7 +39,7 @@
           <el-input-number
             v-model="data.trueUnitPrice"
             :min="0"
-            :disabled="data.disabled"
+            :disabled="isEditPrice"
             controls-position="right"
             class="w-100"
             @change="handleChangePrice"
@@ -60,6 +60,7 @@
         <label>
           <span>销售：</span>
           <UserSelect
+            ref="technicianSelectRef"
             v-model="data.technicians"
             :maxCollapseTags="1"
             emitObject
@@ -119,7 +120,7 @@
 <script setup lang="ts">
 import Message from '@/components/Message';
 import CouponSelect from '@/views/saleMain/components/CouponSelect.vue';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { type Types, reqUpdateServerEmployee, reqUpdateServerType } from '@/api/order/index';
 import { CouponType, OrderDetailType, ServiceTypeOptions } from '@/enums/index';
 import { useOrderStore } from '@/store/modules/order/index';
@@ -140,6 +141,13 @@ const props = withDefaults(defineProps<Props>(), {});
 
 const emit = defineEmits(['cancel-coupon', 'delete']);
 
+// 如果是疗程卡不能修改价格
+const isEditPrice = computed(() => {
+  return props.data.disabled;
+});
+
+const technicianSelectRef = ref<any>({});
+
 /**
  * 修改销售人员
  * @param id 员工ID
@@ -148,6 +156,7 @@ const handleChangeUser = (technicians: Types.OrderDetailTechnicianDTO[]) => {
   if (props.data.id) {
     updateServiceEmployee(props.data.id!, technicians);
   }
+  technicianSelectRef.value && technicianSelectRef.value.blur();
 };
 
 /**
@@ -193,6 +202,12 @@ const handleChangeQuantity = (cur: number | undefined, prev: number | undefined)
  * @param price 价格
  */
 const handleChangePrice = (cur: number | undefined, prev: number | undefined) => {
+  // 如果是疗程券，则价格不能低于疗程券价格
+  if (props.data.bizType === OrderDetailType.TreatmentCoupon && cur! < props.data.stdPrice!) {
+    props.data.trueUnitPrice = props.data.stdPrice;
+    return;
+  }
+
   props.data.truePrice = mul(props.data.trueUnitPrice, props.data.quantity!);
 
   // 如果修改使用项目券，则更新项目券金额

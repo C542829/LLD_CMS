@@ -1,7 +1,13 @@
 <template>
   <el-popover ref="popoverRef" trigger="click" effect="light" placement="left" title="请选择项目券" width="180">
     <el-select v-model="selected" placeholder="请选择项目券" filterable clearable value-key="id" @change="handleChange">
-      <el-option v-for="(item, index) in coupons" :key="item.id" :label="item.ticketName" :value="item">
+      <el-option
+        v-for="(item, index) in coupons"
+        :key="item.id"
+        :label="item.ticketName"
+        :value="item"
+        :disabled="item.disabled"
+      >
         <!-- <span>{{ index + 1 }}、{{ item.ticketName }}</span> -->
         {{ index + 1 }}. {{ item.ticketName }}
         <!-- ({{ item.remark }}) -->
@@ -24,9 +30,11 @@
 import { ref, computed } from 'vue';
 import { CouponType, OrderDetailType } from '@/enums/index';
 import { PopoverInstance } from 'element-plus';
-
 import { useOrderStore } from '@/store/modules/order/index';
+import useUserStore from '@/store/modules/acl/user';
+
 const store = useOrderStore();
+const userStore = useUserStore();
 
 interface Emits {
   (e: 'change', coupon: any): void;
@@ -46,6 +54,12 @@ const filter = (item: any) => {
   // 如果是代金券，直接返回true
   if (item.ticketInfo.ticketType === CouponType.voucher) {
     return false;
+  }
+
+  // 如果该优惠券不是当前门店则不显示
+  if (item.orgId !== userStore.user.orgId) {
+    return false;
+    // item.disabled = true;
   }
 
   // 过期时间过滤

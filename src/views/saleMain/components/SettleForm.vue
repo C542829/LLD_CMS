@@ -62,6 +62,16 @@
       </template>
 
       <PayMethod />
+
+      <div class="remark-container">
+        <el-input
+          v-model="orderStore.order.remark"
+          :autosize="{ minRows: 1, maxRows: 4 }"
+          class="w-p-100"
+          type="textarea"
+          placeholder="请输入订单备注"
+        />
+      </div>
     </div>
     <template #footer>
       <el-button type="default" @click="dialogVisible = false">取消</el-button>
@@ -284,5 +294,9 @@ const closeDialog = () => {
   font-size: 12px;
   color: var(--el-color-danger);
   margin-left: 6px;
+}
+
+.remark-container {
+  margin-top: 10px;
 }
 </style>

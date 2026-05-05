@@ -32,14 +32,12 @@
 <script setup lang="ts">
 import CouponCard from './CouponCard.vue';
 import ProjectCouponCard from './ProjectCouponCard.vue';
+import Message from '@/components/Message';
 import { ref, computed, onMounted } from 'vue';
 import { CouponType } from '@/enums/index';
 import { useOrderStore } from '@/store/modules/order/index';
-import { ElMessage } from 'element-plus';
 
 const store = useOrderStore();
-
-const tabSwitch = ref(0);
 
 // 是否渲染优惠券列表
 const isRender = computed(() => {
@@ -92,7 +90,7 @@ const selectCoupon = (item: any) => {
   }
 
   if (!checkVoucherCondition(item.ticketInfo, store.truePayAmount)) {
-    ElMessage.warning('订单金额不足，无法使用该优惠券');
+    Message.warning('订单金额不足，无法使用该优惠券');
     return;
   }
 

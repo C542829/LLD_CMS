@@ -11,7 +11,7 @@
         <el-checkbox
           :label="discountLabel"
           :value="data?.discountValue"
-          :disabled="data?.disabled || !orderStore.isCreated"
+          :disabled="data?.disabled || !orderStore.isCreated || !isSelect"
         />
         <span class="fin-row-balance">余额：{{ data?.assetBalance }} 元</span>
       </div>
@@ -38,8 +38,10 @@ import { DiscountType, discountTypeMap } from '@/enums/index';
 import { reqUpdateAssetRemark } from '@/api/member/member/index';
 import { useDataEnumStore } from '@/store/modules/enums';
 import { useOrderStore } from '@/store/modules/order/index';
+import useUserStore from '@/store/modules/acl/user';
 const orderStore = useOrderStore();
 const enumsStore = useDataEnumStore();
+const userStore = useUserStore();
 
 interface Props {
   data: any;
@@ -105,6 +107,13 @@ const discountRate = computed(() => {
 // 是否赠送
 const isGiving = computed(() => {
   return props.data.assetType === 1;
+});
+
+/**
+ * 是否可选（当资产属于当前门店时可选，不属于则禁用）
+ */
+const isSelect = computed(() => {
+  return props.data.orgId === userStore.user.orgId;
 });
 
 /**
