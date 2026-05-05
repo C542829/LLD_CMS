@@ -141,7 +141,7 @@ const useUserStore = defineStore('User', {
       if (res.code === ResponseCode.SUCCESS) {
         this.clearUserInfo();
         router.push({ path: '/login' });
-        // window.location.reload();
+        window.location.reload();
         // window.location.href = '/#/login';
         // $Message.success('退出登录成功');
       } else {
