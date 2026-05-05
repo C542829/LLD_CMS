@@ -1,5 +1,6 @@
 <template>
   <el-select
+    ref="userSelectRef"
     v-model="selectedValue"
     :placeholder="placeholder"
     :class="class"
@@ -190,4 +191,15 @@ const getUserList = async () => {
     loading.value = false;
   }
 };
+
+const userSelectRef = ref<SelectInstance>();
+defineExpose({
+  focus: () => {
+    userSelectRef.value?.focus();
+  },
+  blur: () => {
+    userSelectRef.value?.blur();
+  },
+  getRef: () => userSelectRef.value,
+});
 </script>
