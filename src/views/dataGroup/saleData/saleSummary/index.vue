@@ -186,7 +186,10 @@ const handleExport = () => {
   }
 
   const columns = isMultipleOrg.value ? multiOrgColumns : singleOrgColumns;
-  const fileName = isMultipleOrg.value ? '销售汇总' : `${orgName.value}-销售汇总`;
+  const baseName = isMultipleOrg.value ? `销售汇总` : `${orgName.value}-销售汇总`;
+  /** 拼接日期区间后缀，日期区间为空则不添加 */
+  const dateSuffix = dateRange.value.length === 2 ? `(${dateRange.value[0]}~${dateRange.value[1]})` : '';
+  const fileName = `${baseName}${dateSuffix}`;
 
   exportExcel({
     fileName,
