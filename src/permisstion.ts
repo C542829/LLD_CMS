@@ -52,7 +52,8 @@ router.beforeEach(async (to: any, _from: any, next: any) => {
       next();
     } else {
       // 未登录访问其他页面，重定向到登录页
-      next({ path: '/login', query: { redirect: to.path } });
+      next({ path: '/login' });
+      // next({ path: '/login', query: { redirect: to.path } });
     }
   }
 });
