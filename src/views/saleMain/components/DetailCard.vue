@@ -13,7 +13,7 @@
         <!-- 总价 -->
         <span class="total-price">总价:{{ data.truePrice }}</span>
         <!-- 优惠券 -->
-        <template v-if="data.bizType === OrderDetailType.Service">
+        <template v-if="data.bizType === OrderDetailType.Service || data.bizType === OrderDetailType.Product">
           <template v-if="!orderStore.isCreated">
             <el-tooltip effect="dark" content="开单后才能选择优惠券" placement="top">
               <span class="item-coupon-info">
@@ -241,33 +241,26 @@ const handleCloseTag = () => {
 };
 
 /**
- * 选择项目券
- * @param coupon 项目券
+ * 选择优惠券（项目券 / 产品券）
+ * @param coupon 优惠券
  */
 const selectCoupon = (coupon: any) => {
   if (!isEmpty(props.data.coupon)) {
     handleCloseTag();
   }
 
-  if (coupon?.ticketInfo?.ticketType === CouponType.experience) {
+  const ticketType = coupon?.ticketInfo?.ticketType;
+  if (ticketType === CouponType.experience || ticketType === CouponType.product) {
     // 将优惠券挂载到当前明细用于UI展示
     props.data.coupon = coupon;
 
-    // coupon.active = true;
-    // 选择项目券时将价格重置为标准价
-    // props.data.trueUnitPrice = props.data.stdPrice;
-    // props.data.truePrice = props.data.stdPrice;
-
-    // 选择项目券时将价格设置为券面值
+    // 选择优惠券时将价格设置为券面值
     props.data.trueUnitPrice = coupon.amount ?? coupon.ticketInfo?.ticketValue ?? props.data.stdPrice;
     props.data.truePrice = props.data.trueUnitPrice;
 
-    // 禁用当前修改单价的编辑框
-    // props.data.disabled = true;
-
     const useCoupon: any = {
       ticketId: coupon.id,
-      ticketType: coupon.ticketInfo.ticketType,
+      ticketType: ticketType,
       amount: props.data.truePrice,
       detailName: props.data.businessName,
       coupon: props.data.coupon,

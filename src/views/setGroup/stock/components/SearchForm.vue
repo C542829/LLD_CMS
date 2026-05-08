@@ -22,7 +22,14 @@
       <div class="search-item">
         <label>
           <span>门店：</span>
-          <OrgSelect v-model="searchParams.orgId" placeholder="全部门店" class="w-120" :multiple="false" @change="search" @clear="search" />
+          <OrgSelect
+            v-model="searchParams.orgId"
+            placeholder="全部门店"
+            class="w-120"
+            :multiple="false"
+            @change="search"
+            @clear="search"
+          />
         </label>
       </div>
     </template>

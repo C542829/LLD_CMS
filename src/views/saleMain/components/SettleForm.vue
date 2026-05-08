@@ -47,7 +47,7 @@
         </el-descriptions-item>
       </el-descriptions>
 
-      <template v-if="orderStore.couponDiscountAmount > 0">
+      <template v-if="orderStore.order.ticketUseList && orderStore.order.ticketUseList.length > 0">
         <div class="used-coupon-info">
           <PaginationTable :data="orderStore.order.ticketUseList" :showPagination="false" size="small">
             <el-table-column prop="orgs" label="类型" width="60">
@@ -137,10 +137,16 @@ const updatePayment = (payments: Types.PaymentInfoDTO[]) => {
  */
 const ticketToPayment = (tickets: Types.OrderTicketUseDTO[]) => {
   return tickets.map((ticket) => {
-    const isVoucher = ticket.ticketType === CouponType.voucher;
-    const paymentType = isVoucher ? PaymentType.Voucher : PaymentType.ItemCoupon;
+    let paymentType: PaymentType;
+    if (ticket.ticketType === CouponType.voucher) {
+      paymentType = PaymentType.Voucher;
+    } else if (ticket.ticketType === CouponType.product) {
+      paymentType = PaymentType.ProductCoupon;
+    } else {
+      paymentType = PaymentType.ItemCoupon;
+    }
     return {
-      paymentType: paymentType,
+      paymentType,
       paymentName: paymentTypeMap[paymentType],
       paymentAmount: ticket.amount,
       assetCode: ticket.ticketId,

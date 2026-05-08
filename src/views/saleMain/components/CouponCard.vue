@@ -30,6 +30,9 @@
       {{ getExpiryDate(coupon.expiryDate) }}
     </div>
 
+    <!-- 关联门店 -->
+    <div v-if="orgName" class="coupon-tip text-overflow" :title="`门店：${orgName}`">门店：{{ orgName }}</div>
+
     <!-- 取消选择遮盖 -->
     <div v-if="coupon?.isSelected" class="cancel-select">
       <el-button type="primary" link @click.stop.prevent="cancelSelect">取消选择</el-button>
@@ -71,6 +74,15 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {});
 
 const emit = defineEmits(['cancelSelect', 'select']);
+
+/** 获取关联门店名称 */
+const orgName = computed(() => {
+  const orgs = props.coupon.ticketInfo?.orgs;
+  if (orgs && orgs.length > 0) {
+    return orgs.map((o: any) => o.orgName).join('、');
+  }
+  return '';
+});
 
 /** 判断优惠券是否过期 */
 const isExpired = computed(() => {

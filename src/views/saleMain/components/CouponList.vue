@@ -18,7 +18,18 @@
         />
         <!-- </template>
         <template v-else> -->
-        <ProjectCouponCard v-for="(item, index) in projectCoupons" :key="item.id" :coupon="item" />
+        <ProjectCouponCard
+          v-for="(item, index) in projectCoupons"
+          :key="item.id"
+          :coupon="item"
+          @select="selectDetailCoupon(item)"
+        />
+        <ProjectCouponCard
+          v-for="(item, index) in productCoupons"
+          :key="item.id"
+          :coupon="item"
+          @select="selectDetailCoupon(item)"
+        />
         <!-- </template> -->
         <div style="height: 12px"></div>
       </template>
@@ -33,8 +44,8 @@
 import CouponCard from './CouponCard.vue';
 import ProjectCouponCard from './ProjectCouponCard.vue';
 import Message from '@/components/Message';
-import { ref, computed, onMounted } from 'vue';
-import { CouponType } from '@/enums/index';
+import { ref, computed } from 'vue';
+import { CouponType, OrderDetailType } from '@/enums/index';
 import { useOrderStore } from '@/store/modules/order/index';
 
 const store = useOrderStore();
@@ -54,7 +65,7 @@ const voucherCoupons = computed(() => {
   });
 });
 
-// 项目券
+// 项目券（根据 ticketName + orgId 聚合，做门店隔离）
 const projectCoupons = computed(() => {
   if (!store.member.vipTicketVOList || store.member.vipTicketVOList.length === 0) {
     return [];
@@ -63,13 +74,33 @@ const projectCoupons = computed(() => {
     return item.ticketInfo.ticketType === CouponType.experience;
   });
 
-  // 根据 ticketName 聚合数量，其余优惠券参数信息也需要展示
-  const projectCoupons = coupons.reduce((acc: any, cur: any) => {
-    const item = acc.find((item: any) => item.ticketName === cur.ticketName);
+  return aggregateCoupons(coupons);
+});
+
+// 产品券（根据 ticketName + orgId 聚合，做门店隔离）
+const productCoupons = computed(() => {
+  if (!store.member.vipTicketVOList || store.member.vipTicketVOList.length === 0) {
+    return [];
+  }
+  const coupons = store.member.vipTicketVOList.filter((item: any) => {
+    return item.ticketInfo.ticketType === CouponType.product;
+  });
+
+  return aggregateCoupons(coupons);
+});
+
+/**
+ * 根据 ticketName + orgId 聚合优惠券
+ */
+const aggregateCoupons = (coupons: any[]) => {
+  return coupons.reduce((acc: any, cur: any) => {
+    const key = `${cur.ticketName}_${cur.orgId}`;
+    const item = acc.find((item: any) => item._aggKey === key);
     if (item) {
       item.count++;
     } else {
       acc.push({
+        _aggKey: key,
         ticketName: cur.ticketName,
         count: 1,
         ...cur,
@@ -77,8 +108,7 @@ const projectCoupons = computed(() => {
     }
     return acc;
   }, []);
-  return projectCoupons;
-});
+};
 
 let currentCoupon: any | null = null;
 
@@ -124,6 +154,86 @@ const cleanVoucher = () => {
 /** 取消选择优惠券 */
 const cancelSelect = (item: any) => {
   cleanVoucher();
+};
+
+/**
+ * 选择项目券/产品券，绑定到匹配的订单明细并存入 ticketUseList
+ */
+const selectDetailCoupon = (coupon: any) => {
+  if (!store.isCreated) {
+    return;
+  }
+
+  const ticketType = coupon.ticketInfo?.ticketType;
+  const ticketId = coupon.id;
+
+  // 检查是否已使用
+  if (store.order.ticketUseList?.some((item: any) => item.ticketId === ticketId)) {
+    Message.warning('该优惠券已使用');
+    return;
+  }
+
+  // 查找匹配的订单明细
+  const detail = findMatchDetail(coupon);
+  if (!detail) {
+    const typeLabel = ticketType === CouponType.product ? '产品' : '服务项目';
+    Message.warning(`当前订单中没有匹配的${typeLabel}`);
+    return;
+  }
+
+  // 如果该明细已绑定优惠券，先解绑
+  if (detail.coupon) {
+    const existIndex = store.order.ticketUseList?.findIndex((item: any) => item.ticketId === detail.coupon.id);
+    if (existIndex !== -1) {
+      store.order.ticketUseList.splice(existIndex, 1);
+    }
+    detail.coupon = null;
+  }
+
+  // 绑定优惠券到订单明细
+  detail.coupon = coupon;
+  detail.trueUnitPrice = coupon.amount ?? coupon.ticketInfo?.ticketValue ?? detail.stdPrice;
+  detail.truePrice = detail.trueUnitPrice;
+
+  // 存入 ticketUseList
+  const useCoupon: any = {
+    ticketId: ticketId,
+    ticketType: ticketType,
+    amount: detail.truePrice,
+    detailName: detail.businessName,
+    coupon: coupon,
+  };
+  if (detail.id) {
+    useCoupon.detailId = detail.id;
+  }
+  if (detail.index) {
+    useCoupon.detailIndex = detail.index;
+  }
+  store.order.ticketUseList?.push(useCoupon);
+  Message.success('优惠券已使用');
+};
+
+/**
+ * 查找匹配的订单明细
+ * 项目券匹配服务项目，产品券匹配产品
+ */
+const findMatchDetail = (coupon: any) => {
+  const ticketType = coupon.ticketInfo?.ticketType;
+  const details = store.order.orderDetails || [];
+
+  if (ticketType === CouponType.experience) {
+    const serverItemIds = coupon.ticketInfo?.serverItems?.map((s: any) => s.id) || [];
+    return details.find(
+      (d: any) => d.bizType === OrderDetailType.Service && serverItemIds.includes(d.bizId) && !d.coupon,
+    );
+  }
+
+  if (ticketType === CouponType.product) {
+    const productIds = coupon.ticketInfo?.productList?.map((p: any) => p.productId) || [];
+    return details.find((d: any) => d.bizType === OrderDetailType.Product && productIds.includes(d.bizId) && !d.coupon);
+  }
+
+  return null;
 };
 </script>
 

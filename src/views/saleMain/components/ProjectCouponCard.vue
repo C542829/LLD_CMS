@@ -16,9 +16,12 @@
       <div class="amount text-overflow" :title="`面值 ￥${coupon.amount || 0}/张`">￥{{ coupon.amount || 0 }}/张</div>
     </div>
     <!-- 优惠券描述 -->
-    <div class="row coupon-tip text-overflow" :title="coupon.remark">
-      {{ coupon.remark }}
+    <div class="row coupon-tip text-overflow" :title="coupon.remark || coupon.ticketInfo?.ticketDescription">
+      {{ coupon.remark || coupon.ticketInfo?.ticketDescription }}
     </div>
+
+    <!-- 关联门店 -->
+    <div v-if="orgName" class="row coupon-tip text-overflow" :title="`门店：${orgName}`">门店：{{ orgName }}</div>
 
     <!-- 取消选择遮盖 -->
     <div v-if="coupon?.isSelected" class="cancel-select">
@@ -64,6 +67,15 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {});
 
 const emit = defineEmits(['cancelSelect', 'select']);
+
+/** 获取关联门店名称 */
+const orgName = computed(() => {
+  const orgs = props.coupon.ticketInfo?.orgs;
+  if (orgs && orgs.length > 0) {
+    return orgs.map((o: any) => o.orgName).join('、');
+  }
+  return '';
+});
 
 /** 判断优惠券是否过期 */
 const isExpired = computed(() => {

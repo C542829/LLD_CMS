@@ -1,6 +1,6 @@
 <template>
-  <el-popover ref="popoverRef" trigger="click" effect="light" placement="left" title="请选择项目券" width="180">
-    <el-select v-model="selected" placeholder="请选择项目券" filterable clearable value-key="id" @change="handleChange">
+  <el-popover ref="popoverRef" trigger="click" effect="light" placement="left" title="请选择优惠券" width="180">
+    <el-select v-model="selected" placeholder="请选择优惠券" filterable clearable value-key="id" @change="handleChange">
       <el-option
         v-for="(item, index) in coupons"
         :key="item.id"
@@ -9,7 +9,7 @@
         :disabled="item.disabled"
       >
         <!-- <span>{{ index + 1 }}、{{ item.ticketName }}</span> -->
-        {{ index + 1 }}. {{ item.ticketName }}
+        {{ index + 1 }}. {{ item.ticketName }} [{{ couponTypeMap[item.ticketInfo?.ticketType] || '' }}]
         <!-- ({{ item.remark }}) -->
       </el-option>
     </el-select>
@@ -28,7 +28,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { CouponType, OrderDetailType } from '@/enums/index';
+import { CouponType, couponTypeMap, OrderDetailType } from '@/enums/index';
 import { PopoverInstance } from 'element-plus';
 import { useOrderStore } from '@/store/modules/order/index';
 import useUserStore from '@/store/modules/acl/user';
@@ -51,15 +51,16 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const filter = (item: any) => {
-  // 如果是代金券，直接返回true
-  if (item.ticketInfo.ticketType === CouponType.voucher) {
+  const ticketType = item.ticketInfo.ticketType;
+
+  // 只允许项目券和产品券
+  if (ticketType !== CouponType.experience && ticketType !== CouponType.product) {
     return false;
   }
 
   // 如果该优惠券不是当前门店则不显示
   if (item.orgId !== userStore.user.orgId) {
     return false;
-    // item.disabled = true;
   }
 
   // 过期时间过滤
@@ -68,11 +69,18 @@ const filter = (item: any) => {
     return expiryDate > new Date();
   }
 
-  // 如果是服务项目，判断是否包含在优惠券的服务项目中
-  if (props.detailItem.bizType === OrderDetailType.Service) {
-    const ids = item.ticketInfo.serverItems.map((item: any) => item.id);
+  // 项目券：判断服务项目是否匹配
+  if (ticketType === CouponType.experience && props.detailItem.bizType === OrderDetailType.Service) {
+    const ids = item.ticketInfo.serverItems?.map((s: any) => s.id) || [];
     return ids.includes(props.detailItem.bizId);
   }
+
+  // 产品券：判断产品是否匹配
+  if (ticketType === CouponType.product && props.detailItem.bizType === OrderDetailType.Product) {
+    const productIds = item.ticketInfo.productList?.map((p: any) => p.productId) || [];
+    return productIds.includes(props.detailItem.bizId);
+  }
+
   return false;
 };
 
