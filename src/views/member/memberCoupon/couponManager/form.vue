@@ -82,6 +82,15 @@
         <el-alert title="支持名称和编码搜索过滤" type="warning" style="margin-top: 8px" />
       </el-form-item>
     </template>
+
+    <!-- 产品券 -->
+    <template v-if="store.formData.ticketType === CouponType.product">
+      <!-- 关联产品 -->
+      <el-form-item label="选择产品" prop="productIds">
+        <ProductSelect v-model="store.formData.productIds" placeholder="请选择产品" class="w-240" show-code />
+        <el-alert title="产品券必须选择关联产品，支持名称和编码搜索" type="warning" style="margin-top: 8px" />
+      </el-form-item>
+    </template>
   </Form>
 </template>
 
@@ -92,6 +101,7 @@ import { CouponType, couponTypeOptions } from '@/enums/index';
 import { useCouponStore } from '@/store/modules/member/memberCoupon';
 import { useServiceItemStore } from '@/store/modules/setGroup/serviceItem';
 import useUserStore from '@/store/modules/acl/user';
+import ProductSelect from '@/components/FormComponents/ProductSelect.vue';
 const serviceItemStore = useServiceItemStore();
 const store = useCouponStore();
 const userStore = useUserStore();
@@ -249,6 +259,17 @@ const formRules = {
     //   },
     //   trigger: 'blur',
     // },
+  ],
+  productIds: [
+    {
+      validator: (rule: any, value: any, callback: any) => {
+        if (store.formData.ticketType === CouponType.product && (!value || value.length === 0)) {
+          return callback(new Error('产品券必须选择关联产品'));
+        }
+        callback();
+      },
+      trigger: 'change',
+    },
   ],
 };
 </script>

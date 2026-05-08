@@ -2,7 +2,7 @@
   <div :class="couponCardClass">
     <div class="coupon-card-box">
       <div class="card-title">
-        <div class="card-title-vertical">{{ props.coupon.ticketType ? '项目券' : '代金券' }}</div>
+        <div class="card-title-vertical">{{ couponTypeMap[props.coupon.ticketType] || '代金券' }}</div>
       </div>
       <div class="card-content">
         <div class="card-top-content">
@@ -26,6 +26,9 @@
                   <div>描述：{{ props.coupon.ticketDescription }}</div>
                   <template v-if="props.coupon.ticketType === CouponType.voucher">
                     <div>使用条件：满{{ props.coupon.ticketFullPayment }}元，优惠{{ props.coupon.ticketValue }}元</div>
+                  </template>
+                  <template v-if="props.coupon.ticketType === CouponType.product && props.coupon.productList?.length">
+                    <div>关联产品：{{ props.coupon.productList.map((p: any) => p.productName).join('、') }}</div>
                   </template>
                   <!-- <template v-else>
                     <div class="text-overflow">{{ props.coupon.ticketDescription || '' }}</div>
@@ -63,7 +66,7 @@
 
 <script setup lang="ts">
 import { ref, computed, withDefaults } from 'vue';
-import { CouponType } from '@/enums';
+import { CouponType, couponTypeMap } from '@/enums';
 
 interface CouponCard {
   coupon: any;

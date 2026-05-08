@@ -50,9 +50,12 @@ export const useCouponStore = defineStore('CouponStore', () => {
     const res = await reqTicketList(params);
     let data = parseResList(res);
     for (const coupon of data) {
-      coupon.orgIds = coupon.orgs.map((e: any) => e.id);
+      coupon.orgIds = coupon.orgs?.map((e: any) => e.id) || [];
       if (coupon.serverItems && coupon.serverItems.length > 0) {
         coupon.serverItemIds = coupon.serverItems.map((item: any) => item.id);
+      }
+      if (coupon.productList && coupon.productList.length > 0) {
+        coupon.productIds = coupon.productList.map((item: any) => item.productId);
       }
     }
     return data;
@@ -116,6 +119,7 @@ export const useCouponStore = defineStore('CouponStore', () => {
       ticketValue: null,
       ticketDescription: '',
       serverItemIds: [],
+      productIds: [],
       orgIds: [],
     };
   };

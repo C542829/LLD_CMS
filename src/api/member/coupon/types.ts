@@ -85,6 +85,10 @@ export interface TicketCountVO {
    */
   ticketName?: string;
   /**
+   * 券类型（0 代金券，1 体验券，2 产品券）
+   */
+  ticketType?: number;
+  /**
    * 更新时间
    */
   updateTime?: string;
@@ -133,6 +137,10 @@ export interface VipTicketVO {
    * 关联门店列表
    */
   orgs?: OrgSimpleVO[];
+  /**
+   * 关联产品列表（仅产品券时有值）
+   */
+  productList?: ProductSimpleVO[];
   /**
    * 备注
    */
@@ -211,6 +219,52 @@ export interface ServerItemVO {
    * 项目名称
    */
   itemName?: string;
+  [property: string]: any;
+}
+
+/**
+ * 产品简要信息
+ */
+export interface ProductSimpleVO {
+  /**
+   * 产品ID
+   */
+  productId?: number;
+  /**
+   * 产品名称
+   */
+  productName?: string;
+  /**
+   * 产品价格
+   */
+  productPrice?: number;
+  [property: string]: any;
+}
+
+/**
+ * 券剩余次数VO
+ */
+export interface TicketRemainingVO {
+  /**
+   * 券模板ID
+   */
+  ticketId?: number;
+  /**
+   * 券模板名称
+   */
+  ticketName?: string;
+  /**
+   * 剩余未使用次数
+   */
+  remainingCount?: number;
+  /**
+   * 关联服务项目名称，逗号分隔
+   */
+  serverItemNames?: string;
+  /**
+   * 关联产品名称，逗号分隔
+   */
+  productNames?: string;
   [property: string]: any;
 }
 
