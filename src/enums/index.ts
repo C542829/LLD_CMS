@@ -236,6 +236,7 @@ export const discountTypeMap = {
 export enum CouponType {
   voucher = 0, // 代金券
   experience = 1, // 体验券
+  product = 2, // 产品券
 }
 /**
  * 优惠券类型映射
@@ -243,6 +244,7 @@ export enum CouponType {
 export const couponTypeMap = {
   [CouponType.voucher]: '代金券',
   [CouponType.experience]: '项目券',
+  [CouponType.product]: '产品券',
 };
 /**
  * 优惠券类型
@@ -250,6 +252,7 @@ export const couponTypeMap = {
 export const couponTypeOptions = [
   { value: CouponType.voucher, label: '代金券' },
   { value: CouponType.experience, label: '项目券' },
+  { value: CouponType.product, label: '产品券' },
 ];
 // #endregion 优惠券类型
 
@@ -266,6 +269,7 @@ export enum PaymentType {
   MemberCard = 5, // 会员卡
   ItemCoupon = 6, // 项目券
   Voucher = 7, // 代金券
+  ProductCoupon = 8, // 产品券
 }
 /**
  * 支付类型映射
@@ -279,6 +283,7 @@ export const paymentTypeMap: Record<PaymentType, string> = {
   [PaymentType.MemberCard]: '会员卡',
   [PaymentType.ItemCoupon]: '项目券',
   [PaymentType.Voucher]: '代金券',
+  [PaymentType.ProductCoupon]: '产品券',
 };
 /**
  * 支付类型
