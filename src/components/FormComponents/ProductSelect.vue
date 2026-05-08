@@ -12,13 +12,14 @@
     :placement="placement"
     :loading="loading"
     :filterable="filterable"
+    :filter-method="showCode ? customFilterMethod : undefined"
     @change="handleChange"
     @clear="handleClear"
   >
     <el-option
       v-for="item in options"
       :key="item[defaultProps.value]"
-      :label="item[defaultProps.label]"
+      :label="getOptionLabel(item)"
       :value="emitObject ? item : item[defaultProps.value]"
     />
 
@@ -33,7 +34,7 @@
 
 <script setup lang="ts">
 import { reqProductList, type Types } from '@/api/setGroup/product/index';
-import { computed, onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { SelectInstance } from 'element-plus';
 import { Status } from '@/enums/index';
 
@@ -52,6 +53,7 @@ interface Props extends Partial<ElSelectProps> {
   placement?: PlacementType;
   productStatus?: number;
   defaultProps?: any;
+  showCode?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -66,6 +68,7 @@ const props = withDefaults(defineProps<Props>(), {
   filterable: true,
   placement: 'bottom',
   productStatus: Status.enabled,
+  showCode: false,
   defaultProps: () => ({
     label: 'productName',
     value: 'id',
@@ -77,6 +80,27 @@ const emit = defineEmits(['update:modelValue', 'change', 'clear']);
 const selectedValue = ref<any>(props.multiple ? [] : undefined);
 
 const loading = ref(false);
+
+const getOptionLabel = (item: any) => {
+  if (props.showCode && item.productEncode) {
+    return `${item[props.defaultProps.label]}(${item.productEncode})`;
+  }
+  return item[props.defaultProps.label];
+};
+
+const customFilterMethod = (query: string) => {
+  if (!query) {
+    options.value = productList.value;
+    return;
+  }
+  const lowerQuery = query.toLowerCase();
+  options.value = productList.value.filter((item: any) => {
+    return (
+      item[props.defaultProps.label]?.toLowerCase().includes(lowerQuery) ||
+      item.productEncode?.toLowerCase().includes(lowerQuery)
+    );
+  });
+};
 
 watch(
   () => props.modelValue,
@@ -120,9 +144,7 @@ onMounted(() => {
 });
 
 /** 当前产品选项列表 */
-const options = computed(() => {
-  return productList.value;
-});
+const options = ref<Types.ProductInfoVO[]>([]);
 
 /** 产品列表 */
 const productList = ref<Types.ProductInfoVO[]>([]);
@@ -137,6 +159,7 @@ const getProductList = async () => {
       productStatus: props.productStatus,
     });
     productList.value = res.data || [];
+    options.value = productList.value;
   } catch (error) {
   } finally {
     loading.value = false;
