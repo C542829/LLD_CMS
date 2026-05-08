@@ -56,27 +56,25 @@ export const useRechargeStore = defineStore('Recharge', () => {
     return total;
   };
 
+  // 计算技师kpi总和
+  const calcKpi = (params: Types.RechargeDTO) => {
+    let total = 0;
+    if (params.userKpiList && params.userKpiList.length !== 0) {
+      params.userKpiList.forEach((item: any) => {
+        total += item.kpi;
+      });
+    }
+    return total;
+  };
+
   // 处理充值参数
   const handleRechargeParams = () => {
     try {
       const params: any = cloneDeep(rechargeFormData.value);
       // 充值金额
       if (!params.rechargeValue) {
-        Message.error('请输入充值金额');
-        return;
-      }
-
-      // 支付信息
-      if (params.paymentInfoList && params.paymentInfoList.length === 0) {
-        Message.error('请添加支付方式');
-        return;
-      } else if (calcTotal(params) !== params.rechargeValue) {
-        Message.error('支付金额总和与充值金额不一致');
-        return;
-      } else {
-        for (const item of params.paymentInfoList) {
-          item.paymentName = paymentTypeMap[item.paymentType];
-        }
+        Message.warning('请输入充值金额');
+        return false;
       }
 
       // 会员信息
@@ -86,8 +84,8 @@ export const useRechargeStore = defineStore('Recharge', () => {
         params.vipPhoneNumber = member.value.phoneNumber;
         params.vipCardNumber = member.value.cardNumber;
       } else {
-        Message.error('请先选择会员');
-        return;
+        Message.warning('请先选择会员');
+        return false;
       }
 
       // 充值活动
@@ -97,47 +95,74 @@ export const useRechargeStore = defineStore('Recharge', () => {
       }
 
       // 销售员
-      if (params.userKpiList && params.userKpiList.length) {
+      if (params.userKpiList && params.userKpiList[0].user) {
         if (params.userKpiList.length === 1) {
           params.userKpiList[0].kpi = params.rechargeValue || 0;
+          rechargeFormData.value.userKpiList[0].kpi = params.rechargeValue || 0;
         }
         for (let item of params.userKpiList) {
-          item.userId = item.user.id;
-          item.userName = item.user.userName;
-          delete item.user;
+          if (item.user) {
+            item.userId = item.user.id;
+            item.userName = item.user.userName;
+          }
+          // delete item.user;
         }
       } else {
-        Message.error('请选择销售员');
+        Message.warning('请选择销售员');
+        console.log('充值参数：', params);
+        return false;
       }
 
-      if (rcRule.value && rcRule.value.id) {
-        params.rechargeRoleId = rcRule.value.id;
-      } else {
-        Message.error('充值提成规则不能为空');
-        return;
+      if (calcKpi(params) !== params.rechargeValue) {
+        Message.warning('技师业绩和充值金额不一致');
+        console.log('充值参数：', params);
+        return false;
       }
+
+      // 支付信息
+      if (params.paymentInfoList && params.paymentInfoList.length === 0) {
+        Message.warning('请添加支付方式');
+        console.log('充值参数：', params);
+        return false;
+      } else if (calcTotal(params) !== params.rechargeValue) {
+        Message.warning('支付金额总和与充值金额不一致');
+        console.log('充值参数：', params);
+        return false;
+      } else {
+        for (const item of params.paymentInfoList) {
+          item.paymentName = paymentTypeMap[item.paymentType];
+        }
+      }
+
+      // if (rcRule.value && rcRule.value.id) {
+      //   params.rechargeRoleId = rcRule.value.id;
+      // } else {
+      //   Message.warning('充值提成规则不能为空');
+      //   return false;
+      // }
       return params;
     } catch (error) {
       console.error(error);
     }
-    return {};
+    return false;
   };
 
   // 充值
   const recharge = async () => {
-    if (!rechargeFormData.value.userKpiList[0].userId) {
-      Message.warning('请选择销售员');
-      return;
-    }
-
     const params = handleRechargeParams();
     if (!params) {
-      Message.warning('充值信息填写不完整');
+      // Message.warning('充值信息填写不完整');
       return;
     }
-    settingStore.loading = true;
-    console.log('会员充值：', params);
 
+    // if (!params.userKpiList[0].userId) {
+    //   Message.warning('请选择销售员');
+    //   return;
+    // }
+
+    // console.log('会员充值：', params);
+    // return;
+    settingStore.loading = true;
     const res: any = await reqRecharge(params);
     const data = parseResMsg(res);
     data && reset();

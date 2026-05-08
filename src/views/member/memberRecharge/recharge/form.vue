@@ -138,6 +138,7 @@ const isMultiPerformanceMode = ref(false);
 // 切换模式
 const toggleMode = () => {
   isMultiPerformanceMode.value = !isMultiPerformanceMode.value;
+  store.rechargeFormData.userKpiList = [{ userId: '', userName: '', kpi: 0 }];
 };
 
 // 添加业绩技师
