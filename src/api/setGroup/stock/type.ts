@@ -7,6 +7,10 @@ export interface SearchParams {
    */
   endTime?: string;
   /**
+   * 门店ID
+   */
+  orgId?: number;
+  /**
    * 操作员
    */
   operator?: string;
@@ -37,6 +41,10 @@ export interface InStockAddRequest {
    * 入库明细列表
    */
   items: InStockItemCreateDTO[];
+  /**
+   * 门店ID
+   */
+  orgId?: number;
   /**
    * 操作员
    */
@@ -83,6 +91,10 @@ export interface OutStockAddRequest {
    * 出库明细列表
    */
   items: OutStockItemCreateDTO[];
+  /**
+   * 门店ID
+   */
+  orgId?: number;
   /**
    * 操作员
    */

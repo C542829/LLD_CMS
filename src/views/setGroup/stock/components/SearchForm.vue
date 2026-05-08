@@ -18,6 +18,14 @@
         <el-input v-model="searchParams.orderCode" placeholder="请输入库存单号" clearable style="width: 180px" />
       </label>
     </div>
+    <template v-if="userStore.isAdmin || userStore.isAreaManager">
+      <div class="search-item">
+        <label>
+          <span>门店：</span>
+          <OrgSelect v-model="searchParams.orgId" placeholder="全部门店" class="w-120" :multiple="false" @change="search" @clear="search" />
+        </label>
+      </div>
+    </template>
     <div class="search-item">
       <el-button type="primary" @click="search">搜索</el-button>
     </div>
@@ -29,7 +37,9 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
+import useUserStore from '@/store/modules/acl/user';
 
+const userStore = useUserStore();
 const emit = defineEmits(['search']);
 
 /** 日期范围 */
@@ -40,6 +50,7 @@ const searchParams = reactive<any>({
   orderCode: '',
   startTime: '',
   endTime: '',
+  orgId: '',
 });
 
 const search = () => {
@@ -59,6 +70,7 @@ const reset = () => {
   searchParams.orderCode = '';
   searchParams.startTime = '';
   searchParams.endTime = '';
+  searchParams.orgId = '';
   dateRange.value = [];
   emit('search', searchParams);
 };

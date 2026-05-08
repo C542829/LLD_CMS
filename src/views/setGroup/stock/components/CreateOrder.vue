@@ -35,6 +35,12 @@
     </div>
     <div class="container-right">
       <div class="right-header">
+        <div class="header-item" v-if="userStore.isAdmin || userStore.isAreaManager">
+          <label>
+            <span>门店：</span>
+            <OrgSelect v-model="formData.orgId" placeholder="目标门店" class="w-120" :multiple="false" />
+          </label>
+        </div>
         <div class="header-item">
           <label>
             <span>操作人：</span>
@@ -98,10 +104,12 @@ import { getUserInfo } from '@/utils/localStorageTools';
 
 import { useStockStore } from '@/store/modules/setGroup/stock';
 import { useProductStore } from '@/store/modules/setGroup/product';
+import useUserStore from '@/store/modules/acl/user';
 import { DictCode } from '@/enums';
 
 const store = useStockStore();
 const productStore = useProductStore();
+const userStore = useUserStore();
 
 const $Message: any = inject('$Message');
 
@@ -161,6 +169,7 @@ const formData = reactive<any>({
   totalPrice: 0,
   operator: '',
   remark: '',
+  orgId: null,
   items: [],
 });
 
@@ -215,6 +224,7 @@ const addItem = (item: any) => {
 
 const resetFormData = () => {
   formData.remark = '';
+  formData.orgId = null;
   formData.items = [];
   getProductList();
 };
