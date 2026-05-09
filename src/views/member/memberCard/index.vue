@@ -7,6 +7,7 @@ import ChildNav from '@/components/ChildNav/index.vue';
 import MemberList from './memberList/index.vue';
 import MemberCount from './memberCount/index.vue';
 import ActiveAnalysis from './activeAnalysis/index.vue';
+import Liability from './liability/index.vue';
 import useUserStore from '@/store/modules/acl/user';
 
 import { ref, markRaw } from 'vue';
@@ -15,6 +16,7 @@ const originalNavList: any = ref([
   { label: '会员列表', icon: '', component: markRaw(MemberList) },
   { label: '会员统计', icon: '', component: markRaw(MemberCount) },
   { label: '会员活跃分析', icon: '', component: markRaw(ActiveAnalysis) },
+  { label: '负债统计', icon: '', component: markRaw(Liability) },
 ]);
 
 const navList: any = ref([]);

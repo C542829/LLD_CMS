@@ -151,7 +151,7 @@ export const asyncRoute = [
           id: 15,
           parentId: 14, // 父节点为id=14
           title: '电子会员卡',
-          tabs: ['会员列表', '会员统计', '会员活跃分析', '资产转移'],
+          tabs: ['会员列表', '会员统计', '会员活跃分析', '资产转移', '负债统计'],
         },
         children: [
           {
@@ -216,6 +216,15 @@ export const asyncRoute = [
             meta: {
               id: 22,
               title: '资产转移',
+              parentId: 15,
+            },
+          },
+          {
+            path: '/member/memberCard/liability',
+            name: 'Liability',
+            meta: {
+              id: 23,
+              title: '负债统计',
               parentId: 15,
             },
           },

@@ -24,6 +24,7 @@
               统计日期：
               <IDatePicker v-model="dateRange" @change="search" @clear="search" size="small" class="w-220" />
             </label>
+            <el-button size="small" type="warning" @click="liabilityVisible = true">负债统计</el-button>
           </div>
         </div>
         <div class="chart-container">
@@ -95,12 +96,15 @@
       <RightTable ref="rightTableRef" @businessData="setBusinessData" />
     </div>
   </div>
+
+  <LiabilityDialog v-model:visible="liabilityVisible" />
 </template>
 
 <script setup lang="ts">
 import PieChart from '@/views/home/components/PieChart.vue';
 import BarChart from '@/views/home/components/BarChart.vue';
 import RightTable from './components/RightTable.vue';
+import LiabilityDialog from './components/LiabilityDialog.vue';
 import { ref, reactive, onMounted, computed } from 'vue';
 import { DataViewQuery } from '@/api/home/types';
 import { LOADING_MSG } from '@/utils/constants';
@@ -152,6 +156,7 @@ const performanceData = ref([
   { name: '实收', value: 0 },
 ]);
 
+const liabilityVisible = ref(false);
 const loading = ref(false);
 const rightTableRef = ref<typeof RightTable>();
 const dateRange = ref([]);

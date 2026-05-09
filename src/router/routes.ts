@@ -193,7 +193,7 @@ export const asyncRoute = [
         meta: {
           title: '电子会员卡',
           icon: 'CreditCard',
-          tabs: ['会员列表', '会员统计', '会员活跃分析'],
+          tabs: ['会员列表', '会员统计', '会员活跃分析', '负债统计'],
         },
       },
       {

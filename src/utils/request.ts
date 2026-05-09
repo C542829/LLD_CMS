@@ -70,9 +70,9 @@ request.interceptors.request.use((config) => {
     }
   }
 
-  // 如果 data 为空，将 data 设置为 null
-  if (isEmpty(config.data) && !Array.isArray(config.data)) {
-    config.data = null;
+  // 如果 data 为空，将 data 设置为 {}，确保 Content-Type 为 JSON 且后端能收到空 body
+  if (isEmpty(config.data) && !Array.isArray(config.data) && typeof config.data !== 'boolean') {
+    config.data = {};
   }
 
   //返回配置对象
