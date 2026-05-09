@@ -7,9 +7,9 @@
           <OrgSelect
             v-model="orgIds"
             placeholder="门店"
-            class="w-200"
+            class="w-240"
             :multiple="true"
-            :max-collapse-tags="3"
+            :max-collapse-tags="1"
             @change="fetchData"
             @clear="fetchData"
           />
@@ -56,7 +56,7 @@
                 <span class="stat-item-value">¥ {{ formatAmount(data.consumerTicketTotal) }}</span>
               </div>
               <div class="stat-item">
-                <span class="stat-item-label">体验券</span>
+                <span class="stat-item-label">项目券</span>
                 <span class="stat-item-value">¥ {{ formatAmount(data.itemTicketTotal) }}</span>
               </div>
               <div class="stat-item">

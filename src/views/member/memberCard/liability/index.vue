@@ -7,13 +7,7 @@
           <div class="search-item">
             <label>
               门店：
-              <OrgSelect
-                v-model="orgIds"
-                placeholder="门店"
-                class="w-200"
-                :multiple="true"
-                :max-collapse-tags="3"
-              />
+              <OrgSelect v-model="orgIds" placeholder="门店" class="w-200" :multiple="true" :max-collapse-tags="1" />
             </label>
           </div>
         </template>
