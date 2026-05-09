@@ -422,9 +422,11 @@ const showDialog = (row: any) => {
   dialog.visible = true;
 };
 
+const orderStatus = [OrderStatus.SETTLED, OrderStatus.RECONCILED];
+
 // 设置行样式
 const getRowClassName = ({ row }: { row: { orderStatus: number } }) => {
-  return row.orderStatus !== 2 ? 'disabled-row' : '';
+  return !orderStatus.includes(row.orderStatus) ? 'disabled-row' : '';
 };
 </script>
 
