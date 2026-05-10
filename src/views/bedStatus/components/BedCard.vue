@@ -25,6 +25,7 @@
             <div class="bed-card__info">
               <div class="bed-card__info-left">
                 <span>服务中...</span>
+                <span v-if="technicianNames" class="bed-card__technician" :title="technicianNames">{{ technicianNames }}</span>
               </div>
               <div class="bed-card__progress">
                 <!-- <Progress :bed="bedData"></Progress> -->
@@ -90,11 +91,7 @@
 <script setup lang="ts">
 import OrderSummary from './OrderSummary.vue';
 import { CashierRouteSign } from '@/enums/index';
-
-/**
- * 床位卡片组件
- * @description 展示单个床位的状态信息和操作按钮
- */
+import { computed } from 'vue';
 
 // Props 定义
 interface Props {
@@ -118,6 +115,22 @@ interface Emits {
 }
 
 const emit = defineEmits<Emits>();
+
+const technicianNames = computed(() => {
+  const order = props.bedData.order;
+  if (!order?.orderDetails?.length) return '';
+  const names = new Set<string>();
+  for (const detail of order.orderDetails) {
+    if (detail.technicians?.length) {
+      for (const t of detail.technicians) {
+        if (t.userName) names.add(t.userName);
+      }
+    } else if (detail.userName) {
+      names.add(detail.userName);
+    }
+  }
+  return [...names].join('、');
+});
 
 /** 开单操作 */
 const handleCreate = () => {
@@ -196,6 +209,15 @@ const handleCheckout = () => {
         display: flex;
         flex-direction: column;
       }
+    }
+
+    &__technician {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.85);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 100%;
     }
 
     &__option {
