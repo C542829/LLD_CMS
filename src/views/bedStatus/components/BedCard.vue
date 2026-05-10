@@ -25,7 +25,9 @@
             <div class="bed-card__info">
               <div class="bed-card__info-left">
                 <span>服务中...</span>
-                <span v-if="technicianNames" class="bed-card__technician" :title="technicianNames">{{ technicianNames }}</span>
+                <span v-if="technicianNames" class="bed-card__technician" :title="technicianNames">
+                  {{ technicianNames }}
+                </span>
               </div>
               <div class="bed-card__progress">
                 <!-- <Progress :bed="bedData"></Progress> -->
