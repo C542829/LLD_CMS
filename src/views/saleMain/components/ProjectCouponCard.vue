@@ -38,6 +38,9 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { useDataEnumStore } from '@/store/modules/enums';
+
+const enumsStore = useDataEnumStore();
 
 interface Props {
   coupon: {
@@ -48,6 +51,7 @@ interface Props {
     remark: string;
     count: number;
     amount: number;
+    orgId: number;
     ticketInfo: {
       ticketName: string;
       ticketDescription: string;
@@ -70,11 +74,9 @@ const emit = defineEmits(['cancelSelect', 'select']);
 
 /** 获取关联门店名称 */
 const orgName = computed(() => {
-  const orgs = props.coupon.ticketInfo?.orgs;
-  if (orgs && orgs.length > 0) {
-    return orgs.map((o: any) => o.orgName).join('、');
-  }
-  return '';
+  if (!props.coupon?.orgId) return '未知门店';
+  const org = enumsStore.orgList.find((item: any) => item.id === props.coupon?.orgId);
+  return org?.orgName || `未知门店(${props.coupon?.orgId})`;
 });
 
 /** 判断优惠券是否过期 */
