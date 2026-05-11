@@ -10,7 +10,7 @@
   <!-- 下拉菜单 -->
   <el-dropdown>
     <span class="el-dropdown-link hover-pointer">
-      {{ userStore.nickname }}
+      {{ userStore?.user?.userName }}
       <el-icon class="el-icon--right">
         <arrow-down />
       </el-icon>
@@ -19,35 +19,44 @@
       <el-dropdown-menu>
         <!-- <el-dropdown-item @click="printDesign">打印设计</el-dropdown-item> -->
         <!-- <el-dropdown-item @click="printSetup">打印维护</el-dropdown-item> -->
-        <!-- <el-dropdown-item @click="changeInfo">修改资料</el-dropdown-item> -->
+        <el-dropdown-item @click="changeInfo">修改资料</el-dropdown-item>
         <el-dropdown-item @click="visible = true">修改密码</el-dropdown-item>
         <el-dropdown-item @click="logout">退出登录</el-dropdown-item>
       </el-dropdown-menu>
     </template>
   </el-dropdown>
-  <el-dialog v-model="visible" title="修改密码" @close="visible = false" width="350">
-    <PwdForm @close="visible = false" />
-  </el-dialog>
+  <ChangePasswordDialog v-model="visible" />
+  <UserDrawerForm v-model="infoVisible" type="edit" :data="userStore.user" :roleList="roles" @close="handleInfoClose" />
 </template>
 
 <script setup lang="ts">
-import PwdForm from './PwdForm.vue';
-// import UserDrawerForm from '@/views/acl/user/components/DrawerForm.vue';
-import { computed, ref } from 'vue';
-// import { printer } from '@/utils/lodop';
-import { useRouter, useRoute } from 'vue-router';
-// 获取用户相关的小仓库
+import ChangePasswordDialog from './ChangePasswordDialog.vue';
+import UserDrawerForm from '@/views/acl/user/components/DrawerForm.vue';
+import { computed, ref, onMounted } from 'vue';
+import { reqLogout } from '@/api/user/index';
+import { reqRoleList } from '@/api/acl/role/index';
+import type * as RoleTypes from '@/api/acl/role/types';
+import { RoleCodeFilterMap } from '@/views/acl/user/utils';
+import { RoleCode } from '@/enums';
 import useUserStore from '@/store/modules/acl/user';
-// 获取骨架的小仓库
-import { useSettingStore } from '@/store/modules/acl/setting';
-let settingStore = useSettingStore();
-let userStore = useUserStore();
-// 获取路由器对象
-let $router = useRouter();
-// 获取路由对象
-let $route = useRoute();
+import { useMasterDataStore } from '@/store/modules/masterData';
+
+const userStore = useUserStore();
+const masterDataStore = useMasterDataStore();
 
 const visible = ref(false);
+const infoVisible = ref(false);
+
+onMounted(async () => {});
+
+/** 过滤后的角色列表 */
+const roles = computed(() => {
+  return masterDataStore.roleList.filter((item: RoleTypes.RoleInfoVo) => {
+    const roleCode = userStore.user.role?.roleCode || RoleCode.AreaManager;
+    const roleCodes = RoleCodeFilterMap[roleCode];
+    return !roleCodes.includes(item.roleCode || '');
+  });
+});
 
 // 刷新按钮点击回调
 const updateRefresh = () => {
@@ -68,9 +77,8 @@ const fullScreen = () => {
 
 // 退出登录点击回调
 const logout = async () => {
-  await userStore.userLogout();
-  //跳转到登录页面
-  // $router.push({ path: '/login', query: { redirect: $route.path } });
+  await reqLogout({ username: userStore.user?.userCode });
+  userStore.logout();
 };
 
 const getOrgName = computed(() => {
@@ -83,17 +91,13 @@ const getOrgName = computed(() => {
 
 // 修改资料点击回调
 const changeInfo = () => {
-  // $router.push({ path: '/user/info' });
+  infoVisible.value = true;
 };
 
-/** 打开打印设计窗口 */
-// const printDesign = () => {
-//   printer.printDesign();
-// };
-/** 打开打印维护窗口 */
-// const printSetup = () => {
-//   printer.printSetup();
-// };
+// 修改资料关闭回调
+const handleInfoClose = () => {
+  userStore.loadUserInfo(userStore.userId);
+};
 </script>
 
 <script lang="ts">

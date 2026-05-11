@@ -7,11 +7,9 @@ import { isEmpty } from 'lodash';
 import { parseResObj } from '@/utils/parseResponse';
 import { RoleCode, ResponseCode } from '@/enums';
 import { constantRoute, asyncRoute, anyRoute } from '@/router/routes';
-// 引入接口
-import { reqLogin, reqUserInfo, reqLogout, reqUpdate } from '@/api/user';
+import { reqUserInfo, reqUpdate } from '@/api/user';
 import { reqQueryPermTreeByUser } from '@/api/acl/permission/index';
 import { reqOrgInfo } from '@/api/acl/org/index';
-// 引入操作本地存储的工具方法
 import {
   setUserInfo,
   getUserInfo,
@@ -25,6 +23,11 @@ import {
 
 import { useMasterDataStore } from '@/store/modules/masterData/index';
 import { useDictStore } from '@/store/modules/dict/index';
+
+function checkRole(role: any, ...codes: RoleCode[]) {
+  if (isEmpty(role)) return false;
+  return codes.includes(role?.roleCode || '');
+}
 
 // 用于过滤当前用户需要展示的异步路由
 function filterAsyncRoute(asyncRoute: any, routes: any) {
@@ -44,123 +47,110 @@ const useUserStore = defineStore('User', {
       user: <UserInfo>{},
       org: <OrgInfo>{},
       userId: 0,
-      username: '',
-      nickname: '',
       avatar: setting.logo || '',
-      token: getToken() || '', // 用户唯一标识token
-      buttons: <string[]>[], // 存储当前用户是否包含某一个按钮
-      menuRoutes: <object[]>[], // 仓库存储生成菜单需要数组(路由)
+      token: getToken() || '',
+      buttons: <string[]>[],
+      menuRoutes: <object[]>[],
       tabs: <string[]>[],
     };
   },
   actions: {
-    // 登录
-    async login(data: any) {
-      try {
-        const res = await reqLogin(data);
-        const result = res.data;
-        this.setStoreUserInfo(result);
-        setUserInfo(result);
-        setToken(this.token);
-        await this.userInfo();
-        return true;
-      } catch (error) {
-        return false;
-      }
+    /** 设置认证信息（token + 用户基础信息 + localStorage） */
+    setAuth(result: any) {
+      this.token = `Bearer ${result.token}`;
+      this.userId = result.userId;
+      this.user = result;
+      setUserInfo(result);
+      setToken(this.token);
     },
 
-    setStoreUserInfo(user: any) {
-      this.userId = user.userId;
-      this.nickname = user.userName;
-      this.username = user.userCode;
-      this.token = `Bearer ${user.token}`;
-      this.user = user;
+    /** 登录后初始化（路由权限 + 门店信息 + 用户详情 + 预加载） */
+    async initAfterLogin() {
+      await this.initRoutes();
+      this.loadOrgInfo(this.user.orgId!);
+      this.loadUserInfo(this.user.userId);
+      this.preloadCommonData();
     },
 
-    // 获取用户信息
-    async userInfo() {
+    /** 恢复会话（路由守卫调用，从 localStorage 恢复） */
+    async restoreSession() {
       try {
         const user = getUserInfo();
         if (isEmpty(user)) {
           this.clearUserInfo();
           return;
         }
-        // 同步用户信息
-        this.setStoreUserInfo(user);
+        this.setAuth(user);
 
         if (this.menuRoutes.length === 0) {
-          const { data } = await reqQueryPermTreeByUser(this.userId);
-          const perms = data;
-          const routes = perms.treeMap((item) => item.component);
-          this.buttons = perms.treeMap((item) => item.permCode as string);
-          this.tabs = perms
-            .treeMap((item) => item.remark && [...(item?.children || []).map((child: any) => child.name)])
-            .flat();
-          const userAsyncRoute = filterAsyncRoute(cloneDeep(asyncRoute), routes);
-          this.menuRoutes = [...constantRoute, ...userAsyncRoute, anyRoute];
+          await this.initRoutes();
         }
 
         this.menuRoutes.forEach((route: any) => {
           router.addRoute(route);
         });
 
-        // 获取门店信息
-        this.storageOrgInfo(user.orgId);
-        // 获取用户信息
-        this.storageUserInfo(user.userId);
-        // 延迟预加载公共数据（不阻塞登录流程）
-        setTimeout(() => {
-          useDictStore().preloadCommonDicts();
-          useMasterDataStore().init();
-        });
+        this.loadOrgInfo(user.orgId);
+        this.loadUserInfo(user.userId);
+        this.preloadCommonData();
       } catch (error) {
         console.error(`获取用户信息出错：${error}`);
       }
     },
 
+    /** 构建并注册动态路由 */
+    async initRoutes() {
+      if (this.menuRoutes.length > 0) return;
+      const { data } = await reqQueryPermTreeByUser(this.userId);
+      const perms = data;
+      const routes = perms.treeMap((item) => item.component);
+      this.buttons = perms.treeMap((item) => item.permCode as string);
+      this.tabs = perms
+        .treeMap((item) => item.remark && [...(item?.children || []).map((child: any) => child.name)])
+        .flat();
+      const userAsyncRoute = filterAsyncRoute(cloneDeep(asyncRoute), routes);
+      this.menuRoutes = [...constantRoute, ...userAsyncRoute, anyRoute];
+      this.menuRoutes.forEach((route: any) => router.addRoute(route));
+    },
+
+    /** 延迟预加载公共数据 */
+    preloadCommonData() {
+      setTimeout(() => {
+        useDictStore().preloadCommonDicts();
+        useMasterDataStore().init();
+      }, 500);
+    },
+
     /** 存储门店信息 */
-    async storageOrgInfo(orgId: number) {
+    async loadOrgInfo(orgId: number) {
       try {
-        reqOrgInfo(orgId).then((res) => {
-          const orgInfo = res.data;
-          orgInfo.orgArea && (orgInfo.orgArea = JSON.parse(orgInfo.orgArea as string));
-          this.org = orgInfo;
-          setOrgInfo(orgInfo);
-        });
+        const res = await reqOrgInfo(orgId);
+        const orgInfo = res.data;
+        orgInfo.orgArea && (orgInfo.orgArea = JSON.parse(orgInfo.orgArea as string));
+        this.org = orgInfo;
+        setOrgInfo(orgInfo);
       } catch (error) {}
     },
 
     /** 存储当前用户信息 */
-    async storageUserInfo(userId: number) {
+    async loadUserInfo(userId: number) {
       try {
-        reqUserInfo(userId).then((res) => {
-          const userInfo = res.data;
-          this.user = { ...this.user, ...userInfo };
-        });
+        const res = await reqUserInfo(userId);
+        this.user = { ...this.user, ...res.data };
       } catch (error) {}
     },
 
-    // 退出登录
-    async userLogout() {
-      const params = { username: this.username };
-      const res: any = await reqLogout(params);
-      if (res.code === ResponseCode.SUCCESS) {
-        this.clearUserInfo();
-        router.push({ path: '/login' });
-        window.location.reload();
-        // window.location.href = '/#/login';
-        // $Message.success('退出登录成功');
-      } else {
-        $Message.error('退出登录失败');
-      }
+    /** 退出登录（只清除状态和跳转，API 调用在组件内） */
+    logout() {
+      this.clearUserInfo();
+      router.push({ path: '/login' });
+      window.location.reload();
     },
 
     clearUserInfo() {
       this.user = {};
       this.org = {} as OrgInfo;
       this.token = '';
-      this.username = '';
-      this.nickname = '';
       this.userId = 0;
       this.menuRoutes = [];
       this.buttons = [];
@@ -187,7 +177,7 @@ const useUserStore = defineStore('User', {
       const isSuccess = res.code === ResponseCode.SUCCESS;
       if (isSuccess) {
         $Message.success('修改密码成功');
-        this.userLogout();
+        this.logout();
       } else {
         $Message.error('修改密码失败，原因：' + res.message);
       }
@@ -195,28 +185,13 @@ const useUserStore = defineStore('User', {
     },
   },
   getters: {
-    isSuperAdmin: (state) => {
-      const role = state.user?.role;
-      if (isEmpty(role)) {
-        return false;
-      }
-      return role?.roleCode === RoleCode.SuperAdmin;
-    },
-    isAdmin: (state) => {
-      const role = state.user?.role;
-      if (isEmpty(role)) {
-        return false;
-      }
-      const roleCodes = [RoleCode.Admin, RoleCode.SuperAdmin];
-      return roleCodes.includes(role?.roleCode || '');
-    },
-    isAreaManager: (state) => {
-      const role = state.user?.role;
-      if (isEmpty(role)) {
-        return false;
-      }
-      return role?.roleCode === RoleCode.AreaManager;
-    },
+    hasRole:
+      (state) =>
+      (...codes: RoleCode[]) =>
+        checkRole(state.user?.role, ...codes),
+    isSuperAdmin: (state) => checkRole(state.user?.role, RoleCode.SuperAdmin as RoleCode),
+    isAdmin: (state) => checkRole(state.user?.role, RoleCode.Admin as RoleCode, RoleCode.SuperAdmin as RoleCode),
+    isAreaManager: (state) => checkRole(state.user?.role, RoleCode.AreaManager as RoleCode),
   },
 });
 

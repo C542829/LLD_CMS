@@ -61,14 +61,10 @@ const login = async () => {
     // 表单验证
     await loginForms.value.validate();
     // 登录
-    const isSuccess = await store.login(loginForm);
-    if (isSuccess) {
-      // 获取路由
-      // let redirect: any = route.query.redirect;
-      // redirect = redirect === '/404' ? '/' : redirect;
-      // 跳转路由
-      router.push({ path: '/' });
-    }
+    const res = await reqLogin(loginForm);
+    store.setAuth(res.data);
+    await store.initAfterLogin();
+    router.push({ path: '/' });
   } catch (error) {
   } finally {
     // 禁用加载状态

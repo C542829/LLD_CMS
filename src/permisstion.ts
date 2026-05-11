@@ -37,7 +37,7 @@ router.beforeEach(async (to: any, _from: any, next: any) => {
       // 或者路由匹配失败（to.matched.length === 0）说明动态路由未加载
       if (userStore.menuRoutes.length === 0 || to.matched.length === 0) {
         // 获取用户信息和动态路由
-        await userStore.userInfo();
+        await userStore.restoreSession();
         // 重新触发导航，确保动态路由已注册
         next({ ...to, replace: true });
       } else {

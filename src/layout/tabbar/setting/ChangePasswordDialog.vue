@@ -1,32 +1,30 @@
 <template>
-  <div class="form-container">
-    <!-- 表单 -->
-    <Form :model="formData" :rules="formRules" @submit="handleFormSubmit" @reset="handleFormReset">
-      <!-- 原密码 -->
-      <el-form-item label="原密码" prop="oldPwd">
-        <el-input v-model="formData.oldPwd" type="password" show-password placeholder="请输入旧密码" />
-      </el-form-item>
-
-      <!-- 新密码 -->
-      <el-form-item label="新密码" prop="newPwd">
-        <el-input v-model="formData.newPwd" type="password" show-password placeholder="请输入新密码" />
-      </el-form-item>
-
-      <!-- 确认密码 -->
-      <el-form-item label="确认密码" prop="confirmPwd">
-        <el-input v-model="formData.confirmPwd" type="password" show-password placeholder="请输入确认密码" />
-      </el-form-item>
-    </Form>
-  </div>
+  <el-dialog :model-value="modelValue" title="修改密码" width="350" @close="$emit('update:modelValue', false)">
+    <div class="form-container">
+      <Form :model="formData" :rules="formRules" :loading="loading" @submit="handleFormSubmit" @reset="handleFormReset">
+        <el-form-item label="原密码" prop="oldPwd">
+          <el-input v-model="formData.oldPwd" type="password" show-password placeholder="请输入旧密码" />
+        </el-form-item>
+        <el-form-item label="新密码" prop="newPwd">
+          <el-input v-model="formData.newPwd" type="password" show-password placeholder="请输入新密码" />
+        </el-form-item>
+        <el-form-item label="确认密码" prop="confirmPwd">
+          <el-input v-model="formData.confirmPwd" type="password" show-password placeholder="请输入确认密码" />
+        </el-form-item>
+      </Form>
+    </div>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
-import { reactive, onMounted } from 'vue';
-import { reqUpdate } from '@/api/user/index';
+import { reactive, ref, onMounted } from 'vue';
 import useUserStore from '@/store/modules/acl/user';
-const store = useUserStore();
 
-const $emit = defineEmits(['close']);
+defineProps<{ modelValue: boolean }>();
+const emit = defineEmits(['update:modelValue']);
+
+const store = useUserStore();
+const loading = ref(false);
 
 onMounted(async () => {
   await store.getUserInfo();
@@ -38,26 +36,28 @@ const formData = reactive({
   confirmPwd: '',
 });
 
-// 表单提交
 const handleFormSubmit = async () => {
-  const isSuccess = await store.updatePwd(formData);
-  isSuccess && $emit('close');
+  loading.value = true;
+  try {
+    const isSuccess = await store.updatePwd(formData);
+    if (isSuccess) emit('update:modelValue', false);
+  } finally {
+    loading.value = false;
+  }
 };
 
-// 表单重置
 const handleFormReset = () => {
   formData.oldPwd = '';
   formData.newPwd = '';
   formData.confirmPwd = '';
 };
 
-// 表单验证规则
 const formRules = {
   oldPwd: [
     { required: true, message: '请输入原密码', trigger: 'blur' },
     { min: 6, max: 20, message: '密码长度6-20位', trigger: 'change' },
     {
-      validator: async (rule: any, value: any, callback: any) => {
+      validator: async (_rule: any, value: any, callback: any) => {
         if (value !== store.user.userPassword) {
           callback(new Error('原密码错误'));
         } else {
@@ -74,7 +74,7 @@ const formRules = {
   confirmPwd: [
     { required: true, message: '请输入确认密码', trigger: 'blur' },
     {
-      validator: (rule: any, value: any, callback: any) => {
+      validator: (_rule: any, value: any, callback: any) => {
         if (value !== formData.newPwd) {
           callback(new Error('两次输入的密码不一致'));
         } else {
@@ -88,7 +88,7 @@ const formRules = {
 </script>
 <script lang="ts">
 export default {
-  name: 'PwdForm',
+  name: 'ChangePasswordDialog',
 };
 </script>
 

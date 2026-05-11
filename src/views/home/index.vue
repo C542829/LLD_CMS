@@ -3,7 +3,7 @@
     <div class="box">
       <img :src="userStore.avatar" alt="" class="avatar" />
       <div class="bottom">
-        <h3 class="title">{{ getTime() }}好呀{{ userStore.username }}</h3>
+        <h3 class="title">{{ getTime() }}好呀{{ userStore.user?.userName }}</h3>
         <p class="subtitle">后台管理</p>
       </div>
     </div>
