@@ -12,6 +12,7 @@ import {
 import { parseResMsg, parseResList, parseResObj } from '@/utils/parseResponse';
 
 import { useSettingStore } from '@/store/modules/acl/setting';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
 
 export const useProductStore = defineStore('Product', () => {
   const settingStore = useSettingStore();
@@ -74,6 +75,7 @@ export const useProductStore = defineStore('Product', () => {
     const result = parseResMsg(res);
     // 刷新数据
     result && setTableData();
+    result && useMasterDataStore().invalidate('product');
     return result;
   };
 
@@ -91,6 +93,7 @@ export const useProductStore = defineStore('Product', () => {
     const result = parseResMsg(res, msg);
     // 刷新数据
     result && setTableData();
+    result && useMasterDataStore().invalidate('product');
     return result;
   };
 

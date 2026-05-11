@@ -12,6 +12,7 @@ import { parseResList, parseResMsg, parseResObj } from '@/utils/parseResponse';
 import { formatDate } from '@/utils/time';
 
 import { useSettingStore } from '@/store/modules/acl/setting';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
 import { CommissionType } from '@/enums';
 
 export const useCouponStore = defineStore('CouponStore', () => {
@@ -87,6 +88,7 @@ export const useCouponStore = defineStore('CouponStore', () => {
     const result = parseResMsg(res);
     // 刷新数据
     result && setTableData();
+    result && useMasterDataStore().invalidate('ticket');
     return result;
   };
 
@@ -102,6 +104,7 @@ export const useCouponStore = defineStore('CouponStore', () => {
     const result = parseResMsg(res);
     // 刷新数据
     result && setTableData();
+    result && useMasterDataStore().invalidate('ticket');
     return result;
   };
 

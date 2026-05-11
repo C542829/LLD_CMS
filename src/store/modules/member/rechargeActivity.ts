@@ -6,6 +6,7 @@ import { parseResMsg, parseResList } from '@/utils/parseResponse';
 import { formatDate } from '@/utils/time';
 
 import { useSettingStore } from '@/store/modules/acl/setting';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
 import { CommissionType } from '@/enums';
 
 export const useRechargeActivityStore = defineStore('RechargeActivity', () => {
@@ -83,6 +84,7 @@ export const useRechargeActivityStore = defineStore('RechargeActivity', () => {
     const result = parseResMsg(res);
     // 刷新数据
     result && setTableData();
+    result && useMasterDataStore().invalidate('active');
     return result;
   };
 
@@ -100,6 +102,7 @@ export const useRechargeActivityStore = defineStore('RechargeActivity', () => {
     const result = parseResMsg(res, msg);
     // 刷新数据
     result && setTableData();
+    result && useMasterDataStore().invalidate('active');
     return result;
   };
 

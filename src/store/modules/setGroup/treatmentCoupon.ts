@@ -11,6 +11,7 @@ import {
 } from '@/api/setGroup/treatmentCoupon';
 
 import { useSettingStore } from '@/store/modules/acl/setting';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
 
 export const useTreatmentCouponStore = defineStore('TreatmentCoupon', () => {
   const settingStore = useSettingStore();
@@ -72,6 +73,7 @@ export const useTreatmentCouponStore = defineStore('TreatmentCoupon', () => {
     const result = parseResMsg(res);
     // 刷新数据
     result && setDataList();
+    result && useMasterDataStore().invalidate('treatmentCoupon');
     return result;
   };
 
@@ -83,6 +85,7 @@ export const useTreatmentCouponStore = defineStore('TreatmentCoupon', () => {
     const result = parseResMsg(res);
     // 刷新数据
     result && setDataList();
+    result && useMasterDataStore().invalidate('treatmentCoupon');
     return result;
   };
 

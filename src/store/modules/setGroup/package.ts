@@ -4,6 +4,7 @@ import { reqPackageList, reqPackageInfo, reqAddPackage, reqUpdatePackage } from 
 import { parseResMsg, parseResList } from '@/utils/parseResponse';
 
 import { useSettingStore } from '@/store/modules/acl/setting';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
 
 export const usePackageStore = defineStore('Package', () => {
   const settingStore = useSettingStore();
@@ -45,6 +46,7 @@ export const usePackageStore = defineStore('Package', () => {
     const result = parseResMsg(res);
     // 刷新数据
     result && setDataList();
+    result && useMasterDataStore().invalidate('package');
     return result;
   };
 

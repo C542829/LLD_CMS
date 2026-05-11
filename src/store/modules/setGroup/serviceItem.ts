@@ -11,6 +11,7 @@ import {
 import { parseResMsg, parseResList, parseResObj } from '@/utils/parseResponse';
 
 import { useSettingStore } from '@/store/modules/acl/setting';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
 
 export const useServiceItemStore = defineStore('ServiceItem', () => {
   const settingStore = useSettingStore();
@@ -66,6 +67,7 @@ export const useServiceItemStore = defineStore('ServiceItem', () => {
     const result = parseResMsg(res);
     // 刷新数据
     result && setDataList();
+    result && useMasterDataStore().invalidate('serviceItem');
     return result;
   };
 
@@ -78,6 +80,7 @@ export const useServiceItemStore = defineStore('ServiceItem', () => {
     const res = await reqUpdateServiceItemStatus(params);
     const result = parseResMsg(res);
     result && setDataList();
+    result && useMasterDataStore().invalidate('serviceItem');
     return result;
   };
 

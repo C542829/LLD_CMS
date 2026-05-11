@@ -95,6 +95,7 @@ import { reqOrgList, reqUpdateOrgStatus } from '@/api/acl/org';
 import type * as Types from '@/api/acl/org/types';
 import { parseResList, parseResMsg } from '@/utils/parseResponse';
 import { LOADING_MSG } from '@/utils/constants';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
 
 /** 加载状态 */
 const loading = ref(false);
@@ -139,6 +140,7 @@ const handleUpdateStatus = async (row: Types.Org) => {
   const res = await reqUpdateOrgStatus(params);
   const result = parseResMsg(res);
   result && fetchTableData();
+  result && useMasterDataStore().invalidate('org');
 };
 
 onMounted(() => {
@@ -203,6 +205,7 @@ const handleDrawerClose = () => {
 const handleSubmitSuccess = () => {
   drawer.visible = false;
   fetchTableData();
+  useMasterDataStore().invalidate('org');
 };
 
 // 设置行样式
