@@ -620,6 +620,14 @@ export interface OrderDetailPageQuery {
    */
   businessCode?: string;
   /**
+   * 业务类型（0 产品，1 服务，2 疗程券）
+   */
+  bizType?: number;
+  /**
+   * 业务ID
+   */
+  bizId?: number;
+  /**
    * 开始时间（格式：YYYY-MM-DD HH:mm:ss，左闭右开区间）
    */
   startTime?: string;
