@@ -34,7 +34,13 @@
         </PaginationTable>
       </div>
       <Dialog v-model="dialog.visible" :title="dialog.title" width="400px">
-        <Form :model="dictItem" :rules="formRules" :loading="submitLoading" @submit="handleSubmit" @reset="resetDictItem">
+        <Form
+          :model="dictItem"
+          :rules="formRules"
+          :loading="submitLoading"
+          @submit="handleSubmit"
+          @reset="resetDictItem"
+        >
           <el-form-item label="字典项标签" prop="itemLabel">
             <el-input v-model="dictItem.itemLabel" placeholder="请你输入字典项标签" />
           </el-form-item>

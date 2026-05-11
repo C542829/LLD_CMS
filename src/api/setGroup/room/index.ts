@@ -22,7 +22,7 @@ export const reqAddRoom = (data = {}) => post(API.ADD_URL, data);
 export const reqUpdateRoom = (data = {}) => put(API.UPDATE_URL, data);
 
 // 床位管理模块接口方法
-export const reqBedListAll = () => get(API.BED_LIST_ALL);
+export const reqBedListAll = (): ApiResponse<any> => get(API.BED_LIST_ALL);
 
 export const reqBedList = (params = {}) => get(API.BED_LIST, params);
 

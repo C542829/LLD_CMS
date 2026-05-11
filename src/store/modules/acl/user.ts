@@ -23,7 +23,7 @@ import {
   removeOrgInfo,
 } from '@/utils/localStorageTools';
 
-import { useDataEnumStore } from '@/store/modules/enums/index';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
 import { useDictStore } from '@/store/modules/dict/index';
 
 // 用于过滤当前用户需要展示的异步路由
@@ -108,8 +108,11 @@ const useUserStore = defineStore('User', {
         this.storageOrgInfo(user.orgId);
         // 获取用户信息
         this.storageUserInfo(user.userId);
-        // 延迟预加载字典数据（不阻塞登录流程）
-        setTimeout(() => useDictStore().preloadCommonDicts());
+        // 延迟预加载公共数据（不阻塞登录流程）
+        setTimeout(() => {
+          useDictStore().preloadCommonDicts();
+          useMasterDataStore().init();
+        });
       } catch (error) {
         console.error(`获取用户信息出错：${error}`);
       }
@@ -165,7 +168,7 @@ const useUserStore = defineStore('User', {
       removeToken();
       removeUserInfo();
       removeOrgInfo();
-      useDataEnumStore().$reset();
+      useMasterDataStore().$reset();
       useDictStore().invalidate();
     },
 
