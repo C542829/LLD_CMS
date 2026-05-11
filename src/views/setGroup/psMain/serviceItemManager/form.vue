@@ -169,11 +169,11 @@ import { ref, onMounted, reactive } from 'vue';
 import { CommissionType, IsDiscount, commissionTypeOptions, commissionOptions, DictCode } from '@/enums';
 // 引入数据仓库
 import { useServiceItemStore } from '@/store/modules/setGroup/serviceItem';
-import { useEnumStore } from '@/store/modules/enums/index';
+import { useDictStore } from '@/store/modules/dict/index';
 import useUserStore from '@/store/modules/acl/user';
 
 const store = useServiceItemStore();
-const enumStore = useEnumStore();
+const dictStore = useDictStore();
 const userStore = useUserStore();
 
 // 定义组件触发的事件 - 关闭抽屉
@@ -219,7 +219,7 @@ const handleFormReset = () => {
 const serviceItemsCategoryList = ref<any>([]);
 
 const initEnum = async () => {
-  serviceItemsCategoryList.value = await enumStore.getServiceItemCategoryList();
+  serviceItemsCategoryList.value = await dictStore.getDictItems(DictCode.ITEM_CATEGORY);
 };
 
 const enumHandler = reactive({

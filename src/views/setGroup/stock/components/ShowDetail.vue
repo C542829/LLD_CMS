@@ -44,9 +44,10 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
 import { LOADING_MSG } from '@/utils/constants';
-import { useEnumStore } from '@/store/modules/enums/index';
+import { useDictStore } from '@/store/modules/dict/index';
+import { DictCode } from '@/enums/index';
 import { useSettingStore } from '@/store/modules/acl/setting';
-const enumStore = useEnumStore();
+const dictStore = useDictStore();
 const settingStore = useSettingStore();
 
 const data = ref<any>({});
@@ -68,7 +69,7 @@ watch(
 
 const unitList = ref<any>([]);
 const getUnitList = async () => {
-  unitList.value = await enumStore.getUnits();
+  unitList.value = await dictStore.getDictItems(DictCode.UNIT);
 };
 getUnitList();
 

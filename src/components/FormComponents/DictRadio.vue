@@ -15,7 +15,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
-import { reqDictItemList, Types } from '@/api/acl/dict';
+import { useDictStore } from '@/store/modules/dict/index';
+import type { Types } from '@/api/acl/dict/index';
 
 interface Props {
   modelValue?: string | number;
@@ -29,6 +30,8 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits(['update:modelValue', 'change']);
+
+const dictStore = useDictStore();
 
 watch(
   () => props.modelValue,
@@ -48,10 +51,6 @@ const dictValue = ref<string | number>(props.modelValue);
 const loading = ref(false);
 // 字典项列表
 const dictItemList = ref<Types.DictItemVO[]>([]);
-
-onMounted(() => {
-  getDictItemList();
-});
 
 const all: Types.DictItemVO = {
   itemValue: '',
@@ -85,42 +84,38 @@ const saveDictToCache = (data: Types.DictItemVO[]) => {
   }
 };
 
-/**
- * 获取字典项列表（优先从缓存读取）
- */
 const getDictItemList = async () => {
-  if (!props.dictCode) {
-    return;
-  }
+  if (!props.dictCode) return;
 
   try {
     loading.value = true;
 
-    // 1. 优先从本地缓存读取
+    // 优先从本地缓存读取
     const cachedData = getDictFromCache();
     if (cachedData && cachedData.length > 0) {
-      // 添加"全部"选项
       dictItemList.value = [all, ...cachedData];
       return;
     }
 
-    // 2. 缓存中没有，从 API 获取
-    const res = await reqDictItemList(props.dictCode);
-    const apiData = res.data || [];
+    // 缓存中没有，从 dictStore 获取
+    const list = await dictStore.getDictItems(props.dictCode);
 
-    // 3. 保存到本地缓存
-    if (apiData.length > 0) {
-      saveDictToCache(apiData);
+    // 保存到本地缓存
+    if (list.length > 0) {
+      saveDictToCache(list);
     }
 
-    // 4. 添加"全部"选项并设置列表
-    dictItemList.value = [all, ...apiData];
+    dictItemList.value = [all, ...list];
   } catch (error) {
     console.error('获取字典项列表失败:', error);
   } finally {
     loading.value = false;
   }
 };
+
+onMounted(() => {
+  getDictItemList();
+});
 
 defineExpose({
   getDictItemList,

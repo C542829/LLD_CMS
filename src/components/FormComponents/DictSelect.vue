@@ -24,18 +24,18 @@
     />
 
     <template #header>
-      <div class="el-align-center">
-        <el-button v-if="multiple" type="primary" size="small" link @click="handleClear">取消选择</el-button>
-        <el-button type="success" size="small" link @click="loadDictItems">刷新数据</el-button>
+      <div v-if="multiple" class="el-align-center">
+        <el-button type="primary" size="small" link @click="handleClear">取消选择</el-button>
       </div>
     </template>
   </el-select>
 </template>
 
 <script setup lang="ts">
-import { reqDictItemList, Types } from '@/api/acl/dict/index';
 import { computed, onMounted, ref, watch } from 'vue';
 import { SelectInstance } from 'element-plus';
+import { useDictStore } from '@/store/modules/dict/index';
+import type { Types } from '@/api/acl/dict/index';
 
 type ElSelectProps = SelectInstance['$props'];
 
@@ -76,9 +76,15 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits(['update:modelValue', 'change', 'clear']);
 
+const dictStore = useDictStore();
+
 const selectedValue = ref<any>(props.multiple ? [] : undefined);
 
 const loading = ref(false);
+
+const dictItems = ref<Types.DictItemVO[]>([]);
+
+const options = computed(() => dictItems.value);
 
 watch(
   () => props.modelValue,
@@ -102,9 +108,11 @@ watch(
 
 watch(
   () => props.dictCode,
-  (val) => {
+  async (val) => {
     if (val) {
-      loadDictItems();
+      loading.value = true;
+      dictItems.value = await dictStore.getDictItems(val);
+      loading.value = false;
     }
   },
 );
@@ -120,28 +128,11 @@ const handleClear = () => {
   emit('clear');
 };
 
-onMounted(() => {
+onMounted(async () => {
   if (props.dictCode) {
-    loadDictItems();
-  }
-});
-
-const options = computed(() => {
-  return dictItems.value;
-});
-
-const dictItems = ref<Types.DictItemVO[]>([]);
-
-const loadDictItems = async () => {
-  if (!props.dictCode) return;
-  loading.value = true;
-  try {
-    const res = await reqDictItemList(props.dictCode);
-    dictItems.value = res.data || [];
-  } catch (error) {
-    console.error('加载字典项失败:', error);
-  } finally {
+    loading.value = true;
+    dictItems.value = await dictStore.getDictItems(props.dictCode);
     loading.value = false;
   }
-};
+});
 </script>

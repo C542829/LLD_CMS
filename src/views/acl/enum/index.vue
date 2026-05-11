@@ -6,7 +6,7 @@
         <div class="search-item"><el-button type="primary" @click="handleAddDict">添加字典</el-button></div>
         <div class="search-item">
           <el-input
-            v-model="store.search.dictName"
+            v-model="searchParams.dictName"
             @keydown.enter="search"
             @clear="search"
             :prefix-icon="Search"
@@ -23,7 +23,7 @@
 
     <Card padding="0">
       <PaginationTable
-        :data="store.tableData"
+        :data="tableData"
         v-loading="settingStore.loading && !enumHandler.visible"
         :element-loading-text="LOADING_MSG"
         :showPagination="false"
@@ -52,18 +52,18 @@
 
   <!-- 对话框组件:添加或者更新已有的菜单的数据结构 -->
   <Dialog v-model="dialog.visible" :title="dialog.title" width="400px">
-    <Form :model="store.dict" :rules="formRules" @submit="handleSubmit" @reset="store.resetDict">
+    <Form :model="dict" :rules="formRules" :loading="submitLoading" @submit="handleSubmit" @reset="resetDict">
       <el-form-item label="字典名称" prop="dictName">
-        <el-input v-model="store.dict.dictName" placeholder="请你输入字典名称" />
+        <el-input v-model="dict.dictName" placeholder="请你输入字典名称" />
       </el-form-item>
       <el-form-item label="字典编码" prop="dictCode">
-        <el-input v-model="store.dict.dictCode" placeholder="请你输入字典编码" />
+        <el-input v-model="dict.dictCode" placeholder="请你输入字典编码" />
       </el-form-item>
       <el-form-item label="排序" prop="sort">
-        <el-input-number v-model="store.dict.sort" />
+        <el-input-number v-model="dict.sort" />
       </el-form-item>
       <el-form-item label="备注" prop="remark">
-        <el-input v-model="store.dict.remark" type="textarea" placeholder="请你输入备注" />
+        <el-input v-model="dict.remark" type="textarea" placeholder="请你输入备注" />
       </el-form-item>
     </Form>
   </Dialog>
@@ -74,28 +74,73 @@
 <script setup lang="ts">
 import EnumHandler from '@/components/EnumHandler/index.vue';
 import { Search } from '@element-plus/icons-vue';
-import { onMounted, reactive, inject } from 'vue';
+import { onMounted, reactive, inject, ref } from 'vue';
 import { LOADING_MSG } from '@/utils/constants';
 import { useSettingStore } from '@/store/modules/acl/setting';
-import { useEnumStore } from '@/store/modules/enums';
+import { reqDictList, reqAddDict, reqUpdateDict, reqDelDict } from '@/api/acl/dict/index';
+import { parseResList, parseResMsg } from '@/utils/parseResponse';
 
 // 引入消息提示组件
 const $MessageBox: any = inject('$MessageBox');
 
 const settingStore = useSettingStore();
-const store = useEnumStore();
+
+const searchParams = reactive({
+  dictName: '',
+  dictCode: '',
+});
+
+const tableData = ref<any[]>([]);
+
+const fetchList = async () => {
+  settingStore.loading = true;
+  const res = await reqDictList(searchParams);
+  tableData.value = parseResList(res);
+  settingStore.loading = false;
+};
+
+const dict = ref<any>({});
+const resetDict = () => {
+  dict.value = {
+    dictTypeId: null,
+    dictName: '',
+    dictCode: '',
+    sort: 0,
+    remark: '',
+  };
+};
+
+const submitLoading = ref(false);
+const updateDict = async () => {
+  try {
+    submitLoading.value = true;
+    const res = await (dict.value.dictTypeId ? reqUpdateDict(dict.value) : reqAddDict(dict.value));
+    const result = parseResMsg(res);
+    result && fetchList();
+    return result;
+  } finally {
+    submitLoading.value = false;
+  }
+};
+
+const delDict = async (dictTypeId: number) => {
+  const res = await reqDelDict(dictTypeId);
+  const result = parseResMsg(res);
+  result && fetchList();
+  return result;
+};
 
 onMounted(() => {
-  search();
+  fetchList();
 });
 
 // 搜索
 const search = () => {
-  store.setTableData();
+  fetchList();
 };
 
 const handleSubmit = async () => {
-  const result = await store.updateDict();
+  const result = await updateDict();
   result && (dialog.visible = false);
 };
 
@@ -107,13 +152,13 @@ const dialog = reactive({
 const handleAddDict = () => {
   dialog.title = '新增字典';
   dialog.visible = true;
-  store.resetDict();
+  resetDict();
 };
 
 const handleEditDict = (row: any) => {
   dialog.title = '编辑字典';
   dialog.visible = true;
-  store.dict = { ...row };
+  dict.value = { ...row };
 };
 
 const handleDeleteDict = async (row: any) => {
@@ -122,7 +167,7 @@ const handleDeleteDict = async (row: any) => {
     message: `你确定要删除字典【${row.dictName}】吗？`,
     type: 'warning',
   });
-  result && store.delDict(row.dictTypeId);
+  result && delDict(row.dictTypeId);
 };
 
 const enumHandler = reactive({

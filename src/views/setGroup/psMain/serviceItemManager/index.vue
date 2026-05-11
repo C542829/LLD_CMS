@@ -115,16 +115,16 @@ import { Search } from '@element-plus/icons-vue';
 import { onMounted, inject, reactive, ref } from 'vue';
 import { amountFormatter, isDiscountMap } from '@/utils/formatter';
 import { LOADING_MSG } from '@/utils/constants';
-import { statusOptions } from '@/enums/index';
+import { statusOptions, DictCode } from '@/enums/index';
 // 导入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';
-import { useEnumStore } from '@/store/modules/enums/index';
+import { useDictStore } from '@/store/modules/dict/index';
 import { useServiceItemStore } from '@/store/modules/setGroup/serviceItem';
 import useUserStore from '@/store/modules/acl/user';
 const userStore = useUserStore();
 const settingStore = useSettingStore();
 const store = useServiceItemStore();
-const enumStore = useEnumStore();
+const dictStore = useDictStore();
 
 // 引入消息提示组件
 const $MessageBox: any = inject('$MessageBox');
@@ -136,7 +136,7 @@ onMounted(() => {
 
 const categoryList = ref<any>([]);
 const getEnumList = async () => {
-  categoryList.value = await enumStore.getServiceItemCategoryList();
+  categoryList.value = await dictStore.getDictItems(DictCode.ITEM_CATEGORY);
 };
 getEnumList();
 

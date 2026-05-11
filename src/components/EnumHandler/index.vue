@@ -34,18 +34,18 @@
         </PaginationTable>
       </div>
       <Dialog v-model="dialog.visible" :title="dialog.title" width="400px">
-        <Form :model="store.dictItem" :rules="formRules" @submit="handleSubmit" @reset="store.resetDictItem">
+        <Form :model="dictItem" :rules="formRules" :loading="submitLoading" @submit="handleSubmit" @reset="resetDictItem">
           <el-form-item label="字典项标签" prop="itemLabel">
-            <el-input v-model="store.dictItem.itemLabel" placeholder="请你输入字典项标签" />
+            <el-input v-model="dictItem.itemLabel" placeholder="请你输入字典项标签" />
           </el-form-item>
           <el-form-item label="字典项值" prop="itemValue">
-            <el-input v-model="store.dictItem.itemValue" placeholder="请你输入字典项值" />
+            <el-input v-model="dictItem.itemValue" placeholder="请你输入字典项值" />
           </el-form-item>
           <el-form-item label="排序" prop="sort">
-            <el-input-number v-model="store.dictItem.sort" />
+            <el-input-number v-model="dictItem.sort" />
           </el-form-item>
           <el-form-item label="备注" prop="remark">
-            <el-input v-model="store.dictItem.remark" type="textarea" placeholder="请你输入备注" />
+            <el-input v-model="dictItem.remark" type="textarea" placeholder="请你输入备注" />
           </el-form-item>
         </Form>
       </Dialog>
@@ -57,9 +57,12 @@
 import { ElDialog, type DialogProps } from 'element-plus';
 import { ref, onMounted, onUpdated, inject, h, getCurrentInstance, reactive, watch } from 'vue';
 import { LOADING_MSG } from '@/utils/constants';
+import { reqAddDictItem, reqUpdateDictItem, reqDelDictItem } from '@/api/acl/dict/index';
+import { parseResMsg } from '@/utils/parseResponse';
+import { useDictStore } from '@/store/modules/dict/index';
+import type { Types } from '@/api/acl/dict/index';
 
-import { useEnumStore } from '@/store/modules/enums/index';
-const store = useEnumStore();
+const dictStore = useDictStore();
 
 const $MessageBox: any = inject('$MessageBox');
 
@@ -84,10 +87,34 @@ const props = withDefaults(defineProps<CustomProps>(), {
 const emit = defineEmits(['update:modelValue', 'refresh']);
 
 const loading = ref(false);
-// const dialogVisible = ref(false);
+const submitLoading = ref(false);
 
 // 表格数据
-const tableData: any = ref([]);
+const tableData = ref<any[]>([]);
+
+// 字典项表单数据
+const dictItem = ref<any>({});
+const resetDictItem = () => {
+  dictItem.value = {
+    dictItemId: null,
+    dictCode: '',
+    itemValue: '',
+    itemLabel: '',
+    sort: 0,
+    remark: '',
+  };
+};
+
+const updateDictItem = async () => {
+  const params = dictItem.value;
+  const res = await (params.dictItemId ? reqUpdateDictItem(params) : reqAddDictItem(params));
+  return parseResMsg(res);
+};
+
+const delDictItem = async (dictItemId: number) => {
+  const res = await reqDelDictItem(dictItemId);
+  return parseResMsg(res);
+};
 
 onMounted(() => {
   // init();
@@ -120,7 +147,7 @@ const init = () => {
 const getList = async () => {
   try {
     loading.value = true;
-    const data = await store.getEnumItemList(props.dictCode);
+    const data = await dictStore.getDictItems(props.dictCode, true);
     tableData.value = data;
   } catch (error) {
   } finally {
@@ -130,15 +157,16 @@ const getList = async () => {
 
 const handleSubmit = async () => {
   try {
-    loading.value = true;
-    const result = await store.updateDictItem();
+    submitLoading.value = true;
+    const result = await updateDictItem();
     if (result) {
+      dictStore.invalidate(props.dictCode);
       getList();
       dialog.visible = false;
     }
   } catch (error) {
   } finally {
-    loading.value = false;
+    submitLoading.value = false;
   }
 };
 
@@ -150,14 +178,14 @@ const dialog = reactive({
 const add = () => {
   dialog.title = '新增字典项';
   dialog.visible = true;
-  store.resetDictItem();
-  store.dictItem.dictCode = props.dictCode;
+  resetDictItem();
+  dictItem.value.dictCode = props.dictCode;
 };
 
 const update = (row: any) => {
   dialog.title = '编辑字典项';
   dialog.visible = true;
-  store.dictItem = { ...row };
+  dictItem.value = { ...row };
 };
 
 const del = async (row: any) => {
@@ -166,8 +194,11 @@ const del = async (row: any) => {
     message: `你确定要删除字典项【${row.itemLabel}】吗？`,
     type: 'warning',
   });
-  const isSuccess = result ? await store.delDictItem(row.dictItemId) : false;
-  isSuccess && getList();
+  const isSuccess = result ? await delDictItem(row.dictItemId) : false;
+  if (isSuccess) {
+    dictStore.invalidate(props.dictCode);
+    getList();
+  }
 };
 
 const formRules = {

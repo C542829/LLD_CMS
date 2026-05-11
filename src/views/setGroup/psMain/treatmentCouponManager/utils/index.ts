@@ -1,4 +1,3 @@
-import { reqDictItemList } from '@/api/acl/dict/index';
 import { RoleCode } from '@/enums';
 import { formatDate } from '@/utils/time';
 
@@ -37,20 +36,4 @@ export const RoleCodeFilterMap = {
   [RoleCode.Admin]: [RoleCode.SuperAdmin],
   [RoleCode.AreaManager]: [RoleCode.Admin, RoleCode.SuperAdmin],
   [RoleCode.StoreManager]: [RoleCode.Admin, RoleCode.SuperAdmin, RoleCode.AreaManager],
-};
-
-/**
- * 获取枚举项列表
- * @param dictCode 枚举编码
- * @returns 枚举项列表
- */
-export const getEnumItemList = async (dictCode: string) => {
-  try {
-    const res = await reqDictItemList(dictCode);
-    const data = res.data;
-    return data;
-  } catch (error) {
-    console.error('获取字典列表失败：', error);
-    return [];
-  }
 };

@@ -118,16 +118,16 @@ import ProductForm from './form.vue';
 import OrgSelect from '@/components/FormComponents/OrgSelect.vue';
 import { Search } from '@element-plus/icons-vue';
 import { ref, onMounted, inject, reactive } from 'vue';
-import { statusOptions } from '@/enums/index';
+import { statusOptions, DictCode } from '@/enums/index';
 import { amountFormatter, isDiscountMap } from '@/utils/formatter';
 import { LOADING_MSG } from '@/utils/constants';
 import { useSettingStore } from '@/store/modules/acl/setting';
-import { useEnumStore } from '@/store/modules/enums/index';
+import { useDictStore } from '@/store/modules/dict/index';
 import { useProductStore } from '@/store/modules/setGroup/product';
 import useUserStore from '@/store/modules/acl/user';
 const userStore = useUserStore();
 const settingStore = useSettingStore();
-const enumStore = useEnumStore();
+const dictStore = useDictStore();
 const store = useProductStore();
 
 // 引入消息提示组件
@@ -188,8 +188,8 @@ const handleDrawerClose = () => {
 const unitList = ref<any>([]);
 const categoryList = ref<any>([]);
 const getEnumList = async () => {
-  unitList.value = await enumStore.getUnits();
-  categoryList.value = await enumStore.getProductCategoryList();
+  unitList.value = await dictStore.getDictItems(DictCode.UNIT);
+  categoryList.value = await dictStore.getDictItems(DictCode.PRODUCT_CATEGORY);
 };
 getEnumList();
 

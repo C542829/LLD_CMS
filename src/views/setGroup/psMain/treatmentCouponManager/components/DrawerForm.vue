@@ -120,12 +120,13 @@ import { type Types } from '@/api/acl/role';
 import { type Types as UserTypes, reqAddUser, reqUpdateUser } from '@/api/user/index';
 import { DEFAULT_FORMDATA } from '../utils/index';
 import { sexOptions, employedOptions, maritalStatusOptions, educationOptions } from '@/enums/index';
-import { useEnumStore, DictCode } from '@/store/modules/enums/index';
+import { DictCode } from '@/enums/index';
+import { useDictStore } from '@/store/modules/dict/index';
 import useUserStore from '@/store/modules/acl/user';
 import Message from '@/components/Message';
 
 const userStore = useUserStore();
-const enumStore = useEnumStore();
+const dictStore = useDictStore();
 
 //#region 父子组件交互
 interface Props {
@@ -247,8 +248,8 @@ const deptList = ref<any>([]);
 const positionList = ref<any>([]);
 
 const initEnum = async () => {
-  deptList.value = await enumStore.getDeptList();
-  positionList.value = await enumStore.getPositionList();
+  deptList.value = await dictStore.getDictItems(DictCode.DEPARTMENT);
+  positionList.value = await dictStore.getDictItems(DictCode.POSITION);
 };
 
 const enumHandler = reactive({

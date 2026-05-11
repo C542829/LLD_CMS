@@ -135,9 +135,10 @@ import { commissionOptions, CommissionType, IsDiscount, commissionTypeOptions } 
 // 引入数据仓库
 import { useProductStore } from '@/store/modules/setGroup/product';
 import useUserStore from '@/store/modules/acl/user';
-import { useEnumStore, DictCode } from '@/store/modules/enums/index';
+import { useDictStore } from '@/store/modules/dict/index';
+import { DictCode } from '@/enums/index';
 const store = useProductStore();
-const enumStore = useEnumStore();
+const dictStore = useDictStore();
 const userStore = useUserStore();
 
 // 定义组件触发的事件 - 关闭抽屉
@@ -165,10 +166,8 @@ const handleFormReset = () => {
   store.resetFormData();
 };
 
-onMounted(async () => {
-  // unitOptions.value = await enumStore.getUnits();
+onMounted(() => {
   initEnum();
-  // productCategoryList.value = await enumStore.getProductCategoryList();
 });
 
 //#region 字典管理
@@ -176,8 +175,8 @@ onMounted(async () => {
 const unitOptions = ref<any>([]);
 const productCategoryList = ref<any>([]);
 const initEnum = async () => {
-  unitOptions.value = await enumStore.getUnits();
-  productCategoryList.value = await enumStore.getProductCategoryList();
+  unitOptions.value = await dictStore.getDictItems(DictCode.UNIT);
+  productCategoryList.value = await dictStore.getDictItems(DictCode.PRODUCT_CATEGORY);
 };
 
 const enumDialog = reactive({

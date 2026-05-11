@@ -24,6 +24,7 @@ import {
 } from '@/utils/localStorageTools';
 
 import { useDataEnumStore } from '@/store/modules/enums/index';
+import { useDictStore } from '@/store/modules/dict/index';
 
 // 用于过滤当前用户需要展示的异步路由
 function filterAsyncRoute(asyncRoute: any, routes: any) {
@@ -107,6 +108,8 @@ const useUserStore = defineStore('User', {
         this.storageOrgInfo(user.orgId);
         // 获取用户信息
         this.storageUserInfo(user.userId);
+        // 延迟预加载字典数据（不阻塞登录流程）
+        setTimeout(() => useDictStore().preloadCommonDicts());
       } catch (error) {
         console.error(`获取用户信息出错：${error}`);
       }
@@ -163,6 +166,7 @@ const useUserStore = defineStore('User', {
       removeUserInfo();
       removeOrgInfo();
       useDataEnumStore().$reset();
+      useDictStore().invalidate();
     },
 
     async getUserInfo() {
