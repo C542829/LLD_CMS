@@ -32,9 +32,12 @@
 </template>
 
 <script setup lang="ts">
-import { reqServiceItemList, type Types } from '@/api/setGroup/serviceItem/index';
+import { type Types } from '@/api/setGroup/serviceItem/index';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
 import { computed, onMounted, ref, watch } from 'vue';
 import { SelectInstance } from 'element-plus';
+
+const masterDataStore = useMasterDataStore();
 
 type ElSelectProps = SelectInstance['$props'];
 
@@ -131,14 +134,10 @@ const serviceItemList = ref<Types.ServerItemVO[]>([]);
 /**
  * 获取服务项目列表
  */
-const getServiceItemList = async () => {
+const getServiceItemList = async (refresh = false) => {
   loading.value = true;
   try {
-    const res = await reqServiceItemList({
-      itemStatus: props.itemStatus,
-      category: props.category,
-    });
-    serviceItemList.value = res.data || [];
+    serviceItemList.value = await masterDataStore.getServiceItemList(refresh);
   } catch (error) {
   } finally {
     loading.value = false;

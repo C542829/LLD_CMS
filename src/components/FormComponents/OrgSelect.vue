@@ -32,10 +32,12 @@
 </template>
 
 <script setup lang="ts">
-import { reqOrgList } from '@/api/acl/org/index';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
 import { computed, onMounted, ref, watch } from 'vue';
 import { SelectInstance } from 'element-plus';
 import useUserStore from '@/store/modules/acl/user';
+
+const masterDataStore = useMasterDataStore();
 
 type ElSelectProps = SelectInstance['$props'];
 
@@ -134,12 +136,10 @@ const orgList = ref<OrgInfo[]>([]);
 /**
  * 获取门店列表
  */
-const getOrgList = async () => {
+const getOrgList = async (refresh = false) => {
   loading.value = true;
   try {
-    const res = await reqOrgList();
-    const data = res.data;
-    orgList.value = data.filter((item) => !item?.orgCode.includes('Test'));
+    orgList.value = await masterDataStore.getOrgList(refresh);
   } catch (error) {
   } finally {
     loading.value = false;

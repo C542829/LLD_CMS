@@ -36,10 +36,11 @@
 </template>
 
 <script setup lang="ts">
-import { reqUserList, type Types } from '@/api/user/index';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
 import { computed, onMounted, ref, watch } from 'vue';
 import { SelectInstance } from 'element-plus';
-import useUserStore from '@/store/modules/acl/user';
+
+const masterDataStore = useMasterDataStore();
 
 type ElSelectProps = SelectInstance['$props'];
 
@@ -80,8 +81,6 @@ const emit = defineEmits(['update:modelValue', 'change', 'clear']);
 const selectedValue = ref<any>(props.multiple ? [] : undefined);
 
 const loading = ref(false);
-
-const userStore = useUserStore();
 
 watch(
   () => props.modelValue,
@@ -131,36 +130,16 @@ const options = computed(() => {
 
 const filterOptions = ref<UserInfo[]>([]);
 
-/** 门店列表 */
+/** 用户列表 */
 const userList = ref<UserInfo[]>([]);
-
-const params: Types.SearchUserParams = {
-  roleId: '',
-  userName: '',
-  userStatus: '在职',
-  userNumber: '',
-  pageNum: 1,
-  pageSize: 200,
-  orgIds: [],
-};
-
-const orgIds = computed(() => {
-  if (userStore.user.orgs) {
-    return userStore.user.orgs.map((item) => item.id);
-  } else {
-    return [userStore.user.orgId];
-  }
-});
 
 /**
  * 过滤用户 根据用户名和编码进行匹配
  */
 const filterMethod = (query: string) => {
   if (!query.trim()) {
-    // return true;
     filterOptions.value = userList.value;
   }
-  // console.log(99999, item);
   filterOptions.value = userList.value.filter(
     (item) =>
       item[props.defaultProps.label].toLowerCase().includes(query.toLowerCase()) ||
@@ -171,19 +150,10 @@ const filterMethod = (query: string) => {
 /**
  * 获取用户列表
  */
-const getUserList = async () => {
+const getUserList = async (refresh = false) => {
   loading.value = true;
   try {
-    params.orgIds = orgIds.value;
-    const res = await reqUserList(params);
-    const data = res.data.rows.map((item: UserInfo) => {
-      return {
-        id: item.id,
-        userId: item.id,
-        userName: item.userName,
-        userCode: item.userCode,
-      };
-    });
+    const data = await masterDataStore.getUserList(refresh);
     userList.value = data || [];
     filterOptions.value = data || [];
   } catch (error) {

@@ -26,7 +26,10 @@ import { ref, onMounted } from 'vue';
 import { cloneDeep } from 'lodash';
 import { LOADING_MSG } from '@/utils/constants';
 import { OrderDetailType, DictCode } from '@/enums/index';
-import { reqProductList, type Types } from '@/api/setGroup/product';
+import { type Types } from '@/api/setGroup/product';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
+
+const masterDataStore = useMasterDataStore();
 
 const emit = defineEmits(['addItem']);
 
@@ -45,7 +48,7 @@ const handleChange = (val: string | number | boolean | undefined) => {
 
 /**
  * 获取产品列表
- * - category 为空时请求接口获取全量数据并缓存到本地
+ * - category 为空时从 store 获取全量数据并缓存到本地
  * - category 非空时基于本地缓存数据按分类过滤
  */
 const getProductList = async (category: string) => {
@@ -55,8 +58,7 @@ const getProductList = async (category: string) => {
   }
   try {
     loading.value = true;
-    const res = await reqProductList({ category: '', productStatus: 0 });
-    const list = res.data || [];
+    const list = await masterDataStore.getProductList();
     allProductList.value = list;
     productList.value = list;
   } catch (error) {

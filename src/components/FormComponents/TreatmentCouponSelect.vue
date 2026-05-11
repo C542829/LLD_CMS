@@ -32,10 +32,12 @@
 </template>
 
 <script setup lang="ts">
-import { reqTreatmentCouponList } from '@/api/setGroup/treatmentCoupon/index';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
 import { computed, onMounted, ref, watch } from 'vue';
 import { SelectInstance } from 'element-plus';
 import { Status } from '@/enums/index';
+
+const masterDataStore = useMasterDataStore();
 
 type ElSelectProps = SelectInstance['$props'];
 
@@ -143,13 +145,10 @@ const treatmentCouponList = ref<TreatmentCouponVO[]>([]);
 /**
  * 获取疗程券列表
  */
-const getTreatmentCouponList = async () => {
+const getTreatmentCouponList = async (refresh = false) => {
   loading.value = true;
   try {
-    const res = await reqTreatmentCouponList({
-      status: props.status,
-    });
-    treatmentCouponList.value = res.data || [];
+    treatmentCouponList.value = await masterDataStore.getTreatmentCouponList(refresh);
   } catch (error) {
   } finally {
     loading.value = false;

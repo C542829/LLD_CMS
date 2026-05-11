@@ -26,7 +26,10 @@ import { ref, onMounted } from 'vue';
 import { cloneDeep } from 'lodash';
 import { LOADING_MSG } from '@/utils/constants';
 import { DictCode, OrderDetailType, ServiceType } from '@/enums/index';
-import { reqServiceItemList, type Types } from '@/api/setGroup/serviceItem';
+import { type Types } from '@/api/setGroup/serviceItem';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
+
+const masterDataStore = useMasterDataStore();
 
 const emit = defineEmits(['addItem']);
 
@@ -45,7 +48,7 @@ const handleChange = (val: string | number | boolean | undefined) => {
 
 /**
  * 获取服务项目列表
- * - category 为空时请求接口获取全量数据并缓存到本地
+ * - category 为空时从 store 获取全量数据并缓存到本地
  * - category 非空时基于本地缓存数据按分类过滤
  */
 const getServiceItemList = async (category: string) => {
@@ -55,8 +58,7 @@ const getServiceItemList = async (category: string) => {
   }
   try {
     loading.value = true;
-    const res = await reqServiceItemList({ category: '', itemStatus: 0 });
-    const list = res.data || [];
+    const list = await masterDataStore.getServiceItemList();
     allServiceItemList.value = list;
     serviceItemList.value = list;
   } catch (error) {

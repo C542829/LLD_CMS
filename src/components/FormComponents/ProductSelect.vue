@@ -33,10 +33,13 @@
 </template>
 
 <script setup lang="ts">
-import { reqProductList, type Types } from '@/api/setGroup/product/index';
+import { type Types } from '@/api/setGroup/product/index';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
 import { onMounted, ref, watch } from 'vue';
 import { SelectInstance } from 'element-plus';
 import { Status } from '@/enums/index';
+
+const masterDataStore = useMasterDataStore();
 
 type ElSelectProps = SelectInstance['$props'];
 
@@ -152,13 +155,10 @@ const productList = ref<Types.ProductInfoVO[]>([]);
 /**
  * 获取产品列表
  */
-const getProductList = async () => {
+const getProductList = async (refresh = false) => {
   loading.value = true;
   try {
-    const res = await reqProductList({
-      productStatus: props.productStatus,
-    });
-    productList.value = res.data || [];
+    productList.value = await masterDataStore.getProductList(refresh);
     options.value = productList.value;
   } catch (error) {
   } finally {
