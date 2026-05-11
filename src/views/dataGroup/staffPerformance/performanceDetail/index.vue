@@ -40,7 +40,7 @@
             />
           </label>
         </div> -->
-        <div class="search-item">
+        <!-- <div class="search-item">
           <label>
             项目：
             <ServiceItemSelect
@@ -52,7 +52,7 @@
               @clear="search"
             />
           </label>
-        </div>
+        </div> -->
         <template v-if="userStore.isAdmin || userStore.isAreaManager">
           <div class="search-item">
             <el-input v-model="searchParams.username" clearable @clear="search" placeholder="技师姓名" class="w-100" />

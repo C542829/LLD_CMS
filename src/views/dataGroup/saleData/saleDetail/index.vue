@@ -27,6 +27,54 @@
         </template>
         <div class="search-item">
           <label>
+            业务类型：
+            <el-select
+              v-model="searchParams.bizType"
+              placeholder="全部类型"
+              clearable
+              class="w-100"
+              @change="handleBizTypeChange"
+            >
+              <el-option
+                v-for="item in OrderDetailTypeOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </label>
+        </div>
+        <div v-show="searchParams.bizType !== undefined" class="search-item">
+          <label>
+            {{ bizSelectLabel }}：
+            <ProductSelect
+              v-show="searchParams.bizType === OrderDetailType.Product"
+              v-model="searchParams.bizId"
+              placeholder="选择产品"
+              class="w-100"
+              :multiple="false"
+              @change="search"
+            />
+            <ServiceItemSelect
+              v-show="searchParams.bizType === OrderDetailType.Service"
+              v-model="searchParams.bizId"
+              placeholder="选择项目"
+              class="w-100"
+              :multiple="false"
+              @change="search"
+            />
+            <TreatmentCouponSelect
+              v-show="searchParams.bizType === OrderDetailType.TreatmentCoupon"
+              v-model="searchParams.bizId"
+              placeholder="选择疗程券"
+              class="w-100"
+              :multiple="false"
+              @change="search"
+            />
+          </label>
+        </div>
+        <div class="search-item">
+          <label>
             销售员：
             <UserSelect
               v-model="searchParams.userId"
@@ -140,12 +188,13 @@
 import ReceiptDialog from './components/ReceiptDialog.vue';
 import ProductSelect from '@/components/FormComponents/ProductSelect.vue';
 import ServiceItemSelect from '@/components/FormComponents/ServiceItemSelect.vue';
-import { reactive, onMounted, ref } from 'vue';
+import TreatmentCouponSelect from '@/components/FormComponents/TreatmentCouponSelect.vue';
+import { reactive, onMounted, ref, computed } from 'vue';
 import { datetimeFormatter } from '@/utils/formatter';
 import { reqSaleDetail } from '@/api/dataGroup/saleData';
 import { parseResObj } from '@/utils/parseResponse';
 import { LOADING_MSG } from '@/utils/constants';
-import { OrderDetailType } from '@/enums';
+import { OrderDetailType, OrderDetailTypeOptions } from '@/enums';
 import useUserStore from '@/store/modules/acl/user';
 
 const userStore = useUserStore();
@@ -181,7 +230,31 @@ const searchParams = reactive({
   orgIds: [] as number[],
   userId: undefined as number | undefined,
   businessCode: '',
+  bizType: undefined as number | undefined,
+  bizId: undefined as number | undefined,
 });
+
+/** 业务类型对应的筛选标签 */
+const bizSelectLabel = computed(() => {
+  const labelMap: Record<number, string> = {
+    [OrderDetailType.Product]: '产品',
+    [OrderDetailType.Service]: '项目',
+    [OrderDetailType.TreatmentCoupon]: '疗程券',
+  };
+  return searchParams.bizType !== undefined ? labelMap[searchParams.bizType] : '';
+});
+
+/** 业务类型变更时，清空业务ID并触发搜索 */
+const handleBizTypeChange = () => {
+  searchParams.bizId = undefined;
+  search();
+};
+
+/** 业务类型清空时，同时清空业务ID并触发搜索 */
+const handleBizTypeClear = () => {
+  searchParams.bizId = undefined;
+  search();
+};
 
 /** 处理搜索参数 */
 const handleSearchParams = () => {
