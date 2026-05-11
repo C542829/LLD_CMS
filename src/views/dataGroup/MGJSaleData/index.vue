@@ -21,19 +21,21 @@
             <el-option v-for="item in MEMBER_TYPE_OPTIONS" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </div>
-        <div class="search-item">
-          <label for="storeId">门店：</label>
-          <el-select
-            v-model="searchParams.storeId"
-            clearable
-            @change="search"
-            id="storeId"
-            class="w-100"
-            placeholder="门店"
-          >
-            <el-option v-for="item in StoreOptions" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
-        </div>
+        <template v-if="userStore.isAdmin">
+          <div class="search-item">
+            <label for="storeId">门店：</label>
+            <el-select
+              v-model="searchParams.storeId"
+              clearable
+              @change="search"
+              id="storeId"
+              class="w-100"
+              placeholder="门店"
+            >
+              <el-option v-for="item in storeOptions" :key="item.value" :label="item.label" :value="item.value" />
+            </el-select>
+          </div>
+        </template>
         <div class="search-item">
           <label for="name">姓名：</label>
           <el-input
@@ -184,15 +186,27 @@
 
 <script setup lang="ts">
 import DetailDialog from './components/DetailDialog.vue';
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { cloneDeep } from 'lodash';
 import { datetimeFormatter } from '@/utils/formatter';
 import { reqMGJSaleDataList } from './utils/api';
 import type { MgjSaleDataQuery, MgjSaleDataParsed } from './utils/types';
 import { StoreMap, CONSUME_TYPE_MAP, MEMBER_TYPE_OPTIONS, SEX_MAP, parseSaleDataVO, StoreOptions } from './utils/index';
+import useUserStore from '@/store/modules/acl/user';
 
 const route = useRoute();
+const userStore = useUserStore();
+
+const storeOptions = computed(() => {
+  if (userStore.isAdmin) {
+    return StoreOptions;
+  }
+  if (!userStore.org || !userStore.org.legacyOrgId) {
+    return [];
+  }
+  return StoreOptions.filter((item) => item.value == userStore.org.legacyOrgId);
+});
 
 /** 加载状态 */
 const loading = ref(false);
@@ -233,7 +247,9 @@ const dialogVisible = ref(false);
 const currentBill = ref<MgjSaleDataParsed | null>(null);
 
 onMounted(() => {
-  search();
+  setTimeout(() => {
+    search();
+  }, 0);
 });
 
 /** 重置搜索参数 */
@@ -266,6 +282,12 @@ const fetchTableData = async () => {
 /** 搜索 */
 const search = () => {
   // searchParams.pageNum = 1;
+  if (storeOptions.value.length === 0) {
+    searchParams.storeId = 0;
+  }
+  if (storeOptions.value.length === 1) {
+    searchParams.storeId = storeOptions.value[0].value;
+  }
   fetchTableData();
 };
 
