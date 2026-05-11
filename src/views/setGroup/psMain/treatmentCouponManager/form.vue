@@ -99,13 +99,13 @@ import { onMounted, computed, reactive, ref } from 'vue';
 import { commissionOptions, commissionTypeOptions, CommissionType } from '@/enums/index';
 // 引入数据仓库
 import { useTreatmentCouponStore } from '@/store/modules/setGroup/treatmentCoupon';
-import { useDataEnumStore } from '@/store/modules/enums/index';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
 import { useCouponStore } from '@/store/modules/member/memberCoupon';
 import useUserStore from '@/store/modules/acl/user';
 const userStore = useUserStore();
 const couponStore = useCouponStore();
 const store = useTreatmentCouponStore();
-const dataEnumStore = useDataEnumStore();
+const masterDataStore = useMasterDataStore();
 
 // 定义组件触发的事件 - 关闭抽屉
 const $emit = defineEmits(['close-drawer']);
@@ -116,7 +116,7 @@ defineProps(['disabled']);
 // 组件挂载后执行的生命周期钩子
 onMounted(() => {
   // 可在此处添加组件初始化逻辑
-  dataEnumStore.getTicketList();
+  masterDataStore.getTicketList();
   getCouponList();
 });
 

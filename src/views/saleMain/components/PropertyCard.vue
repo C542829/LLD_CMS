@@ -36,11 +36,11 @@ import Message from '@/components/Message';
 import { computed, onMounted } from 'vue';
 import { DiscountType, discountTypeMap } from '@/enums/index';
 import { reqUpdateAssetRemark } from '@/api/member/member/index';
-import { useDataEnumStore } from '@/store/modules/enums';
+import { useMasterDataStore } from '@/store/modules/masterData';
 import { useOrderStore } from '@/store/modules/order/index';
 import useUserStore from '@/store/modules/acl/user';
 const orderStore = useOrderStore();
-const enumsStore = useDataEnumStore();
+const masterDataStore = useMasterDataStore();
 const userStore = useUserStore();
 
 interface Props {
@@ -121,7 +121,7 @@ const isSelect = computed(() => {
  */
 const orgName = computed(() => {
   if (!props.data?.orgId) return '未知门店';
-  const org = enumsStore.orgList.find((item: any) => item.id === props.data?.orgId);
+  const org = masterDataStore.orgList.find((item: any) => item.id === props.data?.orgId);
   return org?.orgName || '未知门店';
 });
 </script>

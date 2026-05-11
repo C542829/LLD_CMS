@@ -130,15 +130,15 @@ import { RoleCode, searchEmployedOptions } from '@/enums/index';
 import { sexMap } from '@/utils/formatter';
 import { reqRoleList, Types as RoleTypes } from '@/api/acl/role';
 import { reqUserList, Types as UserTypes } from '@/api/user/index';
-import { useDataEnumStore } from '@/store/modules/enums/index';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
 import useUserStore from '@/store/modules/acl/user';
 
 const userStore = useUserStore();
-const dataEnumStore = useDataEnumStore();
+const masterDataStore = useMasterDataStore();
 
 // 初始化
 onMounted(async () => {
-  await dataEnumStore.getOrgList();
+  await masterDataStore.getOrgList();
   handleOrgIds();
   search();
   getRoleList();
@@ -195,7 +195,7 @@ const setTableData = async () => {
 const handleOrgIds = () => {
   let orgs: any = [];
   if (userStore.isAdmin) {
-    orgs = dataEnumStore.orgList;
+    orgs = masterDataStore.orgList;
   } else {
     orgs = userStore.user.orgs;
   }

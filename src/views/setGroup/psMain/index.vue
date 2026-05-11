@@ -11,12 +11,12 @@ import RechargeCommissionRules from './rechargeCommissionRules/index.vue';
 import ServiceItemManager from './serviceItemManager/index.vue';
 import TreatmentCouponManager from './treatmentCouponManager/index.vue';
 import useUserStore from '@/store/modules/acl/user';
-import { useDataEnumStore } from '@/store/modules/enums/index';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
 
-const dataEnumStore = useDataEnumStore();
+const masterDataStore = useMasterDataStore();
 
 onMounted(() => {
-  dataEnumStore.getOrgList(true);
+  masterDataStore.getOrgList(true);
 });
 
 const originalNavList = ref([

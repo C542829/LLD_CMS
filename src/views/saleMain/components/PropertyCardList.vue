@@ -22,13 +22,13 @@ import { ref, watch, computed, onMounted } from 'vue';
 import { isEmpty } from 'lodash';
 import { DiscountType, discountTypeMap } from '@/enums/index';
 import { useOrderStore } from '@/store/modules/order/index';
-import { useDataEnumStore } from '@/store/modules/enums';
+import { useMasterDataStore } from '@/store/modules/masterData';
 
-const enumsStore = useDataEnumStore();
+const masterDataStore = useMasterDataStore();
 const store = useOrderStore();
 
 onMounted(() => {
-  enumsStore.getOrgList();
+  masterDataStore.getOrgList();
 });
 
 const assetList: any = computed(() => {

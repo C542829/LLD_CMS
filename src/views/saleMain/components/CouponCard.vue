@@ -47,9 +47,9 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { useDataEnumStore } from '@/store/modules/enums';
+import { useMasterDataStore } from '@/store/modules/masterData';
 
-const enumsStore = useDataEnumStore();
+const masterDataStore = useMasterDataStore();
 
 interface Props {
   coupon: {
@@ -82,7 +82,7 @@ const emit = defineEmits(['cancelSelect', 'select']);
 /** 获取关联门店名称 */
 const orgName = computed(() => {
   if (!props.coupon?.orgId) return '未知门店';
-  const org = enumsStore.orgList.find((item: any) => item.id === props.coupon?.orgId);
+  const org = masterDataStore.orgList.find((item: any) => item.id === props.coupon?.orgId);
   return org?.orgName || '未知门店';
 });
 

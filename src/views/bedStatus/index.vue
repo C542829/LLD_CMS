@@ -33,10 +33,10 @@ import { BedStatus, CashierRouteSign } from '@/enums/index';
 import { reqQueryOrderByBedId } from '@/api/order/index';
 import { LOADING_MSG } from '@/utils/constants';
 // 引入数据仓库
-import { useDataEnumStore } from '@/store/modules/enums/index';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
 import { useOrderStore } from '@/store/modules/order/index';
 
-const dataEnumStore = useDataEnumStore();
+const masterDataStore = useMasterDataStore();
 const orderStore = useOrderStore();
 
 // 加载状态
@@ -67,7 +67,7 @@ const orderCache = new Map<number, any>();
 const getBedList = async () => {
   try {
     loading.value = true;
-    bedList.value = await dataEnumStore.getAllBedList();
+    bedList.value = await masterDataStore.getAllBedList();
 
     // 获取所有服务中的床位的订单数据
     timer = setTimeout(() => {

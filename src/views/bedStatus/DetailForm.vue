@@ -19,11 +19,11 @@
             placeholder="请选择项目"
             filterable
             clearable
-            @visible-change="selectVisibleChange($event, enumStore.getServiceItemList)"
+            @visible-change="selectVisibleChange($event, masterDataStore.getServiceItemList)"
             style="width: 240px"
           >
             <el-option
-              v-for="item in enumStore.serviceItemList"
+              v-for="item in masterDataStore.serviceItemList"
               :key="item.id"
               :label="item.itemName"
               :value="item.id"
@@ -51,11 +51,11 @@
             placeholder="请选择产品"
             filterable
             clearable
-            @visible-change="selectVisibleChange($event, enumStore.getProductList)"
+            @visible-change="selectVisibleChange($event, masterDataStore.getProductList)"
             style="width: 240px"
           >
             <el-option
-              v-for="item in enumStore.productList"
+              v-for="item in masterDataStore.productList"
               :key="item.id"
               :label="item.productName"
               :value="item.id"
@@ -79,11 +79,11 @@
             placeholder="请选择疗程"
             filterable
             clearable
-            @visible-change="selectVisibleChange($event, enumStore.getTreatmentCouponList)"
+            @visible-change="selectVisibleChange($event, masterDataStore.getTreatmentCouponList)"
             style="width: 240px"
           >
             <el-option
-              v-for="item in enumStore.treatmentCouponList"
+              v-for="item in masterDataStore.treatmentCouponList"
               :key="item.id"
               :label="item.name"
               :value="item.id"
@@ -106,10 +106,10 @@
           placeholder="请选择技师/销售"
           filterable
           clearable
-          @visible-change="selectVisibleChange($event, enumStore.getStaffList)"
+          @visible-change="selectVisibleChange($event, masterDataStore.getStaffList)"
           style="width: 240px"
         >
-          <el-option v-for="item in enumStore.staffList" :key="item.id" :label="item.userName" :value="item.id" />
+          <el-option v-for="item in masterDataStore.staffList" :key="item.id" :label="item.userName" :value="item.id" />
         </el-select>
       </el-form-item>
       <el-form-item label="备注" prop="remark">
@@ -136,9 +136,9 @@ import { OrderDetailType, ServiceTypeOptions, OrderDetailTypeOptions, CustomerTy
 import Message from '@/components/Message';
 import { type FormInstance } from 'element-plus';
 import { useOrderStore } from '@/store/modules/order/index';
-import { useDataEnumStore } from '@/store/modules/enums/index';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
 const orderStore = useOrderStore();
-const enumStore = useDataEnumStore();
+const masterDataStore = useMasterDataStore();
 
 interface Props {
   modelValue: boolean;
@@ -165,10 +165,10 @@ watch(
 const emit = defineEmits(['update:modelValue', 'close-dialog']);
 
 onMounted(async () => {
-  await enumStore.getStaffList();
-  await enumStore.getProductList();
-  await enumStore.getServiceItemList();
-  await enumStore.getTreatmentCouponList();
+  await masterDataStore.getStaffList();
+  await masterDataStore.getProductList();
+  await masterDataStore.getServiceItemList();
+  await masterDataStore.getTreatmentCouponList();
 });
 
 const dialogVisible = ref(false);

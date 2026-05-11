@@ -1,9 +1,9 @@
 <template>
   <div class="product-list">
-    <template v-if="enumStore.treatmentCouponList && enumStore.treatmentCouponList.length > 0">
+    <template v-if="masterDataStore.treatmentCouponList && masterDataStore.treatmentCouponList.length > 0">
       <el-scrollbar>
         <ItemCard
-          v-for="item in enumStore.treatmentCouponList"
+          v-for="item in masterDataStore.treatmentCouponList"
           :key="item.id"
           :data="item"
           :config="customConfig"
@@ -25,15 +25,15 @@ import ItemCard from './ItemCard.vue';
 import { ref, onMounted } from 'vue';
 import { OrderDetailType } from '@/enums/index';
 import { IsDiscount } from '@/enums';
-import { useDataEnumStore } from '@/store/modules/enums/index';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
 import { cloneDeep } from 'lodash';
 
 const emit = defineEmits(['addItem']);
 
-const enumStore = useDataEnumStore();
+const masterDataStore = useMasterDataStore();
 
 onMounted(async () => {
-  await enumStore.getTreatmentCouponList();
+  await masterDataStore.getTreatmentCouponList();
 });
 
 const handleAddItem = (item: any) => {

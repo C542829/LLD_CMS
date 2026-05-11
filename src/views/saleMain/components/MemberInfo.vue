@@ -59,14 +59,14 @@ import { CustomerType, DiscountType, discountTypeMap } from '@/enums/index';
 import { LOADING_MSG } from '@/utils/constants';
 import { useOrderStore } from '@/store/modules/order/index';
 import { useMemberStore } from '@/store/modules/member/member';
-import { useDataEnumStore } from '@/store/modules/enums';
-const enumsStore = useDataEnumStore();
+import { useMasterDataStore } from '@/store/modules/masterData';
+const masterDataStore = useMasterDataStore();
 const memberStore = useMemberStore();
 const store = useOrderStore();
 
 onMounted(() => {
   // 获取门店列表用于更新折扣卡门店提示
-  enumsStore.getOrgList();
+  masterDataStore.getOrgList();
 });
 
 const loading = ref(false);

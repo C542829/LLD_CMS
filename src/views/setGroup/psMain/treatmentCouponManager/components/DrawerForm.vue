@@ -24,7 +24,7 @@
             collapse-tags-tooltip
             :max-collapse-tags="1"
           >
-            <el-option v-for="item in dataEnumStore.orgList" :key="item.id" :label="item.orgName" :value="item.id" />
+            <el-option v-for="item in masterDataStore.orgList" :key="item.id" :label="item.orgName" :value="item.id" />
           </el-select> -->
         </el-form-item>
       </template>

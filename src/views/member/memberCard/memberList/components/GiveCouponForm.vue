@@ -4,7 +4,12 @@
     <Form :model="formData" :rules="formRules" :loading="loading" @submit="handleFormSubmit" @reset="handleFormReset">
       <el-form-item label="添加优惠券" prop="vipTicketId">
         <el-select v-model="formData.vipTicketId" placeholder="请选择优惠券" class="w-240">
-          <el-option v-for="item in enumStore.ticketList" :key="item.id" :label="item.ticketName" :value="item.id" />
+          <el-option
+            v-for="item in masterDataStore.ticketList"
+            :key="item.id"
+            :label="item.ticketName"
+            :value="item.id"
+          />
         </el-select>
       </el-form-item>
 
@@ -34,15 +39,15 @@ import { parseResMsg } from '@/utils/parseResponse';
 
 // 导入数据仓库
 import { useMemberStore } from '@/store/modules/member/member';
-import { useDataEnumStore } from '@/store/modules/enums/index';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
 const store = useMemberStore();
-const enumStore = useDataEnumStore();
+const masterDataStore = useMasterDataStore();
 
 const $emit = defineEmits(['close-drawer']);
 
 onMounted(() => {
   // 获取枚举数据
-  enumStore.getTicketList(true);
+  masterDataStore.getTicketList(true);
 });
 
 watch(

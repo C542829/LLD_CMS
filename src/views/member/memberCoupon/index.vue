@@ -10,12 +10,12 @@ import CouponOverview from './couponOverview/index.vue';
 import useUserStore from '@/store/modules/acl/user';
 
 import { ref, markRaw, onMounted } from 'vue';
-import { useDataEnumStore } from '@/store/modules/enums/index';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
 
-const dataEnumStore = useDataEnumStore();
+const masterDataStore = useMasterDataStore();
 
 onMounted(() => {
-  dataEnumStore.getOrgList(true);
+  masterDataStore.getOrgList(true);
 });
 const originalNavList = ref([
   { label: '优惠券管理', icon: '', component: markRaw(CouponManager) },
