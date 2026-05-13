@@ -3,7 +3,14 @@
     <router-view></router-view>
 
     <!-- 版本更新提示 -->
-    <el-dialog v-model="versionCheck.hasUpdate.value" title="系统更新" width="400px" :close-on-click-modal="false" :close-on-press-escape="false" :show-close="false">
+    <el-dialog
+      v-model="versionCheck.hasUpdate.value"
+      title="系统更新"
+      width="400px"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      :show-close="false"
+    >
       <span>系统已发布新版本，请刷新页面以获取最新内容。</span>
       <template #footer>
         <el-button type="primary" @click="versionCheck.refresh()">立即刷新</el-button>
