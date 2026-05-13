@@ -115,6 +115,9 @@ import { reactive, onMounted, ref, computed } from 'vue';
 import { reqOrgList } from '@/api/acl/org/index';
 import { type Types, reqOperLogList } from '@/api/sys/index';
 import { cloneDeep } from 'lodash';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
+
+const masterDataStore = useMasterDataStore();
 
 const loading = ref(false);
 
@@ -168,7 +171,6 @@ const tableData = reactive<{ list: Types.OperLogVO[]; total: number }>({
 
 // 初始化
 onMounted(async () => {
-  await getOrgList();
   search();
 });
 
@@ -223,28 +225,10 @@ const handleCurrentChange = (val: number) => {
   search();
 };
 
-/** 门店列表 */
-const orgList = ref<OrgInfo[]>([]);
-
-/**
- * 获取门店列表
- */
-const getOrgList = async () => {
-  loading.value = true;
-  try {
-    const res = await reqOrgList();
-    const data = res.data;
-    orgList.value = data.filter((item) => !item?.orgCode.includes('Test'));
-  } catch (error) {
-  } finally {
-    loading.value = false;
-  }
-};
-
 // 门店映射计算属性
 const orgMap = computed(() => {
   const map = new Map();
-  orgList.value.forEach((item: any) => {
+  masterDataStore.orgList.forEach((item: any) => {
     map.set(item.id, item.orgName);
   });
   return map;
@@ -252,7 +236,7 @@ const orgMap = computed(() => {
 
 // 格式化门店显示
 const formatOrgId = (orgId: any) => {
-  return orgMap.value.get(String(orgId)) || orgId || '';
+  return orgMap.value.get(orgId || 0);
 };
 </script>
 
