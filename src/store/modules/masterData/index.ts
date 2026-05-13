@@ -149,7 +149,7 @@ export const useMasterDataStore = defineStore('MasterData', () => {
 
   /** 预加载轻量级列表（门店、角色），大列表按需加载 */
   const init = () => {
-    Promise.allSettled([getOrgList(), getRoleList()]);
+    Promise.allSettled([getOrgList(), getRoleList(), getUserList()]);
   };
 
   const $reset = () => {
