@@ -10,6 +10,7 @@ lerna-debug.log*
 node_modules
 dist-ssr
 *.local
+dist*
 dist
 
 # Editor directories and files
@@ -23,3 +24,5 @@ dist
 *.sln
 *.sw?
 *.jar
+
+.claude/settings.json
