@@ -1,12 +1,27 @@
 // https://vitejs.dev/config/
 import { defineConfig, loadEnv } from 'vite';
+import type { Plugin } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import UnoCSS from 'unocss/vite';
 import path from 'path';
+import fs from 'fs';
 //引入svg需要用到插件
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 //mock插件提供方法
 import { viteMockServe } from 'vite-plugin-mock';
+
+/** 构建时生成 version.json，用于版本更新检测 */
+function versionJsonPlugin(): Plugin {
+  return {
+    name: 'version-json',
+    apply: 'build',
+    closeBundle() {
+      const outDir = path.resolve(__dirname, 'dist');
+      const version = Date.now().toString();
+      fs.writeFileSync(path.join(outDir, 'version.json'), JSON.stringify({ version }));
+    },
+  };
+}
 
 export default defineConfig(({ command, mode }) => {
   //获取各种环境下的对应的变量
@@ -23,6 +38,7 @@ export default defineConfig(({ command, mode }) => {
       viteMockServe({
         localEnabled: command === 'serve', //保证开发阶段可以使用mock接口
       }),
+      versionJsonPlugin(),
     ],
     resolve: {
       alias: {
