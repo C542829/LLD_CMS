@@ -80,7 +80,7 @@ const props = withDefaults(defineProps<Props>(), {
   emitObject: false,
   filterable: true,
   placement: 'bottom',
-  status: Status.enabled,
+  status: Status.Enabled,
   defaultProps: () => ({
     label: 'name',
     value: 'id',

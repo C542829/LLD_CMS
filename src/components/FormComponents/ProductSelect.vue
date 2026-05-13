@@ -70,7 +70,7 @@ const props = withDefaults(defineProps<Props>(), {
   emitObject: false,
   filterable: true,
   placement: 'bottom',
-  productStatus: Status.enabled,
+  productStatus: Status.Enabled,
   showCode: false,
   defaultProps: () => ({
     label: 'productName',

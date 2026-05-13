@@ -11,19 +11,15 @@ enum API {
   UPDATE_STATUS_URL = '/server/item/update-status',
 }
 
-/**
- * 查询服务项目列表
- */
 export const reqServiceItemList = (
-  params: Types.ServerItemRequest = {
-    itemStatus: 0,
-  },
+  params: Types.ServerItemRequest = { itemStatus: 0 },
 ): ApiResponse<Types.ServerItemVO[]> => get(API.LIST_URL, params, { addOrgId: true });
 
-export const reqServiceItemInfo = (id: number) => get(API.INFO_URL, { id });
+export const reqServiceItemInfo = (id: number): ApiResponse<Types.ServerItemVO> => get(API.INFO_URL, { id });
 
-export const reqAddServiceItem = (data = {}) => post(API.ADD_URL, data);
+export const reqAddServiceItem = (data: Types.ServerItemCreateDTO): ApiResponse<string> => post(API.ADD_URL, data);
 
-export const reqUpdateServiceItem = (data = {}) => put(API.UPDATE_URL, data);
+export const reqUpdateServiceItem = (data: Types.ServerItemUpdateDTO): ApiResponse<string> => put(API.UPDATE_URL, data);
 
-export const reqUpdateServiceItemStatus = (data = {}) => put(API.UPDATE_STATUS_URL, data, { form_urlencoded: true });
+export const reqUpdateServiceItemStatus = (data: Types.UpdateServerItemStatusDTO): ApiResponse<string> =>
+  put(API.UPDATE_STATUS_URL, data, { form_urlencoded: true });

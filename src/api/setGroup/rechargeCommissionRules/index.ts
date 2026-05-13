@@ -1,42 +1,35 @@
-import { get, post, put, del } from '@/utils/request';
+import { get, post, put } from '@/utils/request';
+import * as Types from './types';
+
+export { Types };
 
 enum API {
-  /** 获取充值提成规则列表 */
   LIST_URL = '/server/recharge-role/query-list',
-  /** 添加充值提成规则 */
   ADD_URL = '/server/recharge-role/add-role',
-  /** 更新充值提成规则 */
   UPDATE_URL = '/server/recharge-role/update-role',
-  /** 更新充值提成规则状态 */
-  UPDATE_STATUS = `/server/recharge-role/update-status`,
-  /** 获取默认充值提成规则 */
-  GET_DEFAULT = `/server/recharge-role/get-default`,
-  /** 设置默认充值提成规则 */
-  SET_DEFAULT = `/server/recharge-role/set-default/{roleId}`,
+  UPDATE_STATUS = '/server/recharge-role/update-status',
+  GET_DEFAULT = '/server/recharge-role/get-default',
+  SET_DEFAULT = '/server/recharge-role/set-default/{roleId}',
 }
 
 const roleIdStr = '{roleId}';
 
-export const reqRechargeCommissionRulesList = (params = {}) => get(API.LIST_URL, params);
+export const reqRechargeCommissionRulesList = (
+  params: Types.RechargeRoleQueryParams = {},
+): ApiResponse<Types.RechargeRoleVO[]> => get(API.LIST_URL, params);
 
-export const reqAddRechargeCommissionRules = (data = {}) => post(API.ADD_URL, data);
+export const reqAddRechargeCommissionRules = (data: Types.RechargeRoleCreateDTO): ApiResponse<string> =>
+  post(API.ADD_URL, data);
 
-export const reqUpdateRechargeCommissionRules = (data = {}) => put(API.UPDATE_URL, data);
+export const reqUpdateRechargeCommissionRules = (data: Types.RechargeRoleUpdateDTO): ApiResponse<string> =>
+  put(API.UPDATE_URL, data);
 
-/**
- * 获取默认充值提成规则
- * @returns
- */
-export const reqDefaultCommissionRule = () => {
-  return get(API.GET_DEFAULT);
-};
+export const reqUpdateRechargeRoleStatus = (data: Types.UpdateRechargeRoleStatusDTO): ApiResponse<string> =>
+  put(API.UPDATE_STATUS, data, { form_urlencoded: true });
 
-/**
- * 设置默认充值提成规则
- * @param ruleId 提成规则ID
- * @returns
- */
-export const reqSetDefaultCommissionRule = (ruleId: number) => {
+export const reqDefaultCommissionRule = (): ApiResponse<Types.RechargeRoleVO> => get(API.GET_DEFAULT);
+
+export const reqSetDefaultCommissionRule = (ruleId: number): ApiResponse<string> => {
   const url = API.SET_DEFAULT.replace(roleIdStr, ruleId.toString());
   return put(url);
 };

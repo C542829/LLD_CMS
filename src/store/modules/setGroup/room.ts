@@ -58,8 +58,8 @@ export const useRoomStore = defineStore('Room', () => {
   const setRoomList = async () => {
     settingStore.loading = true;
     // 获取房间列表
-    const res = await reqRoomList(searchParams.value);
-    let data = parseResList(res);
+    const res = await reqRoomList();
+    const data = parseResList(res);
     // 处理数据
     roomList.value = data;
     settingStore.loading = false;

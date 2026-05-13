@@ -96,13 +96,13 @@ export const searchEmployedOptions = [{ value: '', label: '全部状态' }, ...e
 // #region 状态选项
 
 export enum Status {
-  enabled = 0,
-  disabled = 1,
+  Enabled = 0,
+  Disabled = 1,
 }
 
 export const StatusMap = {
-  [Status.enabled]: '启用',
-  [Status.disabled]: '禁用',
+  [Status.Enabled]: '启用',
+  [Status.Disabled]: '禁用',
 };
 
 /**
@@ -110,8 +110,8 @@ export const StatusMap = {
  */
 export const statusOptions = [
   { value: '', label: '全部状态' },
-  { value: Status.enabled, label: StatusMap[Status.enabled] },
-  { value: Status.disabled, label: StatusMap[Status.disabled] },
+  { value: Status.Enabled, label: StatusMap[Status.Enabled] },
+  { value: Status.Disabled, label: StatusMap[Status.Disabled] },
 ];
 // #endregion 状态选项
 

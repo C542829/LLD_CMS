@@ -8,7 +8,7 @@
     <!-- 表格组件 -->
     <Card padding="0">
       <PaginationTable
-        v-loading="settingStore.loading && !dialog.visible"
+        v-loading="loading"
         :element-loading-text="LOADING_MSG"
         :data="tableData.list"
         :total="tableData.total"
@@ -41,7 +41,7 @@
   <Dialog v-model="dialog.visible" :title="dialog.title" center>
     <ShowDetail
       :data="dialog.data"
-      v-loading="settingStore.loading && dialog.visible"
+      v-loading="detailLoading"
       :element-loading-text="LOADING_MSG"
     />
   </Dialog>
@@ -53,28 +53,28 @@ import ShowDetail from '@/views/setGroup/stock/components/ShowDetail.vue';
 import { ref, reactive, onMounted } from 'vue';
 import { amountFormatter } from '@/utils/formatter';
 import { LOADING_MSG } from '@/utils/constants';
-import { useSettingStore } from '@/store/modules/acl/setting';
-import { useStockStore } from '@/store/modules/setGroup/stock';
-const settingStore = useSettingStore();
-const store = useStockStore();
+import { reqStockLogList, reqInStockInfo, reqOutStockInfo } from '@/api/setGroup/stock';
+import { type SearchParams } from '@/api/setGroup/stock/type';
+import { parseResObj } from '@/utils/parseResponse';
 
-onMounted(() => {
-  search();
-});
-
+const loading = ref(false);
+const detailLoading = ref(false);
 const tableData = reactive<any>({ total: 0, list: [] });
-
-const searchParams = ref<any>({
+const searchParams = ref<SearchParams>({
   pageNum: 1,
   pageSize: 20,
 });
 
-const search = async () => {
-  settingStore.loading = true;
-  const data: any = await store.getStockLogList(searchParams.value);
-  tableData.total = data.total || 0;
-  tableData.list = data.rows || [];
-  settingStore.loading = false;
+const fetchList = async () => {
+  loading.value = true;
+  try {
+    const res = await reqStockLogList(searchParams.value);
+    const data = parseResObj(res);
+    tableData.total = data?.total || 0;
+    tableData.list = data?.rows || [];
+  } finally {
+    loading.value = false;
+  }
 };
 
 const handleSearchParams = (params: any) => {
@@ -82,18 +82,17 @@ const handleSearchParams = (params: any) => {
   searchParams.value.orderCode = params.orderCode;
   searchParams.value.startTime = params.startTime;
   searchParams.value.endTime = params.endTime;
-  search();
+  fetchList();
 };
 
-// 处理分页变化
 const handleSizeChange = (val: number) => {
   searchParams.value.pageSize = val;
-  search();
+  fetchList();
 };
 
 const handleCurrentChange = (val: number) => {
   searchParams.value.pageNum = val;
-  search();
+  fetchList();
 };
 
 const dialog = reactive({
@@ -103,20 +102,27 @@ const dialog = reactive({
 });
 
 const showDetail = async (row: any) => {
-  settingStore.loading = true;
   dialog.visible = true;
-
-  const { orderType, orderCode } = row;
-  if (orderType === '入库') {
-    dialog.title = '入库详情';
-    dialog.data = await store.getInStockInfo(orderCode);
-  } else {
-    dialog.title = '出库详情';
-    dialog.data = await store.getOutStockInfo(orderCode);
+  detailLoading.value = true;
+  try {
+    const { orderType, orderCode } = row;
+    if (orderType === '入库') {
+      dialog.title = '入库详情';
+      const res = await reqInStockInfo(orderCode);
+      dialog.data = parseResObj(res) || {};
+    } else {
+      dialog.title = '出库详情';
+      const res = await reqOutStockInfo({ orderCode });
+      dialog.data = parseResObj(res) || {};
+    }
+  } finally {
+    detailLoading.value = false;
   }
-
-  settingStore.loading = false;
 };
+
+onMounted(() => {
+  fetchList();
+});
 </script>
 
 <style scoped lang="scss"></style>

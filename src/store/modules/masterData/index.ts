@@ -125,13 +125,26 @@ export const useMasterDataStore = defineStore('MasterData', () => {
     user: userList,
   };
 
-  /** 清除指定列表缓存，下次访问时自动重新加载；不传 key 则清除全部 */
-  const invalidate = (key?: string) => {
-    if (key && listMap[key]) {
-      listMap[key].value = [];
+  /** 清除指定列表缓存并立即重新加载；不传 key 则清除全部 */
+  const invalidate = async (key?: string) => {
+    if (key && fetcherMap[key]) {
+      await fetcherMap[key]();
     } else if (!key) {
       $reset();
     }
+  };
+
+  /** 缓存 key → 重新获取函数映射 */
+  const fetcherMap: Record<string, () => Promise<any>> = {
+    ticket: () => getTicketList(true),
+    active: () => getActiveList(true),
+    product: () => getProductList(true),
+    serviceItem: () => getServiceItemList(true),
+    package: () => getPackageList(true),
+    treatmentCoupon: () => getTreatmentCouponList(true),
+    org: () => getOrgList(true),
+    role: () => getRoleList(true),
+    user: () => getUserList(true),
   };
 
   /** 预加载轻量级列表（门店、角色），大列表按需加载 */

@@ -3,14 +3,14 @@
     <!-- 搜索组件区域 -->
     <Card class="operation-card">
       <div class="header-container">
-        <el-button type="primary" @click="showDrawer(0)" class="add-button">添加产品</el-button>
+        <el-button type="primary" @click="showDrawer('add')" class="add-button">添加产品</el-button>
       </div>
       <div class="search-container">
         <!-- 产品状态 -->
         <div class="search-item">
           <label>
             <span>状态：</span>
-            <el-select v-model="store.search.productStatus" @change="search" class="w-100">
+            <el-select v-model="searchParams.productStatus" @change="fetchList" class="w-100">
               <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </label>
@@ -20,12 +20,12 @@
             <label>
               门店：
               <OrgSelect
-                v-model="store.search.orgId"
+                v-model="searchParams.orgId"
                 placeholder="门店"
                 class="w-120"
                 :multiple="false"
-                @change="search"
-                @clear="search"
+                @change="fetchList"
+                @clear="fetchList"
               />
             </label>
           </div>
@@ -34,7 +34,7 @@
         <div class="search-item">
           <label>
             <span>分类：</span>
-            <el-select v-model="store.search.category" clearable @change="search" class="w-100">
+            <el-select v-model="searchParams.category" clearable @change="fetchList" class="w-100">
               <el-option
                 v-for="item in categoryList"
                 :key="item.itemValue"
@@ -47,16 +47,16 @@
         <!-- 搜索框 -->
         <div class="search-item">
           <el-input
-            v-model="store.search.keyWord"
-            @keydown.enter="search"
-            @clear="search"
+            v-model="searchParams.keyWord"
+            @keydown.enter="fetchList"
+            @clear="fetchList"
             :prefix-icon="Search"
             placeholder="编码 | 产品名称"
             class="w-240"
             clearable
           >
             <template #append>
-              <el-button type="primary" @click="search">搜索</el-button>
+              <el-button type="primary" @click="fetchList">搜索</el-button>
             </template>
           </el-input>
         </div>
@@ -66,8 +66,8 @@
     <!-- 表格组件 -->
     <Card padding="0px">
       <PaginationTable
-        v-loading="settingStore.loading"
-        :data="store.tableData"
+        v-loading="loading"
+        :data="tableData"
         :element-loading-text="LOADING_MSG"
         :row-class-name="getRowClassName"
         :showPagination="false"
@@ -75,7 +75,7 @@
         <el-table-column type="index" label="序号" width="60" />
         <el-table-column prop="orgs" label="关联门店" min-width="50">
           <template #default="{ row }">
-            {{ row.orgs.map((org: OrgInfo) => org.orgName).join('、') }}
+            {{ row.orgs?.map((org: any) => org.orgName).join('、') }}
           </template>
         </el-table-column>
         <el-table-column prop="category" label="产品分类" min-width="50" />
@@ -92,9 +92,19 @@
         <el-table-column prop="isDiscount" label="参与折扣卡打折" :formatter="isDiscountMap" min-width="60" />
         <el-table-column label="操作" min-width="80">
           <template #default="{ row }">
-            <el-button @click="showDrawer(2, row)" link type="info">详情</el-button>
-            <el-button @click="showDrawer(1, row)" :disabled="!!row.productStatus" link type="primary">编辑</el-button>
-            <el-button @click="store.updateStatus(row)" v-if="row.productStatus" link type="success">启用</el-button>
+            <el-button @click="showDrawer('view', row)" link type="info">详情</el-button>
+            <el-button @click="showDrawer('edit', row)" :disabled="!!row.productStatus" link type="primary">
+              编辑
+            </el-button>
+            <el-button
+              @click="handleUpdateStatus(row)"
+              v-if="row.productStatus"
+              :loading="row.loading"
+              link
+              type="success"
+            >
+              启用
+            </el-button>
             <el-button @click="showConfirm(row)" v-else link type="warning">禁用</el-button>
           </template>
         </el-table-column>
@@ -103,113 +113,124 @@
   </div>
 
   <!-- 抽屉表单 -->
-  <Drawer v-model="drawer.visible" :title="drawer.title" @closed="handleDrawerClose">
-    <!-- 表单 -->
-    <ProductForm :disabled="drawer.disabled" @close-drawer="drawer.visible = false" />
-    <!-- 抽屉操作按钮 -->
-    <div v-show="drawer.disabled" class="drawer-buttons">
-      <el-button @click="drawer.visible = false">取消</el-button>
-    </div>
-  </Drawer>
+  <DrawerForm v-model="drawerVisible" :type="drawerType" :data="currentRow" @success="refreshList" />
 </template>
 
 <script setup lang="ts">
-import ProductForm from './form.vue';
+import Message from '@/components/Message';
+import MessageBox from '@/components/MessageBox';
+import DrawerForm from './components/DrawerForm.vue';
 import OrgSelect from '@/components/FormComponents/OrgSelect.vue';
 import { Search } from '@element-plus/icons-vue';
-import { ref, onMounted, inject, reactive } from 'vue';
-import { statusOptions, DictCode } from '@/enums/index';
+import { ref, reactive, onMounted, inject } from 'vue';
+import { statusOptions, DictCode, Status } from '@/enums/index';
 import { amountFormatter, isDiscountMap } from '@/utils/formatter';
 import { LOADING_MSG } from '@/utils/constants';
-import { useSettingStore } from '@/store/modules/acl/setting';
+import { type Types, reqProductList, reqUpdateStatus } from '@/api/setGroup/product';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
 import { useDictStore } from '@/store/modules/dict/index';
-import { useProductStore } from '@/store/modules/setGroup/product';
 import useUserStore from '@/store/modules/acl/user';
+
 const userStore = useUserStore();
-const settingStore = useSettingStore();
 const dictStore = useDictStore();
-const store = useProductStore();
+const masterDataStore = useMasterDataStore();
 
-// 引入消息提示组件
-const $MessageBox: any = inject('$MessageBox');
-
-onMounted(() => {
-  search();
+// 本地状态
+const loading = ref(false);
+const tableData = ref<Types.ProductInfoVO[]>([]);
+const searchParams = reactive<Types.ReqParams>({
+  keyWord: '',
+  productStatus: 0,
+  category: '',
+  orgId: '',
 });
 
-// 搜索产品
-const search = () => {
-  if (store.search.category == undefined) {
-    store.search.category = '';
+// 抽屉状态
+const drawerVisible = ref(false);
+const drawerType = ref<DialogType>('add');
+const currentRow = ref<Types.ProductInfoVO | undefined>(undefined);
+
+// 列表查询
+const fetchList = async () => {
+  if (searchParams.category === undefined) searchParams.category = '';
+  if (searchParams.productStatus === undefined) searchParams.productStatus = '' as any;
+  if (searchParams.orgId === undefined) searchParams.orgId = '' as any;
+
+  loading.value = true;
+  try {
+    const res = await reqProductList(searchParams);
+    tableData.value = res.data || [];
+  } finally {
+    loading.value = false;
   }
-  if (store.search.productStatus == undefined) {
-    store.search.productStatus = '';
-  }
-  if (store.search.orgId === undefined) {
-    store.search.orgId = '';
-  }
-  store.setTableData();
 };
 
-// 禁用产品
-const showConfirm = async (row: any) => {
-  const result = await $MessageBox.confirm({
+// 刷新列表（DrawerForm 增改成功回调）
+const refreshList = () => {
+  fetchList();
+  masterDataStore.invalidate('product');
+};
+
+// 打开抽屉
+const showDrawer = (type: DialogType, row?: Types.ProductInfoVO) => {
+  drawerType.value = type;
+  currentRow.value = row;
+  drawerVisible.value = true;
+};
+
+// 状态更新
+const handleUpdateStatus = async (row: Types.ProductInfoVO) => {
+  try {
+    row.productStatus === Status.Disabled && (row.loading = true);
+    const res = await reqUpdateStatus({
+      id: row.id!,
+      status: row.productStatus === Status.Enabled ? Status.Disabled : Status.Enabled,
+    });
+    if (res.code === 10000) {
+      Message.success('操作成功');
+      fetchList();
+      masterDataStore.invalidate('product');
+    }
+  } catch (error) {
+    console.error(error);
+  } finally {
+    row.loading = false;
+  }
+};
+
+// 禁用确认
+const showConfirm = async (row: Types.ProductInfoVO) => {
+  const result = await MessageBox.confirm({
     title: '确认操作',
     message: `你确定要禁用产品【${row.productName}】吗？`,
     type: 'warning',
   });
-  result && store.updateStatus(row);
+  result && handleUpdateStatus(row);
 };
 
-// 抽屉标题
-const drawerTitles = ['新增产品信息', '修改产品信息', '产品信息'];
-const drawer = reactive({
-  title: '新增产品信息',
-  visible: false,
-  disabled: false,
-});
-
-// 打开抽屉
-const showDrawer = (handleIndex: number, row?: any) => {
-  row?.id ? (store.formData = { ...row }) : store.resetFormData();
-  handleIndex === 2 && (drawer.disabled = true);
-  drawer.title = drawerTitles[handleIndex];
-  drawer.visible = true;
-};
-
-// 关闭抽屉触发
-const handleDrawerClose = () => {
-  // 当抽屉关闭时重置表单
-  store.resetFormData();
-  // 去除预览禁用
-  drawer.disabled = false;
-};
-
+// 字典数据
 const unitList = ref<any>([]);
 const categoryList = ref<any>([]);
 const getEnumList = async () => {
   unitList.value = await dictStore.getDictItems(DictCode.UNIT);
   categoryList.value = await dictStore.getDictItems(DictCode.PRODUCT_CATEGORY);
 };
-getEnumList();
 
-/**
- * 单位格式化
- * @param row 行数据
- * @param column 列数据
- * @param cellValue 单元格值
- * @param index 行索引
- * @returns 单位名称
- */
-const unitFormatter = (row: any, column: any, cellValue: number, index: number) => {
+// 单位格式化
+const unitFormatter = (row: any, column: any, cellValue: number) => {
   const unit = unitList.value.find((item: any) => item.itemValue === cellValue);
   return unit?.itemLabel || '-';
 };
 
 // 设置行样式
 const getRowClassName = ({ row }: { row: { productStatus: number } }) => {
-  return row.productStatus === 1 ? 'disabled-row' : '';
+  return row.productStatus === Status.Disabled ? 'disabled-row' : '';
 };
+
+onMounted(() => {
+  fetchList();
+  getEnumList();
+});
 </script>
 
 <style scoped lang="scss">

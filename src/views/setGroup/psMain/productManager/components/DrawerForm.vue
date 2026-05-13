@@ -1,33 +1,34 @@
 <template>
-  <div>
+  <Drawer v-model="drawerVisible" :title="drawerTitle" @closed="handleDrawerClose">
     <Form
-      :model="store.formData"
+      :model="formdata"
       :rules="formRules"
-      :showButtons="!disabled"
-      :disabled="disabled"
+      :showButtons="!formDisabled"
+      :disabled="formDisabled"
+      :loading="submitLoading"
       @submit="handleFormSubmit"
       @reset="handleFormReset"
     >
       <!-- 关联门店 -->
       <template v-if="userStore.isAdmin">
         <el-form-item label="关联门店" prop="orgIds">
-          <OrgSelect v-model="store.formData.orgIds" />
+          <OrgSelect v-model="formdata.orgIds" />
         </el-form-item>
       </template>
 
       <!-- 产品编码 -->
       <el-form-item label="产品编码" prop="productEncode">
-        <el-input v-model="store.formData.productEncode" class="w-240" placeholder="请输入产品编码" clearable />
+        <el-input v-model="formdata.productEncode" class="w-240" placeholder="请输入产品编码" clearable />
       </el-form-item>
 
       <!-- 产品名称 -->
       <el-form-item label="产品名称" prop="productName">
-        <el-input v-model="store.formData.productName" class="w-240" placeholder="请输入产品名称" clearable />
+        <el-input v-model="formdata.productName" class="w-240" placeholder="请输入产品名称" clearable />
       </el-form-item>
 
       <!-- 产品单位 -->
       <el-form-item label="产品单位" prop="unit">
-        <el-select v-model="store.formData.unit" placeholder="选择产品单位" style="width: 160px; margin-right: 15px">
+        <el-select v-model="formdata.unit" placeholder="选择产品单位" style="width: 160px; margin-right: 15px">
           <el-option
             v-for="item in unitOptions"
             :key="item.itemValue"
@@ -40,11 +41,7 @@
 
       <!-- 产品分类 -->
       <el-form-item label="产品分类" prop="category">
-        <el-select
-          v-model="store.formData.category"
-          placeholder="选择产品分类"
-          style="width: 160px; margin-right: 15px"
-        >
+        <el-select v-model="formdata.category" placeholder="选择产品分类" style="width: 160px; margin-right: 15px">
           <el-option
             v-for="item in productCategoryList"
             :key="item.itemValue"
@@ -59,12 +56,12 @@
       <el-form-item label="价格设置">
         <Card>
           <el-form-item label="标准价：" prop="productPrice">
-            <el-input-number v-model="store.formData.productPrice" :controls="false" class="w-130">
+            <el-input-number v-model="formdata.productPrice" :controls="false" class="w-130">
               <template #suffix>元</template>
             </el-input-number>
           </el-form-item>
           <el-form-item label="会员价：" prop="vipProductPrice">
-            <el-input-number v-model="store.formData.vipProductPrice" :controls="false" class="w-130">
+            <el-input-number v-model="formdata.vipProductPrice" :controls="false" class="w-130">
               <template #suffix>元</template>
             </el-input-number>
           </el-form-item>
@@ -73,34 +70,34 @@
 
       <!-- 允许打折 -->
       <el-form-item label="允许打折" prop="isDiscount">
-        <el-switch v-model="store.formData.isDiscount" :active-value="IsDiscount.Yes" :inactive-value="IsDiscount.No" />
+        <el-switch v-model="formdata.isDiscount" :active-value="IsDiscount.Yes" :inactive-value="IsDiscount.No" />
       </el-form-item>
 
       <!-- 提成类型 -->
       <el-form-item label="提成类型" prop="commissionType">
-        <el-radio-group v-model="store.formData.commissionType">
+        <el-radio-group v-model="formdata.commissionType">
           <el-radio v-for="item in commissionTypeOptions" :value="item.value" :border="true">{{ item.label }}</el-radio>
         </el-radio-group>
       </el-form-item>
 
       <!-- 固定金额 -->
-      <template v-if="store.formData.commissionType === CommissionType.FixedAmount">
+      <template v-if="formdata.commissionType === CommissionType.FixedAmount">
         <el-form-item label="提成值" prop="commissionValue">
-          <el-input-number v-model="store.formData.commissionValue" :controls="false" class="w-120">
+          <el-input-number v-model="formdata.commissionValue" :controls="false" class="w-120">
             <template #suffix>元</template>
           </el-input-number>
         </el-form-item>
       </template>
 
       <!-- 比例提成 -->
-      <template v-if="store.formData.commissionType === CommissionType.Proportion">
+      <template v-if="formdata.commissionType === CommissionType.Proportion">
         <el-form-item label="提成比例" prop="commissionValue" style="margin-bottom: 15px">
-          <el-input-number v-model="store.formData.commissionValue" :controls="false" class="w-120">
+          <el-input-number v-model="formdata.commissionValue" :controls="false" class="w-120">
             <template #suffix>%</template>
           </el-input-number>
         </el-form-item>
         <el-form-item label="价格类型" prop="commissionBase">
-          <el-select v-model="store.formData.commissionBase" class="w-120">
+          <el-select v-model="formdata.commissionBase" class="w-120">
             <el-option v-for="item in commissionOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
@@ -109,7 +106,7 @@
       <!-- 其他描述 -->
       <el-form-item label="其他描述">
         <el-input
-          v-model="store.formData.remark"
+          v-model="formdata.remark"
           :autosize="{ minRows: 2, maxRows: 4 }"
           class="w-240"
           type="textarea"
@@ -118,6 +115,11 @@
       </el-form-item>
     </Form>
 
+    <!-- 抽屉操作按钮 -->
+    <div v-show="formDisabled" class="drawer-buttons">
+      <el-button @click="drawerVisible = false">取消</el-button>
+    </div>
+
     <!-- 枚举管理dialog -->
     <EnumHandler
       v-model="enumDialog.visible"
@@ -125,45 +127,108 @@
       :dictCode="enumDialog.dictCode"
       @refresh="initEnum"
     />
-  </div>
+  </Drawer>
 </template>
 
 <script setup lang="ts">
+import Message from '@/components/Message';
 import EnumHandler from '@/components/EnumHandler/index.vue';
-import { ref, reactive, onMounted } from 'vue';
-import { commissionOptions, CommissionType, IsDiscount, commissionTypeOptions } from '@/enums/index';
-// 引入数据仓库
-import { useProductStore } from '@/store/modules/setGroup/product';
+import OrgSelect from '@/components/FormComponents/OrgSelect.vue';
+import { ref, reactive, computed, watch, onMounted } from 'vue';
+import { cloneDeep } from 'lodash';
+import { commissionOptions, CommissionType, IsDiscount, commissionTypeOptions, DictCode, Status } from '@/enums/index';
+import { type Types, reqAddProduct, reqUpdateProduct } from '@/api/setGroup/product';
 import useUserStore from '@/store/modules/acl/user';
 import { useDictStore } from '@/store/modules/dict/index';
-import { DictCode } from '@/enums/index';
-const store = useProductStore();
-const dictStore = useDictStore();
+
 const userStore = useUserStore();
+const dictStore = useDictStore();
 
-// 定义组件触发的事件 - 关闭抽屉
-const $emit = defineEmits(['close-drawer']);
-
-// 定义组件接收的props - 是否禁用表单
-defineProps(['disabled']);
-
-/**
- * 表单提交处理函数
- * @param model 表单数据对象
- */
-const handleFormSubmit = async (model: any) => {
-  console.log(model);
-
-  const result = await store.update(model);
-  result && $emit('close-drawer');
+const DEFAULT_FORMDATA: Types.ProductDTO = {
+  id: undefined,
+  productEncode: '',
+  productName: '',
+  unit: '',
+  category: '',
+  productPrice: undefined,
+  vipProductPrice: undefined,
+  isDiscount: IsDiscount.Yes,
+  commissionType: CommissionType.FixedAmount,
+  commissionValue: undefined,
+  commissionBase: undefined,
+  remark: '',
+  productStatus: Status.Enabled,
+  orgIds: [],
 };
 
-/**
- * 表单重置处理函数
- * 调用数据仓库的重置表单数据方法
- */
+interface Props {
+  type: DialogType;
+  modelValue: boolean;
+  data?: Types.ProductInfoVO;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  type: 'add',
+  modelValue: false,
+});
+
+const emit = defineEmits(['update:model-value', 'close', 'success']);
+
+watch(
+  () => props.modelValue,
+  (newVal) => {
+    drawerVisible.value = newVal;
+  },
+);
+
+const drawerVisible = ref(false);
+const submitLoading = ref(false);
+const formdata = ref<Types.ProductDTO>(cloneDeep(DEFAULT_FORMDATA));
+
+const drawerTitle = computed(() => {
+  switch (props.type) {
+    case 'add':
+      formdata.value = cloneDeep(DEFAULT_FORMDATA);
+      return '新增产品信息';
+    case 'edit':
+      formdata.value = {
+        ...cloneDeep(props.data!),
+        orgIds: props.data!.orgs?.map((item: { id: number }) => item.id!) ?? [],
+      } as Types.ProductDTO;
+      return '修改产品信息';
+    default:
+      formdata.value = cloneDeep(props.data) as Types.ProductDTO;
+      return '产品信息';
+  }
+});
+
+const formDisabled = computed(() => props.type === 'view');
+
+const handleDrawerClose = () => {
+  emit('update:model-value', false);
+  emit('close');
+};
+
+const handleFormSubmit = async () => {
+  try {
+    submitLoading.value = true;
+    const res = formdata.value.id
+      ? await reqUpdateProduct(formdata.value as Types.ProductDTO)
+      : await reqAddProduct(formdata.value as Types.ProductDTO);
+    if (res.code === 10000) {
+      Message.success(formdata.value.id ? '更新成功' : '添加成功');
+      drawerVisible.value = false;
+      emit('success');
+    }
+  } catch (error) {
+    console.error(error);
+  } finally {
+    submitLoading.value = false;
+  }
+};
+
 const handleFormReset = () => {
-  store.resetFormData();
+  formdata.value = cloneDeep(DEFAULT_FORMDATA);
 };
 
 onMounted(() => {
@@ -171,7 +236,6 @@ onMounted(() => {
 });
 
 //#region 字典管理
-
 const unitOptions = ref<any>([]);
 const productCategoryList = ref<any>([]);
 const initEnum = async () => {
@@ -196,25 +260,11 @@ const productCategoryMgr = () => {
   enumDialog.dictCode = DictCode.PRODUCT_CATEGORY;
   enumDialog.visible = true;
 };
+//#endregion
 
-//#endregion 字典管理
-
-// 表单验证规则
 const formRules = {
   orgIds: [{ required: true, message: '请选择关联门店', trigger: 'blur' }],
-  productEncode: [
-    { required: true, message: '请输入产品编码', trigger: 'blur' },
-    // {
-    //   validator: (rule: any, value: string, callback: any) => {
-    //     const isExist = store.tableData.filter((item: any) => item.productEncode === value);
-    //     if (isExist.length > 1) {
-    //       callback(new Error('产品编码已存在'));
-    //     }
-    //     callback();
-    //   },
-    //   trigger: 'blur',
-    // },
-  ],
+  productEncode: [{ required: true, message: '请输入产品编码', trigger: 'blur' }],
   productName: [{ required: true, message: '请输入产品名称', trigger: 'blur' }],
   unit: [{ required: true, message: '请选择产品单位', trigger: 'blur' }],
   category: [{ required: true, message: '请选择产品分类', trigger: 'blur' }],

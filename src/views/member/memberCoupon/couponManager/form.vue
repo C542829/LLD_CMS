@@ -95,14 +95,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { CouponType, couponTypeOptions } from '@/enums/index';
-
-import { useCouponStore } from '@/store/modules/member/memberCoupon';
-import { useServiceItemStore } from '@/store/modules/setGroup/serviceItem';
 import useUserStore from '@/store/modules/acl/user';
 import ProductSelect from '@/components/FormComponents/ProductSelect.vue';
-const serviceItemStore = useServiceItemStore();
+import { ref, onMounted } from 'vue';
+import { CouponType, couponTypeOptions } from '@/enums/index';
+import { useCouponStore } from '@/store/modules/member/memberCoupon';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
+
+const masterDataStore = useMasterDataStore();
 const store = useCouponStore();
 const userStore = useUserStore();
 
@@ -122,7 +122,7 @@ const filteredServiceItemOptions = ref<any[]>([]);
  * 获取项目选项
  */
 const getServiceItemOptions = async () => {
-  const data = await serviceItemStore.getServiceItems();
+  const data = await masterDataStore.getServiceItemList();
   serviceItemOptions.value = data;
   filteredServiceItemOptions.value = data;
 };

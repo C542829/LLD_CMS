@@ -3,14 +3,14 @@
     <!-- 搜索组件区域 -->
     <Card class="operation-card">
       <div class="header-container">
-        <el-button type="primary" @click="showDrawer(0)" class="add-button">添加疗程券</el-button>
+        <el-button type="primary" @click="showDrawer('add')" class="add-button">添加疗程券</el-button>
       </div>
       <div class="search-container">
         <!-- 疗程券状态 -->
         <div class="search-item">
           <label>
             状态：
-            <el-select v-model="store.searchParams.status" @change="search" class="w-100">
+            <el-select v-model="searchParams.status" @change="fetchList" class="w-100">
               <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </label>
@@ -20,12 +20,12 @@
             <label>
               门店：
               <OrgSelect
-                v-model="store.searchParams.orgId"
+                v-model="searchParams.orgId"
                 placeholder="门店"
                 class="w-120"
                 :multiple="false"
-                @change="search"
-                @clear="search"
+                @change="fetchList"
+                @clear="fetchList"
               />
             </label>
           </div>
@@ -33,16 +33,16 @@
         <!-- 搜索框 -->
         <div class="search-item">
           <el-input
-            v-model="store.searchParams.cureTicketName"
+            v-model="searchParams.cureTicketName"
             :prefix-icon="Search"
             clearable
             class="w-240"
             placeholder="疗程券名称"
-            @keydown.enter="search"
-            @clear="search"
+            @keydown.enter="fetchList"
+            @clear="fetchList"
           >
             <template #append>
-              <el-button type="primary" @click="search">搜索</el-button>
+              <el-button type="primary" @click="fetchList">搜索</el-button>
             </template>
           </el-input>
         </div>
@@ -52,16 +52,16 @@
     <!-- 表格组件 -->
     <Card padding="0px">
       <PaginationTable
-        v-loading="settingStore.loading"
+        v-loading="loading"
         :element-loading-text="LOADING_MSG"
-        :data="store.dataList"
+        :data="tableData"
         :row-class-name="getRowClassName"
         :showPagination="false"
       >
         <el-table-column type="index" label="序号" width="60" />
         <el-table-column prop="orgs" label="关联门店" min-width="50">
           <template #default="{ row }">
-            {{ row.orgs.map((org: OrgInfo) => org.orgName).join('、') }}
+            {{ row.orgs?.map((org: any) => org.orgName).join('、') }}
           </template>
         </el-table-column>
         <el-table-column label="疗程券" min-width="60">
@@ -88,9 +88,11 @@
         </el-table-column>
         <el-table-column label="操作" min-width="50">
           <template #default="{ row }">
-            <el-button link type="info" @click="showDrawer(2, row)">详情</el-button>
-            <el-button link type="primary" :disabled="!!row.status" @click="showDrawer(1, row)">编辑</el-button>
-            <el-button link type="success" v-if="row.status" @click="store.updateDataStatus(row)">启用</el-button>
+            <el-button link type="info" @click="showDrawer('view', row)">详情</el-button>
+            <el-button link type="primary" :disabled="!!row.status" @click="showDrawer('edit', row)">编辑</el-button>
+            <el-button link type="success" v-if="row.status" :loading="row.loading" @click="handleUpdateStatus(row)">
+              启用
+            </el-button>
             <el-button link type="warning" v-else @click="showConfirm(row)">禁用</el-button>
           </template>
         </el-table-column>
@@ -99,89 +101,104 @@
   </div>
 
   <!-- 抽屉表单 -->
-  <Drawer v-model="drawer.visible" :title="drawer.title" destroy-on-close @closed="handleDrawerClose">
-    <!-- 表单 -->
-    <TreatmentCouponForm :disabled="drawer.disabled" @close-drawer="drawer.visible = false" />
-    <!-- 抽屉操作按钮 -->
-    <template v-if="drawer.disabled">
-      <div class="drawer-buttons">
-        <el-button @click="drawer.visible = false">取消</el-button>
-      </div>
-    </template>
-  </Drawer>
+  <DrawerForm v-model="drawerVisible" :type="drawerType" :data="currentRow" @success="refreshList" />
 </template>
 
 <script setup lang="ts">
-import TreatmentCouponForm from './form.vue';
+import Message from '@/components/Message';
+import MessageBox from '@/components/MessageBox';
+import DrawerForm from './components/DrawerForm.vue';
+import OrgSelect from '@/components/FormComponents/OrgSelect.vue';
 import { Search } from '@element-plus/icons-vue';
-import { ref, onMounted, inject, reactive } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { amountFormatter } from '@/utils/formatter';
-import { statusOptions, CommissionType } from '@/enums/index';
-import { cloneDeep } from 'lodash';
+import { statusOptions, CommissionType, Status } from '@/enums/index';
 import { LOADING_MSG } from '@/utils/constants';
-// 导入数据仓库
-import { useSettingStore } from '@/store/modules/acl/setting';
-import { useTreatmentCouponStore } from '@/store/modules/setGroup/treatmentCoupon';
+import { type Types, reqTreatmentCouponList, reqUpdateTreatmentCouponStatus } from '@/api/setGroup/treatmentCoupon';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
 import useUserStore from '@/store/modules/acl/user';
+
 const userStore = useUserStore();
-const settingStore = useSettingStore();
-const store = useTreatmentCouponStore();
+const masterDataStore = useMasterDataStore();
 
-// 引入消息提示组件
-const $MessageBox: any = inject('$MessageBox');
-
-// 初始化
-onMounted(() => {
-  search();
+// 本地状态
+const loading = ref(false);
+const tableData = ref<Types.CureTicketVO[]>([]);
+const searchParams = reactive<Types.CureTicketQueryParams>({
+  cureTicketName: '',
+  status: 0,
+  orgId: undefined,
 });
 
-// 搜索
-const search = () => {
-  if (store.searchParams.orgId === undefined) {
-    store.searchParams.orgId = '';
+// 抽屉状态
+const drawerVisible = ref(false);
+const drawerType = ref<DialogType>('add');
+const currentRow = ref<Types.CureTicketVO | undefined>(undefined);
+
+// 列表查询
+const fetchList = async () => {
+  loading.value = true;
+
+  if (searchParams.orgId === undefined) searchParams.orgId = '';
+
+  try {
+    const res = await reqTreatmentCouponList(searchParams);
+    tableData.value = res.data || [];
+  } finally {
+    loading.value = false;
   }
-  store.setDataList();
 };
 
-// 禁用
-const showConfirm = async (row: any) => {
-  const result = await $MessageBox.confirm({
+// 打开抽屉
+const showDrawer = (type: DialogType, row?: Types.CureTicketVO) => {
+  drawerType.value = type;
+  currentRow.value = row;
+  drawerVisible.value = true;
+};
+
+// 状态更新
+const handleUpdateStatus = async (row: Types.CureTicketVO) => {
+  try {
+    row.status === Status.Disabled && (row.loading = true);
+    const res = await reqUpdateTreatmentCouponStatus({
+      id: row.id!,
+      status: row.status === Status.Enabled ? Status.Disabled : Status.Enabled,
+    });
+    if (res.code === 10000) {
+      Message.success('操作成功');
+      fetchList();
+      masterDataStore.invalidate('treatmentCoupon');
+    }
+  } catch (error) {
+    console.error(error);
+  } finally {
+    row.loading = false;
+  }
+};
+
+// 禁用确认
+const showConfirm = async (row: Types.CureTicketVO) => {
+  const result = await MessageBox.confirm({
     title: '确认操作',
     message: `你确定要禁用疗程券【${row.name}】吗？`,
     type: 'warning',
   });
-  result && store.updateDataStatus(row);
+  result && handleUpdateStatus(row);
 };
 
-// 抽屉标题
-const drawerTitles = ['新增疗程券信息', '修改疗程券信息', '疗程券信息'];
-const drawer = reactive({
-  title: '新增疗程券信息',
-  visible: false,
-  disabled: false,
-});
-
-// 打开抽屉
-const showDrawer = (handleIndex: number, row: any = {}) => {
-  row.vipTicketList = row.ticketDetails;
-  handleIndex === 2 && (drawer.disabled = true);
-  handleIndex !== 0 ? (store.formData = cloneDeep(row)) : store.resetFormData();
-  drawer.title = drawerTitles[handleIndex];
-  drawer.visible = true;
-};
-
-// 关闭抽屉触发
-const handleDrawerClose = () => {
-  // 当抽屉关闭时重置表单
-  store.resetFormData();
-  // 去除预览禁用
-  drawer.disabled = false;
+const refreshList = () => {
+  fetchList();
+  masterDataStore.invalidate('treatmentCoupon');
 };
 
 // 设置行样式
 const getRowClassName = ({ row }: { row: { status: number } }) => {
-  return row.status ? 'disabled-row' : '';
+  return row.status === Status.Disabled ? 'disabled-row' : '';
 };
+
+onMounted(() => {
+  fetchList();
+});
 </script>
 
 <style scoped lang="scss">

@@ -98,20 +98,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch, inject, computed } from 'vue';
+import { ref, reactive, onMounted, watch, computed } from 'vue';
 import { Search } from '@element-plus/icons-vue';
 import { getUserInfo } from '@/utils/localStorageTools';
 
-import { useStockStore } from '@/store/modules/setGroup/stock';
-import { useProductStore } from '@/store/modules/setGroup/product';
+import { reqInStockAdd, reqOutStockAdd } from '@/api/setGroup/stock';
+import { reqProductList } from '@/api/setGroup/product';
+import { parseResList } from '@/utils/parseResponse';
 import useUserStore from '@/store/modules/acl/user';
 import { DictCode } from '@/enums';
+import Message from '@/components/Message';
 
-const store = useStockStore();
-const productStore = useProductStore();
 const userStore = useUserStore();
-
-const $Message: any = inject('$Message');
 
 const props = defineProps({
   handle: {
@@ -155,7 +153,12 @@ const getProductList = async () => {
   }
   const params = { productStatus: 0 };
   loading.value = true;
-  productList.value = await productStore.getProductList(params);
+  const res = await reqProductList(params);
+  const data = parseResList(res);
+  for (const item of data) {
+    item.orgIds = item.orgs.map((e: any) => e.id);
+  }
+  productList.value = data;
   loading.value = false;
 };
 
@@ -175,24 +178,23 @@ const formData = reactive<any>({
 
 const createOrder = async () => {
   if (formData.items.length === 0) {
-    $Message.warning('请选择产品');
+    Message.warning('请选择产品');
     return;
   }
   if (formData.operator === '') {
-    $Message.warning('请输入操作人');
+    Message.warning('请输入操作人');
     return;
   }
   btnLoading.value = true;
   try {
-    let result = false;
-    if (props.handle === 'in') {
-      result = await store.addInStock(formData);
-    } else {
-      result = await store.addOutStock(formData);
+    const apiFn = props.handle === 'in' ? reqInStockAdd : reqOutStockAdd;
+    const res = await apiFn(formData);
+    if (res.code === 10000) {
+      Message.success(props.handle === 'in' ? '新增入库成功' : '新增出库成功');
+      resetFormData();
+      await getProductList();
+      emit('submit');
     }
-    resetFormData();
-    await getProductList();
-    emit('submit');
   } catch (error) {
     console.error('创建出入库单失败:', error);
   } finally {
@@ -202,7 +204,7 @@ const createOrder = async () => {
 
 const addItem = (item: any) => {
   if (props.handle === 'out' && item.quantity == 0) {
-    $Message.warning('库存不足');
+    Message.warning('库存不足');
     return;
   }
 

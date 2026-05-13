@@ -25,7 +25,7 @@ enum API {
 export const reqProductList = (
   params: Types.ReqParams = {
     keyWord: '',
-    productStatus: Status.enabled,
+    productStatus: Status.Enabled,
   },
 ): ApiResponse<Types.ProductInfoVO[]> => get(API.LIST_URL, params, { addOrgId: true });
 

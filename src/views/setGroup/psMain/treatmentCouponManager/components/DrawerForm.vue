@@ -5,7 +5,7 @@
       :rules="formRules"
       :showButtons="!formDisabled"
       :disabled="formDisabled"
-      :loading="loading"
+      :loading="submitLoading"
       @submit="handleFormSubmit"
       @reset="handleFormReset"
     >
@@ -13,19 +13,6 @@
       <template v-if="userStore.isAdmin">
         <el-form-item label="关联门店" prop="orgIds">
           <OrgSelect v-model="formdata.orgIds" />
-          <!-- <el-select
-            v-model="formdata.orgIds"
-            placeholder="关联门店"
-            class="w-240"
-            value-key="id"
-            clearable
-            multiple
-            collapse-tags
-            collapse-tags-tooltip
-            :max-collapse-tags="1"
-          >
-            <el-option v-for="item in masterDataStore.orgList" :key="item.id" :label="item.orgName" :value="item.id" />
-          </el-select> -->
         </el-form-item>
       </template>
 
@@ -86,13 +73,14 @@
         </el-form-item>
       </template>
 
-      <el-form-item label="优惠券" prop="ticketIds">
+      <el-form-item label="优惠券" prop="vipTicketList">
         <MultipleSelect
           v-model="formdata.vipTicketList"
           :displayProps="defaultProps"
           @visible-change="visibleChange"
           value-key="vipTicketId"
           class="w-240"
+          filterable
         >
           <el-option v-for="item in couponOptions" :key="item.vipTicketId" :label="item.vipTicketName" :value="item" />
         </MultipleSelect>
@@ -109,38 +97,46 @@
       <el-button @click="drawerVisible = false">取消</el-button>
     </div>
   </Drawer>
-  <EnumHandler v-model="enumHandler.visible" :title="enumHandler.title" :dictCode="enumHandler.dictCode" />
 </template>
 
 <script setup lang="ts">
-import EnumHandler from '@/components/EnumHandler/index.vue';
-import { ref, reactive, onMounted, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { cloneDeep } from 'lodash';
-import { type Types } from '@/api/acl/role';
-import { type Types as UserTypes, reqAddUser, reqUpdateUser } from '@/api/user/index';
-import { DEFAULT_FORMDATA } from '../utils/index';
-import { sexOptions, employedOptions, maritalStatusOptions, educationOptions } from '@/enums/index';
-import { DictCode } from '@/enums/index';
-import { useDictStore } from '@/store/modules/dict/index';
+import { type Types, reqAddTreatmentCoupon, reqUpdateTreatmentCoupon } from '@/api/setGroup/treatmentCoupon';
+import { CommissionType, commissionTypeOptions, commissionOptions, Status } from '@/enums/index';
 import useUserStore from '@/store/modules/acl/user';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
 import Message from '@/components/Message';
 
 const userStore = useUserStore();
-const dictStore = useDictStore();
+const masterDataStore = useMasterDataStore();
 
-//#region 父子组件交互
+const DEFAULT_FORMDATA: Types.CureTicketCreateDTO & { id: number | null } = {
+  id: null,
+  remark: '',
+  name: '',
+  encode: '',
+  price: 0,
+  type: CommissionType.FixedAmount,
+  commissionValue: 0,
+  commissionBase: 1,
+  status: Status.Enabled,
+  vipTicketList: [],
+  orgIds: [],
+};
+
 interface Props {
   type: DialogType;
   modelValue: boolean;
-  roleList: Types.RoleInfoVo[];
-  data: UserInfo;
+  data?: Types.CureTicketVO;
 }
+
 const props = withDefaults(defineProps<Props>(), {
   type: 'add',
   modelValue: false,
-  roleList: () => [],
 });
-const emit = defineEmits(['update:model-value', 'close', 'close-drawer']);
+
+const emit = defineEmits(['update:model-value', 'close', 'success']);
 
 watch(
   () => props.modelValue,
@@ -149,147 +145,90 @@ watch(
   },
 );
 
-const drawerVisible = ref<boolean>(false);
+const drawerVisible = ref(false);
+const submitLoading = ref(false);
+const formdata = ref(cloneDeep(DEFAULT_FORMDATA));
 
 const drawerTitle = computed(() => {
   switch (props.type) {
     case 'add':
       formdata.value = cloneDeep(DEFAULT_FORMDATA);
-      return '新增人员信息';
+      return '新增疗程券信息';
     case 'edit':
-      formdata.value = cloneDeep(props.data);
-      formdata.value.roleId = props.data.role?.id;
-      formdata.value.orgIds = props.data.orgs?.map((item) => item.id);
-
-      return '修改人员信息';
+      formdata.value = {
+        ...cloneDeep(props.data!),
+        orgIds: props.data!.orgs?.map((item) => item.id!) ?? [],
+        vipTicketList: props.data!.ticketDetails ?? [],
+      } as any;
+      return '修改疗程券信息';
     default:
-      formdata.value = cloneDeep(props.data);
-      formdata.value.roleId = props.data.role?.id;
-      formdata.value.orgIds = props.data.orgs?.map((item) => item.id);
-      return '人员信息';
+      formdata.value = {
+        ...cloneDeep(props.data!),
+        orgIds: props.data!.orgs?.map((item) => item.id!) ?? [],
+        vipTicketList: props.data!.ticketDetails ?? [],
+      } as any;
+      return '疗程券信息';
   }
 });
 
-const formDisabled = computed(() => {
-  return props.type === 'view';
-});
+const formDisabled = computed(() => props.type === 'view');
 
 const handleDrawerClose = () => {
   emit('update:model-value', false);
   emit('close');
 };
 
-//#endregion 父子组件交互
+const handleFormSubmit = async () => {
+  try {
+    submitLoading.value = true;
+    const res = formdata.value.id
+      ? await reqUpdateTreatmentCoupon(formdata.value as Types.CureTicketUpdateDTO)
+      : await reqAddTreatmentCoupon(formdata.value as Types.CureTicketCreateDTO);
+    if (res.code === 10000) {
+      Message.success(formdata.value.id ? '更新成功' : '添加成功');
+      drawerVisible.value = false;
+      emit('success');
+    }
+  } catch (error) {
+    console.error(error);
+  } finally {
+    submitLoading.value = false;
+  }
+};
 
-onMounted(async () => {
-  initEnum();
-});
-
-//#region 表单
-
-const loading = ref(false);
-const formdata = ref<UserInfo>(cloneDeep(DEFAULT_FORMDATA));
-
-// 表单重置
 const handleFormReset = () => {
   formdata.value = cloneDeep(DEFAULT_FORMDATA);
 };
 
-// 表单提交
-const handleFormSubmit = async (model: any) => {
-  if (formdata.value.id) {
-    updateUser(formdata.value as UserTypes.UserDTO);
-  } else {
-    addUser(formdata.value as UserTypes.UserDTO);
+//#region 优惠券选择
+const couponOptions = ref<any[]>([]);
+const defaultProps = { label: 'vipTicketName', value: 'vipTicketNum' };
+
+const visibleChange = async (visible: boolean) => {
+  if (visible) {
+    const couponList = await masterDataStore.getTicketList();
+    couponOptions.value = couponList.map((item) => {
+      return {
+        vipTicketId: item.id,
+        vipTicketName: item.ticketName,
+        vipTicketNum: 1,
+      };
+    });
   }
 };
 
-/**
- * 新增员工
- * @param data 添加用户数据
- */
-const addUser = async (data: UserTypes.UserDTO) => {
-  try {
-    loading.value = true;
-    const res = await reqAddUser(data);
-    // console.log('添加用户成功：', res);
-    Message.success('添加用户成功');
-    drawerVisible.value = false;
-  } catch (error) {
-    console.error('添加用户失败：', error);
-  } finally {
-    loading.value = false;
-  }
-};
-
-/**
- * 修改员工
- * @param data 修改用户数据
- */
-const updateUser = async (data: UserTypes.UserDTO) => {
-  try {
-    loading.value = true;
-    const res = await reqUpdateUser(data);
-    // console.log('更新用户成功：', res);
-    Message.success('添加用户成功');
-    drawerVisible.value = false;
-  } catch (error) {
-    console.error('更新用户失败：', error);
-  } finally {
-    loading.value = false;
-  }
-};
-
-//#endregion 表单
-
-//#region 字典管理
-
-const deptList = ref<any>([]);
-const positionList = ref<any>([]);
-
-const initEnum = async () => {
-  deptList.value = await dictStore.getDictItems(DictCode.DEPARTMENT);
-  positionList.value = await dictStore.getDictItems(DictCode.POSITION);
-};
-
-const enumHandler = reactive({
-  title: '字典管理',
-  visible: false,
-  dictCode: '',
-  defaultData: <any>[],
+onMounted(() => {
+  visibleChange(true);
 });
+//#endregion
 
-const deptMgr = () => {
-  enumHandler.title = '部门管理';
-  enumHandler.dictCode = deptList?.value?.[0]?.dictCode || DictCode.DEPARTMENT;
-  enumHandler.visible = true;
-};
-
-const positionMgr = () => {
-  enumHandler.title = '职位管理';
-  enumHandler.dictCode = positionList?.value?.[0]?.dictCode || DictCode.POSITION;
-  enumHandler.visible = true;
-};
-
-//#endregion 字典管理
-
-// 表单验证规则
 const formRules = {
-  userCode: [{ required: true, message: '人员编号为必填项', trigger: 'blur' }],
-  userName: [
-    { required: true, message: '姓名为必填项', trigger: 'blur' },
-    { min: 2, max: 20, message: '姓名长度在2到20个字符之间', trigger: 'blur' },
-  ],
-  userNumber: [
-    { required: true, message: '手机号为必填项', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' },
-  ],
-  roleId: [{ required: true, message: '请选择人员角色', trigger: 'change' }],
-  userIdCard: [
-    { required: true, message: '姓名为必填项', trigger: 'blur' },
-    { pattern: /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/, message: '请输入正确的身份证号码', trigger: 'blur' },
-  ],
-  userAddress: [{ max: 200, message: '人员地址长度不能超过200个字符', trigger: 'blur' }],
-  userBirthday: [{ required: true, message: '出生日期为必填项', trigger: 'blur' }],
+  orgIds: [{ required: true, message: '请选择关联门店', trigger: 'blur' }],
+  encode: [{ required: true, message: '请输入疗程券编码', trigger: 'blur' }],
+  name: [{ required: true, message: '请输入疗程券名称', trigger: 'blur' }],
+  price: [{ required: true, message: '请输入疗程价', trigger: 'blur' }],
+  type: [{ required: true, message: '请选择提成类型', trigger: 'blur' }],
+  commissionValue: [{ required: true, message: '请输入提成值', trigger: 'blur' }],
+  commissionBase: [{ required: true, message: '请选择提成基准', trigger: 'blur' }],
 };
 </script>

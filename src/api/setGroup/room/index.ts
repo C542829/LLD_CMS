@@ -1,4 +1,7 @@
 import { get, post, put } from '@/utils/request';
+import * as Types from './types';
+
+export { Types };
 
 enum API {
   // 房间
@@ -14,20 +17,22 @@ enum API {
   BED_UPDATE_STATUS = '/room/bed/update-status',
 }
 
-// 房间管理模块接口方法
-export const reqRoomList = (params = {}) => get(API.LIST_URL, params);
+// 房间管理
+export const reqRoomList = (): ApiResponse<Types.RoomInfoVO[]> => get(API.LIST_URL);
 
-export const reqAddRoom = (data = {}) => post(API.ADD_URL, data);
+export const reqAddRoom = (data: Types.RoomCreateDTO): ApiResponse<string> => post(API.ADD_URL, data);
 
-export const reqUpdateRoom = (data = {}) => put(API.UPDATE_URL, data);
+export const reqUpdateRoom = (data: Types.RoomUpdateDTO): ApiResponse<string> => put(API.UPDATE_URL, data);
 
-// 床位管理模块接口方法
-export const reqBedListAll = (): ApiResponse<any> => get(API.BED_LIST_ALL);
+// 床位管理
+export const reqBedListAll = (): ApiResponse<Types.RoomBedVO[]> => get(API.BED_LIST_ALL);
 
-export const reqBedList = (params = {}) => get(API.BED_LIST, params);
+export const reqBedList = (params: Types.BedQueryParams): ApiResponse<Types.RoomBedVO[]> => get(API.BED_LIST, params);
 
-export const reqAddBed = (data = {}) => post(API.BED_ADD, data);
+export const reqAddBed = (data: Types.BedCreateDTO): ApiResponse<string> => post(API.BED_ADD, data);
 
-export const reqUpdateBed = (data = {}) => put(API.BED_UPDATE, data, { form_urlencoded: true });
+export const reqUpdateBed = (data: Types.UpdateBedNameDTO): ApiResponse<string> =>
+  put(API.BED_UPDATE, data, { form_urlencoded: true });
 
-export const reqUpdateBedStatus = (data = {}) => put(API.BED_UPDATE_STATUS, data, { form_urlencoded: true });
+export const reqUpdateBedStatus = (data: Types.UpdateBedStatusDTO): ApiResponse<string> =>
+  put(API.BED_UPDATE_STATUS, data, { form_urlencoded: true });

@@ -11,7 +11,7 @@
     <!-- 表格组件 -->
     <Card padding="0">
       <PaginationTable
-        v-loading="settingStore.loading && !createDialog.visible"
+        v-loading="loading"
         :element-loading-text="LOADING_MSG"
         :data="tableData.list"
         :total="tableData.total"
@@ -39,7 +39,7 @@
     <ShowDetail :data="dialog.data" />
   </Dialog>
 
-  <!-- 新建入库单 -->
+  <!-- 新建出库单 -->
   <Dialog
     v-model="createDialog.visible"
     :title="createDialog.title"
@@ -59,32 +59,27 @@ import CreateOrder from '@/views/setGroup/stock/components/CreateOrder.vue';
 import { ref, reactive, onMounted } from 'vue';
 import { amountFormatter } from '@/utils/formatter';
 import { LOADING_MSG } from '@/utils/constants';
-import { useSettingStore } from '@/store/modules/acl/setting';
-import { useStockStore } from '@/store/modules/setGroup/stock';
-const settingStore = useSettingStore();
-const store = useStockStore();
+import { reqOutStockList } from '@/api/setGroup/stock';
+import { type SearchParams } from '@/api/setGroup/stock/type';
+import { parseResObj } from '@/utils/parseResponse';
 
-onMounted(() => {
-  search();
-});
-
-const handleSubmit = () => {
-  search();
-};
-
+const loading = ref(false);
 const tableData = reactive<any>({ total: 0, list: [] });
-
-const searchParams = ref<any>({
+const searchParams = ref<SearchParams>({
   pageNum: 1,
   pageSize: 20,
 });
 
-const search = async () => {
-  settingStore.loading = true;
-  const data: any = await store.getOutStockList(searchParams.value);
-  tableData.total = data.total || 0;
-  tableData.list = data.rows || [];
-  settingStore.loading = false;
+const fetchList = async () => {
+  loading.value = true;
+  try {
+    const res = await reqOutStockList(searchParams.value);
+    const data = parseResObj(res);
+    tableData.total = data?.total || 0;
+    tableData.list = data?.rows || [];
+  } finally {
+    loading.value = false;
+  }
 };
 
 const handleSearchParams = (params: any) => {
@@ -92,18 +87,21 @@ const handleSearchParams = (params: any) => {
   searchParams.value.orderCode = params.orderCode;
   searchParams.value.startTime = params.startTime;
   searchParams.value.endTime = params.endTime;
-  search();
+  fetchList();
 };
 
-// 处理分页变化
 const handleSizeChange = (val: number) => {
   searchParams.value.pageSize = val;
-  search();
+  fetchList();
 };
 
 const handleCurrentChange = (val: number) => {
   searchParams.value.pageNum = val;
-  search();
+  fetchList();
+};
+
+const handleSubmit = () => {
+  fetchList();
 };
 
 const dialog = reactive({
@@ -124,6 +122,10 @@ const createDialog = reactive({
 const createOrder = () => {
   createDialog.visible = true;
 };
+
+onMounted(() => {
+  fetchList();
+});
 </script>
 
 <style scoped lang="scss"></style>

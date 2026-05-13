@@ -5,7 +5,7 @@
       <div><BtnForm @submit="addRoom" btnText="添加房间" tipText="请输入房间名称" /></div>
       <div>
         <el-input
-          v-model="store.searchParams.roomName"
+          v-model="searchKeyword"
           :prefix-icon="Search"
           @keydown.enter="search"
           @clear="search"
@@ -22,13 +22,13 @@
 
     <!-- 房间列表 -->
     <Card
-      v-loading="settingStore.loading && !drawerVisible"
+      v-loading="loading"
       :element-loading-text="LOADING_MSG"
       flex="row"
       :gap="30"
       class="room-list"
     >
-      <Card v-for="room in store.roomList" wrap="nowrap" bgColor="#5cb3cc" class="room-card">
+      <Card v-for="room in filteredRoomList" wrap="nowrap" bgColor="#5cb3cc" class="room-card">
         <div class="card-top">
           <span class="name">{{ room.roomName }}</span>
           <el-button @click="editRoomInfo(room)" link size="small" style="color: #dff9fb">编辑</el-button>
@@ -64,8 +64,8 @@
 
           <!-- 床位列表 -->
           <Table
-            :data="store.bedList"
-            v-loading="settingStore.loading"
+            :data="bedList"
+            v-loading="bedLoading"
             :element-loading-text="LOADING_MSG"
             :border="true"
             :row-class-name="getRowClassName"
@@ -95,74 +95,136 @@
 
 <script setup lang="ts">
 import { Search } from '@element-plus/icons-vue';
-import { ref, onMounted, inject } from 'vue';
+import { ref, computed, onMounted, inject } from 'vue';
 import { bedStatusMap } from '@/utils/formatter';
 import { LOADING_MSG } from '@/utils/constants';
-// 导入数据仓库
-import { useSettingStore } from '@/store/modules/acl/setting';
-import { useRoomStore } from '@/store/modules/setGroup/room';
-const settingStore = useSettingStore();
-const store = useRoomStore();
+import {
+  type Types,
+  reqRoomList,
+  reqAddRoom,
+  reqUpdateRoom,
+  reqBedList,
+  reqAddBed,
+  reqUpdateBed,
+  reqUpdateBedStatus,
+} from '@/api/setGroup/room';
+import { parseResMsg, parseResList } from '@/utils/parseResponse';
 
 const $MessageBox: any = inject('$MessageBox');
 
-// 初始化
-onMounted(() => {
-  store.setRoomList();
+// 本地状态
+const loading = ref(false);
+const bedLoading = ref(false);
+const roomList = ref<Types.RoomInfoVO[]>([]);
+const bedList = ref<Types.RoomBedVO[]>([]);
+const searchKeyword = ref('');
+
+// 搜索过滤
+const filteredRoomList = computed(() => {
+  if (!searchKeyword.value) return roomList.value;
+  return roomList.value.filter((item) =>
+    item.roomName?.toLocaleLowerCase().includes(searchKeyword.value.toLocaleLowerCase()),
+  );
 });
 
-// 搜索
-const search = async () => {
-  await store.setRoomList();
-  if (store.searchParams.roomName) {
-    store.roomList = store.roomList.filter((item: any) => {
-      return item.roomName.toLocaleLowerCase().includes(store.searchParams.roomName.toLocaleLowerCase());
-    });
+// 获取房间列表
+const fetchRoomList = async () => {
+  loading.value = true;
+  try {
+    const res = await reqRoomList();
+    roomList.value = res.data || [];
+  } finally {
+    loading.value = false;
   }
 };
 
+// 获取床位列表
+const fetchBedList = async (roomId: number) => {
+  bedLoading.value = true;
+  try {
+    const res = await reqBedList({ roomId });
+    bedList.value = res.data || [];
+  } finally {
+    bedLoading.value = false;
+  }
+};
+
+// 搜索
+const search = () => {
+  // 使用 computed 自动过滤，无需额外操作
+};
+
 // 添加房间
-const addRoom = (value: object) => {
-  store.updateRoom({ roomName: value });
+const addRoom = async (value: string) => {
+  const res = await reqAddRoom({ roomName: value });
+  const result = parseResMsg(res);
+  if (result) fetchRoomList();
 };
 
 // 修改房间名
-const updateRoomName = (value: string) => {
-  store.updateRoom({ id: editRoom.value.id, roomName: value });
+const updateRoomName = async (value: string) => {
+  const res = await reqUpdateRoom({ id: editRoom.value.id!, roomName: value });
+  const result = parseResMsg(res);
+  if (result) {
+    fetchRoomList();
+    editRoom.value.roomName = value;
+  }
 };
 
 // 当前编辑的房间信息
-const editRoom: any = ref({});
-// 点击编辑获取当前房间的床位数据列表
-const editRoomInfo = (room: { id: number }) => {
+const editRoom = ref<Types.RoomInfoVO>({} as Types.RoomInfoVO);
+const editRoomInfo = (room: Types.RoomInfoVO) => {
   editRoom.value = { ...room };
-  store.setBedList(room.id);
+  fetchBedList(room.id!);
   drawerVisible.value = true;
 };
 
 // 添加床位
-const addBed = (value: string) => {
-  store.updateBed({ roomId: editRoom.value.id, bedName: value });
+const addBed = async (value: string) => {
+  const res = await reqAddBed({ roomId: editRoom.value.id!, bedName: value });
+  const result = parseResMsg(res);
+  if (result) {
+    fetchBedList(editRoom.value.id!);
+    fetchRoomList();
+  }
 };
 
 // 修改床位名称
-const updateBedName = (value: string, params: any) => {
-  store.updateBed({ ...params, roomId: params.id, bedName: value });
+const updateBedName = async (value: string, params: any) => {
+  const res = await reqUpdateBed({ roomId: params.roomInfoId, bedName: value });
+  const result = parseResMsg(res);
+  if (result) {
+    fetchBedList(editRoom.value.id!);
+    fetchRoomList();
+  }
 };
 
-// 停用
-const disabledBed = async (row: any) => {
+// 停用床位
+const disabledBed = async (row: Types.RoomBedVO) => {
   const result = await $MessageBox.confirm({
     title: '确认操作',
     message: `你确定要禁用床位【${row.bedName}】吗？`,
     type: 'warning',
   });
-  result && store.updateBedStatus(row);
+  if (result) {
+    const status = row.status === 0 ? 2 : 0;
+    const res = await reqUpdateBedStatus({ bedId: row.id!, status });
+    const success = parseResMsg(res);
+    if (success) {
+      fetchBedList(editRoom.value.id!);
+      fetchRoomList();
+    }
+  }
 };
 
-// 启用
-const enabledBed = (row: any) => {
-  store.updateBedStatus(row);
+// 启用床位
+const enabledBed = async (row: Types.RoomBedVO) => {
+  const res = await reqUpdateBedStatus({ bedId: row.id!, status: 0 });
+  const result = parseResMsg(res);
+  if (result) {
+    fetchBedList(editRoom.value.id!);
+    fetchRoomList();
+  }
 };
 
 // 控制抽屉
@@ -171,6 +233,10 @@ const drawerVisible = ref(false);
 const getRowClassName = ({ row }: { row: { status: number } }) => {
   return row.status === 2 ? 'disabled-row' : '';
 };
+
+onMounted(() => {
+  fetchRoomList();
+});
 </script>
 
 <style scoped lang="scss">

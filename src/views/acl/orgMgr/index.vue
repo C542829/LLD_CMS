@@ -104,7 +104,7 @@ const loading = ref(false);
 const searchParams = reactive<Types.SearchListParams>({
   orgName: '',
   orgCode: '',
-  orgStatus: Status.enabled,
+  orgStatus: Status.Enabled,
 });
 
 /** 表格数据 */
