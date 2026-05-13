@@ -122,7 +122,7 @@ request.interceptors.response.use(
  * 登出操作
  */
 const logout = () => {
-  Message.error('登录失效，请重新登录！');
+  // Message.error('登录失效，请重新登录！');
   const userStore = useUserStore();
   userStore.clearUserInfo();
   // window.location.reload();
