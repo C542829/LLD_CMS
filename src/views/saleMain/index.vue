@@ -89,12 +89,13 @@ import { useRouter } from 'vue-router';
 import { type Types, reqQueryOrderByBedId, reqAddOrderDetail } from '@/api/order/index';
 import { DEFAULT_ORDER_FORM } from '@/views/saleMain/utils/index';
 import { CustomerType, BedStatus, BedStatusMap, CashierRouteSign } from '@/enums/index';
-import { useRoomStore } from '@/store/modules/setGroup/room';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
 import { useOrderStore } from '@/store/modules/order/index';
 
-const orderStore = useOrderStore();
-const roomStore = useRoomStore();
 const router = useRouter();
+
+const orderStore = useOrderStore();
+const masterDataStore = useMasterDataStore();
 
 /** 订单列表 Ref */
 const orderListRef = ref<InstanceType<typeof OrderList>>();
@@ -261,7 +262,7 @@ const getBedStatus = computed(() => {
 
 /** 获取床位列表 */
 const getBedList = async () => {
-  bedList.value = await roomStore.getAllBedList();
+  bedList.value = await masterDataStore.getAllBedList();
 };
 
 /** 显示下拉菜单 */
