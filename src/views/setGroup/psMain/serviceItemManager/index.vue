@@ -67,10 +67,13 @@
     <Card padding="0px">
       <PaginationTable
         v-loading="loading"
-        :data="tableData"
+        :data="pagedData"
+        :total="tableData.length"
+        :page-sizes="[50, 100, 200]"
+        v-model:currentPage="currentPage"
+        v-model:pageSize="pageSize"
         :element-loading-text="LOADING_MSG"
         :row-class-name="getRowClassName"
-        :showPagination="false"
       >
         <el-table-column type="index" label="序号" width="60" />
         <el-table-column prop="orgs" label="关联门店" min-width="50">
@@ -88,8 +91,18 @@
         <el-table-column label="操作" min-width="80">
           <template #default="{ row }">
             <el-button @click="showDrawer('view', row)" link type="info">详情</el-button>
-            <el-button @click="showDrawer('edit', row)" :disabled="!!row.itemStatus" link type="primary">编辑</el-button>
-            <el-button @click="handleUpdateStatus(row)" v-if="row.itemStatus" :loading="row.loading" link type="success">启用</el-button>
+            <el-button @click="showDrawer('edit', row)" :disabled="!!row.itemStatus" link type="primary">
+              编辑
+            </el-button>
+            <el-button
+              @click="handleUpdateStatus(row)"
+              v-if="row.itemStatus"
+              :loading="row.loading"
+              link
+              type="success"
+            >
+              启用
+            </el-button>
             <el-button @click="showConfirm(row)" v-else link type="warning">禁用</el-button>
           </template>
         </el-table-column>
@@ -98,12 +111,7 @@
   </div>
 
   <!-- 抽屉表单 -->
-  <DrawerForm
-    v-model="drawerVisible"
-    :type="drawerType"
-    :data="currentRow"
-    @success="refreshList"
-  />
+  <DrawerForm v-model="drawerVisible" :type="drawerType" :data="currentRow" @success="refreshList" />
 </template>
 
 <script setup lang="ts">
@@ -112,7 +120,7 @@ import OrgSelect from '@/components/FormComponents/OrgSelect.vue';
 import Message from '@/components/Message';
 import MessageBox from '@/components/MessageBox';
 import { Search } from '@element-plus/icons-vue';
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 import { statusOptions, DictCode, Status } from '@/enums/index';
 import { amountFormatter, isDiscountMap } from '@/utils/formatter';
 import { LOADING_MSG } from '@/utils/constants';
@@ -128,6 +136,14 @@ const masterDataStore = useMasterDataStore();
 // 本地状态
 const loading = ref(false);
 const tableData = ref<Types.ServerItemVO[]>([]);
+const currentPage = ref(1);
+const pageSize = ref(50);
+
+// 前端分页
+const pagedData = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  return tableData.value.slice(start, start + pageSize.value);
+});
 const searchParams = reactive<Types.ServerItemRequest>({
   keyWord: '',
   itemStatus: 0,
@@ -150,6 +166,7 @@ const fetchList = async () => {
   try {
     const res = await reqServiceItemList(searchParams);
     tableData.value = res.data || [];
+    currentPage.value = 1;
   } finally {
     loading.value = false;
   }

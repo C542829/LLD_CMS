@@ -73,7 +73,9 @@
         <el-table-column label="操作" min-width="80">
           <template #default="{ row }">
             <el-button @click="showDrawer('edit', row)" :disabled="!!row.status" link type="primary">编辑</el-button>
-            <el-button @click="handleUpdateStatus(row)" v-if="row.status" :loading="row.loading" link type="success">启用</el-button>
+            <el-button @click="handleUpdateStatus(row)" v-if="row.status" :loading="row.loading" link type="success">
+              启用
+            </el-button>
             <el-button @click="showConfirm(row)" v-else link type="warning">禁用</el-button>
           </template>
         </el-table-column>

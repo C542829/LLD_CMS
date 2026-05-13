@@ -67,10 +67,13 @@
     <Card padding="0px">
       <PaginationTable
         v-loading="loading"
-        :data="tableData"
+        :data="pagedData"
+        :total="tableData.length"
+        :page-sizes="[50, 100, 200]"
+        v-model:currentPage="currentPage"
+        v-model:pageSize="pageSize"
         :element-loading-text="LOADING_MSG"
         :row-class-name="getRowClassName"
-        :showPagination="false"
       >
         <el-table-column type="index" label="序号" width="60" />
         <el-table-column prop="orgs" label="关联门店" min-width="50">
@@ -122,7 +125,7 @@ import MessageBox from '@/components/MessageBox';
 import DrawerForm from './components/DrawerForm.vue';
 import OrgSelect from '@/components/FormComponents/OrgSelect.vue';
 import { Search } from '@element-plus/icons-vue';
-import { ref, reactive, onMounted, inject } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 import { statusOptions, DictCode, Status } from '@/enums/index';
 import { amountFormatter, isDiscountMap } from '@/utils/formatter';
 import { LOADING_MSG } from '@/utils/constants';
@@ -138,6 +141,14 @@ const masterDataStore = useMasterDataStore();
 // 本地状态
 const loading = ref(false);
 const tableData = ref<Types.ProductInfoVO[]>([]);
+const currentPage = ref(1);
+const pageSize = ref(50);
+
+// 前端分页
+const pagedData = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  return tableData.value.slice(start, start + pageSize.value);
+});
 const searchParams = reactive<Types.ReqParams>({
   keyWord: '',
   productStatus: 0,
@@ -160,6 +171,7 @@ const fetchList = async () => {
   try {
     const res = await reqProductList(searchParams);
     tableData.value = res.data || [];
+    currentPage.value = 1;
   } finally {
     loading.value = false;
   }

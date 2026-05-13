@@ -67,7 +67,13 @@
             <el-button link type="primary" :disabled="!!row.packageStatus" @click="showDrawer('edit', row)">
               编辑
             </el-button>
-            <el-button link type="success" v-if="row.packageStatus" :loading="row.loading" @click="handleUpdateStatus(row)">
+            <el-button
+              link
+              type="success"
+              v-if="row.packageStatus"
+              :loading="row.loading"
+              @click="handleUpdateStatus(row)"
+            >
               启用
             </el-button>
             <el-button link type="warning" v-else @click="showConfirm(row)">禁用</el-button>

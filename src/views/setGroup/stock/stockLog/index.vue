@@ -39,11 +39,7 @@
 
   <!-- 详情 -->
   <Dialog v-model="dialog.visible" :title="dialog.title" center>
-    <ShowDetail
-      :data="dialog.data"
-      v-loading="detailLoading"
-      :element-loading-text="LOADING_MSG"
-    />
+    <ShowDetail :data="dialog.data" v-loading="detailLoading" :element-loading-text="LOADING_MSG" />
   </Dialog>
 </template>
 

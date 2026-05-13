@@ -21,13 +21,7 @@
     </Card>
 
     <!-- 房间列表 -->
-    <Card
-      v-loading="loading"
-      :element-loading-text="LOADING_MSG"
-      flex="row"
-      :gap="30"
-      class="room-list"
-    >
+    <Card v-loading="loading" :element-loading-text="LOADING_MSG" flex="row" :gap="30" class="room-list">
       <Card v-for="room in filteredRoomList" wrap="nowrap" bgColor="#5cb3cc" class="room-card">
         <div class="card-top">
           <span class="name">{{ room.roomName }}</span>
