@@ -1,5 +1,53 @@
 {
   "permissions": {
-    "allow": ["Bash(pnpm lint *)", "Bash(npx vue-tsc *)"]
-  }
+    "allow": [
+      "Read",
+      "Write",
+      "Edit",
+      "Glob",
+      "Grep",
+      "WebSearch",
+      "WebFetch",
+      "Task",
+      "MultiEdit",
+      "TodoWrite",
+
+      "Bash(npx vue-tsc *)",
+      "Bash(npm run test:*)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(yarn *)",
+      "Bash(pnpm *)",
+
+      "Bash(git diff:*)",
+      "Bash(git status)",
+      "Bash(git branch)",
+      "Bash(git add)",
+      "Bash(git log:*)",
+      "Bash(git commit *)",
+
+      "mcp__API_文档__read_api_document",
+      "mcp__API_文档__search_apis",
+
+      "Bash(ls)",
+      "Bash(echo *)",
+      "Bash(mkdir *)",
+      "Bash(touch *)",
+      "Bash(npx *)"
+    ],
+    "deny": [
+      "Bash(git push *)",
+      "Bash(git reset --hard *)",
+      "Bash(rm -rf *)",
+      "Bash(sudo *)",
+      "Bash(curl *)",
+      "Bash( > /dev/ *)",
+      "Bash(:(){ :|:& };:)",
+      "Read(.env)",
+      "Read(.env.local)",
+      "Read(**/secrets/**)"
+    ]
+  },
+  "enabledMcpjsonServers": ["API 文档"],
+  "enableAllProjectMcpServers": true
 }
