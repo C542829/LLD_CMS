@@ -3,22 +3,22 @@
     <div class="search-item">
       <label>
         <span>时间段：</span>
-        <IDatePicker v-model="dateRange" @change="search" @clear="clearDate" class="w-220" />
+        <IDatePicker v-model="dateRange" :default="false" @change="search" @clear="clearDate" class="w-220" />
       </label>
     </div>
     <div class="search-item">
       <label>
         <span>操作人：</span>
-        <el-input v-model="searchParams.operator" placeholder="请输入操作人" clearable style="width: 110px" />
+        <el-input v-model="searchParams.operator" placeholder="请输入操作人" clearable class="w-120" />
       </label>
     </div>
     <div class="search-item">
       <label>
         <span>订单号：</span>
-        <el-input v-model="searchParams.orderCode" placeholder="请输入库存单号" clearable style="width: 180px" />
+        <el-input v-model="searchParams.orderCode" placeholder="请输入库存单号" clearable class="w-160" />
       </label>
     </div>
-    <template v-if="userStore.isAdmin || userStore.isAreaManager">
+    <template v-if="type === 'log' && (userStore.isAdmin || userStore.isAreaManager)">
       <div class="search-item">
         <label>
           <span>门店：</span>
@@ -46,8 +46,17 @@
 import { ref, reactive } from 'vue';
 import useUserStore from '@/store/modules/acl/user';
 
-const userStore = useUserStore();
+interface Props {
+  type: 'in' | 'out' | 'log';
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  type: 'in',
+});
+
 const emit = defineEmits(['search']);
+
+const userStore = useUserStore();
 
 /** 日期范围 */
 const dateRange = ref<string[]>([]);

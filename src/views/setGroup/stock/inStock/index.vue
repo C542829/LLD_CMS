@@ -5,7 +5,7 @@
       <div class="search-container">
         <el-button type="primary" @click="createOrder">新建入库单</el-button>
       </div>
-      <SearchForm @search="handleSearchParams" />
+      <SearchForm @search="handleSearchParams" type="in" />
     </Card>
 
     <!-- 表格组件 -->

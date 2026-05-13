@@ -2,7 +2,7 @@
   <div class="main-container">
     <!-- 搜索组件区域 -->
     <Card class="operation-card">
-      <SearchForm @search="handleSearchParams" />
+      <SearchForm @search="handleSearchParams" type="log" />
     </Card>
 
     <!-- 表格组件 -->
@@ -78,6 +78,7 @@ const handleSearchParams = (params: any) => {
   searchParams.value.orderCode = params.orderCode;
   searchParams.value.startTime = params.startTime;
   searchParams.value.endTime = params.endTime;
+  searchParams.value.orgId = params.orgId;
   fetchList();
 };
 
