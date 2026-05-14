@@ -26,39 +26,24 @@
     </template>
   </el-dropdown>
   <ChangePasswordDialog v-model="visible" />
-  <UserDrawerForm v-model="infoVisible" type="edit" :data="userStore.user" :roleList="roles" @close="handleInfoClose" />
+  <UserDrawerForm v-model="infoVisible" :data="userStore.user" @refresh="handleInfoRefresh" />
 </template>
 
 <script setup lang="ts">
 import ChangePasswordDialog from './ChangePasswordDialog.vue';
-import UserDrawerForm from '@/views/acl/user/components/DrawerForm.vue';
+import UserDrawerForm from './ChangeUserInfo.vue';
 import { computed, ref, onMounted } from 'vue';
 import { reqLogout } from '@/api/user/index';
-import { reqRoleList } from '@/api/acl/role/index';
-import type * as RoleTypes from '@/api/acl/role/types';
-import { RoleCodeFilterMap } from '@/views/acl/user/utils';
-import { RoleCode } from '@/enums';
 import useUserStore from '@/store/modules/acl/user';
-import { useMasterDataStore } from '@/store/modules/masterData';
 
 const userStore = useUserStore();
-const masterDataStore = useMasterDataStore();
 
 const visible = ref(false);
 const infoVisible = ref(false);
 
 onMounted(async () => {});
 
-/** 过滤后的角色列表 */
-const roles = computed(() => {
-  return masterDataStore.roleList.filter((item: RoleTypes.RoleInfoVo) => {
-    const roleCode = userStore.user.role?.roleCode || RoleCode.AreaManager;
-    const roleCodes = RoleCodeFilterMap[roleCode];
-    return !roleCodes.includes(item.roleCode || '');
-  });
-});
-
-// 刷新按钮点击回调
+/** 刷新按钮点击回调 */
 const updateRefresh = () => {
   window.location.reload();
   // settingStore.refresh = !settingStore.refresh;
@@ -94,8 +79,8 @@ const changeInfo = () => {
   infoVisible.value = true;
 };
 
-// 修改资料关闭回调
-const handleInfoClose = () => {
+// 修改资料刷新回调
+const handleInfoRefresh = () => {
   userStore.loadUserInfo(userStore.userId);
 };
 </script>
