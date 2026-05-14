@@ -115,9 +115,11 @@ const useUserStore = defineStore('User', {
 
     /** 延迟预加载公共数据 */
     preloadCommonData() {
+      // 业务数据优先加载
+      useMasterDataStore().init();
+      // 字典数据稍后
       setTimeout(() => {
         useDictStore().preloadCommonDicts();
-        useMasterDataStore().init();
       }, 500);
     },
 
