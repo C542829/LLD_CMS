@@ -115,7 +115,7 @@
     :type="drawer.type"
     :data="drawer.data"
     :roleList="roles"
-    @close="handleDrawerClose"
+    @refresh="refreshList"
   ></DrawerForm>
 </template>
 
@@ -251,10 +251,7 @@ const showDrawer = async (type: DialogType, row: any = {}) => {
 };
 
 // 关闭抽屉触发
-const handleDrawerClose = () => {
-  if (drawer.type === 'view') {
-    return;
-  }
+const refreshList = () => {
   search();
 };
 
@@ -268,7 +265,7 @@ const roleList = ref<RoleTypes.RoleInfoVo[]>([]);
 const roles = computed(() => {
   return roleList.value.filter((item: RoleTypes.RoleInfoVo) => {
     const roleCode = userStore.user.role?.roleCode || RoleCode.AreaManager;
-    const roleCodes = RoleCodeFilterMap[roleCode];
+    const roleCodes = RoleCodeFilterMap[roleCode] || [];
     return !roleCodes.includes(item.roleCode || '');
   });
 });

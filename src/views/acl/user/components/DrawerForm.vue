@@ -207,7 +207,7 @@ const props = withDefaults(defineProps<Props>(), {
   modelValue: false,
   roleList: () => [],
 });
-const emit = defineEmits(['update:model-value', 'close', 'close-drawer']);
+const emit = defineEmits(['update:model-value', 'close', 'refresh']);
 
 watch(
   () => props.modelValue,
@@ -227,7 +227,6 @@ const drawerTitle = computed(() => {
       formdata.value = cloneDeep(props.data);
       formdata.value.roleId = props.data.role?.id;
       formdata.value.orgIds = props.data.orgs?.map((item) => item.id);
-
       return '修改人员信息';
     default:
       formdata.value = cloneDeep(props.data);
@@ -244,7 +243,6 @@ const formDisabled = computed(() => {
 const handleDrawerClose = () => {
   handleFormReset();
   emit('update:model-value', false);
-  emit('close');
 };
 
 //#endregion 父子组件交互
@@ -298,6 +296,7 @@ const addUser = async (data: UserTypes.UserDTO) => {
     // console.log('添加用户成功：', res);
     Message.success('添加用户成功');
     drawerVisible.value = false;
+    emit('refresh');
   } catch (error) {
     console.error('添加用户失败：', error);
   } finally {
@@ -316,6 +315,7 @@ const updateUser = async (data: UserTypes.UserDTO) => {
     // console.log('更新用户成功：', res);
     Message.success('更新用户成功');
     drawerVisible.value = false;
+    emit('refresh');
   } catch (error) {
     console.error('更新用户失败：', error);
   } finally {
