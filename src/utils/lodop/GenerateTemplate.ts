@@ -43,8 +43,17 @@ export const generateOrderHtmlTemplate = (data: OrderData, width = '48mm'): stri
   // 处理支付明细
   const paymentItems = (data.payments || [])
     .map((pay) => {
-      return `<p style="text-indent: 2em;">
+      return `<p style="text-indent: 1em;">
                 ${pay.paymentName}支付: ￥${pay.totalAmount || '0'}
+              </p>`;
+    })
+    .join('');
+
+  // 处理项目券剩余明细
+  const ticketUsages = (data.ticketUsages || [])
+    .map((item) => {
+      return `<p style="text-indent: 1em;">
+                ${item.ticketName}  余:${item.remainingCount || '0'}次
               </p>`;
     })
     .join('');
@@ -107,7 +116,7 @@ export const generateOrderHtmlTemplate = (data: OrderData, width = '48mm'): stri
         <p>实付总计: ￥${data.actualAmount || '0'}</p>
         ${isMember ? `<p>消费前余额:￥${data.beforeBalance || '-'}</p>` : ''}
         ${isMember ? `<p>消费后余额:￥${data.afterBalance || '-'}</p>` : ''}
-
+        ${data?.ticketUsages && data?.ticketUsages?.length > 0 ? `<p>疗程卡余额：</p><div>${ticketUsages}</div>` : ''}
         <div style="${HR_STYLE}"></div>
 
 

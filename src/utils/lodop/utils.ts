@@ -51,8 +51,14 @@ export function calculateOrderPrintHeight(data: OrderData): number {
   }
   const paymentHeight = data.payments.length * paymentRowHeight;
 
+  let ticketUsageHeight = 0;
+  if (data?.ticketUsages && data?.ticketUsages?.length > 0) {
+    ticketUsageHeight = data.ticketUsages.length * 3;
+    ticketUsageHeight += 6;
+  }
+
   // 总高度 = 基础高度 + 动态部分高度 + 容错空间
-  return baseHeight + detailHeight + paymentHeight + faultTolerance;
+  return baseHeight + detailHeight + paymentHeight + ticketUsageHeight + faultTolerance;
 }
 
 /**
