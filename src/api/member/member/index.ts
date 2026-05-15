@@ -31,6 +31,8 @@ enum API {
   UPDATE_ASSET_DISCOUNT = '/vip/update-asset-discount',
   /** 查询会员优惠券列表 */
   QUERY_TICKET_LIST = '/vip/query-tickets/{vipId}',
+  /** 会员卡批量退卡 */
+  REFUND_CARD = '/vip/refund-card',
   /**  */
   _ = '',
 }
@@ -104,6 +106,26 @@ export const reqVipAssetList = (vipId: number): ApiResponse<Types.VipPropertyVO>
   get(API.ASSET_LIST_URL.replace(IdStr, vipId.toString()));
 
 /**
+ * 获取会员资产列表
+ * @param vipId
+ * @returns
+ */
+export const getVipAssetList = async (vipId: number): Promise<Types.VipPropertyVO> => {
+  try {
+    const { data } = await getVipAssetList(vipId);
+    data.vipAssetVOList = (data.vipAssetVOList || [])?.filter((item: any) => item.status === 0);
+    return data;
+  } catch (error) {
+    console.log('获取会员资产列表失败：', error);
+  }
+  return {
+    vipInfoVO: {},
+    vipAssetVOList: [],
+    vipTicketVOList: [],
+  };
+};
+
+/**
  * 更新会员备注
  * @param remark 备注
  * @returns
@@ -170,3 +192,13 @@ export const reqUpdateVipAsset = (data: Types.VipAssetDiscountDTO): ApiResponse<
  */
 export const reqVipTicketList = (vipId: number): ApiResponse<TicketCountVO[]> =>
   get(API.QUERY_TICKET_LIST.replace(IdStr, vipId.toString()));
+
+/**
+ * 会员卡批量退卡
+ * @param data
+ * @returns
+ */
+export const reqRefundCard = (assetIds: number[] = []): ApiResponse<any> => {
+  const url = API.REFUND_CARD;
+  return post(url, { assetIds });
+};
