@@ -103,10 +103,8 @@ export const useMasterDataStore = defineStore('MasterData', () => {
           orgIds: [],
         }).then((res) =>
           res.data.rows.map((item: any) => ({
-            id: item.id,
             userId: item.id,
-            userName: item.userName,
-            userCode: item.userCode,
+            ...item,
           })),
         ),
       refresh,
