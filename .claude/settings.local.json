@@ -42,7 +42,6 @@
       "Bash(sudo *)",
       "Bash(curl *)",
       "Bash( > /dev/ *)",
-      "Bash(:(){ :|:& };:)",
       "Read(.env)",
       "Read(.env.local)",
       "Read(**/secrets/**)"
