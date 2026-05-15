@@ -30,6 +30,14 @@ export const useOrderStore = defineStore('Order', () => {
 
   //#region 状态数据
 
+  /** 是否可以修改价格 */
+  const isChangePrice = ref(true);
+
+  /** 是否绑定床位 */
+  const isBindBed = computed(() => {
+    return order.value.bedId && order.value.bedId != 0;
+  });
+
   /** 是否开单 */
   const isCreated = computed(() => {
     return !!order.value.id && order.value.id != 0;
@@ -205,6 +213,8 @@ export const useOrderStore = defineStore('Order', () => {
     orderCount,
     isCreated,
     isMember,
+    isChangePrice,
+    isBindBed,
 
     checkedAssetInfo,
     resetCheckedAssetInfo,

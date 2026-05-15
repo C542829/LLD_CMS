@@ -39,7 +39,7 @@
           <el-input-number
             v-model="data.trueUnitPrice"
             :min="0"
-            :disabled="isEditPrice"
+            :disabled="!isChangePrice"
             controls-position="right"
             class="w-100"
             @change="handleChangePrice"
@@ -121,11 +121,11 @@
 import Message from '@/components/Message';
 import CouponSelect from '@/views/saleMain/components/CouponSelect.vue';
 import { computed, ref } from 'vue';
+import { isEmpty } from 'lodash';
+import { mul } from '@/utils/bigMethods';
 import { type Types, reqUpdateServerEmployee, reqUpdateServerType } from '@/api/order/index';
 import { CouponType, OrderDetailType, ServiceTypeOptions } from '@/enums/index';
 import { useOrderStore } from '@/store/modules/order/index';
-import { isEmpty } from 'lodash';
-import { mul } from '@/utils/bigMethods';
 
 const orderStore = useOrderStore();
 
@@ -141,9 +141,13 @@ const props = withDefaults(defineProps<Props>(), {});
 
 const emit = defineEmits(['cancel-coupon', 'delete']);
 
-// 如果是疗程卡不能修改价格
-const isEditPrice = computed(() => {
-  return props.data.disabled;
+/** 是否可以修改价格 */
+const isChangePrice = computed(() => {
+  // 如果订单明细项是禁用状态，则不允许修改价格
+  if (props.data.disabled) {
+    return false;
+  }
+  return orderStore.isChangePrice;
 });
 
 const technicianSelectRef = ref<any>({});

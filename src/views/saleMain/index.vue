@@ -91,11 +91,13 @@ import { DEFAULT_ORDER_FORM } from '@/views/saleMain/utils/index';
 import { CustomerType, BedStatus, BedStatusMap, CashierRouteSign } from '@/enums/index';
 import { useMasterDataStore } from '@/store/modules/masterData/index';
 import { useOrderStore } from '@/store/modules/order/index';
+import { useUserStore } from '@/store/modules/acl/user';
 
 const router = useRouter();
 
 const orderStore = useOrderStore();
 const masterDataStore = useMasterDataStore();
+const userStore = useUserStore();
 
 /** 订单列表 Ref */
 const orderListRef = ref<InstanceType<typeof OrderList>>();
@@ -143,6 +145,7 @@ const initByBedId = () => {
     return;
   }
 
+  updateChangePriceStatus();
   const sign = router.currentRoute.value.query.sign;
   const bedName = router.currentRoute.value.query.bedName as string;
   if (sign === CashierRouteSign.Create) {
@@ -160,6 +163,7 @@ const initByBedId = () => {
 const selectBed = (params: any) => {
   // MessageBox.warning('切换床位，将清除床位对应的所有明细，你确定切换床位吗？', '提示').then(() => {
   orderStore.reset();
+  updateChangePriceStatus();
   if (params.status === BedStatus.Occupied) {
     setOrderByBed(params.id);
   } else if (params.status === BedStatus.Available) {
@@ -167,6 +171,11 @@ const selectBed = (params: any) => {
     orderStore.order.bedName = params.bedName;
   }
   // });
+};
+
+/** 订单变更时更新是否改价状态 */
+const updateChangePriceStatus = () => {
+  orderStore.isChangePrice = !userStore.isCashier;
 };
 
 /**

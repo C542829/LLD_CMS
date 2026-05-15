@@ -4,8 +4,10 @@
     <header class="order-list-header">
       <div class="order-count">账单明细({{ orderStore.orderCount }})</div>
       <div class="operation-btns">
-        <el-button type="primary" link size="large" @click="handleCleanOrder">清空</el-button>
-        <!-- <el-button type="warning" link size="large" @click="handleApplyModifyAuth">申请改价</el-button> -->
+        <el-button type="primary" link :disabled="!orderStore.isBindBed" @click="handleCleanOrder">清空</el-button>
+        <el-button type="warning" link :disabled="orderStore.isChangePrice" @click="handleApplyChangePrice">
+          申请改价
+        </el-button>
         <EditDiscountPrice @confirm="handleDiscountConfirm">
           <template #reference>
             <el-button type="success" plain round size="small" :disabled="!orderStore.isCreated">打折优惠</el-button>
@@ -91,6 +93,7 @@
     </footer>
   </div>
   <SettleForm v-model="settleDialogVisible" />
+  <ApplyChangePrice v-model="applyChangePriceVisible" @confirm="handleApplyChangePriceConfirm" />
 </template>
 
 <script setup lang="ts">
@@ -98,21 +101,23 @@ import Message from '@/components/Message';
 import MessageBox from '@/components/MessageBox';
 import DetailCard from './DetailCard.vue';
 import EditDiscountPrice from './EditDiscountPrice.vue';
+import ApplyChangePrice from './ApplyChangePrice.vue';
 import SettleForm from './SettleForm.vue';
 import { ref, onMounted, computed } from 'vue';
 import { isEmpty } from 'lodash';
 import { CouponType, PaymentType, paymentTypeMap, CustomerType } from '@/enums/index';
 import { type Types, reqAddOrder, reqCancelOrder, reqDeleteOrderDetail } from '@/api/order/index';
-import { useOrderStore } from '@/store/modules/order/index';
 import { verifyOrder } from '../utils';
 import { getOrgInfo } from '@/utils/localStorageTools';
 import { sub } from '@/utils/bigMethods';
+import { useOrderStore } from '@/store/modules/order/index';
 
 const emit = defineEmits<{
   (ev: 'update-order', value: number): void;
 }>();
 
 const orderStore = useOrderStore();
+
 const loading = ref(false);
 const btnLoading = ref(false);
 
@@ -162,19 +167,19 @@ const handleCleanOrder = async () => {
   }
 };
 
+const applyChangePriceVisible = ref(false);
 /**
  * 处理申请改价事件
  */
-const handleApplyModifyAuth = () => {
-  //
-  console.log(getOrgInfo());
+const handleApplyChangePrice = () => {
+  applyChangePriceVisible.value = true;
 };
 
 /**
  * 执行修改权限
  */
-const applyModifyAuth = () => {
-  //
+const handleApplyChangePriceConfirm = () => {
+  orderStore.isChangePrice = true;
 };
 
 /**

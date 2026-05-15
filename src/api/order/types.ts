@@ -387,6 +387,14 @@ export interface OrderInfoVO {
    */
   orgId?: number;
   /**
+   * 门店名称
+   */
+  orgName?: string;
+  /**
+   * 门店编码
+   */
+  orgCode?: string;
+  /**
    * 支付信息列表
    */
   payments?: PaymentVO[];
@@ -504,6 +512,10 @@ export interface OrderDetailVO {
    */
   truePrice?: number;
   /**
+   * 实际单价（结算时更新）
+   */
+  trueUnitPrice?: number;
+  /**
    * 更新时间
    */
   updateTime?: string;
@@ -519,6 +531,46 @@ export interface OrderDetailVO {
    * 技师列表
    */
   technicians?: OrderDetailTechnicianDTO[];
+  /**
+   * 门店ID
+   */
+  orgId?: number;
+  /**
+   * 门店名称
+   */
+  orgName?: string;
+  /**
+   * 门店编码
+   */
+  orgCode?: string;
+  /**
+   * 计时状态
+   */
+  timerStatus?: number;
+  /**
+   * 计时开始时间
+   */
+  timerStartTime?: string;
+  /**
+   * 计时结束时间
+   */
+  timerEndTime?: string;
+  /**
+   * 计时暂停时长（秒）
+   */
+  timerPausedDuration?: number;
+  /**
+   * 上次暂停时间
+   */
+  timerLastPauseTime?: string;
+  /**
+   * 实际服务时长（分钟）
+   */
+  actualDuration?: number;
+  /**
+   * 是否已预警
+   */
+  timerWarned?: number;
   [property: string]: any;
 }
 

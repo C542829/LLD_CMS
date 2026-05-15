@@ -130,7 +130,8 @@ const assetList: any = computed(() => {
     return [];
   }
 
-  const assetList = store.member.vipAssetVOList.filter((item: any) => item.assetBalance > 0);
+  // 过滤可用会员卡
+  const assetList = store.member.vipAssetVOList.filter((item: any) => item.assetBalance > 0 && item.status === 0);
   // 排序
   assetList.sort((a: any, b: any) => {
     // 第一条件：折扣基础
