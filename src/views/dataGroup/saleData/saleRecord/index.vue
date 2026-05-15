@@ -174,14 +174,14 @@
           <template #default="{ row }">
             <el-button @click="showDrawer(row)" link type="info">明细</el-button>
             <br />
-            <el-button :disabled="row.orderStatus !== OrderStatus.SETTLED" @click="reversal(row)" link type="danger">
+            <el-button :disabled="!orderStatus.includes(row.orderStatus)" @click="reversal(row)" link type="danger">
               冲正
             </el-button>
             <br />
             <!-- <el-button :disabled="true" @click="showDialog(row)" link type="warning">修改销售单据</el-button>
             <br /> -->
             <el-button
-              :disabled="row.orderStatus !== OrderStatus.SETTLED"
+              :disabled="!orderStatus.includes(row.orderStatus)"
               :loading="row.loading"
               @click="printReceipt(row)"
               link
@@ -355,7 +355,7 @@ const reversal = async (row: any) => {
  * @param row 销售订单
  */
 const printReceipt = async (row: any) => {
-  if (row.orderStatus !== OrderStatus.SETTLED) {
+  if (!orderStatus.includes(row.orderStatus)) {
     Message.warning('订单未结算，无法打印小票！');
     return;
   }
