@@ -10,16 +10,16 @@
       </h1>
       <p class="error-desc">抱歉，您访问的页面不存在或已被删除</p>
       <el-button @click="goBack" type="primary" size="large" class="return-btn">
-        <el-icon><House /></el-icon>
+        <el-icon><Back /></el-icon>
         返回上一页
       </el-button>
       <el-button @click="goHome" type="primary" size="large" class="return-btn">
         <el-icon><House /></el-icon>
         返回首页
       </el-button>
-      <el-button @click="goLogin" type="primary" size="large" class="return-btn">
-        <el-icon><House /></el-icon>
-        返回登录页
+      <el-button @click="handleLogout" type="danger" size="large" class="return-btn">
+        <el-icon><SwitchButton /></el-icon>
+        退出登录
       </el-button>
     </div>
   </div>
@@ -40,6 +40,7 @@ export default {
 </script>
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
+import { SwitchButton } from '@element-plus/icons-vue';
 import useUserStore from '@/store/modules/acl/user';
 
 const router = useRouter();
@@ -56,6 +57,10 @@ const goHome = () => {
 };
 const goLogin = () => {
   router.push({ path: '/login' });
+};
+/** 退出登录：清除用户信息并跳转到登录页 */
+const handleLogout = () => {
+  userStore.logout();
 };
 </script>
 
