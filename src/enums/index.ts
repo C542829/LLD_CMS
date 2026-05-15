@@ -10,6 +10,8 @@ export const RoleCode = {
   SuperAdmin: 'SUPER_ADMIN',
   AreaManager: 'AREA_MANAGER',
   StoreManager: 'STORE_MANAGER',
+  Cashier: 'CASHIER',
+  Employee: 'EMPLOYEE',
 };
 
 /**

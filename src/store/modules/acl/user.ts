@@ -41,7 +41,7 @@ function filterAsyncRoute(asyncRoute: any, routes: any) {
   });
 }
 
-const useUserStore = defineStore('User', {
+export const useUserStore = defineStore('User', {
   state: () => {
     return {
       user: <UserInfo>{},
@@ -194,6 +194,7 @@ const useUserStore = defineStore('User', {
     isSuperAdmin: (state) => checkRole(state.user?.role, RoleCode.SuperAdmin as RoleCode),
     isAdmin: (state) => checkRole(state.user?.role, RoleCode.Admin as RoleCode, RoleCode.SuperAdmin as RoleCode),
     isAreaManager: (state) => checkRole(state.user?.role, RoleCode.AreaManager as RoleCode),
+    isCashier: (state) => checkRole(state.user?.role, RoleCode.Cashier as RoleCode),
   },
 });
 
