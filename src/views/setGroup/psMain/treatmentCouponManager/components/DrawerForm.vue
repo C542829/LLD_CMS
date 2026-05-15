@@ -100,13 +100,13 @@
 </template>
 
 <script setup lang="ts">
+import Message from '@/components/Message';
 import { ref, computed, watch, onMounted } from 'vue';
 import { cloneDeep } from 'lodash';
 import { type Types, reqAddTreatmentCoupon, reqUpdateTreatmentCoupon } from '@/api/setGroup/treatmentCoupon';
 import { CommissionType, commissionTypeOptions, commissionOptions, Status } from '@/enums/index';
 import useUserStore from '@/store/modules/acl/user';
 import { useMasterDataStore } from '@/store/modules/masterData/index';
-import Message from '@/components/Message';
 
 const userStore = useUserStore();
 const masterDataStore = useMasterDataStore();

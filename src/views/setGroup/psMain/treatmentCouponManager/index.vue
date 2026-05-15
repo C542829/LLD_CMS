@@ -111,7 +111,6 @@
 import Message from '@/components/Message';
 import MessageBox from '@/components/MessageBox';
 import DrawerForm from './components/DrawerForm.vue';
-import OrgSelect from '@/components/FormComponents/OrgSelect.vue';
 import { Search } from '@element-plus/icons-vue';
 import { ref, reactive, computed, onMounted } from 'vue';
 import { amountFormatter } from '@/utils/formatter';
@@ -119,7 +118,7 @@ import { statusOptions, CommissionType, Status } from '@/enums/index';
 import { LOADING_MSG } from '@/utils/constants';
 import { type Types, reqTreatmentCouponList, reqUpdateTreatmentCouponStatus } from '@/api/setGroup/treatmentCoupon';
 import { useMasterDataStore } from '@/store/modules/masterData/index';
-import useUserStore from '@/store/modules/acl/user';
+import { useUserStore } from '@/store/modules/acl/user';
 
 const userStore = useUserStore();
 const masterDataStore = useMasterDataStore();
