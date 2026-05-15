@@ -197,7 +197,10 @@ const drawerTitle = computed(() => {
       } as Types.ProductDTO;
       return '修改产品信息';
     default:
-      formdata.value = cloneDeep(props.data) as Types.ProductDTO;
+      formdata.value = {
+        ...cloneDeep(props.data!),
+        orgIds: props.data!.orgs?.map((item: { id: number }) => item.id!) ?? [],
+      } as Types.ProductDTO;
       return '产品信息';
   }
 });

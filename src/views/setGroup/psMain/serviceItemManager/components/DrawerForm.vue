@@ -241,9 +241,10 @@ const drawerTitle = computed(() => {
       } as Types.ServerItemCreateDTO & { id?: number };
       return '修改服务项目信息';
     default:
-      formdata.value = { ...cloneDeep(DEFAULT_FORMDATA), ...cloneDeep(props.data) } as Types.ServerItemCreateDTO & {
-        id?: number;
-      };
+      formdata.value = {
+        ...cloneDeep(props.data!),
+        orgIds: props.data!.orgs?.map((item) => item.id!) ?? [],
+      } as Types.ServerItemCreateDTO & { id?: number };
       return '服务项目信息';
   }
 });
