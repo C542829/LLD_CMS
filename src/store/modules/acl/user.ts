@@ -94,23 +94,31 @@ export const useUserStore = defineStore('User', {
         this.loadUserInfo(user.userId);
         this.preloadCommonData();
       } catch (error) {
-        console.error(`获取用户信息出错：${error}`);
+        console.error(`恢复会话出错：${error}`);
+        $Message.error('会话恢复失败，请重新登录');
+        this.logout();
       }
     },
 
     /** 构建并注册动态路由 */
     async initRoutes() {
-      if (this.menuRoutes.length > 0) return;
-      const { data } = await reqQueryPermTreeByUser(this.userId);
-      const perms = data;
-      const routes = perms.treeMap((item) => item.component);
-      this.buttons = perms.treeMap((item) => item.permCode as string);
-      this.tabs = perms
-        .treeMap((item) => item.remark && [...(item?.children || []).map((child: any) => child.name)])
-        .flat();
-      const userAsyncRoute = filterAsyncRoute(cloneDeep(asyncRoute), routes);
-      this.menuRoutes = [...constantRoute, ...userAsyncRoute, anyRoute];
-      this.menuRoutes.forEach((route: any) => router.addRoute(route));
+      try {
+        if (this.menuRoutes.length > 0) return;
+        const { data } = await reqQueryPermTreeByUser(this.userId);
+        const perms = data;
+        const routes = perms.treeMap((item) => item.component);
+        this.buttons = perms.treeMap((item) => item.permCode as string);
+        this.tabs = perms
+          .treeMap((item) => item.remark && [...(item?.children || []).map((child: any) => child.name)])
+          .flat();
+        const userAsyncRoute = filterAsyncRoute(cloneDeep(asyncRoute), routes);
+        this.menuRoutes = [...constantRoute, ...userAsyncRoute, anyRoute];
+        this.menuRoutes.forEach((route: any) => router.addRoute(route));
+      } catch (error) {
+        console.error(`获取用户权限出错：${error}`);
+        $Message.error('菜单加载失败，请重新登录');
+        this.logout();
+      }
     },
 
     /** 延迟预加载公共数据 */
