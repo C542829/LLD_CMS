@@ -136,7 +136,12 @@
             <template #label>
               <span>财务记录 ({{ data.saleMemConsumeFins?.length || 0 }})</span>
             </template>
-            <PaginationTable :data="data.saleMemConsumeFins || []" :showPagination="false" size="small" containerHeight="100%">
+            <PaginationTable
+              :data="data.saleMemConsumeFins || []"
+              :showPagination="false"
+              size="small"
+              containerHeight="100%"
+            >
               <el-table-column prop="finNo" label="财务编号" min-width="120" />
               <el-table-column prop="finAmount" label="消费金额" width="100">
                 <template #default="{ row }">
