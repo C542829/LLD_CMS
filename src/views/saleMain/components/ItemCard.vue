@@ -29,11 +29,11 @@
       class="item price-item"
     >
       <span>{{ firstPriceText }}：</span>
-      <span class="guest">¥{{ getItemValue(data, config.retailPriceKey || 'retailPrice', 0) }}</span>
+      <span class="guest">¥{{ getItemValue(data, config.retailPriceKey || 'retailPrice', 0)?.toFixed(1) }}</span>
     </div>
     <div v-if="showSecondPrice" class="item price-item">
       <span>{{ secondPriceText }}：</span>
-      <span class="member">¥{{ getItemValue(data, config.memberPriceKey || 'memberPrice', 0) }}</span>
+      <span class="member">¥{{ getItemValue(data, config.memberPriceKey || 'memberPrice', 0)?.toFixed(1) }}</span>
     </div>
     <div class="item btn-item">
       <template v-if="config.categoryKey">

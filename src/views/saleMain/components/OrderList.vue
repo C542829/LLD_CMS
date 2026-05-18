@@ -51,10 +51,10 @@
         <div class="pay-info">
           <span class="pay-amount">
             待付款:
-            <b>￥{{ orderStore.truePayAmount }}</b>
+            <b>￥{{ orderStore.truePayAmount?.toFixed(1) }}</b>
           </span>
           <template v-if="orderStore.payAmount !== orderStore.truePayAmount">
-            <span class="original-amount">应付：￥{{ orderStore.payAmount }}</span>
+            <span class="original-amount">应付：￥{{ orderStore.payAmount?.toFixed(1) }}</span>
           </template>
         </div>
         <!-- 优惠信息 -->
@@ -68,7 +68,7 @@
             </template>
           </span>
           <template v-if="orderStore.order.discountAmount > 0">
-            <span class="discount-amount">打折优惠：{{ orderStore.order.discountAmount || 0 }}元</span>
+            <span class="discount-amount">打折优惠：{{ (orderStore.order.discountAmount || 0).toFixed(1) }}元</span>
           </template>
         </div>
       </div>
