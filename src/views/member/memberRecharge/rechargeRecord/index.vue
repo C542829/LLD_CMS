@@ -151,8 +151,8 @@
             >
               冲正
             </el-button>
-            <br />
-            <el-button link type="warning" :disabled="true" @click="showDialog(row)">修改充值单据</el-button>
+            <!-- <br /> -->
+            <!-- <el-button link type="warning" :disabled="true" @click="showDialog(row)">修改充值单据</el-button> -->
             <br />
             <el-button
               link
