@@ -53,8 +53,9 @@
         </template>
         <el-table-column prop="totalTurnover" label="总营业额" min-width="85" fixed />
         <el-table-column prop="totalActualReceipt" label="总实收" min-width="85" fixed />
-        <el-table-column prop="totalSingleTime" label="总单次" min-width="80" />
-        <el-table-column prop="totalPeopleTime" label="总人次" min-width="80" />
+        <el-table-column prop="totalCustomers" label="总客" min-width="60" />
+        <el-table-column prop="newMembers" label="新客" min-width="60" />
+        <el-table-column prop="walkInCustomers" label="散客" min-width="60" />
         <el-table-column prop="totalProjectCount" label="总项目数" min-width="85" />
         <el-table-column prop="qrPayment" label="收款码" min-width="80" />
         <el-table-column prop="cashPayment" label="现金" min-width="60" />
@@ -146,8 +147,9 @@ const multiOrgColumns: ExportColumn<OrderSummaryVO>[] = [
   { key: 'orgName', title: '门店', width: 12 },
   { key: 'totalTurnover', title: '总营业额', width: 12 },
   { key: 'totalActualReceipt', title: '总实收', width: 12 },
-  { key: 'totalSingleTime', title: '总单次', width: 10 },
-  { key: 'totalPeopleTime', title: '总人次', width: 10 },
+  { key: 'totalCustomers', title: '总客', width: 10 },
+  { key: 'newMembers', title: '新客', width: 10 },
+  { key: 'walkInCustomers', title: '散客', width: 10 },
   { key: 'totalProjectCount', title: '总项目数', width: 10 },
   { key: 'qrPayment', title: '收款码', width: 10 },
   { key: 'cashPayment', title: '现金', width: 8 },
@@ -165,8 +167,9 @@ const singleOrgColumns: ExportColumn<OrderSummaryVO>[] = [
   { key: 'statsDate', title: '日期', width: 12 },
   { key: 'totalTurnover', title: '总营业额', width: 12 },
   { key: 'totalActualReceipt', title: '总实收', width: 12 },
-  { key: 'totalSingleTime', title: '总单次', width: 10 },
-  { key: 'totalPeopleTime', title: '总人次', width: 10 },
+  { key: 'totalCustomers', title: '总客', width: 10 },
+  { key: 'newMembers', title: '新客', width: 10 },
+  { key: 'walkInCustomers', title: '散客', width: 10 },
   { key: 'totalProjectCount', title: '总项目数', width: 10 },
   { key: 'qrPayment', title: '收款码', width: 10 },
   { key: 'cashPayment', title: '现金', width: 8 },

@@ -331,7 +331,7 @@ const exportData = async () => {
  * @param row 销售订单
  */
 const reversal = async (row: any) => {
-  if (isFullDaysSince(row.settleTime, 2)) {
+  if (!userStore.isAdmin && isFullDaysSince(row.settleTime, 2)) {
     Message.warning('只能对两天以内的记录进行冲正');
     return;
   }

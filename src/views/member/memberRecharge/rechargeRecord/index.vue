@@ -315,7 +315,7 @@ const exportData = async () => {
 };
 
 const billReversal = async (row: any) => {
-  if (isFullDaysSince(row.rechargeTime, 2)) {
+  if (!userStore.isAdmin && isFullDaysSince(row.rechargeTime, 2)) {
     Message.warning('只能对两天以内的记录进行修改或冲正');
     return;
   }
