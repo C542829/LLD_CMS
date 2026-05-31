@@ -39,9 +39,10 @@
       </el-table-column>
       <el-table-column prop="assetDiscountBase" label="折扣基础" min-width="80">
         <template #default="{ row }">
-          <el-tag :type="row.assetDiscountBase === 0 ? 'success' : 'primary'" size="small">
+          <!-- <el-tag :type="row.assetDiscountBase === 0 ? 'success' : 'primary'" size="small">
             {{ row.assetDiscountBase === 0 ? '标准价' : '会员价' }}
-          </el-tag>
+          </el-tag> -->
+          <DiscountTypeTag :type="row.assetDiscountBase" />
         </template>
       </el-table-column>
       <el-table-column prop="assetDiscountRate" label="折扣率" min-width="80">
@@ -123,6 +124,7 @@
 </template>
 
 <script setup lang="ts">
+import DiscountTypeTag from '@/components/Tag/DiscountTypeTag.vue';
 import PropertyModify from './PropertyModify.vue';
 import { ref, computed, onMounted } from 'vue';
 import { ElMessageBox, ElMessage } from 'element-plus';
