@@ -1,6 +1,6 @@
 // src/utils/lodop.ts
 // @ts-expect-error 忽略js文件检查
-import { getLodop } from './LodopFuncs.js';
+import { getLodop, retryLoadCLodop } from './LodopFuncs.js';
 import { OrderData, RechargeData, Config, PrintType } from './types';
 import { calculateOrderPrintHeight, calculateRechargePrintHeight } from './utils';
 import { generateOrderHtmlTemplate, generateRechargeHtmlTemplate } from './GenerateTemplate';
@@ -10,47 +10,105 @@ import { CustomerType } from '@/enums/index.js';
 
 export class LodopPrinter {
   private LODOP: LODOP | null = null;
+  private retryCount = 0;
+  private readonly maxRetries = 3;
 
   constructor() {
     this.init();
   }
 
-  /** 初始化Lodop控件 */
+  /** 初始化Lodop控件，带重试上限和指数退避 */
   private init(): void {
     this.LODOP = getLodop();
     if (!this.LODOP) {
-      setTimeout(() => {
-        this.LODOP = getLodop();
-        if (!this.LODOP) {
-          ElMessage.error('Lodop打印控件未安装或未启动');
-        }
-      }, 300);
+      this.scheduleRetry();
+    }
+  }
+
+  private scheduleRetry(): void {
+    if (this.retryCount >= this.maxRetries) {
+      return;
+    }
+    const delay = 500 * Math.pow(2, this.retryCount); // 500ms, 1s, 2s
+    this.retryCount++;
+    setTimeout(() => {
+      this.LODOP = getLodop();
+      if (!this.LODOP) {
+        this.scheduleRetry();
+      }
+    }, delay);
+  }
+
+  /** 是否初始化失败 */
+  isFailed(): boolean {
+    return !this.LODOP && this.retryCount >= this.maxRetries;
+  }
+
+  /** 重置打印服务（手动重试） */
+  reset(): void {
+    this.retryCount = 0;
+    this.LODOP = null;
+    this.init();
+  }
+
+  /** 尝试重新连接 Lodop，返回是否成功 */
+  async reconnect(): Promise<boolean> {
+    this.LODOP = getLodop();
+    if (this.LODOP) return true;
+
+    // 重新触发 WebSocket 连接，加载 CLodop 脚本
+    retryLoadCLodop();
+
+    // 等待 WebSocket 连接建立并重试
+    for (let i = 0; i < this.maxRetries; i++) {
+      await new Promise((r) => setTimeout(r, 500 * Math.pow(2, i)));
+      this.LODOP = getLodop();
+      if (this.LODOP) return true;
+    }
+    return false;
+  }
+
+  /** 已连接则直接执行回调，否则先重连再执行 */
+  private async withLodop(cb: (LODOP: LODOP) => void): Promise<void> {
+    if (!this.LODOP && !(await this.reconnect())) {
+      ElMessage.error('Lodop打印控件未安装或未启动，请检查CLodop服务');
+      return;
+    }
+    await this.callWithRetry(cb);
+  }
+
+  /** 执行 LODOP 操作，捕获 WebSocket 未就绪错误后自动重试 */
+  private async callWithRetry(cb: (LODOP: LODOP) => void, retries = 2): Promise<void> {
+    try {
+      cb(this.LODOP!);
+    } catch (e: any) {
+      const msg = String(e?.message ?? e);
+      if (retries > 0 && /WebSocket/i.test(msg)) {
+        await new Promise((r) => setTimeout(r, 1000));
+        await this.callWithRetry(cb, retries - 1);
+      } else {
+        throw e;
+      }
     }
   }
 
   /**
    * 打开打印设计窗口
    */
-  printDesign() {
-    if (!this.LODOP) {
-      ElMessage.error('Lodop控件初始化失败');
-      return;
-    }
-
-    this.LODOP.PRINT_INIT(new Date().getTime().toString());
-    this.LODOP.PRINT_DESIGN();
+  async printDesign() {
+    await this.withLodop((LODOP) => {
+      LODOP.PRINT_INIT(new Date().getTime().toString());
+      LODOP.PRINT_DESIGN();
+    });
   }
   /**
    * 打开打印维护窗口
    */
-  printSetup() {
-    if (!this.LODOP) {
-      ElMessage.error('Lodop控件初始化失败');
-      return;
-    }
-
-    this.LODOP.PRINT_INIT(new Date().getTime().toString());
-    this.LODOP.PRINT_SETUP();
+  async printSetup() {
+    await this.withLodop((LODOP) => {
+      LODOP.PRINT_INIT(new Date().getTime().toString());
+      LODOP.PRINT_SETUP();
+    });
   }
 
   /**
@@ -95,43 +153,30 @@ export class LodopPrinter {
    * @param data 订单数据
    * @param preview 是否预览
    */
-  printOrderByHTML(data: OrderData, preview = false): void {
-    if (!this.LODOP) {
-      ElMessage.error('Lodop控件初始化失败');
+  async printOrderByHTML(data: OrderData, preview = false): Promise<void> {
+    if (!this.LODOP && !(await this.reconnect())) {
+      ElMessage.error('Lodop打印控件未安装或未启动，请检查CLodop服务');
       return;
     }
 
-    // 开启预览打印
-    // preview = true;
-
     const isMember = data.customerType === CustomerType.Member;
-
-    // 获取打印配置（单位：毫米）
     const { width, height } = this.getPrintConfig(data, PrintType.ORDER);
-    // LODOP的打印页面宽度
     const printWidth = `${width - 10}mm`;
-    // LODOP的打印页面高度
     const printHeight = `${isMember ? height : height - 9}mm`;
 
     console.log('订单打印尺寸：', { printWidth, printHeight });
 
-    // LODOP的打印任务名称
     const taskName = `${data.orderCode}-${data.orgName}消费单`;
-    // 初始化打印任务
-    this.LODOP.PRINT_INIT(taskName);
-    // 设置打印页面大小
-    this.LODOP.SET_PRINT_PAGESIZE(0, printWidth, printHeight);
-    // 按纸张定位，而非屏幕
-    this.LODOP.SET_PRINT_MODE('POS_BASEON_PAPER', 1);
-    // 关闭自动缩放，强制1:1打印
-    this.LODOP.SET_PRINT_MODE('PRINT_PAGE_PERCENT', 100);
-
-    // 生成HTML模板
     const html = generateOrderHtmlTemplate(data, printWidth);
-    // 添加HTML模板
-    this.LODOP.ADD_PRINT_HTM(0, 0, printWidth, printHeight, html);
-    // 执行打印或预览
-    preview ? this.LODOP.PREVIEW() : this.LODOP.PRINT();
+
+    await this.callWithRetry((LODOP) => {
+      LODOP.PRINT_INIT(taskName);
+      LODOP.SET_PRINT_PAGESIZE(0, printWidth, printHeight);
+      LODOP.SET_PRINT_MODE('POS_BASEON_PAPER', 1);
+      LODOP.SET_PRINT_MODE('PRINT_PAGE_PERCENT', 100);
+      LODOP.ADD_PRINT_HTM(0, 0, printWidth, printHeight, html);
+      preview ? LODOP.PREVIEW() : LODOP.PRINT();
+    });
   }
 
   /**
@@ -139,39 +184,26 @@ export class LodopPrinter {
    * @param data 充值数据
    * @param preview 是否预览
    */
-  printRechargeByHTML(data: RechargeData, preview = false): void {
-    if (!this.LODOP) {
-      ElMessage.error('Lodop控件初始化失败');
+  async printRechargeByHTML(data: RechargeData, preview = false): Promise<void> {
+    if (!this.LODOP && !(await this.reconnect())) {
+      ElMessage.error('Lodop打印控件未安装或未启动，请检查CLodop服务');
       return;
     }
 
-    // 开启预览打印
-    // preview = true;
-
-    // 获取打印配置（单位：毫米）
     const { width, height } = this.getPrintConfig(data, PrintType.RECHARGE);
-    // LODOP的打印页面宽度
     const printWidth = `${width - 10}mm`;
-    // LODOP的打印页面高度
     const printHeight = `${height}mm`;
-
-    // 打印任务名称
     const taskName = `${data.historyCode}-${data.orgName}充值单`;
-    // 初始化打印任务
-    this.LODOP.PRINT_INIT(taskName);
-    // 设置打印页面大小
-    this.LODOP.SET_PRINT_PAGESIZE(0, printWidth, printHeight);
-    // 按纸张定位，而非屏幕
-    this.LODOP.SET_PRINT_MODE('POS_BASEON_PAPER', 1);
-    // 关闭自动缩放，强制1:1打印
-    this.LODOP.SET_PRINT_MODE('PRINT_PAGE_PERCENT', 100);
-
-    // 生成HTML模板
     const html = generateRechargeHtmlTemplate(data, printWidth);
-    // 添加HTML模板
-    this.LODOP.ADD_PRINT_HTM(0, 0, printWidth, printHeight, html);
-    // 执行打印或预览
-    preview ? this.LODOP.PREVIEW() : this.LODOP.PRINT();
+
+    await this.callWithRetry((LODOP) => {
+      LODOP.PRINT_INIT(taskName);
+      LODOP.SET_PRINT_PAGESIZE(0, printWidth, printHeight);
+      LODOP.SET_PRINT_MODE('POS_BASEON_PAPER', 1);
+      LODOP.SET_PRINT_MODE('PRINT_PAGE_PERCENT', 100);
+      LODOP.ADD_PRINT_HTM(0, 0, printWidth, printHeight, html);
+      preview ? LODOP.PREVIEW() : LODOP.PRINT();
+    });
   }
 
   /**
@@ -179,20 +211,19 @@ export class LodopPrinter {
    * @param data 订单数据
    * @param preview 是否预览
    */
-  printReceipt(data: OrderData, preview = false): void {
-    if (!this.LODOP) {
-      ElMessage.error('Lodop控件初始化失败');
+  async printReceipt(data: OrderData, preview = false): Promise<void> {
+    if (!this.LODOP && !(await this.reconnect())) {
+      ElMessage.error('Lodop打印控件未安装或未启动，请检查CLodop服务');
       return;
     }
 
-    // 获取打印配置（单位：毫米）
     const config = this.getPrintConfig(data, PrintType.ORDER);
     console.log('打印配置:', config);
 
-    // 生成订单打印模板
-    orderTemplate(this.LODOP, data, config);
-    // 执行打印或预览
-    preview ? this.LODOP.PREVIEW() : this.LODOP.PRINT();
+    await this.callWithRetry((LODOP) => {
+      orderTemplate(LODOP, data, config);
+      preview ? LODOP.PREVIEW() : LODOP.PRINT();
+    });
   }
 
   /**
@@ -210,4 +241,12 @@ export class LodopPrinter {
   generateRechargeHtmlTemplate: (data: RechargeData) => string = generateRechargeHtmlTemplate;
 }
 
-export const printer = new LodopPrinter();
+let _printer: LodopPrinter | null = null;
+
+/** 获取 LodopPrinter 单例（懒加载，首次调用时才初始化，失败后允许重建） */
+export function getPrinter(): LodopPrinter {
+  if (!_printer || _printer.isFailed()) {
+    _printer = new LodopPrinter();
+  }
+  return _printer;
+}
