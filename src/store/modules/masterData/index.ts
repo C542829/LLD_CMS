@@ -13,7 +13,7 @@ import { reqOrgList } from '@/api/acl/org/index';
 import { reqRoleList } from '@/api/acl/role';
 import { reqUserList } from '@/api/user/index';
 
-import { parseResList, parseResObj } from '@/utils/parseResponse';
+import { parseResList } from '@/utils/parseResponse';
 
 export const useMasterDataStore = defineStore('MasterData', () => {
   /**
@@ -33,14 +33,7 @@ export const useMasterDataStore = defineStore('MasterData', () => {
   /** 充值活动列表 */
   const activeList: any = ref([]);
   const getActiveList = (refresh = false, params = { pageNum: 1, pageSize: 100 }) =>
-    load(
-      activeList,
-      () =>
-        reqActiveList(params)
-          .then(parseResObj)
-          .then((d) => d.rows),
-      refresh,
-    );
+    load(activeList, () => reqActiveList(params).then(parseResList), refresh);
 
   /** 产品列表 */
   const productList: any = ref([]);
