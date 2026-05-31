@@ -6,7 +6,7 @@ export { Types };
 enum API {
   LIST_URL = '/vip/recharge-active/query-list',
   ADD_URL = '/vip/recharge-active/add',
-  // UPDATE_URL = '/vip/recharge-active/update-active',
+  UPDATE_URL = '/vip/recharge-active/update',
   UPDATE_STATUS_URL = '/vip/recharge-active/update-status',
 }
 
@@ -24,7 +24,7 @@ export const reqAddActive = (data = {}) => post(API.ADD_URL, data);
 /**
  * 更新充值活动
  */
-// export const reqUpdateActive = (data = {}) => put(API.UPDATE_URL, data);
+export const reqUpdateActive = (data = {}) => put(API.UPDATE_URL, data);
 
 /**
  * 更新充值活动状态

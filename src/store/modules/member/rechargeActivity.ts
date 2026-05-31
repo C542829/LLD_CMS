@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { reactive, ref } from 'vue';
-import { reqActiveList, reqAddActive, reqUpdateActiveStatus } from '@/api/member/rechargeActivity';
+import { reqActiveList, reqAddActive, reqUpdateActive, reqUpdateActiveStatus } from '@/api/member/rechargeActivity';
 
 import { parseResMsg, parseResList } from '@/utils/parseResponse';
 import { formatDate } from '@/utils/time';
@@ -79,8 +79,7 @@ export const useRechargeActivityStore = defineStore('RechargeActivity', () => {
     data.activeBeginTime = data.activeTime[0];
     data.activeFinalTime = data.activeTime[1];
     // 发送请求
-    // const res = await (data?.id ? reqUpdateActive(data) : reqAddActive(data));
-    const res = await (data?.id ? data : reqAddActive(data));
+    const res = await (data?.id ? reqUpdateActive(data) : reqAddActive(data));
     const result = parseResMsg(res);
     // 刷新数据
     result && setTableData();
