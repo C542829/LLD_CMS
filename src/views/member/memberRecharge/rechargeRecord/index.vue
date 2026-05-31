@@ -195,7 +195,7 @@ import {
   RechargeType,
   RechargeTypeMap,
 } from '@/enums/index';
-import { printer } from '@/utils/lodop';
+import { getPrinter } from '@/utils/lodop';
 import { parseResMsg, parseResObj } from '@/utils/parseResponse';
 import { downloadBlob } from '@/utils/download';
 import useUserStore from '@/store/modules/acl/user';
@@ -343,7 +343,7 @@ const reprint = async (row: any) => {
 
   const org = userStore.org;
   const data = { ...row, ...org };
-  printer.printRechargeByHTML(data, false);
+  getPrinter().printRechargeByHTML(data, false);
 };
 
 // 模态框

@@ -88,7 +88,7 @@ import { cloneDeep, isEmpty } from 'lodash';
 import { ref, watch, onMounted } from 'vue';
 import { paymentTypeMap, PaymentType, couponTypeMap, CouponType } from '@/enums';
 import { CustomerType } from '@/enums/index';
-import { printer } from '@/utils/lodop';
+import { getPrinter } from '@/utils/lodop';
 import { type Types, reqQueryOrder, reqSettleOrder } from '@/api/order/index';
 
 import { useOrderStore } from '@/store/modules/order/index';
@@ -233,7 +233,7 @@ const printReceipt = async (orderCode: string) => {
     // 合并订单详情和门店详情
     const data: any = { ...order, ...org };
     // 打印小票
-    printer.printOrderByHTML(data, false);
+    getPrinter().printOrderByHTML(data, false);
   } catch (error) {}
 };
 
