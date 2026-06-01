@@ -14,6 +14,7 @@ import { reqRoleList } from '@/api/acl/role';
 import { reqUserList } from '@/api/user/index';
 
 import { parseResList } from '@/utils/parseResponse';
+import { getUserInfo } from '@/utils/localStorageTools';
 
 export const useMasterDataStore = defineStore('MasterData', () => {
   /**
@@ -80,7 +81,7 @@ export const useMasterDataStore = defineStore('MasterData', () => {
   const getRoleList = (refresh = false, params = { status: 0 }) =>
     load(roleList, () => reqRoleList(params).then((res) => res.data), refresh);
 
-  /** 用户列表 */
+  /** 用户列表（按当前门店优先 + 账号排序） */
   const userList: any = ref([]);
   const getUserList = (refresh = false) =>
     load(
@@ -94,12 +95,20 @@ export const useMasterDataStore = defineStore('MasterData', () => {
           pageNum: 1,
           pageSize: 200,
           orgIds: [],
-        }).then((res) =>
-          res.data.rows.map((item: any) => ({
-            userId: item.id,
-            ...item,
-          })),
-        ),
+        }).then((res) => {
+          const currentOrgId = getUserInfo()?.orgId;
+          return res.data.rows
+            .map((item: any) => ({
+              userId: item.id,
+              ...item,
+            }))
+            .sort((a: any, b: any) => {
+              const aMatch = a.orgId === currentOrgId ? 0 : 1;
+              const bMatch = b.orgId === currentOrgId ? 0 : 1;
+              if (aMatch !== bMatch) return aMatch - bMatch;
+              return (a.userCode || '').localeCompare(b.userCode || '');
+            });
+        }),
       refresh,
     );
 
