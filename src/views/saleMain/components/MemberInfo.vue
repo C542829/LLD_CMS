@@ -129,9 +129,11 @@ const assetList: any = computed(() => {
   if (!store.member.vipAssetVOList && isEmpty(store.member.vipAssetVOList)) {
     return [];
   }
-
+  const currentOrgId = store.member.vipInfoVO?.orgId;
   // 过滤可用会员卡
-  const assetList = store.member.vipAssetVOList.filter((item: any) => item.assetBalance > 0 && item.status === 0);
+  const assetList = store.member.vipAssetVOList.filter(
+    (item: any) => item.assetBalance > 0 && item.status === 0 && item.orgId === currentOrgId,
+  );
   // 排序
   assetList.sort((a: any, b: any) => {
     // 第一条件：折扣基础
