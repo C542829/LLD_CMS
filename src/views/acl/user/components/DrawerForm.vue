@@ -15,10 +15,11 @@
           <OrgSelect v-model="formdata.orgIds" />
         </el-form-item>
       </template>
-      <!-- 关联门店 -->
+
+      <!-- 默认门店 -->
       <template v-if="userStore.isAdmin || userStore.isAreaManager">
         <el-form-item label="默认门店" prop="orgId">
-          <OrgSelect v-model="formdata.orgId" :multiple="false" />
+          <OrgSelect v-model="formdata.orgId" :multiple="false" placeholder="默认门店" />
         </el-form-item>
       </template>
 
