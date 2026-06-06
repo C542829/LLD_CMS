@@ -116,6 +116,7 @@ export const useMemberStore = defineStore('Member', () => {
       birthday: '',
       address: '',
       remark: '',
+      orgId: '',
     };
   };
 
