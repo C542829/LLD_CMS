@@ -6,7 +6,7 @@ export { Types };
 
 /** 杨波销售数据接口地址 */
 enum API {
-  /** 分页列表 - TODO: 待后端开发完成后补充接口地址 */
+  /** 分页列表 */
   LIST_URL = '/yb/sale-data/page',
 }
 

@@ -12,12 +12,6 @@
             <span class="label">门店：</span>
             <span class="value">{{ data.orgName || '-' }}</span>
           </div>
-          <div class="info-item">
-            <span class="label">订单状态：</span>
-            <el-tag :type="getOrderStatusTagType(data.orderStatus) as any" size="small">
-              {{ ORDER_STATUS_MAP[data.orderStatus] || '-' }}
-            </el-tag>
-          </div>
         </div>
         <div class="info-row">
           <div class="info-item">
@@ -181,21 +175,19 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
-import type { YbSaleDataVO } from '../utils/types';
+import type { YbSaleDataParsed } from '../utils/types';
 import {
-  ORDER_STATUS_MAP,
   MEMBER_LEVEL_MAP,
   MEMBER_LEVEL_TAG_TYPE,
   PRODUCT_TYPE_MAP,
   SERVICE_TYPE_MAP,
   TRAN_FIN_MAP,
   PAY_FIELDS,
-  getOrderStatusTagType,
 } from '../utils';
 
 interface Props {
   modelValue: boolean;
-  data: YbSaleDataVO | null;
+  data: YbSaleDataParsed | null;
 }
 
 const props = withDefaults(defineProps<Props>(), {

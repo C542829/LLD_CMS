@@ -2,27 +2,9 @@
  * 杨波销售数据模块枚举映射和工具函数
  */
 
+import type { YbSaleDataVO, YbSaleDataParsed, YbSaleDataDetail } from './types';
+
 // ==================== 枚举映射 ====================
-
-/** 订单状态映射 */
-export const ORDER_STATUS_MAP: Record<number, string> = {
-  37: '已开单',
-  39: '已结账',
-  41: '已取消',
-  43: '已挂账(签单)',
-  45: '已挂单',
-  46: '已冲正',
-};
-
-/** 订单状态下拉选项 */
-export const ORDER_STATUS_OPTIONS: OptionItem[] = [
-  { value: 37, label: '已开单' },
-  { value: 39, label: '已结账' },
-  { value: 41, label: '已取消' },
-  { value: 43, label: '已挂账(签单)' },
-  { value: 45, label: '已挂单' },
-  { value: 46, label: '已冲正' },
-];
 
 /** 会员等级映射 */
 export const MEMBER_LEVEL_MAP: Record<string, string> = {
@@ -92,6 +74,21 @@ export const TRAN_FIN_MAP: Record<number, string> = {
   1: '是',
 };
 
+// ==================== 门店配置 ====================
+
+export const STORE_MAP: Record<number, string> = {
+  1459: '锦绣4店',
+  2219: '冉屯8店',
+  197: '升龙6店',
+};
+
+/** 门店选项 */
+export const STORE_OPTIONS: OptionItem[] = [
+  { value: 1459, label: '锦绣4店' },
+  { value: 2219, label: '冉屯8店' },
+  { value: 197, label: '升龙6店' },
+];
+
 // ==================== 支付方式汇总 ====================
 
 /** 支付方式字段列表 */
@@ -110,20 +107,27 @@ export const PAY_FIELDS = [
   { key: 'otherPay', label: '其他' },
 ] as const;
 
+// ==================== 工具函数 ====================
+
 /**
- * 获取订单状态 Tag 类型
+ * 安全解析 JSON 字符串
  */
-export function getOrderStatusTagType(status: number): string {
-  switch (status) {
-    case 39:
-      return 'success';
-    case 41:
-    case 46:
-      return 'danger';
-    case 43:
-    case 45:
-      return 'warning';
-    default:
-      return 'info';
+function safeJsonParse<T>(jsonStr: string | null | undefined, fallback: T): T {
+  if (!jsonStr) return fallback;
+  try {
+    return JSON.parse(jsonStr) as T;
+  } catch {
+    return fallback;
   }
+}
+
+/**
+ * 将 API 原始 VO 解析为可用的 Parsed 类型
+ * details 字段为 JSON 字符串，需解析为数组
+ */
+export function parseSaleDataVO(vo: YbSaleDataVO): YbSaleDataParsed {
+  return {
+    ...vo,
+    details: safeJsonParse<YbSaleDataDetail[]>(vo.details, []),
+  };
 }

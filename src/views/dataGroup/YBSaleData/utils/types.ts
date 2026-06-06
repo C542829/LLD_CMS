@@ -14,14 +14,14 @@ export interface YbSaleDataQuery {
   endTime?: string;
   /** 门店ID */
   orgId?: number | string;
+  /** 是否会员：0-散客 1-会员，不传全部 */
+  isVip?: number | string;
   /** 会员姓名 */
-  memName?: string;
+  memberName?: string;
   /** 会员手机号 */
   cellPhoneNo?: string;
   /** 会员ID */
   memberId?: number | string;
-  /** 订单状态 */
-  orderStatus?: number;
 }
 
 // ==================== 子项结构 ====================
@@ -107,7 +107,7 @@ export interface YbSaleDataFin {
 // ==================== 响应数据 ====================
 
 /**
- * 杨波销售数据 VO
+ * 杨波销售数据 VO（API 原始响应，details 为 JSON 字符串）
  */
 export interface YbSaleDataVO {
   /** 销售记录唯一ID */
@@ -134,10 +134,6 @@ export interface YbSaleDataVO {
   beforeBalance: number;
   /** 交易后会员余额 */
   afterBalance: number;
-  /** 交易前会员联合余额(跨店) */
-  beforeUnionBalance: number;
-  /** 交易后会员联合余额(跨店) */
-  afterUnionBalance: number;
   /** 应收金额(标价总额) */
   shouldAmount: number;
   /** 实收金额(折后实际支付) */
@@ -146,8 +142,6 @@ export interface YbSaleDataVO {
   discountAmount: number;
   /** 优惠折扣金额 */
   optDiscount: number;
-  /** 优惠折扣ID */
-  optDisId: number;
   /** 总成本 */
   totalCost: number;
   /** 提成金额 */
@@ -176,50 +170,22 @@ export interface YbSaleDataVO {
   lianLianPay: number;
   /** 其他支付金额 */
   otherPay: number;
-  /** 是否在线支付：0-否 1-是 */
-  onlinePay: number;
-  /** 在线支付金额 */
-  onlinePayAmount: number;
-  /** 支付状态 */
-  payState: number;
-  /** 收券数量 */
-  receiptCoupon: number;
-  /** 订单状态：37-已开单 39-已结账 41-已取消 43-已挂账 45-已挂单 46-已冲正 */
-  orderStatus: number;
-  /** 开单操作员ID */
-  createrUserId: number;
   /** 开单操作员名称 */
-  createUserName: string;
-  /** 结账操作员ID */
-  settleUserId: number;
+  createrUserName: string;
   /** 结账操作员名称 */
   settleUserName: string;
-  /** 转账结算金额 */
-  transSettleAmount: number;
-  /** 转账品牌ID */
-  transBrandId: number;
-  /** 签单员工ID */
-  signBillStaffId: number;
-  /** 次卡信息 */
-  timesCardInfo: string;
-  /** 批次标记 */
-  batchFlag: string;
-  /** 批次号 */
-  batchNum: number;
-  /** 短日期(YYMMDD格式) */
-  shortDate: number;
   /** 记录创建时间 */
   createTime: string;
-  /** 记录更新时间 */
-  updateTime: string;
-  /** 最后更新操作员ID */
-  updateUserId: number;
-  /** 优惠券ID列表，逗号分隔 */
-  couponsIds: string;
   /** 备注 */
-  remark: string;
+  remark: string | null;
+  /** 销售明细（JSON 字符串，需解析） */
+  details: string;
+}
+
+/**
+ * 杨波销售数据（解析后的 details）
+ */
+export interface YbSaleDataParsed extends Omit<YbSaleDataVO, 'details'> {
   /** 销售明细数组 */
   details: YbSaleDataDetail[];
-  /** 会员消费财务记录数组 */
-  saleMemConsumeFins: YbSaleDataFin[];
 }

@@ -24,12 +24,27 @@
           </div>
         </template>
         <div class="search-item">
-          <label for="memName">姓名：</label>
-          <el-input
-            v-model="searchParams.memName"
-            id="memName"
+          <label for="isVip">会员类型：</label>
+          <el-select
+            v-model="searchParams.isVip"
+            clearable
+            @change="search"
+            id="isVip"
             class="w-80"
-            placeholder="会员姓名"
+            placeholder="会员类型"
+          >
+            <el-option label="全部" value="" />
+            <el-option label="散客" :value="0" />
+            <el-option label="会员" :value="1" />
+          </el-select>
+        </div>
+        <div class="search-item">
+          <label for="memberName">姓名：</label>
+          <el-input
+            v-model="searchParams.memberName"
+            id="memberName"
+            class="w-80"
+            placeholder="姓名"
             clearable
             @clear="search"
           />
@@ -45,17 +60,17 @@
             @clear="search"
           />
         </div>
-        <div class="search-item">
+        <!-- <div class="search-item">
           <label for="memberId">会员ID：</label>
           <el-input
             v-model="searchParams.memberId"
             id="memberId"
-            class="w-100"
+            class="w-80"
             placeholder="会员ID"
             clearable
             @clear="search"
           />
-        </div>
+        </div> -->
         <div class="search-item">
           <el-button type="primary" @click="search">搜索</el-button>
         </div>
@@ -78,7 +93,11 @@
         @pagination-current-change="handleCurrentChange"
       >
         <el-table-column type="index" label="序号" width="60" />
-        <el-table-column prop="orgName" label="门店" min-width="80" />
+        <el-table-column prop="orgName" label="门店" min-width="80">
+          <template #default="{ row }">
+            {{ STORE_MAP[row.orgId] || row.orgName }}
+          </template>
+        </el-table-column>
         <el-table-column prop="salesNo" label="销售单号" width="120" />
         <el-table-column label="顾客信息" min-width="120">
           <template #default="{ row }">
@@ -128,13 +147,6 @@
             <span v-else>-</span>
           </template>
         </el-table-column>
-        <el-table-column label="订单状态" width="100" align="center">
-          <template #default="{ row }">
-            <el-tag :type="getOrderStatusTagType(row.orderStatus) as any" size="small">
-              {{ ORDER_STATUS_MAP[row.orderStatus] || '未知' }}
-            </el-tag>
-          </template>
-        </el-table-column>
         <el-table-column prop="tradeTime" label="交易时间" min-width="100" />
         <el-table-column label="操作" width="80" fixed="right">
           <template #default="{ row }">
@@ -149,29 +161,26 @@
 
 <script setup lang="ts">
 import DetailDialog from './components/DetailDialog.vue';
-import { ref, reactive, onMounted, computed } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { cloneDeep } from 'lodash';
 import { reqYbSaleDataList } from './utils/api';
-import type { YbSaleDataQuery, YbSaleDataVO } from './utils/types';
-import {
-  ORDER_STATUS_MAP,
-  ORDER_STATUS_OPTIONS,
-  MEMBER_LEVEL_MAP,
-  MEMBER_LEVEL_TAG_TYPE,
-  PAY_FIELDS,
-  getOrderStatusTagType,
-} from './utils/index';
+import type { YbSaleDataQuery, YbSaleDataParsed } from './utils/types';
+import { STORE_MAP, PAY_FIELDS, STORE_OPTIONS, parseSaleDataVO } from './utils/index';
 import useUserStore from '@/store/modules/acl/user';
-import { saleData } from './utils/data';
 
 const route = useRoute();
 const userStore = useUserStore();
 
-// TODO: 门店选项需要从接口获取或配置
-const storeOptions = computed<OptionItem[]>(() => {
-  // 临时返回空数组，后续根据实际门店数据配置
-  return [];
+/** 根据用户角色动态计算门店选项：管理员看全部门店，非管理员只看所属门店 */
+const storeOptions = computed(() => {
+  if (userStore.isAdmin) {
+    return STORE_OPTIONS;
+  }
+  if (!userStore.org || !userStore.org.legacyOrgId) {
+    return [];
+  }
+  return STORE_OPTIONS.filter((item) => item.value == userStore.org!.legacyOrgId);
 });
 
 /** 加载状态 */
@@ -186,30 +195,35 @@ const DEFAULT_SEARCH_PARAMS: YbSaleDataQuery = {
   pageSize: 50,
   startTime: '',
   endTime: '',
-  memName: '',
+  memberName: '',
   cellPhoneNo: '',
   memberId: '',
   orgId: '',
-  orderStatus: undefined,
+  isVip: 1,
 };
 
 /** 搜索参数 */
 const searchParams = reactive<YbSaleDataQuery>(cloneDeep(DEFAULT_SEARCH_PARAMS));
 
-const memberId = route.query.memberId;
-if (memberId) {
-  searchParams.memberId = memberId as string;
+// 接收路由跳转入参
+const queryMemberId = route.query.memberId;
+if (queryMemberId) {
+  searchParams.memberId = queryMemberId as string;
+}
+const queryOrgId = route.query.orgId;
+if (queryOrgId) {
+  searchParams.orgId = Number(queryOrgId);
 }
 
 /** 表格数据 */
-const tableData = reactive<{ list: YbSaleDataVO[]; total: number }>({
+const tableData = reactive<{ list: YbSaleDataParsed[]; total: number }>({
   list: [],
   total: 0,
 });
 
 /** 详情弹窗 */
 const dialogVisible = ref(false);
-const currentRow = ref<YbSaleDataVO | null>(null);
+const currentRow = ref<YbSaleDataParsed | null>(null);
 
 onMounted(() => {
   setTimeout(() => {
@@ -233,9 +247,8 @@ const fetchTableData = async () => {
       params.startTime = dateRange.value[0];
       params.endTime = dateRange.value[1];
     }
-    // const res = await reqYbSaleDataList(params);
-    // tableData.list = res.data.rows || [];
-    tableData.list = saleData;
+    const res = await reqYbSaleDataList(params);
+    tableData.list = (res.data.rows || []).map(parseSaleDataVO);
     tableData.total = res.data.total;
   } catch (error) {
     console.error('获取杨波销售数据列表失败：', error);
@@ -246,6 +259,14 @@ const fetchTableData = async () => {
 
 /** 搜索 */
 const search = () => {
+  // 非管理员且无门店选项时，设置 orgId 为 0
+  if (storeOptions.value.length === 0) {
+    searchParams.orgId = 0;
+  }
+  // 非管理员且只有一个门店时，自动选中该门店
+  if (storeOptions.value.length === 1) {
+    searchParams.orgId = storeOptions.value[0].value;
+  }
   fetchTableData();
 };
 
@@ -262,13 +283,13 @@ const handleCurrentChange = (val: number) => {
 };
 
 /** 显示详情弹窗 */
-const showDetailDialog = (row: YbSaleDataVO) => {
+const showDetailDialog = (row: YbSaleDataParsed) => {
   currentRow.value = cloneDeep(row);
   dialogVisible.value = true;
 };
 
 // 设置行样式（散客灰色显示）
-const getRowClassName = ({ row }: { row: YbSaleDataVO }) => {
+const getRowClassName = ({ row }: { row: YbSaleDataParsed }) => {
   return row.memberId === 0 ? 'disabled-row' : '';
 };
 </script>
