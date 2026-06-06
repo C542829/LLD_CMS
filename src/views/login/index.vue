@@ -1,17 +1,28 @@
 <template>
   <div class="login-container">
     <!-- 登录的表单 -->
-    <el-form class="login-form" :model="loginForm" :rules="rules" ref="loginForms" label-position="top">
+    <el-form class="login-form" :model="loginForm" :rules="rules" ref="loginForms" label-position="left">
       <h1>刘丽德健康管理运营系统</h1>
       <h2>请输入您的门店账号信息登录</h2>
-      <!-- <el-form-item prop="orgCode" class="form-item">
-        <el-input :prefix-icon="HomeFilled" v-model="loginForm.orgCode"></el-input>
-      </el-form-item> -->
-      <el-form-item prop="username" label="账号" class="form-item">
-        <el-input :prefix-icon="User" v-model="loginForm.username"></el-input>
+      <el-form-item prop="orgCode" label="门店" class="form-item">
+        <el-input
+          autocomplete="off"
+          :prefix-icon="HomeFilled"
+          v-model="loginForm.orgCode"
+          placeholder="请输入门店编码"
+        ></el-input>
+      </el-form-item>
+      <el-form-item prop="userCode" label="账号" class="form-item">
+        <el-input
+          autocomplete="username"
+          :prefix-icon="User"
+          v-model="loginForm.userCode"
+          placeholder="请输入账号"
+        ></el-input>
       </el-form-item>
       <el-form-item prop="password" label="密码" class="form-item">
         <el-input
+          autocomplete="current-password"
           :prefix-icon="Lock"
           type="password"
           v-model="loginForm.password"
@@ -30,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { User, Lock } from '@element-plus/icons-vue';
+import { User, Lock, HomeFilled } from '@element-plus/icons-vue';
 import { reactive, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { reqLogin } from '@/api/user/index';
@@ -46,8 +57,7 @@ const router = useRouter();
 const route = useRoute();
 
 // 收集账号与密码的数据
-// const loginForm = reactive({ orgCode: '1', username: '', password: '' });
-const loginForm = reactive({ username: '', password: '' });
+const loginForm = reactive({ orgCode: '', userCode: '', password: '' });
 
 // 登录加载状态
 const loading = ref(false);
@@ -74,8 +84,8 @@ const login = async () => {
 
 // 定义表单校验需要配置对象
 const rules = {
-  // orgCode: [{ required: true, message: '请输入门店编码', trigger: 'blur' }],
-  username: [{ required: true, min: 2, max: 20, message: '账号长度2-20位', trigger: 'blur' }],
+  orgCode: [{ required: true, message: '请输入门店编码', trigger: 'blur' }],
+  userCode: [{ required: true, min: 2, max: 20, message: '账号长度2-20位', trigger: 'blur' }],
   password: [{ required: true, min: 3, max: 20, message: '密码长度3-20位', trigger: 'blur' }],
 };
 </script>
