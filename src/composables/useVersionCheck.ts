@@ -7,6 +7,7 @@ export function useVersionCheck(intervalMs = 5 * 60 * 1000) {
   const hasUpdate = ref(false);
   let timer: ReturnType<typeof setInterval> | null = null;
   let newVersion = '';
+  let isFirstCheck = true;
 
   const check = async () => {
     try {
@@ -15,10 +16,12 @@ export function useVersionCheck(intervalMs = 5 * 60 * 1000) {
       const { version } = await res.json();
 
       const localVersion = localStorage.getItem(VERSION_KEY);
-      if (localVersion && localVersion !== version) {
+      // 首次检查仅静默同步版本号，不弹窗提示（页面刷新本身已加载最新版本）
+      if (!isFirstCheck && localVersion && localVersion !== version) {
         hasUpdate.value = true;
         newVersion = version;
       }
+      isFirstCheck = false;
       localStorage.setItem(VERSION_KEY, version);
     } catch {
       // 网络异常时忽略
