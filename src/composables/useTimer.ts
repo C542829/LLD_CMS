@@ -131,8 +131,7 @@ export function useTimer(detail: () => OrderDetailVO | undefined | null) {
     }
     remainingSeconds.value = getCountdown(d.timerEndTime);
     isWarning.value =
-      (remainingSeconds.value !== null && remainingSeconds.value <= WARNING_THRESHOLD) ||
-      d.timerWarned === 1;
+      (remainingSeconds.value !== null && remainingSeconds.value <= WARNING_THRESHOLD) || d.timerWarned === 1;
 
     // 倒计时结束，停止定时器
     if (remainingSeconds.value === 0) {
