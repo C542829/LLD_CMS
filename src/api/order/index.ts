@@ -28,6 +28,14 @@ enum API {
   UPDATE_SERVER_TYPE = '/order/update-server-type/{detailId}',
   /** 修改服务技师 */
   UPDATE_SERVER_EMPLOYEE = '/order/update-server-employee/{detailId}',
+  /** 开始计时 */
+  TIMER_START = '/order/detail/timer/start/{detailId}',
+  /** 暂停计时 */
+  TIMER_PAUSE = '/order/detail/timer/pause/{detailId}',
+  /** 恢复计时 */
+  TIMER_RESUME = '/order/detail/timer/resume/{detailId}',
+  /** 停止计时 */
+  TIMER_STOP = '/order/detail/timer/stop/{detailId}',
 }
 
 enum PathStr {
@@ -153,4 +161,40 @@ export const reqUpdateServerType = (detailId: number, serverType: number): ApiRe
 export const reqUpdateServerEmployee = (detailId: number, data: Types.OrderDetailTechnicianDTO[]): ApiResponse<any> => {
   const api = API.UPDATE_SERVER_EMPLOYEE.replace(PathStr.detailId, detailId.toString());
   return put(api, data);
+};
+
+/**
+ * 开始计时
+ * @param detailId 订单明细ID
+ * @returns
+ */
+export const reqTimerStart = (detailId: number): ApiResponse<string> => {
+  return post(API.TIMER_START.replace(PathStr.detailId, detailId.toString()));
+};
+
+/**
+ * 暂停计时
+ * @param detailId 订单明细ID
+ * @returns
+ */
+export const reqTimerPause = (detailId: number): ApiResponse<string> => {
+  return post(API.TIMER_PAUSE.replace(PathStr.detailId, detailId.toString()));
+};
+
+/**
+ * 恢复计时
+ * @param detailId 订单明细ID
+ * @returns
+ */
+export const reqTimerResume = (detailId: number): ApiResponse<string> => {
+  return post(API.TIMER_RESUME.replace(PathStr.detailId, detailId.toString()));
+};
+
+/**
+ * 停止计时
+ * @param detailId 订单明细ID
+ * @returns
+ */
+export const reqTimerStop = (detailId: number): ApiResponse<string> => {
+  return post(API.TIMER_STOP.replace(PathStr.detailId, detailId.toString()));
 };

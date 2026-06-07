@@ -504,6 +504,36 @@ export const orderStatusOptions = [
 ];
 // #endregion 订单状态
 
+// #region 计时状态
+/**
+ * 计时状态枚举
+ */
+export enum TimerStatus {
+  NotStarted = 0, // 未开始
+  Running = 1, // 进行中
+  Paused = 2, // 已暂停
+  Stopped = 3, // 已结束
+}
+/**
+ * 计时状态映射
+ */
+export const TimerStatusMap = {
+  [TimerStatus.NotStarted]: '未开始',
+  [TimerStatus.Running]: '进行中',
+  [TimerStatus.Paused]: '已暂停',
+  [TimerStatus.Stopped]: '已结束',
+};
+/**
+ * 计时状态选项
+ */
+export const timerStatusOptions = [
+  { value: TimerStatus.NotStarted, label: '未开始' },
+  { value: TimerStatus.Running, label: '进行中' },
+  { value: TimerStatus.Paused, label: '已暂停' },
+  { value: TimerStatus.Stopped, label: '已结束' },
+];
+// #endregion 计时状态
+
 // #region 床位状态
 /**
  * 床位状态枚举

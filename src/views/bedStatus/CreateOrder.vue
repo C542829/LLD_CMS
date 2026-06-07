@@ -47,36 +47,84 @@
         <!-- <div style="margin: 10px 0 0 10px">
           <el-button type="primary" :disabled="type == 'view'" @click="showDialog(false)">新增明细</el-button>
         </div> -->
-        <PaginationTable :data="orderStore.order.orderDetails" :showPagination="false">
-          <el-table-column prop="businessName" label="名称" />
-          <el-table-column prop="truePrice" label="价格">
+        <PaginationTable :data="orderStore.order.orderDetails" :showPagination="false" size="small">
+          <el-table-column prop="businessName" label="名称" min-width="50" />
+          <el-table-column prop="truePrice" label="价格" min-width="50">
             <template #default="{ row }">
-              <p>标准价￥{{ row.stdPrice }}</p>
-              <p>实收价￥{{ row.trueUnitPrice }}</p>
+              <p class="text">标准价￥{{ row.stdPrice }}</p>
+              <p class="text">实收价￥{{ row.trueUnitPrice }}</p>
             </template>
           </el-table-column>
-          <el-table-column prop="userName" label="技师/销售" min-width="100">
+          <el-table-column label="技师/上钟" min-width="100">
             <template #default="{ row }">
-              <template v-if="row.technicians">
-                <div v-for="(item, index) in row.technicians" :key="index" class="text-overflow">
-                  {{ item.userName }}({{ item.userCode }})
+              <template v-if="row.bizType === OrderDetailType.Service">
+                <!-- 技师行 -->
+                <div class="technician-line">
+                  <span class="technician-label">技师:</span>
+                  <template v-if="row.technicians?.length">
+                    <template v-for="(item, tIdx) in row.technicians" :key="tIdx">
+                      <span>
+                        {{ item.userName }}
+                        <template v-if="item.userCode">({{ item.userCode }})</template>
+                      </span>
+                      <span v-if="Number(tIdx) < row.technicians.length - 1">、</span>
+                    </template>
+                  </template>
+                  <template v-else>
+                    <span>{{ row.userName || '-' }}</span>
+                  </template>
+                  <ClockInTypeTag :type="row.serverType" />
+                </div>
+                <!-- 上钟时间行 -->
+                <div class="technician-line">
+                  <span class="technician-label">上钟:</span>
+                  <span>{{ formatServiceTime(row) }}</span>
                 </div>
               </template>
               <template v-else>
-                {{ row.userName }}
+                <span>{{ row.userName || '-' }}</span>
               </template>
             </template>
           </el-table-column>
-          <el-table-column prop="serverType" label="上钟类型" width="85">
+          <!-- 计时状态列：仅服务项目显示 -->
+          <!-- <el-table-column v-if="hasServiceItems" label="计时" width="120">
             <template #default="{ row }">
               <template v-if="row.bizType === OrderDetailType.Service">
-                <ClockInTypeTag :type="row.serverType" />
+                <el-tag
+                  :type="getTimerTagType(row)"
+                  :effect="getTimerEffect(row)"
+                  size="small"
+                  :class="{ 'timer-tag--warning': isTimerWarning(row) }"
+                >
+                  {{ getTimerLabel(row) }}
+                </el-tag>
+              </template>
+              <template v-else>
+                <span class="text-gray-400">-</span>
               </template>
             </template>
-          </el-table-column>
-          <el-table-column label="操作">
+          </el-table-column> -->
+          <el-table-column label="操作" width="100">
             <template #default="{ row }">
-              <el-button @click="deleteOrderDetail(row)" link type="danger">删除</el-button>
+              <el-button @click="deleteOrderDetail(row)" link size="small" type="danger">删除</el-button>
+              <br />
+              <!-- 计时操作按钮 -->
+              <template v-if="row.bizType === OrderDetailType.Service">
+                <template v-if="row.timerStatus === TimerStatus.NotStarted">
+                  <el-button link type="success" size="small" @click="handleTimerAction(row, 'start')">上钟</el-button>
+                </template>
+                <template v-else-if="row.timerStatus === TimerStatus.Running">
+                  <el-button link type="warning" size="small" @click="handleTimerAction(row, 'pause')">暂停</el-button>
+                  <el-button link type="danger" size="small" @click="handleTimerAction(row, 'stop')">停止</el-button>
+                </template>
+                <template v-else-if="row.timerStatus === TimerStatus.Paused">
+                  <el-button link type="success" size="small" @click="handleTimerAction(row, 'resume')">恢复</el-button>
+                  <el-button link type="danger" size="small" @click="handleTimerAction(row, 'stop')">停止</el-button>
+                </template>
+                <!-- <template v-else-if="row.timerStatus === TimerStatus.Stopped">
+                  <span class="text-gray-400 text-12px">已结束</span>
+                </template> -->
+              </template>
             </template>
           </el-table-column>
         </PaginationTable>
@@ -99,11 +147,30 @@
 import Message from '@/components/Message';
 import DetailForm from './DetailForm.vue';
 import SearchMember from '@/components/Input/SearchMember.vue';
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed, onUnmounted } from 'vue';
 import { cloneDeep } from 'lodash';
-import { reqCancelOrder, reqDeleteOrderDetail, reqQueryOrderByBedId, Types } from '@/api/order';
-import { CashierRouteSign, CustomerType, CustomerTypeOptions, OrderDetailType } from '@/enums/index';
+import {
+  reqCancelOrder,
+  reqDeleteOrderDetail,
+  reqQueryOrderByBedId,
+  reqTimerStart,
+  reqTimerPause,
+  reqTimerResume,
+  reqTimerStop,
+  Types,
+} from '@/api/order';
+import {
+  CashierRouteSign,
+  CustomerType,
+  CustomerTypeOptions,
+  OrderDetailType,
+  ServiceType,
+  ServiceTypeMap,
+  TimerStatus,
+} from '@/enums/index';
 import { useOrderStore } from '@/store/modules/order/index';
+import { getCountdown, formatCountdown, formatDuration } from '@/composables/useTimer';
+import type { OrderDetailVO } from '@/api/order/types';
 
 const orderStore = useOrderStore();
 
@@ -152,9 +219,20 @@ const btnLoading = ref(false);
 const drawerVisible = ref(false);
 const drawerTitle = ref('账单');
 
+/** 倒计时定时器 */
+let countdownInterval: ReturnType<typeof setInterval> | null = null;
+/** 触发视图更新的响应式时间戳 */
+const now = ref(Date.now());
+
+/** 是否有服务项目明细 */
+const hasServiceItems = computed(() => {
+  return orderStore.order.orderDetails?.some((item: OrderDetailVO) => item.bizType === OrderDetailType.Service);
+});
+
 /** 关闭抽屉 */
 const closeDrawer = () => {
   drawerVisible.value = false;
+  stopCountdownTick();
   emit('update:model-value', false);
   emit('close');
 };
@@ -167,6 +245,13 @@ const getOrderInfo = async () => {
     loading.value = true;
     const res = await reqQueryOrderByBedId(props.params.id);
     orderStore.order = res.data as Types.OrderSettleDTO;
+    // 有进行中的计时则启动倒计时
+    const hasRunning = orderStore.order.orderDetails?.some(
+      (item: OrderDetailVO) => item.timerStatus === TimerStatus.Running,
+    );
+    if (hasRunning) {
+      startCountdownTick();
+    }
   } catch (error) {
     console.error('查询订单信息失败：', error);
   } finally {
@@ -224,6 +309,151 @@ const handleMemberSelected = (item: any) => {
   orderStore.order.vipCardNumber = item.cardNumber;
 };
 
+// #region 计时相关方法
+
+/**
+ * 格式化服务时间展示
+ * 例：18:08 ~ 18:38 (预计)、18:08 ~ 18:38、18:08 ~ (暂停中)
+ */
+const formatServiceTime = (row: OrderDetailVO): string => {
+  if (!row.timerStartTime) return '--';
+
+  const start = formatTimeToMinute(row.timerStartTime);
+  const status = row.timerStatus;
+
+  if (status === TimerStatus.Stopped) {
+    // 已结束：显示实际结束时间
+    const end = row.timerEndTime ? formatTimeToMinute(row.timerEndTime) : '--';
+    return `${start} ~ ${end}`;
+  }
+
+  if (status === TimerStatus.Running) {
+    // 进行中：显示预计结束时间
+    const end = row.timerEndTime ? formatTimeToMinute(row.timerEndTime) : '--';
+    return `${start} ~ ${end} (预计)`;
+  }
+
+  if (status === TimerStatus.Paused) {
+    // 已暂停
+    const end = row.timerEndTime ? formatTimeToMinute(row.timerEndTime) : '--';
+    return `${start} ~ ${end} (暂停)`;
+  }
+
+  // 未开始：显示预计时间范围
+  if (row.timerEndTime) {
+    const end = formatTimeToMinute(row.timerEndTime);
+    return `${start} ~ ${end} (预计)`;
+  }
+
+  return `${start} ~ --`;
+};
+
+/**
+ * 格式化时间为 HH:mm
+ */
+const formatTimeToMinute = (timeStr?: string): string => {
+  if (!timeStr) return '--';
+  const date = new Date(timeStr);
+  const h = String(date.getHours()).padStart(2, '0');
+  const m = String(date.getMinutes()).padStart(2, '0');
+  return `${h}:${m}`;
+};
+
+/**
+ * 获取计时标签文本
+ */
+const getTimerLabel = (row: OrderDetailVO): string => {
+  switch (row.timerStatus) {
+    case TimerStatus.NotStarted:
+      return '未开始';
+    case TimerStatus.Running: {
+      const seconds = getCountdown(row.timerEndTime);
+      return formatCountdown(seconds);
+    }
+    case TimerStatus.Paused:
+      return '已暂停';
+    case TimerStatus.Stopped: {
+      const duration = row.actualDuration || 0;
+      const minutes = Math.round(duration / 60);
+      return `已结束 ${minutes}分钟`;
+    }
+    default:
+      return '-';
+  }
+};
+
+/**
+ * 获取计时标签类型
+ */
+const getTimerTagType = (row: OrderDetailVO): string => {
+  if (row.timerStatus === TimerStatus.Stopped) return 'success';
+  if (isTimerWarning(row)) return 'warning';
+  if (row.timerStatus === TimerStatus.Running) return 'primary';
+  return 'info';
+};
+
+/**
+ * 获取计时标签效果
+ */
+const getTimerEffect = (row: OrderDetailVO): string => {
+  if (isTimerWarning(row)) return 'dark';
+  return 'light';
+};
+
+/**
+ * 是否处于预警状态
+ */
+const isTimerWarning = (row: OrderDetailVO): boolean => {
+  const seconds = getCountdown(row.timerEndTime);
+  return (
+    (row.timerStatus === TimerStatus.Running && seconds !== null && seconds <= 300 && seconds > 0) ||
+    row.timerWarned === 1
+  );
+};
+
+/**
+ * 处理计时操作
+ */
+const handleTimerAction = async (row: OrderDetailVO, action: 'start' | 'pause' | 'resume' | 'stop') => {
+  const actionMap = {
+    start: { api: reqTimerStart, msg: '开始计时', successMsg: '计时已开始' },
+    pause: { api: reqTimerPause, msg: '暂停计时', successMsg: '计时已暂停' },
+    resume: { api: reqTimerResume, msg: '恢复计时', successMsg: '计时已恢复' },
+    stop: { api: reqTimerStop, msg: '停止计时', successMsg: '计时已停止' },
+  };
+
+  const config = actionMap[action];
+  if (!row.id || !config) return;
+
+  try {
+    await config.api(row.id);
+    Message.success(config.successMsg);
+    // 操作完成后刷新订单数据
+    await getOrderInfo();
+    emit('refresh');
+  } catch (error: any) {
+    Message.error(error?.message || `${config.msg}失败`);
+  }
+};
+
+/** 启动倒计时定时器 */
+const startCountdownTick = () => {
+  stopCountdownTick();
+  countdownInterval = setInterval(() => {
+    now.value = Date.now();
+  }, 1000);
+};
+
+/** 停止倒计时定时器 */
+const stopCountdownTick = () => {
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+    countdownInterval = null;
+  }
+};
+
+// #endregion 计时相关方法
+
 // #region 新增开单明细
 const dialogVisible = ref(false);
 const handleType = ref('add');
@@ -247,4 +477,36 @@ const showDialog = (type: boolean, row: any = {}) => {
   //     orderStore.resetDetailForm();
   //   }
 };
+
+onUnmounted(() => {
+  stopCountdownTick();
+});
 </script>
+
+<style scoped lang="scss">
+.timer-tag--warning {
+  animation: timer-blink 1s infinite;
+}
+
+@keyframes timer-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.technician-line {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  line-height: 1.6;
+}
+
+.technician-label {
+  color: #909399;
+  flex-shrink: 0;
+}
+</style>
