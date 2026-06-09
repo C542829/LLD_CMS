@@ -27,7 +27,7 @@ export const generateOrderHtmlTemplate = (data: OrderData, width = '48mm'): stri
       return `
           <tr>
             <td style="width: 40%; ">
-            ${item.businessName}￥${item.trueUnitPrice}
+            ${item.businessName}￥${item.stdPrice}
             </td>
             <td style="width: 25%; white-space: pre-wrap;" align="center">${getUserNameList(
               item.technicians,
