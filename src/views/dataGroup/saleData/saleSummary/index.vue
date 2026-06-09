@@ -54,7 +54,7 @@
         <el-table-column prop="totalTurnover" label="总营业额" min-width="85" fixed />
         <el-table-column prop="totalActualReceipt" label="总实收" min-width="85" fixed />
         <el-table-column prop="totalCustomers" label="总客" min-width="60" />
-        <el-table-column prop="newMembers" label="新会员" min-width="60" />
+        <el-table-column prop="newMembers" label="新会员" min-width="70" />
         <el-table-column prop="walkInCustomers" label="散客" min-width="60" />
         <el-table-column prop="totalProjectCount" label="总项目数" min-width="85" />
         <el-table-column prop="qrPayment" label="收款码" min-width="80" />
