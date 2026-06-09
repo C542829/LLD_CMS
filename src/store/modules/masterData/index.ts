@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { isEmpty } from 'lodash';
 
 import { reqTicketList } from '@/api/member/coupon/index';
@@ -15,6 +15,7 @@ import { reqUserList } from '@/api/user/index';
 
 import { parseResList } from '@/utils/parseResponse';
 import { getUserInfo } from '@/utils/localStorageTools';
+import useUserStore from '@/store/modules/acl/user';
 
 export const useMasterDataStore = defineStore('MasterData', () => {
   /**
@@ -67,7 +68,7 @@ export const useMasterDataStore = defineStore('MasterData', () => {
   const getTreatmentCouponList = (refresh = false, params = { status: 0 }) =>
     load(treatmentCouponList, () => reqTreatmentCouponList(params).then(parseResList), refresh);
 
-  /** 门店列表 */
+  /** 门店列表（原始数据，全部门店） */
   const orgList: any = ref([]);
   const getOrgList = (refresh = false, params = {}) =>
     load(
@@ -75,6 +76,24 @@ export const useMasterDataStore = defineStore('MasterData', () => {
       () => reqOrgList(params).then((res) => res.data.filter((item: any) => !item?.orgCode.includes('Test'))),
       refresh,
     );
+
+  /**
+   * 根据角色过滤的门店列表
+   * - 超级管理员：全部门店
+   * - 管理员/区域经理：用户关联门店
+   * - 其他角色：当前登录门店
+   */
+  const filteredOrgList = computed(() => {
+    const userStore = useUserStore();
+    if (userStore.isSuperAdmin) {
+      return orgList.value;
+    }
+    if (userStore.isAdmin || userStore.isAreaManager) {
+      return userStore.user.orgs || [];
+    }
+    const currentOrg = userStore.org;
+    return currentOrg?.id ? [currentOrg] : [];
+  });
 
   /** 角色列表 */
   const roleList: any = ref([]);
@@ -192,6 +211,7 @@ export const useMasterDataStore = defineStore('MasterData', () => {
 
     orgList,
     getOrgList,
+    filteredOrgList,
 
     roleList,
     getRoleList,

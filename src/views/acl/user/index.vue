@@ -193,18 +193,8 @@ const setTableData = async () => {
 
 // 设置 orgIds
 const handleOrgIds = () => {
-  let orgs: any = [];
-  if (userStore.isAdmin) {
-    orgs = masterDataStore.orgList;
-  } else {
-    orgs = userStore.user.orgs;
-  }
-
-  if (isEmpty(orgs)) {
-    orgs = [];
-  }
-
-  searchParams.orgIds = orgs.map((item: any) => item.id);
+  const orgs = masterDataStore.filteredOrgList;
+  searchParams.orgIds = (orgs || []).map((item: any) => item.id);
 };
 
 // 分页容量变化

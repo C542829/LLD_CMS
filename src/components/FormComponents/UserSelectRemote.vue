@@ -51,14 +51,13 @@
 <script setup lang="ts">
 import { Search } from '@element-plus/icons-vue';
 import { reqUserList, type Types } from '@/api/user/index';
-import { reqOrgList } from '@/api/acl/org/index';
 import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { SelectInstance } from 'element-plus';
-import useUserStore from '@/store/modules/acl/user';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
 
 type ElSelectProps = SelectInstance['$props'];
 
-interface Props extends Partial<ElSelectProps> {
+interface Props extends /* @vue-ignore */ Partial<ElSelectProps> {
   modelValue: number | number[] | UserInfo | UserInfo[] | string;
   placeholder?: string;
   class?: string;
@@ -93,6 +92,8 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits(['update:modelValue', 'change', 'clear']);
 
+const masterDataStore = useMasterDataStore();
+
 onMounted(() => {
   handleSearch();
 });
@@ -100,8 +101,6 @@ onMounted(() => {
 const selectedValue = ref<any>(props.multiple ? [] : undefined);
 
 const loading = ref(false);
-
-const userStore = useUserStore();
 
 const searchKeyword = ref('');
 
@@ -183,27 +182,6 @@ const loadUserList = async () => {
 };
 
 const orgIds = computed(() => {
-  if (userStore.isAdmin) {
-    return orgList.value.map((item) => item.id);
-  } else {
-    if (userStore.user.orgs) {
-      return userStore.user.orgs.map((item) => item.id);
-    } else {
-      return [userStore.user.orgId];
-    }
-  }
+  return (masterDataStore.filteredOrgList || []).map((item: any) => item.id);
 });
-
-const orgList = ref<OrgInfo[]>([]);
-
-const getOrgList = async () => {
-  try {
-    const res = await reqOrgList();
-    const data = res.data;
-    orgList.value = data.filter((item) => !item?.orgCode.includes('Test'));
-  } catch (error) {
-    console.error('加载门店列表失败:', error);
-  }
-};
-getOrgList();
 </script>

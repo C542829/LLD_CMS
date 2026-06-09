@@ -25,7 +25,7 @@
       <div class="el-align-center">
         <el-button type="primary" size="small" link @click="handleSelectAll">全选</el-button>
         <el-button type="primary" size="small" link @click="handleClear">取消选择</el-button>
-        <el-button type="success" size="small" link @click="getOrgList">刷新数据</el-button>
+        <el-button type="success" size="small" link @click="refreshOrgList">刷新数据</el-button>
       </div>
     </template>
   </el-select>
@@ -35,13 +35,12 @@
 import { useMasterDataStore } from '@/store/modules/masterData/index';
 import { computed, onMounted, ref, watch } from 'vue';
 import { SelectInstance } from 'element-plus';
-import useUserStore from '@/store/modules/acl/user';
 
 const masterDataStore = useMasterDataStore();
 
 type ElSelectProps = SelectInstance['$props'];
 
-interface Props extends Partial<ElSelectProps> {
+interface Props extends /* @vue-ignore */ Partial<ElSelectProps> {
   modelValue: number | number[] | string;
   placeholder?: string;
   class?: string;
@@ -75,8 +74,6 @@ const emit = defineEmits(['update:modelValue', 'clear', 'change']);
 const selectedOrgIds = ref<number | number[]>(props.multiple ? [] : (undefined as any));
 
 const loading = ref(false);
-
-const userStore = useUserStore();
 
 watch(
   () => props.modelValue,
@@ -112,37 +109,34 @@ const handleClear = () => {
  */
 const handleSelectAll = () => {
   if (props.multiple && options.value) {
-    const val = options.value.map((item) => item.id) as number[];
+    const val = options.value.map((item: any) => item.id) as number[];
     emit('update:modelValue', val);
     emit('change', val);
   }
 };
 
 onMounted(() => {
-  getOrgList();
+  loadOrgList();
 });
 
-/** 当前门店选项列表 */
-const options = computed(() => {
-  if (userStore.isAreaManager) {
-    return userStore.user.orgs;
-  }
-  return orgList.value;
-});
-
-/** 门店列表 */
-const orgList = ref<OrgInfo[]>([]);
+/** 使用 masterDataStore 中基于角色过滤的门店列表 */
+const options = computed(() => masterDataStore.filteredOrgList);
 
 /**
- * 获取门店列表
+ * 加载门店数据（触发 masterDataStore.getOrgList）
  */
-const getOrgList = async (refresh = false) => {
+const loadOrgList = async (refresh = false) => {
   loading.value = true;
   try {
-    orgList.value = await masterDataStore.getOrgList(refresh);
+    await masterDataStore.getOrgList(refresh);
   } catch (error) {
   } finally {
     loading.value = false;
   }
 };
+
+/**
+ * 刷新门店数据
+ */
+const refreshOrgList = () => loadOrgList(true);
 </script>
