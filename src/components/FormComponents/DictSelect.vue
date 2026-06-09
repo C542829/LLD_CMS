@@ -39,7 +39,7 @@ import type { Types } from '@/api/acl/dict/index';
 
 type ElSelectProps = SelectInstance['$props'];
 
-interface Props extends Partial<ElSelectProps> {
+interface Props extends /* @vue-ignore */ Partial<ElSelectProps> {
   modelValue: number | number[] | string | string[] | Types.DictItemVO | Types.DictItemVO[];
   dictCode: string;
   placeholder?: string;
