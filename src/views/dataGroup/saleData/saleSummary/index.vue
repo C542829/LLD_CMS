@@ -54,7 +54,7 @@
         <el-table-column prop="totalTurnover" label="总营业额" min-width="85" fixed />
         <el-table-column prop="totalActualReceipt" label="总实收" min-width="85" fixed />
         <el-table-column prop="totalCustomers" label="总客" min-width="60" />
-        <el-table-column prop="newMembers" label="新客" min-width="60" />
+        <el-table-column prop="newMembers" label="新会员" min-width="60" />
         <el-table-column prop="walkInCustomers" label="散客" min-width="60" />
         <el-table-column prop="totalProjectCount" label="总项目数" min-width="85" />
         <el-table-column prop="qrPayment" label="收款码" min-width="80" />
@@ -148,7 +148,7 @@ const multiOrgColumns: ExportColumn<OrderSummaryVO>[] = [
   { key: 'totalTurnover', title: '总营业额', width: 12 },
   { key: 'totalActualReceipt', title: '总实收', width: 12 },
   { key: 'totalCustomers', title: '总客', width: 10 },
-  { key: 'newMembers', title: '新客', width: 10 },
+  { key: 'newMembers', title: '新会员', width: 10 },
   { key: 'walkInCustomers', title: '散客', width: 10 },
   { key: 'totalProjectCount', title: '总项目数', width: 10 },
   { key: 'qrPayment', title: '收款码', width: 10 },
@@ -168,7 +168,7 @@ const singleOrgColumns: ExportColumn<OrderSummaryVO>[] = [
   { key: 'totalTurnover', title: '总营业额', width: 12 },
   { key: 'totalActualReceipt', title: '总实收', width: 12 },
   { key: 'totalCustomers', title: '总客', width: 10 },
-  { key: 'newMembers', title: '新客', width: 10 },
+  { key: 'newMembers', title: '新会员', width: 10 },
   { key: 'walkInCustomers', title: '散客', width: 10 },
   { key: 'totalProjectCount', title: '总项目数', width: 10 },
   { key: 'qrPayment', title: '收款码', width: 10 },
