@@ -17,7 +17,9 @@
     :z-index="zIndex"
     @update:model-value="$emit('update:modelValue', $event)"
   >
-    <slot />
+    <template v-for="(_, name) in $slots" #[name]="slotData">
+      <slot :name="name" v-bind="slotData || {}" />
+    </template>
   </ElDialog>
 </template>
 

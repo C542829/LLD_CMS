@@ -20,7 +20,9 @@
     style="min-width: 400px; max-width: 500px"
     header-class="custom-header"
   >
-    <slot />
+    <template v-for="(_, name) in $slots" #[name]="slotData">
+      <slot :name="name" v-bind="slotData || {}" />
+    </template>
   </ElDrawer>
 </template>
 
