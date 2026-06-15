@@ -62,8 +62,8 @@ const fullScreen = () => {
 
 // 退出登录点击回调
 const logout = async () => {
-  await reqLogout({ username: userStore.user?.userCode });
   userStore.logout();
+  reqLogout({ username: userStore.user?.userCode });
 };
 
 const getOrgName = computed(() => {
