@@ -1,21 +1,72 @@
 <template>
-  <component :is="h(ElDialog, { ...$attrs, ...props, ref: changeRef }, $slots)" />
+  <ElDialog
+    ref="dialogRef"
+    :model-value="modelValue"
+    :title="title"
+    :width="width"
+    :fullscreen="fullscreen"
+    :top="top"
+    :modal="modal"
+    :show-close="showClose"
+    :close-on-click-modal="closeOnClickModal"
+    :close-on-press-escape="closeOnPressEscape"
+    :destroy-on-close="destroyOnClose"
+    :before-close="beforeClose"
+    :append-to-body="appendToBody"
+    :lock-scroll="lockScroll"
+    :z-index="zIndex"
+    @update:model-value="$emit('update:modelValue', $event)"
+  >
+    <template v-for="(_, name) in $slots" #[name]="slotData">
+      <slot :name="name" v-bind="slotData || {}" />
+    </template>
+  </ElDialog>
 </template>
 
 <script lang="ts" setup>
+import { ref, watch, getCurrentInstance } from 'vue';
 import { ElDialog, type DialogProps } from 'element-plus';
-import { h, getCurrentInstance, withDefaults } from 'vue';
 
-// 获取当前组件实例，用于暴露实例方法
 const vm: any = getCurrentInstance();
-function changeRef(instance: any) {
-  // 将实例挂载到组件实例上，便于父组件调用
-  vm.exposeProxy = vm.exposed = instance || {};
-}
+const dialogRef = ref<any>(null);
 
-interface CustomProps extends Partial<DialogProps> {}
+watch(
+  dialogRef,
+  (val) => {
+    if (val) {
+      vm.exposeProxy = vm.exposed = val;
+    }
+  },
+  { immediate: true },
+);
 
-const props = defineProps<CustomProps>();
+const props = withDefaults(
+  defineProps<{
+    modelValue?: boolean;
+    title?: string;
+    width?: string | number;
+    fullscreen?: boolean;
+    top?: string;
+    modal?: boolean;
+    showClose?: boolean;
+    closeOnClickModal?: boolean;
+    closeOnPressEscape?: boolean;
+    destroyOnClose?: boolean;
+    beforeClose?: DialogProps['beforeClose'];
+    appendToBody?: boolean;
+    lockScroll?: boolean;
+    zIndex?: number;
+  }>(),
+  {
+    modal: true,
+    showClose: true,
+    closeOnClickModal: true,
+    closeOnPressEscape: true,
+    lockScroll: true,
+  },
+);
+
+defineEmits(['update:modelValue']);
 </script>
 <script lang="ts">
 export default {

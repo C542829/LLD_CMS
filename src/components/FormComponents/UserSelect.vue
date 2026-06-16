@@ -44,7 +44,7 @@ const masterDataStore = useMasterDataStore();
 
 type ElSelectProps = SelectInstance['$props'];
 
-interface Props extends Partial<ElSelectProps> {
+interface Props extends /* @vue-ignore */ Partial<ElSelectProps> {
   modelValue: number | number[] | UserInfo | UserInfo[] | string;
   placeholder?: string;
   class?: string;

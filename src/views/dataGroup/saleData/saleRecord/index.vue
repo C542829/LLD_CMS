@@ -4,7 +4,7 @@
     <Card class="operation-card">
       <!-- 第一行 -->
       <div class="search-container">
-        <div class="search-item">
+        <div v-show="!userStore.isCashier" class="search-item">
           <label>
             开单时段：
             <IDatePicker v-model="dateRange" class="w-220" @change="search" @clear="search" />
@@ -206,7 +206,7 @@ import Message from '@/components/Message';
 import MessageBox from '@/components/MessageBox';
 import { reactive, onMounted, ref } from 'vue';
 import { cloneDeep, isEmpty } from 'lodash';
-import { printer } from '@/utils/lodop';
+import { getPrinter } from '@/utils/lodop';
 import { dateFormatter, timeFormatter } from '@/utils/formatter';
 import { parseResMsg } from '@/utils/parseResponse';
 import { OrderStatus, orderStatusOptions, paymentTypeOptions, ResponseCode } from '@/enums';
@@ -331,7 +331,7 @@ const exportData = async () => {
  * @param row 销售订单
  */
 const reversal = async (row: any) => {
-  if (isFullDaysSince(row.settleTime, 2)) {
+  if (!userStore.isAdmin && isFullDaysSince(row.settleTime, 2)) {
     Message.warning('只能对两天以内的记录进行冲正');
     return;
   }
@@ -369,7 +369,7 @@ const printReceipt = async (row: any) => {
       return;
     }
     const data: any = { ...order, ...org };
-    printer.printOrderByHTML(data, false);
+    getPrinter().printOrderByHTML(data, false);
   } catch (error) {
   } finally {
     row.loading = false;

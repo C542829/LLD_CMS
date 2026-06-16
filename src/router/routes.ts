@@ -259,6 +259,15 @@ export const asyncRoute = [
           icon: 'ScaleToOriginal',
         },
       },
+      {
+        path: '/dataGroup/YBSaleData',
+        component: () => import('@/views/dataGroup/YBSaleData/index.vue'),
+        name: 'YBSaleData',
+        meta: {
+          title: '杨波',
+          icon: 'ScaleToOriginal',
+        },
+      },
     ],
   },
 

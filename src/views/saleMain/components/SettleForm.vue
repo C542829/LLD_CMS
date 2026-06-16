@@ -7,23 +7,23 @@
         <el-descriptions-item label="会员卡号:">{{ orderStore.member.cardNumber }}</el-descriptions-item>
         <el-descriptions-item label="会员电话:">{{ orderStore.member.phoneNumber }}</el-descriptions-item>
         <el-descriptions-item v-if="orderStore.checkedAssetInfo.assetIds.length > 0" label="可用余额:">
-          <span class="amount">{{ orderStore.checkedAssetInfo.assetAmount }} 元</span>
+          <span class="amount">{{ orderStore.checkedAssetInfo.assetAmount?.toFixed(1) }} 元</span>
         </el-descriptions-item>
         <el-descriptions-item label="手写单号:">
           <el-input v-model="orderStore.order.manualOrderNo" clearable class="w-100" />
           <span class="text-error">手写单号为必填项</span>
         </el-descriptions-item>
         <el-descriptions-item label="订单总额:">
-          <span class="order-total">{{ orderStore.payAmount }} 元</span>
+          <span class="order-total">{{ orderStore.payAmount?.toFixed(1) }} 元</span>
         </el-descriptions-item>
         <el-descriptions-item label="应付总额:">
-          <span class="pay-total">{{ orderStore.truePayAmount }} 元</span>
+          <span class="pay-total">{{ orderStore.truePayAmount?.toFixed(1) }} 元</span>
         </el-descriptions-item>
         <el-descriptions-item v-if="orderStore.discountAmount > 0" label="折扣优惠:">
-          <span class="discount-total">{{ orderStore.discountAmount }} 元</span>
+          <span class="discount-total">{{ orderStore.discountAmount?.toFixed(1) }} 元</span>
         </el-descriptions-item>
         <el-descriptions-item v-if="orderStore.couponDiscountAmount > 0" label="优惠券优惠:">
-          <span class="discount-total">{{ orderStore.couponDiscountAmount }} 元</span>
+          <span class="discount-total">{{ orderStore.couponDiscountAmount?.toFixed(1) }} 元</span>
         </el-descriptions-item>
       </el-descriptions>
       <!-- 散客客户信息 -->
@@ -34,16 +34,16 @@
           <span class="text-error">手写单号为必填项</span>
         </el-descriptions-item>
         <el-descriptions-item label="订单总额:">
-          <span class="order-total">{{ orderStore.payAmount }} 元</span>
+          <span class="order-total">{{ orderStore.payAmount?.toFixed(1) }} 元</span>
         </el-descriptions-item>
         <el-descriptions-item label="应付总额:">
-          <span class="pay-total">{{ orderStore.truePayAmount }} 元</span>
+          <span class="pay-total">{{ orderStore.truePayAmount?.toFixed(1) }} 元</span>
         </el-descriptions-item>
         <el-descriptions-item v-if="orderStore.discountAmount > 0" label="折扣优惠:">
-          <span class="discount-total">{{ orderStore.discountAmount }} 元</span>
+          <span class="discount-total">{{ orderStore.discountAmount?.toFixed(1) }} 元</span>
         </el-descriptions-item>
         <el-descriptions-item v-if="orderStore.couponDiscountAmount > 0" label="优惠券优惠:">
-          <span class="discount-total">{{ orderStore.couponDiscountAmount }} 元</span>
+          <span class="discount-total">{{ orderStore.couponDiscountAmount?.toFixed(1) }} 元</span>
         </el-descriptions-item>
       </el-descriptions>
 
@@ -88,7 +88,7 @@ import { cloneDeep, isEmpty } from 'lodash';
 import { ref, watch, onMounted } from 'vue';
 import { paymentTypeMap, PaymentType, couponTypeMap, CouponType } from '@/enums';
 import { CustomerType } from '@/enums/index';
-import { printer } from '@/utils/lodop';
+import { getPrinter } from '@/utils/lodop';
 import { type Types, reqQueryOrder, reqSettleOrder } from '@/api/order/index';
 
 import { useOrderStore } from '@/store/modules/order/index';
@@ -233,7 +233,7 @@ const printReceipt = async (orderCode: string) => {
     // 合并订单详情和门店详情
     const data: any = { ...order, ...org };
     // 打印小票
-    printer.printOrderByHTML(data, false);
+    getPrinter().printOrderByHTML(data, false);
   } catch (error) {}
 };
 

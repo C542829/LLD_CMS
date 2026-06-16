@@ -64,16 +64,27 @@
             {{ row.orgs.map((org: OrgInfo) => org.orgName).join('、') }}
           </template>
         </el-table-column>
-        <el-table-column prop="activeName" label="活动名称" min-width="100" />
+        <el-table-column prop="activeName" label="活动名称" min-width="80" />
         <el-table-column prop="activeBeginTime" label="活动开始" :formatter="dateFormatter" min-width="40" />
         <el-table-column prop="activeFinalTime" label="活动结束" :formatter="dateFormatter" min-width="40" />
         <el-table-column prop="createTime" label="创建时间" :formatter="dateFormatter" min-width="40" />
-        <el-table-column label="操作" min-width="40">
+        <el-table-column label="折扣基础" min-width="30">
           <template #default="{ row }">
+            <DiscountTypeTag :type="row.activeBase as DiscountType" />
+          </template>
+        </el-table-column>
+        <el-table-column label="提成值" min-width="50">
+          <template #default="{ row }">
+            <CommissionTypeTag :commission-type="row.commissionType as CommissionType" :value="row.commissionValue" />
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" min-width="50">
+          <template #default="{ row }">
+            <el-button @click="showDrawer(1, row)" link type="primary">修改</el-button>
             <el-button @click="showDrawer(2, row)" link type="info">详情</el-button>
             <el-button v-if="row.activeStatus" @click="store.updateStatus(row)" link type="success">启用</el-button>
             <el-button v-else @click="showConfirm(row)" link type="warning">禁用</el-button>
-            <el-button :disabled="true" @click="showDialog(row)" link type="primary">统计</el-button>
+            <!-- <el-button :disabled="true" @click="showDialog(row)" link type="primary">统计</el-button> -->
           </template>
         </el-table-column>
       </PaginationTable>
@@ -97,12 +108,14 @@
 </template>
 
 <script setup lang="ts">
+import CommissionTypeTag from '@/components/Tag/CommissionTypeTag.vue';
+import DiscountTypeTag from '@/components/Tag/DiscountTypeTag.vue';
 import ActivityForm from './form.vue';
 import ShowDetail from './ShowDetail.vue';
 import { Search } from '@element-plus/icons-vue';
 import { onMounted, inject, reactive } from 'vue';
 import { dateFormatter } from '@/utils/formatter';
-import { statusOptions } from '@/enums/index';
+import { CommissionType, DiscountType, statusOptions } from '@/enums/index';
 import { LOADING_MSG } from '@/utils/constants';
 // 引入数据仓库
 import { useSettingStore } from '@/store/modules/acl/setting';

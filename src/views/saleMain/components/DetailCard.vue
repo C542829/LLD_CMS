@@ -11,7 +11,7 @@
       <!-- 商品信息 -->
       <div class="item-top-right">
         <!-- 总价 -->
-        <span class="total-price">总价:{{ data.truePrice }}</span>
+        <span class="total-price">总价:{{ data.truePrice?.toFixed(1) }}</span>
         <!-- 优惠券 -->
         <template v-if="data.bizType === OrderDetailType.Service || data.bizType === OrderDetailType.Product">
           <template v-if="!orderStore.isCreated">
@@ -39,6 +39,7 @@
           <el-input-number
             v-model="data.trueUnitPrice"
             :min="0"
+            :precision="1"
             :disabled="!isChangePrice"
             controls-position="right"
             class="w-100"

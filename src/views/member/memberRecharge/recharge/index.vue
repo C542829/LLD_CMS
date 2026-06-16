@@ -113,7 +113,7 @@
           <!-- 提交按钮 -->
           <div class="submit-btn">
             <el-button @click="store.reset" round plain size="large" style="width: 200px">重选会员</el-button>
-            <el-button @click="store.recharge" type="primary" round size="large" style="width: 200px">充值</el-button>
+            <el-button @click="handleRecharge" type="primary" round size="large" style="width: 200px">充值</el-button>
           </div>
         </el-form>
       </div>
@@ -129,6 +129,7 @@ import RCModify from './RCModify.vue';
 import ActivityCard from './ActivityCard.vue';
 import { Search } from '@element-plus/icons-vue';
 import { ref, watch, onMounted, reactive } from 'vue';
+import { ElMessageBox } from 'element-plus';
 import { reqDefaultCommissionRule } from '@/api/setGroup/rechargeCommissionRules/index';
 import { getActivityList } from '@/api/member/rechargeActivity/index';
 import { LOADING_MSG } from '@/utils/constants';
@@ -230,6 +231,29 @@ const selectActivity = (data: any) => {
   }
   return result;
 };
+
+// #region 充值（含未选择员工确认）
+const handleRecharge = async () => {
+  const params = store.handleRechargeParams();
+  if (!params) return;
+
+  // 未选择员工时弹出确认框
+  if (params._noEmployee) {
+    try {
+      await ElMessageBox.confirm('未选择销售员，该笔充值将不计入员工业绩，是否继续？', '提示', {
+        confirmButtonText: '确认充值',
+        cancelButtonText: '取消',
+        type: 'warning',
+      });
+    } catch {
+      return;
+    }
+    delete params._noEmployee;
+  }
+
+  store.rechargeWithParams(params);
+};
+// #endregion 充值
 
 // #region 设置门店默认充值价格和折扣率
 const RCDialog = reactive({

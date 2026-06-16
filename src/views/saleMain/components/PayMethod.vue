@@ -10,6 +10,7 @@
         v-model="payment.paymentAmount"
         :min="0"
         :controls="false"
+        :precision="1"
         style="width: 120px; margin-left: 10px"
       >
         <template #suffix>元</template>

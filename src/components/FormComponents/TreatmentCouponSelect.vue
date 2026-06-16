@@ -54,7 +54,7 @@ interface TreatmentCouponVO {
   [property: string]: any;
 }
 
-interface Props extends Partial<ElSelectProps> {
+interface Props extends /* @vue-ignore */ Partial<ElSelectProps> {
   modelValue: number | number[] | TreatmentCouponVO | TreatmentCouponVO[] | string;
   placeholder?: string;
   class?: string;

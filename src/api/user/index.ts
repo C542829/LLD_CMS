@@ -24,8 +24,7 @@ enum API {
  * @param data 登录参数
  * @returns 登录结果
  */
-export const reqLogin = (data: Types.LoginForm): ApiResponse<Types.LoginResponse> =>
-  post(API.LOGIN_URL, data, { form_urlencoded: true });
+export const reqLogin = (data: Types.LoginForm): ApiResponse<Types.LoginResponse> => post(API.LOGIN_URL, data);
 
 /**
  * 获取用户列表

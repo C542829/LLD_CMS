@@ -51,10 +51,10 @@
         <div class="pay-info">
           <span class="pay-amount">
             待付款:
-            <b>￥{{ orderStore.truePayAmount }}</b>
+            <b>￥{{ orderStore.truePayAmount?.toFixed(1) }}</b>
           </span>
           <template v-if="orderStore.payAmount !== orderStore.truePayAmount">
-            <span class="original-amount">应付：￥{{ orderStore.payAmount }}</span>
+            <span class="original-amount">应付：￥{{ orderStore.payAmount?.toFixed(1) }}</span>
           </template>
         </div>
         <!-- 优惠信息 -->
@@ -68,7 +68,7 @@
             </template>
           </span>
           <template v-if="orderStore.order.discountAmount > 0">
-            <span class="discount-amount">打折优惠：{{ orderStore.order.discountAmount || 0 }}元</span>
+            <span class="discount-amount">打折优惠：{{ (orderStore.order.discountAmount || 0).toFixed(1) }}元</span>
           </template>
         </div>
       </div>
@@ -284,30 +284,28 @@ const handleSettle = async () => {
 
     // 遍历选择的资产记录 补全支付列表
     for (const assetId of orderStore.checkedAssetInfo.assetIds) {
+      if (truePayAmount <= 0) break;
+
       const asset = orderStore.member.vipAssetVOList.find((assetItem: any) => assetItem.id === assetId);
+      if (!asset) {
+        Message.warning('未找到相关资产记录，请重新选择');
+        return;
+      }
+
       // 如果资产余额为0，则跳过
       if (asset.assetBalance <= 0) {
         continue;
       }
 
-      if (asset) {
-        const paymentInfo = {
-          paymentType: PaymentType.MemberCard,
-          paymentName: paymentTypeMap[PaymentType.MemberCard],
-          paymentAmount: truePayAmount,
-          assetCode: asset.assetNum,
-        };
-
-        // 如果资产余额小于应付金额，则使用资产余额
-        if (asset.assetBalance < truePayAmount) {
-          paymentInfo.paymentAmount = asset.assetBalance;
-          truePayAmount = sub(truePayAmount, asset.assetBalance);
-        }
-        orderStore.order.paymentInfoList.push(paymentInfo);
-      } else {
-        Message.warning('未找到相关资产记录，请重新选择');
-        return;
-      }
+      // 本次扣款金额 = min(资产余额, 剩余应付)
+      const deductAmount = asset.assetBalance < truePayAmount ? asset.assetBalance : truePayAmount;
+      orderStore.order.paymentInfoList.push({
+        paymentType: PaymentType.MemberCard,
+        paymentName: paymentTypeMap[PaymentType.MemberCard],
+        paymentAmount: deductAmount,
+        assetCode: asset.assetNum,
+      });
+      truePayAmount = sub(truePayAmount, deductAmount);
     }
 
     // 计算支付列表总金额

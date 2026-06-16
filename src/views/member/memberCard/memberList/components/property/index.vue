@@ -5,6 +5,7 @@
       <IDatePicker v-model="query.date" :default="false" class="w-240 mr-3" @change="search" @clear="search" />
       <el-button type="primary" @click="search">查询</el-button>
       <el-button type="primary" plain @click="handleQueryMgj">查询美管家记录</el-button>
+      <el-button type="primary" plain @click="handleQueryYB">查询杨波记录</el-button>
     </div>
     <div class="main-content">
       <NavTabs v-model="activeTab" :tabs="tabs"></NavTabs>
@@ -74,6 +75,19 @@ const handleQueryMgj = () => {
   // 解析路由
   const routeUrl = router.resolve({
     path: '/dataGroup/MGJSaleData',
+    query: { memberId: query.member?.cardNumber },
+  });
+  // 打开新标签
+  window.open(routeUrl.href, '_blank');
+};
+
+/**
+ * 查询杨波记录
+ */
+const handleQueryYB = () => {
+  // 解析路由
+  const routeUrl = router.resolve({
+    path: '/dataGroup/YBSaleData',
     query: { memberId: query.member?.cardNumber },
   });
   // 打开新标签

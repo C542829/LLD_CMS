@@ -2,6 +2,13 @@
   <div class="form-container">
     <!-- 表单 -->
     <Form :model="store.formData" :rules="formRules" @submit="handleFormSubmit" @reset="handleFormReset">
+      <!-- 所属门店 -->
+      <template v-if="userStore.isAdmin || userStore.isAreaManager">
+        <el-form-item label="所属门店" prop="orgId">
+          <OrgSelect v-model="store.formData.orgId" :multiple="false" placeholder="所属门店" />
+        </el-form-item>
+      </template>
+
       <!-- 姓名 -->
       <el-form-item label="姓名" prop="name">
         <el-input v-model="store.formData.name" clearable class="w-240" placeholder="请输入姓名" />
@@ -65,8 +72,10 @@
 <script setup lang="ts">
 import { ref, withDefaults } from 'vue';
 import { useRouter } from 'vue-router';
-
+import { useUserStore } from '@/store/modules/acl/user';
 import { useMemberStore } from '@/store/modules/member/member';
+
+const userStore = useUserStore();
 const store = useMemberStore();
 
 // 声明路由
@@ -99,6 +108,7 @@ const goRecharge = (id?: number) => {
 
 // 表单验证规则
 const formRules = {
+  orgId: [{ required: true, message: '请选择所属门店', trigger: 'blur' }],
   cardNumber: [{ required: true, message: '请输入会员卡号', trigger: 'blur' }],
   name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
   gender: [{ required: true, message: '请选择性别', trigger: 'change' }],

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { isEmpty } from 'lodash';
 
 import { reqTicketList } from '@/api/member/coupon/index';
@@ -13,7 +13,9 @@ import { reqOrgList } from '@/api/acl/org/index';
 import { reqRoleList } from '@/api/acl/role';
 import { reqUserList } from '@/api/user/index';
 
-import { parseResList, parseResObj } from '@/utils/parseResponse';
+import { parseResList } from '@/utils/parseResponse';
+import { getUserInfo } from '@/utils/localStorageTools';
+import useUserStore from '@/store/modules/acl/user';
 
 export const useMasterDataStore = defineStore('MasterData', () => {
   /**
@@ -33,14 +35,7 @@ export const useMasterDataStore = defineStore('MasterData', () => {
   /** 充值活动列表 */
   const activeList: any = ref([]);
   const getActiveList = (refresh = false, params = { pageNum: 1, pageSize: 100 }) =>
-    load(
-      activeList,
-      () =>
-        reqActiveList(params)
-          .then(parseResObj)
-          .then((d) => d.rows),
-      refresh,
-    );
+    load(activeList, () => reqActiveList(params).then(parseResList), refresh);
 
   /** 产品列表 */
   const productList: any = ref([]);
@@ -73,7 +68,7 @@ export const useMasterDataStore = defineStore('MasterData', () => {
   const getTreatmentCouponList = (refresh = false, params = { status: 0 }) =>
     load(treatmentCouponList, () => reqTreatmentCouponList(params).then(parseResList), refresh);
 
-  /** 门店列表 */
+  /** 门店列表（原始数据，全部门店） */
   const orgList: any = ref([]);
   const getOrgList = (refresh = false, params = {}) =>
     load(
@@ -82,12 +77,30 @@ export const useMasterDataStore = defineStore('MasterData', () => {
       refresh,
     );
 
+  /**
+   * 根据角色过滤的门店列表
+   * - 超级管理员：全部门店
+   * - 管理员/区域经理：用户关联门店
+   * - 其他角色：当前登录门店
+   */
+  const filteredOrgList = computed(() => {
+    const userStore = useUserStore();
+    if (userStore.isSuperAdmin) {
+      return orgList.value;
+    }
+    if (userStore.isAdmin || userStore.isAreaManager) {
+      return userStore.user.orgs || [];
+    }
+    const currentOrg = userStore.org;
+    return currentOrg?.id ? [currentOrg] : [];
+  });
+
   /** 角色列表 */
   const roleList: any = ref([]);
   const getRoleList = (refresh = false, params = { status: 0 }) =>
     load(roleList, () => reqRoleList(params).then((res) => res.data), refresh);
 
-  /** 用户列表 */
+  /** 用户列表（按当前门店优先 + 账号排序） */
   const userList: any = ref([]);
   const getUserList = (refresh = false) =>
     load(
@@ -101,12 +114,20 @@ export const useMasterDataStore = defineStore('MasterData', () => {
           pageNum: 1,
           pageSize: 200,
           orgIds: [],
-        }).then((res) =>
-          res.data.rows.map((item: any) => ({
-            userId: item.id,
-            ...item,
-          })),
-        ),
+        }).then((res) => {
+          const currentOrgId = getUserInfo()?.orgId;
+          return res.data.rows
+            .map((item: any) => ({
+              userId: item.id,
+              ...item,
+            }))
+            .sort((a: any, b: any) => {
+              const aMatch = a.orgId === currentOrgId ? 0 : 1;
+              const bMatch = b.orgId === currentOrgId ? 0 : 1;
+              if (aMatch !== bMatch) return aMatch - bMatch;
+              return (a.userCode || '').localeCompare(b.userCode || '');
+            });
+        }),
       refresh,
     );
 
@@ -190,6 +211,7 @@ export const useMasterDataStore = defineStore('MasterData', () => {
 
     orgList,
     getOrgList,
+    filteredOrgList,
 
     roleList,
     getRoleList,

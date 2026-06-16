@@ -73,15 +73,25 @@ function checkOrTryHttp() {
 }
 
 //==加载Lodop对象的主过程:==
-(function loadCLodop() {
+function loadCLodop() {
   if (!needCLodop()) return;
   CLodopIsLocal = !!(URL_WS1 + URL_WS2).match(/\/\/localho|\/\/127.0.0./i);
   LoadJsState = 'loadingA';
   if (!window.WebSocket && window.MozWebSocket) window.WebSocket = window.MozWebSocket;
+
+  // WebSocket 连接超时兜底：5秒后如果仍在加载中，标记为完成，避免 getLodop 永久阻塞
+  let loadTimeout = setTimeout(function () {
+    if (LoadJsState !== 'complete') {
+      console.warn('Lodop WebSocket 连接超时，CLodop 服务可能未安装');
+      LoadJsState = 'complete';
+    }
+  }, 5000);
+
   //ws方式速度快(小于200ms)且可避免CORS错误,但要求Lodop版本足够新:
   try {
     let WSK1 = new WebSocket(URL_WS1);
     WSK1.onopen = function (e) {
+      clearTimeout(loadTimeout);
       setTimeout(checkOrTryHttp, 200);
     };
     WSK1.onmessage = function (e) {
@@ -90,19 +100,31 @@ function checkOrTryHttp() {
     WSK1.onerror = function (e) {
       let WSK2 = new WebSocket(URL_WS2);
       WSK2.onopen = function (e) {
+        clearTimeout(loadTimeout);
         setTimeout(checkOrTryHttp, 200);
       };
       WSK2.onmessage = function (e) {
         if (!window.getCLodop) eval(e.data);
       };
       WSK2.onerror = function (e) {
+        clearTimeout(loadTimeout);
         checkOrTryHttp();
       };
     };
   } catch (e) {
+    clearTimeout(loadTimeout);
     checkOrTryHttp();
   }
-})();
+}
+// 首次加载
+loadCLodop();
+
+/** 重新尝试加载 CLodop（重置状态后重新建立 WebSocket 连接） */
+function retryLoadCLodop() {
+  LoadJsState = null;
+  delete window.getCLodop;
+  loadCLodop();
+}
 
 //==获取LODOP对象主过程,判断是否安装、需否升级:==
 function getLodop(oOBJECT, oEMBED) {
@@ -148,7 +170,7 @@ function getLodop(oOBJECT, oEMBED) {
         if (isLinuxX86) strAlertMessage = strLodop7Install_X86;
         else if (isLinuxARM) strAlertMessage = strLodop7Install_ARM;
         else strAlertMessage = strCLodopInstallA + (CLodopIsLocal ? strCLodopInstallB : '');
-        document.body.innerHTML = strAlertMessage + strInstallOK + document.body.innerHTML;
+        console.error('Lodop未安装:', strAlertMessage);
         return;
       } else {
         // if (isLinuxX86 && LODOP.CVERSION < '7.1.0.5') strAlertMessage = strLodop7Update_X86;
@@ -193,4 +215,4 @@ function getLodop(oOBJECT, oEMBED) {
   }
 }
 
-export { getLodop };
+export { getLodop, retryLoadCLodop };

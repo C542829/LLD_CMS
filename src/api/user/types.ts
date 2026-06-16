@@ -89,6 +89,10 @@ declare global {
  */
 export interface LoginForm {
   /**
+   * 门店编码
+   */
+  orgCode?: string;
+  /**
    * 密码
    */
   password?: string;

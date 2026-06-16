@@ -105,18 +105,17 @@ export const useRechargeStore = defineStore('Recharge', () => {
             item.userId = item.user.id;
             item.userName = item.user.userName;
           }
-          // delete item.user;
+        }
+        // 校验技师业绩和充值金额一致性
+        if (calcKpi(params) !== params.rechargeValue) {
+          Message.warning('技师业绩和充值金额不一致');
+          console.log('充值参数：', params);
+          return false;
         }
       } else {
-        Message.warning('请选择销售员');
-        console.log('充值参数：', params);
-        return false;
-      }
-
-      if (calcKpi(params) !== params.rechargeValue) {
-        Message.warning('技师业绩和充值金额不一致');
-        console.log('充值参数：', params);
-        return false;
+        // 未选择销售员，清空业绩列表，标记需要确认
+        params.userKpiList = [];
+        (params as any)._noEmployee = true;
       }
 
       // 支付信息
@@ -147,21 +146,29 @@ export const useRechargeStore = defineStore('Recharge', () => {
     return false;
   };
 
-  // 充值
+  // 充值（带参数）
+  const rechargeWithParams = async (params: any) => {
+    settingStore.loading = true;
+    const res: any = await reqRecharge(params);
+    const data = parseResMsg(res);
+    data && reset();
+    settingStore.loading = false;
+    return data;
+  };
+
+  // 充值（内部调用参数校验）
   const recharge = async () => {
     const params = handleRechargeParams();
     if (!params) {
-      // Message.warning('充值信息填写不完整');
       return;
     }
 
-    // if (!params.userKpiList[0].userId) {
-    //   Message.warning('请选择销售员');
-    //   return;
-    // }
+    // 如果未选择员工，由页面层确认后再调用 rechargeWithParams
+    if (params._noEmployee) {
+      Message.warning('请选择销售员');
+      return;
+    }
 
-    // console.log('会员充值：', params);
-    // return;
     settingStore.loading = true;
     const res: any = await reqRecharge(params);
     const data = parseResMsg(res);
@@ -191,7 +198,9 @@ export const useRechargeStore = defineStore('Recharge', () => {
     rechargeFormData,
     rcRule,
     rechargeActivity,
+    handleRechargeParams,
     recharge,
+    rechargeWithParams,
     reset,
     setDefaultDiscount,
   };

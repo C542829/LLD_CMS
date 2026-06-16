@@ -4,11 +4,11 @@
       <main class="discount-content">
         <div class="discount-item">
           <span>待款总金额：</span>
-          <span class="price-text">¥ {{ store.truePayAmount }}</span>
+          <span class="price-text">¥ {{ store.truePayAmount?.toFixed(1) }}</span>
         </div>
         <div class="discount-item">
           <span>优惠后金额：</span>
-          <span class="price-text">¥ {{ store.truePayAmount - discountAmount }}</span>
+          <span class="price-text">¥ {{ (store.truePayAmount - discountAmount).toFixed(1) }}</span>
         </div>
         <div class="discount-item discount-input-wrapper">
           <span>优惠金额：</span>

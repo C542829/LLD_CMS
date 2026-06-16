@@ -151,8 +151,8 @@
             >
               冲正
             </el-button>
-            <br />
-            <el-button link type="warning" :disabled="true" @click="showDialog(row)">修改充值单据</el-button>
+            <!-- <br /> -->
+            <!-- <el-button link type="warning" :disabled="true" @click="showDialog(row)">修改充值单据</el-button> -->
             <br />
             <el-button
               link
@@ -195,7 +195,7 @@ import {
   RechargeType,
   RechargeTypeMap,
 } from '@/enums/index';
-import { printer } from '@/utils/lodop';
+import { getPrinter } from '@/utils/lodop';
 import { parseResMsg, parseResObj } from '@/utils/parseResponse';
 import { downloadBlob } from '@/utils/download';
 import useUserStore from '@/store/modules/acl/user';
@@ -315,7 +315,7 @@ const exportData = async () => {
 };
 
 const billReversal = async (row: any) => {
-  if (isFullDaysSince(row.rechargeTime, 2)) {
+  if (!userStore.isAdmin && isFullDaysSince(row.rechargeTime, 2)) {
     Message.warning('只能对两天以内的记录进行修改或冲正');
     return;
   }
@@ -343,7 +343,7 @@ const reprint = async (row: any) => {
 
   const org = userStore.org;
   const data = { ...row, ...org };
-  printer.printRechargeByHTML(data, false);
+  getPrinter().printRechargeByHTML(data, false);
 };
 
 // 模态框

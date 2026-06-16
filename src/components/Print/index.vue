@@ -12,7 +12,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { printer } from '@/utils/lodop';
+import { getPrinter } from '@/utils/lodop';
 import { generateOrderHtmlTemplate } from '@/utils/lodop/GenerateTemplate';
 import { type OrderData } from '@/utils/lodop/types';
 
@@ -108,11 +108,11 @@ const resetLoad = () => {
   htmlTemplate.value = generateOrderHtmlTemplate(orderData);
 };
 const handlePrint = () => {
-  printer.printOrderByHTML(orderData, false);
+  getPrinter().printOrderByHTML(orderData, false);
 };
 
 const handlePreview = () => {
-  printer.printOrderByHTML(orderData, true);
+  getPrinter().printOrderByHTML(orderData, true);
 };
 </script>
 
