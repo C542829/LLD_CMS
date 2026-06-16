@@ -1,7 +1,16 @@
 <template>
   <div class="container" v-loading="loading" :element-loading-text="LOADING_MSG">
     <div class="section-title">
-      <span>会员卡资产</span>
+      <div class="section-title__left">
+        <span>会员卡资产</span>
+        <el-switch
+          v-model="showAllStatus"
+          active-text="全部"
+          inactive-text="有效"
+          inline-prompt
+          style="--el-switch-on-color: var(--el-color-primary); --el-switch-off-color: var(--el-color-success)"
+        />
+      </div>
       <div v-has="'member:memberCard:memberList:RefundCard'" class="section-title__actions">
         <span v-if="selectedAssets.length > 0" class="selected-info">
           已选 {{ selectedAssets.length }} 项，合计金额：￥{{ totalSelectedBalance }}
@@ -12,7 +21,7 @@
       </div>
     </div>
     <PaginationTable
-      :data="assetList"
+      :data="filteredAssetList"
       :border="true"
       stripe
       height="auto"
@@ -26,7 +35,7 @@
       <el-table-column type="selection" width="45" :selectable="checkAssetSelectable" />
       <el-table-column type="index" label="序号" width="45" />
       <el-table-column prop="assetNum" label="资产编号" min-width="100" />
-      <el-table-column prop="createTime" label="创建时间" min-width="80" />
+      <el-table-column prop="createTime" label="创建时间" min-width="80" :formatter="dateFormatter" />
       <el-table-column prop="assetBalance" label="余额" sortable min-width="80">
         <template #default="{ row }">￥{{ row.assetBalance }}</template>
       </el-table-column>
@@ -134,21 +143,29 @@ import { parseResObj, parseResMsg } from '@/utils/parseResponse';
 import { LOADING_MSG } from '@/utils/constants';
 
 import { useMemberStore } from '@/store/modules/member/member';
+import { dateFormatter } from '@/utils/formatter.js';
 const store = useMemberStore();
 
 const loading = ref(false);
 const assetList = ref<Types.VipAssetVO[]>([]);
 const ticketList = ref<Types.VipTicketVO[]>([]);
 const selectedAssets = ref<Types.VipAssetVO[]>([]);
+const showAllStatus = ref(false);
+
+/** 根据状态开关过滤资产列表：默认仅显示正常状态(status===0)，开启后显示全部 */
+const filteredAssetList = computed(() => {
+  if (showAllStatus.value) return assetList.value;
+  return assetList.value.filter((item) => item.status === 0);
+});
 
 /** 已选资产合计金额 */
 const totalSelectedBalance = computed(() => {
   return selectedAssets.value.reduce((sum, item) => sum + (item.assetBalance || 0), 0);
 });
 
-/** 控制行是否可选中：余额大于0的资产才可退卡 */
+/** 控制行是否可选中：正常状态且余额大于0的资产才可退卡 */
 const checkAssetSelectable = (row: Types.VipAssetVO) => {
-  return (row.assetBalance ?? 0) > 0;
+  return row.status !== 1 && (row.assetBalance ?? 0) > 0;
 };
 
 /** 多选变更事件 */
@@ -255,6 +272,12 @@ const getAssetRowClassName = ({ row }: { row: { status: number } }) => {
 
   &:not(:first-child) {
     margin-top: 20px;
+  }
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
 
   &__actions {

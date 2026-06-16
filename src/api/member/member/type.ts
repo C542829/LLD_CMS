@@ -228,6 +228,10 @@ export interface VipAssetVO {
    * 会员id
    */
   vipId?: number;
+  /**
+   * 资产状态（0 正常，1 已退卡）
+   */
+  status?: number;
   [property: string]: any;
 }
 
