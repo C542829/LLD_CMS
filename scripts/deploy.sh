@@ -42,9 +42,9 @@ pnpm install --frozen-lockfile
 # 构建
 echo ">>> 构建..."
 if [ "$ENV" = "production" ]; then
-  pnpm build:pro
+  pnpm vite build
 else
-  pnpm build:test
+  pnpm vite build
 fi
 
 # 部署到 Nginx 目录

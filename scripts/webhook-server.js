@@ -155,7 +155,7 @@ function handleStatus(req, res) {
       isDeploying,
       lastDeployTime,
       uptime: process.uptime(),
-    })
+    }),
   );
 }
 
