@@ -4,7 +4,13 @@
       <el-button :icon="Plus" circle size="small" @click="addPaymentMethod" v-if="index === 0" />
       <el-button :icon="Minus" circle size="small" @click="removePaymentMethod(index)" v-if="index > 0" />
       <el-select v-model="payment.paymentType" placeholder="请选择支付方式" style="width: 120px; margin-left: 10px">
-        <el-option v-for="item in paymentTypeOptions" :key="item.value" :label="item.label" :value="item.value" />
+        <el-option
+          v-for="item in paymentTypeOptions"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+          :disabled="item.disabled"
+        />
       </el-select>
       <el-input-number
         v-model="payment.paymentAmount"

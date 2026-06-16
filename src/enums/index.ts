@@ -290,7 +290,7 @@ export const paymentTypeMap: Record<PaymentType, string> = {
 export const paymentTypeOptions = [
   { value: PaymentType.QR, label: paymentTypeMap[PaymentType.QR] },
   { value: PaymentType.Cash, label: paymentTypeMap[PaymentType.Cash] },
-  { value: PaymentType.MemberCard, label: paymentTypeMap[PaymentType.MemberCard] },
+  { value: PaymentType.MemberCard, label: paymentTypeMap[PaymentType.MemberCard], disabled: true },
   { value: PaymentType.DouYi, label: paymentTypeMap[PaymentType.DouYi] },
   { value: PaymentType.MeiTuan, label: paymentTypeMap[PaymentType.MeiTuan] },
   { value: PaymentType.POS, label: paymentTypeMap[PaymentType.POS] },
