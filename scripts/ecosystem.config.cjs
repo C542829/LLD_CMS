@@ -11,7 +11,7 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         WEBHOOK_PORT: 54280,
-        WEBHOOK_PASSWORD: 'LLD-Front-Webhook-Password', // 在服务器上配置实际的密码
+        WEBHOOK_PASSWORD: 'LLD-Front-Webhook-Password',
       },
       log_date_format: 'YYYY-MM-DD HH:mm:ss',
       error_file: '/var/log/lld_cms/webhook-error.log',
