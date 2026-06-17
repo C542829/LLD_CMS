@@ -3,6 +3,7 @@ module.exports = {
     {
       name: 'lld-webhook',
       script: './scripts/webhook-server.cjs',
+      cwd: '/opt/lld_cms', // 补充工作目录，避免相对路径异常
       instances: 1,
       autorestart: true,
       watch: false,
