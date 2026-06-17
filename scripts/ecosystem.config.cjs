@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: 'lld-webhook',
-      script: './scripts/webhook-server.js',
+      script: './scripts/webhook-server.cjs',
       instances: 1,
       autorestart: true,
       watch: false,
