@@ -26,3 +26,6 @@ dist
 *.jar
 
 .claude/settings.json
+
+# Environment
+.env
