@@ -32,7 +32,7 @@ NODE_ENV=development pnpm install --frozen-lockfile --ignore-scripts
 
 # 构建
 echo ">>> 构建..."
-pnpm run build
+pnpm vite build
 
 # 部署到 Nginx 目录
 echo ">>> 部署到 Nginx..."
