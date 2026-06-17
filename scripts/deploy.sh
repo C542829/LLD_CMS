@@ -37,7 +37,7 @@ git pull origin "$BRANCH"
 
 # 安装依赖
 echo ">>> 安装依赖..."
-pnpm install --frozen-lockfile
+pnpm install --frozen-lockfile --ignore-scripts
 
 # 构建
 echo ">>> 构建..."
