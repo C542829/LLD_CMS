@@ -112,7 +112,7 @@ export const reqVipAssetList = (vipId: number): ApiResponse<Types.VipPropertyVO>
  */
 export const getVipAssetList = async (vipId: number): Promise<Types.VipPropertyVO> => {
   try {
-    const { data } = await getVipAssetList(vipId);
+    const { data } = await reqVipAssetList(vipId);
     data.vipAssetVOList = (data.vipAssetVOList || [])?.filter((item: any) => item.status === 0);
     return data;
   } catch (error) {
