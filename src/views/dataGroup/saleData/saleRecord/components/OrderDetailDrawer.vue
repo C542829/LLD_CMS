@@ -57,6 +57,10 @@
             </el-tag>
           </div>
         </div>
+        <div class="detail-item">
+          <span>订单备注：</span>
+          <span>{{ orderData.remark || '-' }}</span>
+        </div>
       </div>
       <!-- 下方表格区域 -->
       <div class="table-area">
