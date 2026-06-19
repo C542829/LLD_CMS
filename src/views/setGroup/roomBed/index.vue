@@ -57,11 +57,12 @@
           </div>
 
           <!-- 床位列表 -->
-          <Table
+          <PaginationTable
             :data="bedList"
             v-loading="bedLoading"
-            :element-loading-text="LOADING_MSG"
             :border="true"
+            :showPagination="false"
+            :element-loading-text="LOADING_MSG"
             :row-class-name="getRowClassName"
           >
             <el-table-column prop="bedName" label="床位名" width="230">
@@ -80,7 +81,7 @@
                 </template>
               </template>
             </el-table-column>
-          </Table>
+          </PaginationTable>
         </Card>
       </div>
     </Drawer>

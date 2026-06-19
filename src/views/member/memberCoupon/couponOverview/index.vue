@@ -20,7 +20,12 @@
 
     <!-- 数据列表 -->
     <Card class="table-card">
-      <Table v-loading="loading" :element-loading-text="LOADING_MSG" :data="couponSummary">
+      <PaginationTable
+        v-loading="loading"
+        :element-loading-text="LOADING_MSG"
+        :data="couponSummary"
+        :showPagination="false"
+      >
         <el-table-column prop="couponStatType" label="优惠券统计类型" :formatter="couponTypeMap" />
         <el-table-column label="赠送数量/金额">
           <template #default="{ row }">
@@ -40,7 +45,7 @@
             <p>取消和失效金额：￥{{ row.amountOfCancel }}</p>
           </template>
         </el-table-column>
-      </Table>
+      </PaginationTable>
     </Card>
   </div>
 </template>
