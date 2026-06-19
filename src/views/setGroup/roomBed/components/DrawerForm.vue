@@ -45,10 +45,10 @@
 </template>
 
 <script setup lang="ts">
+import Message from '@/components/Message';
 import { ref, computed, watch } from 'vue';
 import { cloneDeep } from 'lodash';
 import { reqAddRoom, reqUpdateRoom, reqAddBed, type Types } from '@/api/setGroup/room';
-import Message from '@/components/Message';
 
 interface RoomFormData {
   id?: number;

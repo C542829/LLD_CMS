@@ -88,10 +88,12 @@
 </template>
 
 <script setup lang="ts">
+import MessageBox from '@/components/MessageBox';
 import { Search } from '@element-plus/icons-vue';
 import { ref, computed, onMounted, inject } from 'vue';
 import { bedStatusMap } from '@/utils/formatter';
 import { LOADING_MSG } from '@/utils/constants';
+import { parseResMsg } from '@/utils/parseResponse';
 import {
   type Types,
   reqRoomList,
@@ -102,9 +104,6 @@ import {
   reqUpdateBed,
   reqUpdateBedStatus,
 } from '@/api/setGroup/room';
-import { parseResMsg, parseResList } from '@/utils/parseResponse';
-
-const $MessageBox: any = inject('$MessageBox');
 
 // 本地状态
 const loading = ref(false);
@@ -195,7 +194,7 @@ const updateBedName = async (value: string, params: any) => {
 
 // 停用床位
 const disabledBed = async (row: Types.RoomBedVO) => {
-  const result = await $MessageBox.confirm({
+  const result = await MessageBox.confirm({
     title: '确认操作',
     message: `你确定要禁用床位【${row.bedName}】吗？`,
     type: 'warning',
