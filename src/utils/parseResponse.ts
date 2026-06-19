@@ -54,11 +54,11 @@ export const parseRes = (res: any) => {
 export const parseResMsg = (res: any, msg?: string) => {
   // 调用基础解析器
   const response = parseRes(res);
+  if (!response) return false;
   // 成功时显示通知
-  const isSuccess = response.code === ResponseCode.SUCCESS;
   const message = res.message + (res.data ? `：${res.data}` : '');
-  isSuccess && $Notification.success(msg || message);
-  return isSuccess;
+  $Notification.success(msg || message);
+  return true;
 };
 
 /**
@@ -74,6 +74,7 @@ export const parseResMsg = (res: any, msg?: string) => {
 export const parseResObj = (res: any, msg?: string) => {
   // 调用基础解析器
   const response = parseRes(res);
+  if (!response) return {};
   const data = response.data;
   // 验证是否为对象类型
   const isObj = isObject(data);
@@ -108,6 +109,7 @@ export const parseResObj = (res: any, msg?: string) => {
 export const parseResList = (res: any, msg?: string) => {
   // 调用基础解析器
   const response = parseRes(res);
+  if (!response) return [];
   const data = response.data;
   // 验证是否为数组类型
   const isArray = Array.isArray(data);
