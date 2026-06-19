@@ -47,7 +47,7 @@ export const useDictStore = defineStore('Dict', () => {
   /** 批量预加载常用字典（单次请求） */
   const preloadCommonDicts = async () => {
     const res = await reqDictItemListByCodes(COMMON_DICTS);
-    const map = parseResObj<Record<string, Types.DictItemVO[]>>(res);
+    const map = res.data;
     if (map) {
       for (const [code, items] of Object.entries(map)) {
         cache.value.set(code, items);
