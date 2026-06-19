@@ -96,7 +96,7 @@
     <!-- 表格组件 -->
     <section class="component-section">
       <h3>表格组件</h3>
-      <Table
+      <PaginationTable
         :data="tableData"
         :border="true"
         :stripe="true"
@@ -114,7 +114,7 @@
             <el-button size="small" type="danger" @click="handleDelete(scope.row)">删除</el-button>
           </template>
         </el-table-column>
-      </Table>
+      </PaginationTable>
     </section>
 
     <!-- 分页组件 -->

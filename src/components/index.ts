@@ -3,7 +3,6 @@ import SvgIcon from './SvgIcon/index.vue';
 import Pagination from './Pagination/index.vue';
 import Dialog from './Dialog/index.vue';
 import Drawer from './Drawer/index.vue';
-import Table from './Table/index.vue';
 import PaginationTable from './PaginationTable/index.vue';
 import Form from './Form/index.vue';
 import Card from './Card/index.vue';
@@ -33,7 +32,6 @@ const allGlobalComponent: any = {
   Pagination,
   Dialog,
   Drawer,
-  Table,
   PaginationTable,
   Form,
   Card,
