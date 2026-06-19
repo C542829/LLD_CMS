@@ -40,10 +40,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
 
-// 引入数据仓库
-import { useRoomStore } from '@/store/modules/setGroup/room';
-const roomStore = useRoomStore();
+const masterDataStore = useMasterDataStore();
 
 const props = defineProps<{
   order?: object;
@@ -52,11 +51,11 @@ const props = defineProps<{
 const visible = ref(false);
 const value = ref('');
 const selected = ref({});
-const bedList = ref([]);
+const bedList = ref<any>([]);
 
 onMounted(async () => {
-  await roomStore.setAllBedList();
-  bedList.value = roomStore.allBedList.map((item: any) => ({ ...item, value: item.bedName }));
+  const allBedList = await masterDataStore.getAllBedList();
+  bedList.value = allBedList.map((item: any) => ({ ...item, value: item.bedName }));
 });
 
 const submitForm = (e: any) => {

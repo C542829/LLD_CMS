@@ -31,17 +31,16 @@
 </template>
 
 <script setup lang="ts">
+import Message from '@/components/Message';
+import CreateOrder from './CreateOrder.vue';
+import BedCard from './components/BedCard.vue';
 import { ref, reactive, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { BedStatus, CashierRouteSign, TimerStatus } from '@/enums/index';
 import { reqQueryOrderByBedId } from '@/api/order/index';
 import type { OrderDetailVO } from '@/api/order/types';
 import { LOADING_MSG } from '@/utils/constants';
-import Message from '@/components/Message';
 import { getCountdown } from '@/composables/useTimer';
-
-import BedCard from './components/BedCard.vue';
-import CreateOrder from './CreateOrder.vue';
 
 // 引入数据仓库
 import { useMasterDataStore } from '@/store/modules/masterData/index';
@@ -50,10 +49,10 @@ import { useOrderStore } from '@/store/modules/order/index';
 const masterDataStore = useMasterDataStore();
 const orderStore = useOrderStore();
 
+const router = useRouter();
+
 // 加载状态
 const loading = ref(false);
-
-const router = useRouter();
 
 /** 轮询定时器 */
 let pollingTimer: ReturnType<typeof setInterval> | null = null;
