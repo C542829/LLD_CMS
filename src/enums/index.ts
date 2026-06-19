@@ -328,7 +328,7 @@ export enum RechargeType {
 
 export const RechargeTypeMap = {
   [RechargeType.Store]: '门店充值',
-  [RechargeStatus.REVERSAL]: '手动赠送',
+  [RechargeType.Present]: '手动赠送',
 };
 
 /**
