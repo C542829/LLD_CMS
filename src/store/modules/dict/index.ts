@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 
-import { reqDictItemList, type Types } from '@/api/acl/dict/index';
-import { parseResList } from '@/utils/parseResponse';
+import { reqDictItemList, reqDictItemListByCodes, type Types } from '@/api/acl/dict/index';
+import { parseResList, parseResObj } from '@/utils/parseResponse';
 import { DictCode } from '@/enums/index';
 
 /** 全量预加载的字典编码列表 */
@@ -44,9 +44,15 @@ export const useDictStore = defineStore('Dict', () => {
     }
   };
 
-  /** 批量预加载常用字典 */
+  /** 批量预加载常用字典（单次请求） */
   const preloadCommonDicts = async () => {
-    await Promise.allSettled(COMMON_DICTS.map((code) => getDictItems(code)));
+    const res = await reqDictItemListByCodes(COMMON_DICTS);
+    const map = parseResObj<Record<string, Types.DictItemVO[]>>(res);
+    if (map) {
+      for (const [code, items] of Object.entries(map)) {
+        cache.value.set(code, items);
+      }
+    }
   };
 
   return { getDictItems, dictItems, invalidate, preloadCommonDicts };
