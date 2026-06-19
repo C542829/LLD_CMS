@@ -149,14 +149,16 @@ const search = () => {
 
 // 添加房间
 const addRoom = async (value: string) => {
-  const res = await reqAddRoom({ roomName: value });
+  const res = await reqAddRoom({ roomName: value }).catch(() => null);
+  if (!res) return;
   const result = parseResMsg(res);
   if (result) fetchRoomList();
 };
 
 // 修改房间名
 const updateRoomName = async (value: string) => {
-  const res = await reqUpdateRoom({ id: editRoom.value.id!, roomName: value });
+  const res = await reqUpdateRoom({ id: editRoom.value.id!, roomName: value }).catch(() => null);
+  if (!res) return;
   const result = parseResMsg(res);
   if (result) {
     fetchRoomList();
@@ -174,7 +176,8 @@ const editRoomInfo = (room: Types.RoomInfoVO) => {
 
 // 添加床位
 const addBed = async (value: string) => {
-  const res = await reqAddBed({ roomId: editRoom.value.id!, bedName: value });
+  const res = await reqAddBed({ roomId: editRoom.value.id!, bedName: value }).catch(() => null);
+  if (!res) return;
   const result = parseResMsg(res);
   if (result) {
     fetchBedList(editRoom.value.id!);
@@ -184,7 +187,8 @@ const addBed = async (value: string) => {
 
 // 修改床位名称
 const updateBedName = async (value: string, params: any) => {
-  const res = await reqUpdateBed({ roomId: params.roomInfoId, bedName: value });
+  const res = await reqUpdateBed({ roomId: params.roomInfoId, bedName: value }).catch(() => null);
+  if (!res) return;
   const result = parseResMsg(res);
   if (result) {
     fetchBedList(editRoom.value.id!);
@@ -201,7 +205,8 @@ const disabledBed = async (row: Types.RoomBedVO) => {
   });
   if (result) {
     const status = row.status === 0 ? 2 : 0;
-    const res = await reqUpdateBedStatus({ bedId: row.id!, status });
+    const res = await reqUpdateBedStatus({ bedId: row.id!, status }).catch(() => null);
+    if (!res) return;
     const success = parseResMsg(res);
     if (success) {
       fetchBedList(editRoom.value.id!);
@@ -212,7 +217,8 @@ const disabledBed = async (row: Types.RoomBedVO) => {
 
 // 启用床位
 const enabledBed = async (row: Types.RoomBedVO) => {
-  const res = await reqUpdateBedStatus({ bedId: row.id!, status: 0 });
+  const res = await reqUpdateBedStatus({ bedId: row.id!, status: 0 }).catch(() => null);
+  if (!res) return;
   const result = parseResMsg(res);
   if (result) {
     fetchBedList(editRoom.value.id!);
