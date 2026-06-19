@@ -2,7 +2,6 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 
 import { reqDictItemList, reqDictItemListByCodes, type Types } from '@/api/acl/dict/index';
-import { parseResList, parseResObj } from '@/utils/parseResponse';
 import { DictCode } from '@/enums/index';
 
 /** 全量预加载的字典编码列表 */
@@ -22,7 +21,7 @@ export const useDictStore = defineStore('Dict', () => {
       return cache.value.get(dictCode)!;
     }
     const res = await reqDictItemList(dictCode);
-    const list = parseResList<Types.DictItemVO>(res);
+    const list = res.data;
     cache.value.set(dictCode, list);
     return list;
   };
