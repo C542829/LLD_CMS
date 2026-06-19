@@ -44,7 +44,7 @@ app.use(pinia);
 app.use(router);
 
 // 引入路由鉴权文件
-import './permisstion';
+import './permission';
 
 // 导入原型扩展
 import './utils/array-extensions';
