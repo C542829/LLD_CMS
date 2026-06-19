@@ -1,5 +1,4 @@
 import { get, post, put } from '@/utils/request';
-import { setStoreUserInfo } from '@/store/index';
 import useUserStore from '@/store/modules/acl/user';
 import { setUserInfo } from '@/utils/localStorageTools';
 import * as Types from './types';
@@ -87,7 +86,6 @@ export const storageUserInfo = async (id: number, token: string) => {
     const res = await reqUserInfo(id);
     const userInfo = res.data;
     userInfo.token = token || '';
-    setStoreUserInfo(userInfo);
     setUserInfo(userInfo);
     return userInfo;
   } catch (error) {

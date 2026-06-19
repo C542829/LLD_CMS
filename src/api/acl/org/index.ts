@@ -1,5 +1,4 @@
 import { get, post, put } from '@/utils/request';
-import { setStoreOrgInfo } from '@/store/index';
 import { setOrgInfo } from '@/utils/localStorageTools';
 import * as Types from './types';
 
@@ -93,7 +92,6 @@ export const storageOrgInfo = async (id: number) => {
     const res = await reqOrgInfo(id);
     const orgInfo = res.data;
     orgInfo.orgArea && (orgInfo.orgArea = JSON.parse(orgInfo.orgArea as string));
-    setStoreOrgInfo(orgInfo);
     setOrgInfo(orgInfo);
     return orgInfo;
   } catch (error) {
