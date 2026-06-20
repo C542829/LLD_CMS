@@ -41,10 +41,9 @@ import { ref, onMounted, watch } from 'vue';
 import { reqSetOrgDefaultCommissionRule } from '@/api/acl/org/index';
 import type { OrgDefaultRuleUpdateDTO } from '@/api/acl/org/types';
 import { DiscountType, IsCrossStore, discountTypeOptions, isCrossStoreOptions } from '@/enums/index';
-import { cloneDeep, isEmpty } from 'lodash';
+import { cloneDeep } from 'lodash';
 import { parseResMsg } from '@/utils/parseResponse';
 import { getOrgInfo } from '@/utils/localStorageTools';
-import { storeOrgInfo } from '@/store/index';
 
 // #region  参数定义
 
@@ -80,10 +79,7 @@ const close = () => {
 // #endregion  参数定义
 
 const initInfo = async () => {
-  let org = storeOrgInfo;
-  if (isEmpty(org)) {
-    org = getOrgInfo();
-  }
+  let org = getOrgInfo();
 
   formData.value.defaultDiscountBase = org.defaultDiscountBase || DiscountType.Member;
   formData.value.defaultDiscountRate = org.defaultDiscountRate || 100;
