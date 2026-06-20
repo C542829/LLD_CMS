@@ -255,6 +255,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
+import { reqTicketList } from '@/api/member/coupon/index';
 import {
   activityTypeOptions,
   ActivityType,
@@ -265,10 +266,9 @@ import {
 } from '@/enums/index';
 // 引入数据仓库
 import { useRechargeActivityStore } from '@/store/modules/member/rechargeActivity';
-import { useCouponStore } from '@/store/modules/member/memberCoupon';
-import useUserStore from '@/store/modules/acl/user';
+import { useUserStore } from '@/store/modules/acl/user';
+
 const store = useRechargeActivityStore();
-const couponStore = useCouponStore();
 const userStore = useUserStore();
 
 // 定义组件触发的事件 - 关闭抽屉
@@ -295,14 +295,16 @@ const visibleChange = (visible: boolean) => {
 
 // 获取优惠券列表
 const getCouponList = async () => {
-  const couponList = await couponStore.getCouponList();
-  couponOptions.value = couponList.map((item) => {
-    return {
-      vipTicketId: item.id,
-      vipTicketName: item.ticketName,
-      vipTicketNum: 1,
-    };
-  });
+  try {
+    const { data } = await reqTicketList();
+    couponOptions.value = data.map((item) => {
+      return {
+        vipTicketId: item.id,
+        vipTicketName: item.ticketName,
+        vipTicketNum: 1,
+      };
+    });
+  } catch (error) {}
 };
 
 /**
