@@ -1,4 +1,21 @@
 //#region 分页查询会员优惠券
+
+export interface SearchTicketParams {
+  /**
+   * 门店id（可选，用于筛选指定门店的优惠券）
+   */
+  orgId?: number;
+  /**
+   * 优惠券名称
+   */
+  ticketName?: string;
+  /**
+   * 优惠券状态
+   */
+  ticketStatus?: number;
+  [property: string]: any;
+}
+
 /**
  * 分页查询会员优惠券明细请求参数
  */
@@ -35,7 +52,7 @@ export interface TicketListRequest {
  *
  * TicketCountVO
  */
-export interface TicketCountVO {
+export interface TicketVO {
   /**
    * 活动id
    */
@@ -269,3 +286,50 @@ export interface TicketRemainingVO {
 }
 
 //#endregion 分页查询会员优惠券
+
+/**
+ * VipTicketUpdateDTO，优惠券更新对象
+ */
+export interface VipTicketDTO {
+  /**
+   * 主键id
+   */
+  id?: number;
+  /**
+   * 关联门店ID列表
+   */
+  orgIds?: number[];
+  /**
+   * 关联的产品ID列表（产品券专用）
+   */
+  productIds?: number[];
+  /**
+   * 优惠券适用服务项目
+   */
+  serverItemIds?: number[];
+  /**
+   * 优惠券描述
+   */
+  ticketDescription?: string;
+  /**
+   * 有效天数（-1 代表无限期）
+   */
+  ticketEffectiveTime: number;
+  /**
+   * 限额满多少元可用
+   */
+  ticketFullPayment?: number;
+  /**
+   * 优惠券名称
+   */
+  ticketName: string;
+  /**
+   * 优惠券类型
+   */
+  ticketType: number;
+  /**
+   * 优惠券面值
+   */
+  ticketValue?: number;
+  [property: string]: any;
+}
