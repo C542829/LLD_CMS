@@ -98,9 +98,9 @@ export const useCouponStore = defineStore('CouponStore', () => {
    * @returns 是否操作成功
    */
   const updateStatus = async (data: any) => {
-    data.ticketStatus = data.ticketStatus === 0 ? 1 : 0;
-    const params = { id: data.id, status: data.ticketStatus };
-    const res = await reqUpdateTicketStatus(params);
+    const id = data.id;
+    const status = data.ticketStatus === 0 ? 1 : 0;
+    const res = await reqUpdateTicketStatus(id, status);
     const result = parseResMsg(res);
     // 刷新数据
     result && setTableData();
