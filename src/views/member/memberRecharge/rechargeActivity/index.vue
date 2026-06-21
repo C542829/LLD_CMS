@@ -80,8 +80,8 @@
         </el-table-column>
         <el-table-column label="操作" min-width="50">
           <template #default="{ row }">
-            <el-button @click="showDrawer(1, row)" link type="primary">修改</el-button>
             <el-button @click="showDrawer(2, row)" link type="info">详情</el-button>
+            <el-button @click="showDrawer(1, row)" link type="primary">编辑</el-button>
             <el-button v-if="row.activeStatus" @click="store.updateStatus(row)" link type="success">启用</el-button>
             <el-button v-else @click="showConfirm(row)" link type="warning">禁用</el-button>
             <!-- <el-button :disabled="true" @click="showDialog(row)" link type="primary">统计</el-button> -->
