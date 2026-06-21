@@ -53,31 +53,31 @@
             />
           </label>
         </div> -->
-        <template v-if="userStore.isAdmin || userStore.isAreaManager">
+        <!-- <template v-if="userStore.isAdmin || userStore.isAreaManager">
           <div class="search-item">
             <el-input v-model="searchParams.username" clearable @clear="search" placeholder="技师姓名" class="w-100" />
           </div>
         </template>
-        <template v-else>
-          <div class="search-item">
-            <label>
-              提成技师：
-              <UserSelect
-                v-model="searchParams.username"
-                placeholder="技师"
-                class="w-100"
-                :multiple="false"
-                :defaultProps="{
-                  label: 'userName',
-                  value: 'userName',
-                  code: 'userCode',
-                }"
-                @change="search"
-                @clear="search"
-              />
-            </label>
-          </div>
-        </template>
+        <template v-else> -->
+        <div class="search-item">
+          <label>
+            提成技师：
+            <UserSelect
+              v-model="searchParams.username"
+              placeholder="技师"
+              class="w-100"
+              :multiple="false"
+              :defaultProps="{
+                label: 'userName',
+                value: 'userName',
+                code: 'userCode',
+              }"
+              @change="search"
+              @clear="search"
+            />
+          </label>
+        </div>
+        <!-- </template> -->
         <div class="search-item">
           <el-button type="primary" @click="search">搜索</el-button>
           <el-button type="success" :loading="exportLoading" @click="exportData">导出</el-button>
