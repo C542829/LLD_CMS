@@ -4,7 +4,7 @@ export interface SearchTicketParams {
   /**
    * 门店id（可选，用于筛选指定门店的优惠券）
    */
-  orgId?: number;
+  orgId?: number | string;
   /**
    * 优惠券名称
    */

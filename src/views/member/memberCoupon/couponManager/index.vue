@@ -3,15 +3,24 @@
     <!-- 搜索组件区域 -->
     <Card class="operation-card">
       <div class="header-container">
-        <el-button type="primary" @click="showDrawer(0)" class="add-button">添加优惠券</el-button>
+        <el-button type="primary" @click="showDrawer('add')" class="add-button">添加优惠券</el-button>
       </div>
       <div class="search-container">
         <!-- 状态 -->
         <div class="search-item">
           <label>
             <span>优惠券状态：</span>
-            <el-select v-model="store.searchParams.ticketStatus" @change="search" class="w-100">
+            <el-select v-model="searchParams.ticketStatus" @change="search" class="w-100">
               <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
+            </el-select>
+          </label>
+        </div>
+        <!-- 类型 -->
+        <div class="search-item">
+          <label>
+            <span>优惠券类型：</span>
+            <el-select v-model="filterType" clearable class="w-80" placeholder="类型" @clear="filterType = ''">
+              <el-option v-for="item in couponTypeOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </label>
         </div>
@@ -20,7 +29,7 @@
             <label>
               门店：
               <OrgSelect
-                v-model="store.searchParams.orgId"
+                v-model="searchParams.orgId"
                 placeholder="门店"
                 class="w-100"
                 :multiple="false"
@@ -34,7 +43,7 @@
         <!-- 搜索框 -->
         <div class="search-item">
           <el-input
-            v-model="store.searchParams.ticketName"
+            v-model="searchParams.ticketName"
             @keydown.enter="search"
             @clear="search"
             :prefix-icon="Search"
@@ -51,15 +60,15 @@
     </Card>
 
     <!-- 表格组件 -->
-    <Card v-loading="settingStore.loading" :element-loading-text="LOADING_MSG" flex="row" :gap="7">
-      <template v-if="store.tableData.length === 0">
+    <Card v-loading="loading" :element-loading-text="LOADING_MSG" flex="row" :gap="7">
+      <template v-if="filteredTableData.length === 0">
         <div class="el-full el-center">
           <el-empty></el-empty>
         </div>
       </template>
       <template v-else>
         <CouponCard
-          v-for="item in store.tableData"
+          v-for="item in filteredTableData"
           :coupon="item"
           @disable="handleDisable"
           @edit="handleEdit"
@@ -68,70 +77,113 @@
       </template>
     </Card>
   </div>
-  <!-- 抽屉表单 -->
-  <Drawer v-model="drawer.visible" :title="drawer.title" @closed="handleDrawerClose">
-    <!-- 表单 -->
-    <CouponForm :disabled="drawer.disabled" @close-drawer="drawer.visible = false" />
-    <!-- 抽屉操作按钮 -->
-    <div v-show="drawer.disabled" class="drawer-buttons">
-      <el-button @click="drawer.visible = false">取消</el-button>
-    </div>
-  </Drawer>
+
+  <!-- 优惠券表单 -->
+  <CouponForm
+    v-model="drawer.visible"
+    :formData="formData"
+    :disabled="drawer.disabled"
+    :title="drawer.title"
+    @success="fetchList"
+  />
 </template>
 
 <script setup lang="ts">
-import CouponForm from './form.vue';
+import MessageBox from '@/components/MessageBox';
+import CouponForm from './components/CouponForm.vue';
 import CouponCard from './components/CouponCard.vue';
 import { Search } from '@element-plus/icons-vue';
-import { onMounted, inject, reactive } from 'vue';
+import { onMounted, reactive, ref, computed } from 'vue';
 import { LOADING_MSG } from '@/utils/constants';
-import { statusOptions } from '@/enums/index';
-// 引入数据仓库
-import { useSettingStore } from '@/store/modules/acl/setting';
-import { useCouponStore } from '@/store/modules/member/memberCoupon';
-import useUserStore from '@/store/modules/acl/user';
-const userStore = useUserStore();
-const settingStore = useSettingStore();
-const store = useCouponStore();
+import { statusOptions, CouponType, couponTypeOptions } from '@/enums/index';
+import { type Types, reqTicketList, reqUpdateTicketStatus } from '@/api/member/coupon';
+import { parseResList, parseResMsg } from '@/utils/parseResponse';
+import { useMasterDataStore } from '@/store/modules/masterData/index';
+import { useUserStore } from '@/store/modules/acl/user';
 
-// 引入消息提示组件
-const $MessageBox: any = inject('$MessageBox');
+const userStore = useUserStore();
+
+// #region 页面状态
+const loading = ref(false);
+const searchParams = ref<Types.SearchTicketParams>({ ticketName: '', ticketStatus: 0, orgId: '' });
+const tableData = ref<any[]>([]);
+const filterType = ref<number | ''>('');
+const filteredTableData = computed(() => {
+  if (filterType.value === '') return tableData.value;
+  return tableData.value.filter((item) => item.ticketType === filterType.value);
+});
+const formData = ref(CouponForm.createDefaultForm());
+// #endregion
+
+// #region 数据获取
+const fetchList = async () => {
+  loading.value = true;
+  try {
+    const params = { ...searchParams.value };
+    const res = await reqTicketList(params);
+    const data = parseResList(res);
+    for (const coupon of data) {
+      coupon.orgIds = coupon.orgs?.map((e: any) => e.id) || [];
+      if (coupon.serverItems?.length) coupon.serverItemIds = coupon.serverItems.map((i: any) => i.id);
+      if (coupon.productList?.length) coupon.productIds = coupon.productList.map((i: any) => i.productId);
+    }
+    tableData.value = data;
+  } finally {
+    loading.value = false;
+  }
+};
+
+const handleStatusToggle = async (coupon: any) => {
+  const id = coupon.id;
+  const status = coupon.ticketStatus === 0 ? 1 : 0;
+  const res = await reqUpdateTicketStatus(id, status);
+  const result = parseResMsg(res);
+  if (result) {
+    fetchList();
+    useMasterDataStore().invalidate('ticket');
+  }
+};
+// #endregion
 
 onMounted(() => {
-  store.setTableData();
+  fetchList();
 });
 
 // 搜索
 const search = () => {
-  if (store.searchParams.orgId === undefined) {
-    store.searchParams.orgId = '';
+  if (searchParams.value.orgId === undefined) {
+    searchParams.value.orgId = '';
   }
-  store.setTableData();
+  fetchList();
 };
 
 // 禁用
 const handleDisable = async (coupon: any) => {
   const handleStr = coupon.ticketStatus ? '启用' : '禁用';
-  const result = await $MessageBox.confirm({
+  const result = await MessageBox.confirm({
     title: '确认操作',
     message: `你确定要${handleStr}优惠券【${coupon.ticketName}】吗？`,
     type: 'warning',
   });
-  result && store.updateStatus(coupon);
+  result && handleStatusToggle(coupon);
 };
 
-// 更多
+// 编辑
 const handleEdit = (coupon: any) => {
-  showDrawer(2, coupon);
+  showDrawer('edit', coupon);
 };
 
 // 更多
 const handleMore = (coupon: any) => {
-  showDrawer(1, coupon);
+  showDrawer('view', coupon);
 };
 
-// 抽屉标题
-const drawerTitles = ['新增优惠券', '优惠券详情'];
+const drawerTitleMap: Record<DialogType, string> = {
+  add: '新增优惠券',
+  view: '优惠券详情',
+  edit: '修改优惠券',
+};
+
 const drawer = reactive({
   title: '新增优惠券',
   visible: false,
@@ -139,19 +191,11 @@ const drawer = reactive({
 });
 
 // 打开抽屉
-const showDrawer = (index: number, row?: any) => {
-  row?.id ? (store.formData = { ...row }) : store.resetFormData();
-  index === 1 && (drawer.disabled = true);
-  drawer.title = drawerTitles[index];
+const showDrawer = (type: DialogType, row?: any) => {
+  formData.value = row?.id ? { ...row } : CouponForm.createDefaultForm();
+  drawer.disabled = type === 'view';
+  drawer.title = drawerTitleMap[type];
   drawer.visible = true;
-};
-
-// 关闭抽屉触发
-const handleDrawerClose = () => {
-  // 当抽屉关闭时重置表单
-  store.resetFormData();
-  // 去除预览禁用
-  drawer.disabled = false;
 };
 </script>
 
