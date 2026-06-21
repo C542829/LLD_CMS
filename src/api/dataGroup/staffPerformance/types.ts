@@ -31,7 +31,7 @@ export interface KpiListQuery {
   /**
    * 员工姓名
    */
-  username?: string;
+  userId?: number | string;
   [property: string]: any;
 }
 

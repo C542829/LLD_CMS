@@ -63,13 +63,13 @@
           <label>
             提成技师：
             <UserSelect
-              v-model="searchParams.username"
+              v-model="searchParams.userId"
               placeholder="技师"
               class="w-100"
               :multiple="false"
               :defaultProps="{
                 label: 'userName',
-                value: 'userName',
+                value: 'userId',
                 code: 'userCode',
               }"
               @change="search"
@@ -160,7 +160,7 @@ const searchParams = ref<KpiListQuery>({
   endTime: '',
   orgIds: [],
   serviceCode: '',
-  username: '',
+  userId: '',
 });
 
 /** 处理搜索参数 */
@@ -171,6 +171,9 @@ const handleSearchParams = () => {
   } else {
     searchParams.value.startTime = dateRange.value[0] as string;
     searchParams.value.endTime = dateRange.value[1] as string;
+  }
+  if (searchParams.value.userId === undefined) {
+    searchParams.value.userId = '';
   }
 };
 
