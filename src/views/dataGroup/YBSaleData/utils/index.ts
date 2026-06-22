@@ -78,15 +78,15 @@ export const TRAN_FIN_MAP: Record<number, string> = {
 
 export const STORE_MAP: Record<number, string> = {
   1459: '锦绣4店',
-  2219: '冉屯8店',
   197: '升龙6店',
+  2219: '冉屯8店',
 };
 
 /** 门店选项 */
 export const STORE_OPTIONS: OptionItem[] = [
   { value: 1459, label: '锦绣4店' },
-  { value: 2219, label: '冉屯8店' },
   { value: 197, label: '升龙6店' },
+  { value: 2219, label: '冉屯8店' },
 ];
 
 // ==================== 支付方式汇总 ====================

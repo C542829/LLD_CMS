@@ -169,8 +169,8 @@ import type { YbSaleDataQuery, YbSaleDataParsed } from './utils/types';
 import { STORE_MAP, PAY_FIELDS, STORE_OPTIONS, parseSaleDataVO } from './utils/index';
 import useUserStore from '@/store/modules/acl/user';
 
-const route = useRoute();
 const userStore = useUserStore();
+const route = useRoute();
 
 /** 根据用户角色动态计算门店选项：管理员看全部门店，非管理员只看所属门店 */
 const storeOptions = computed(() => {
@@ -209,10 +209,6 @@ const searchParams = reactive<YbSaleDataQuery>(cloneDeep(DEFAULT_SEARCH_PARAMS))
 const queryMemberId = route.query.memberId;
 if (queryMemberId) {
   searchParams.memberId = queryMemberId as string;
-}
-const queryOrgId = route.query.orgId;
-if (queryOrgId) {
-  searchParams.orgId = Number(queryOrgId);
 }
 
 /** 表格数据 */
