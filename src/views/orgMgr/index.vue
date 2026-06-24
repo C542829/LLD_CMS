@@ -156,6 +156,10 @@ import { reqOrgInfo, reqSetPrintWidth } from '@/api/acl/org/index';
 import { parseResObj } from '@/utils/parseResponse';
 import { IsCrossStoreMap, discountTypeMap, IsCrossStore, DiscountType, DictCode } from '@/enums/index';
 
+import useUserStore from '@/store/modules/acl/user';
+
+const userStore = useUserStore();
+
 onMounted(() => {
   init();
 });
@@ -201,6 +205,9 @@ const updatePrintWidth = async (printWidth: number) => {
     const params = { id: org.value.id, printWidth: Number(printWidth) };
     await reqSetPrintWidth(params);
     org.value.printWidth = printWidth;
+    // 同步 pinia 中的数据
+    userStore.org.printWidth = printWidth;
+    // 修改消息提示
     const msg = printWidth ? '开启' : '关闭';
     Message.success(`${msg}默认打印成功`);
   } catch (error) {

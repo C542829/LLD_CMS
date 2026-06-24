@@ -89,11 +89,11 @@ import { ref, watch, onMounted } from 'vue';
 import { paymentTypeMap, PaymentType, couponTypeMap, CouponType } from '@/enums';
 import { CustomerType } from '@/enums/index';
 import { getPrinter } from '@/utils/lodop';
+import { add } from '@/utils/bigMethods';
 import { type Types, reqQueryOrder, reqSettleOrder } from '@/api/order/index';
 
 import { useOrderStore } from '@/store/modules/order/index';
 import useUserStore from '@/store/modules/acl/user';
-import { add } from '@/utils/bigMethods';
 
 const userStore = useUserStore();
 const orderStore = useOrderStore();
