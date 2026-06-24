@@ -70,12 +70,27 @@
         <span>跨店结算：</span>
         <span>{{ IsCrossStoreMap[org.defaultIsCrossStore as IsCrossStore] }}</span>
       </li>
-      <li>
+      <!-- <li>
         <span>打印宽度：</span>
         <span>
           <DynamicInput :value="String(org.printWidth)" :width="200" @change="updatePrintWidth" />
         </span>
-      </li>
+      </li> -->
+      <template v-if="org.printWidth !== undefined">
+        <li>
+          <span>小票默认打印：</span>
+          <span>
+            <el-switch
+              v-model="org.printWidth"
+              active-text="开启"
+              inactive-text="关闭"
+              :active-value="58"
+              :inactive-value="0"
+              @change="updatePrintWidth"
+            />
+          </span>
+        </li>
+      </template>
       <li>
         <span>项目分类：</span>
         <span>
@@ -133,14 +148,13 @@
 <script setup lang="ts">
 import CustomCategoryTab from './components/CustomCategoryTab.vue';
 import SettingDialog from './components/SettingDialog.vue';
+import OrgForm from '@/views/acl/orgMgr/form.vue';
 import Message from '@/components/Message';
 import { ref, reactive, onMounted } from 'vue';
 import { getUserInfo } from '@/utils/localStorageTools';
 import { reqOrgInfo, reqSetPrintWidth } from '@/api/acl/org/index';
 import { parseResObj } from '@/utils/parseResponse';
 import { IsCrossStoreMap, discountTypeMap, IsCrossStore, DiscountType, DictCode } from '@/enums/index';
-
-import OrgForm from '@/views/acl/orgMgr/form.vue';
 
 onMounted(() => {
   init();
@@ -187,9 +201,10 @@ const updatePrintWidth = async (printWidth: number) => {
     const params = { id: org.value.id, printWidth: Number(printWidth) };
     await reqSetPrintWidth(params);
     org.value.printWidth = printWidth;
-    Message.success('更新打印宽度成功');
+    const msg = printWidth ? '开启' : '关闭';
+    Message.success(`${msg}默认打印成功`);
   } catch (error) {
-    Message.error('更新打印宽度失败');
+    Message.error('设置默认打印失败');
     console.error(`更新打印宽度失败：${error}`);
   }
 };
@@ -239,7 +254,7 @@ const handleOpenSettingDialog = () => {
 
       > span:first-child {
         display: inline-block;
-        width: 120px;
+        width: 130px;
         text-align: right;
         color: var(--el-text-color-placeholder);
       }
