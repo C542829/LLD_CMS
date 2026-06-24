@@ -206,7 +206,7 @@ const settleOrder = async (order: any) => {
     // 关闭弹窗（先关闭再重置，避免弹窗动画期间数据变化导致渲染错误）
     closeDialog();
     // 打印小票
-    printReceipt(orderCode);
+    userStore?.org?.printWidth && printReceipt(orderCode);
     // 重置订单表单
     orderStore.reset();
   } catch (error) {
