@@ -9,7 +9,7 @@
           </label>
         </div>
         <div class="search-item">
-          <label for="isVip">是否会员：</label>
+          <label for="isVip">类型：</label>
           <el-select
             v-model="searchParams.isVip"
             clearable
