@@ -268,6 +268,10 @@ const handleOpenSettingDialog = () => {
       > span:last-child {
         flex: 1;
         color: var(--el-text-color-regular);
+
+        > a {
+          color: var(--el-color-primary);
+        }
       }
     }
   }
