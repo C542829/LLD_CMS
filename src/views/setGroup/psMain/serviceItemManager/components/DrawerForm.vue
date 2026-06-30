@@ -226,34 +226,35 @@ const drawerVisible = ref(false);
 const submitLoading = ref(false);
 const formdata = ref<Types.ServerItemCreateDTO & { id?: number }>(cloneDeep(DEFAULT_FORMDATA));
 
-const drawerTitle = computed(() => {
-  switch (props.type) {
-    case 'add':
+const drawerTitleMap: Record<DialogType, string> = {
+  add: '新增服务项目信息',
+  edit: '修改服务项目信息',
+  view: '服务项目信息',
+};
+const drawerTitle = computed(() => drawerTitleMap[props.type]);
+
+watch(
+  () => [props.type, props.data, props.modelValue],
+  () => {
+    if (!props.modelValue) return;
+    if (props.type === 'add') {
       formdata.value = cloneDeep(DEFAULT_FORMDATA);
-      return '新增服务项目信息';
-    case 'edit':
-      formdata.value = { ...cloneDeep(DEFAULT_FORMDATA), ...cloneDeep(props.data) } as Types.ServerItemCreateDTO & {
-        id?: number;
+    } else {
+      formdata.value = {
+        ...cloneDeep(DEFAULT_FORMDATA),
+        ...cloneDeep(props.data!),
+        orgIds: props.data!.orgs?.map((item) => item.id!) ?? [],
       };
-      formdata.value = {
-        ...cloneDeep(props.data!),
-        orgIds: props.data!.orgs?.map((item) => item.id!) ?? [],
-      } as Types.ServerItemCreateDTO & { id?: number };
-      return '修改服务项目信息';
-    default:
-      formdata.value = {
-        ...cloneDeep(props.data!),
-        orgIds: props.data!.orgs?.map((item) => item.id!) ?? [],
-      } as Types.ServerItemCreateDTO & { id?: number };
-      return '服务项目信息';
-  }
-});
+    }
+  },
+);
 
 const formDisabled = computed(() => props.type === 'view');
 
 const handleDrawerClose = () => {
   emit('update:model-value', false);
   emit('close');
+  formdata.value = cloneDeep(DEFAULT_FORMDATA);
 };
 
 const handleFormSubmit = async () => {
