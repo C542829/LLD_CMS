@@ -41,25 +41,49 @@
         :showPagination="false"
         :row-class-name="getRowClassName"
       >
-        <el-table-column prop="orgName" label="门店名称" min-width="10" />
-        <el-table-column prop="orgCode" label="门店编码" min-width="5" />
-        <el-table-column prop="orgState" label="状态" min-width="5">
+        <el-table-column type="index" label="序号" width="55" align="center" />
+        <el-table-column label="名称/编码" min-width="100">
           <template #default="{ row }">
-            <el-tag :type="row.orgState === 0 ? 'success' : 'danger'">
-              {{ row.orgState === 0 ? '正常' : '禁用' }}
-            </el-tag>
+            <p class="text">名称：{{ row.orgName }}</p>
+            <p class="text">编码：{{ row.orgCode }}</p>
           </template>
         </el-table-column>
-        <!-- <el-table-column prop="orgParent" label="门店上级" /> -->
-        <!-- <el-table-column prop="orgProperty" label="门店性质" /> -->
-        <el-table-column prop="orgType" label="门店类型" min-width="6" />
-        <el-table-column prop="orgNumber" label="门店电话" min-width="8" />
-        <el-table-column prop="orgLeader" label="负责人" min-width="6" />
-        <!-- <el-table-column prop="orgLeaderNum" label="负责人电话" /> -->
-        <el-table-column prop="orgArea" label="门店区域" min-width="10" />
-        <el-table-column prop="orgAddress" label="门店地址" min-width="10" />
-        <el-table-column prop="createTime" label="创建时间" :formatter="dateFormatter" min-width="7" />
-        <el-table-column label="操作" min-width="10">
+        <el-table-column label="状态/类型" min-width="60">
+          <template #default="{ row }">
+            <p class="text">
+              状态：
+              <el-tag :type="row.orgState === 0 ? 'success' : 'danger'">
+                {{ row.orgState === 0 ? '正常' : '禁用' }}
+              </el-tag>
+            </p>
+            <p class="text">类型：{{ row.orgType }}</p>
+          </template>
+        </el-table-column>
+        <el-table-column label="负责人/电话" min-width="80">
+          <template #default="{ row }">
+            <p class="text">负责人：{{ row.orgLeader }}</p>
+            <p class="text">联系电话：{{ row.orgLeaderNum }}</p>
+          </template>
+        </el-table-column>
+        <el-table-column label="充卡规则" min-width="80">
+          <template #default="{ row }">
+            <p class="text">折扣率：{{ row.defaultDiscountRate }}%</p>
+            <p class="text">
+              折扣基准：
+              <DiscountTypeTag :type="row.defaultDiscountBase" />
+            </p>
+            <!-- <p class="text">折扣基准：{{ getDiscountType(row) }}</p> -->
+          </template>
+        </el-table-column>
+        <el-table-column label="地址" min-width="100">
+          <template #default="{ row }">
+            <p class="text">{{ row.orgArea.join('') }}</p>
+            <p class="text">{{ row.orgAddress }}</p>
+          </template>
+        </el-table-column>
+        <el-table-column prop="createTime" label="创建时间" :formatter="dateFormatter" min-width="70" />
+        <el-table-column prop="remark" label="备注" min-width="50" />
+        <el-table-column label="操作" min-width="100">
           <template #default="{ row }">
             <el-button @click="showDrawer(2, row)" link type="info">详情</el-button>
             <el-button @click="showDrawer(1, row)" link type="primary">编辑</el-button>
@@ -86,10 +110,11 @@
 <script setup lang="ts">
 import OrgForm from './form.vue';
 import MessageBox from '@/components/MessageBox/index';
+import DiscountTypeTag from '@/components/Tag/DiscountTypeTag.vue';
 import { Search } from '@element-plus/icons-vue';
 import { onMounted, reactive, ref } from 'vue';
 import { cloneDeep } from 'lodash';
-import { Status, statusOptions } from '@/enums/index';
+import { Status, statusOptions, discountTypeMap, DiscountType } from '@/enums/index';
 import { dateFormatter } from '@/utils/formatter';
 import { reqOrgList, reqUpdateOrgStatus } from '@/api/acl/org';
 import type * as Types from '@/api/acl/org/types';
@@ -206,6 +231,10 @@ const handleSubmitSuccess = () => {
   drawer.visible = false;
   fetchTableData();
   useMasterDataStore().invalidate('org');
+};
+
+const getDiscountType = (row: OrgInfo) => {
+  return discountTypeMap[row.defaultDiscountBase as DiscountType] || '无';
 };
 
 // 设置行样式
