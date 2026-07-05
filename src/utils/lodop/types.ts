@@ -47,6 +47,7 @@ export interface OrderData {
   vipName: string;
   customerName: string;
   vipPhoneNumber: string;
+  remark: string;
   orderDetails: OrderDetail[];
   payments: Payment[];
   /**

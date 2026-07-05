@@ -363,12 +363,12 @@ const printReceipt = async (row: any) => {
     row.loading = true;
 
     const res = await reqOrgInfo(row.orgId);
-    const org = res.data || {};
+    const { orgName, orgNumber, orgAddress } = userStore.org || {};
     const order = await getOrder(row.orderCode);
     if (isEmpty(order)) {
       return;
     }
-    const data: any = { ...order, ...org };
+    const data: any = { ...order, orgName, orgNumber, orgAddress };
     getPrinter().printOrderByHTML(data, false);
   } catch (error) {
   } finally {

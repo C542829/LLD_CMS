@@ -224,14 +224,14 @@ const printReceipt = async (orderCode: string) => {
 
   try {
     // 获取门店详情
-    const org = userStore.org || {};
+    const { orgName, orgNumber, orgAddress } = userStore.org || {};
     // 获取订单详情
     const order = await getOrder(orderCode);
     if (isEmpty(order)) {
       return;
     }
     // 合并订单详情和门店详情
-    const data: any = { ...order, ...org };
+    const data: any = { ...order, orgName, orgNumber, orgAddress };
     // 打印小票
     getPrinter().printOrderByHTML(data, false);
   } catch (error) {}

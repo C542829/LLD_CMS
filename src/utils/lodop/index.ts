@@ -164,7 +164,7 @@ export class LodopPrinter {
     const printWidth = `${width - 10}mm`;
     const printHeight = `${isMember ? height : height - 9}mm`;
 
-    console.log('订单打印尺寸：', { printWidth, printHeight });
+    console.log('订单打印尺寸：', { printWidth, printHeight }, '\n信息：', data);
 
     const taskName = `${data.orderCode}-${data.orgName}消费单`;
     const html = generateOrderHtmlTemplate(data, printWidth);

@@ -34,7 +34,7 @@ export const getUserNameList = (list: Technician[], detail: OrderDetail) => {
  */
 export function calculateOrderPrintHeight(data: OrderData): number {
   // 21 * 3 = 63
-  const baseHeight = 70; // 基础内容高度（固定部分）
+  const baseHeight = 73; // 基础内容高度（固定部分）
   // const baseHeight = 120; // 基础内容高度（固定部分）
   const detailRowHeight = 4; // 每行订单明细的高度（毫米）
   const paymentRowHeight = 3; // 每行支付明细的高度（毫米）

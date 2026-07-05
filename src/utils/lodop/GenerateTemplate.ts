@@ -121,6 +121,7 @@ export const generateOrderHtmlTemplate = (data: OrderData, width = '48mm'): stri
 
 
         <p>收银员: ${data.userName || '-'}</p>
+        <p>备注: ${data.remark || '-'}</p>
 
         <p style="margin: ${MARGIN} 0;">顾客签名: ______________</p>
 
